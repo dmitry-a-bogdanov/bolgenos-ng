@@ -19,19 +19,19 @@ dummyos_builddir := $(builddir)/dummyos
 
 bootloader_objdir := $(bootloader_builddir)/obj
 $(bootloader_objdir):
-	$(mkdir) $(bootloader_objdir)
+	@$(mkdir) $(bootloader_objdir)
 
 bootloader_bindir := $(bootloader_builddir)/bin
 $(bootloader_bindir):
-	$(mkdir) $(bootloader_bindir)
+	@$(mkdir) $(bootloader_bindir)
 
 dummyos_objdir := $(dummyos_builddir)/obj
 $(dummyos_objdir):
-	$(mkdir) $(dummyos_objdir)
+	@$(mkdir) $(dummyos_objdir)
 
 dummyos_bindir := $(dummyos_builddir)/bin
 $(dummyos_bindir):
-	$(mkdir) $(dummyos_bindir)
+	@$(mkdir) $(dummyos_bindir)
 
 bootloader_objects := $(addprefix $(bootloader_objdir)/,bootloader_mbr.o)
 dummyos_objs := $(addprefix $(dummyos_objdir)/,test_os_loader.o)
@@ -78,15 +78,30 @@ $(mbr_code_image): $(bootloader_binary) | $(image_builddir)
 
 
 $(image_builddir):
-	$(mkdir) $(image_builddir)
+	@$(mkdir) $(image_builddir)
 
 
 $(dummyos_image): $(dummyos_bin) | $(image_builddir)
 	objcopy -O binary -j boot_code $(dummyos_bin) $(dummyos_image)
 
 
+partition_table := $(image_builddir)/partition_table.img
+partition_table_generator_builddir := $(builddir)/$(partition_table_generator)
+partition_table_generator := $(partition_table_generator_builddir)/generate_partition_table
 
-$(disk_image): $(mbr_code_image) $(dummyos_image)
+$(partition_table_generator_builddir) :
+	@$(mkdir) $(partition_table_generator_builddir)
+
+$(partition_table_generator): | $(partition_table_generator_builddir)
+
+	cd $(partition_table_generator_builddir) && cmake ../../tools/ && make
+
+
+$(partition_table): | $(image_builddir) $(partition_table_generator)
+
+	$(partition_table_generator) $(partition_table)
+
+$(disk_image): $(mbr_code_image) $(dummyos_image) $(partition_table)
 
 	@echo "---------------------------------------------------------------"
 	@echo "- Creating disk image                                         -"
@@ -99,8 +114,13 @@ $(disk_image): $(mbr_code_image) $(dummyos_image)
 	@echo "  Write bootloader code .................................. OK  "
 
 	@$(dd) if=$(dummyos_image) of=$(disk_image) conv=notrunc \
-		bs=512 count=1 conv=notrunc seek=1
+		bs=512 seek=1
 	@echo "  Copy OS bootstrap ...................................... OK  "
+
+
+	@$(dd) if=$(partition_table) of=$(disk_image) conv=notrunc \
+		bs=1 seek=446
+	@echo "  Write partition table .................................. OK  "
 
 # host_echo is a hack to print correct string.
 # internal make echoing doesn't understand -e
