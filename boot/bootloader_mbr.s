@@ -105,21 +105,27 @@ continue_point:
 .endif
 
 find_bootable_partition:
-#	movw $(RELO_START + PARTITION_TABLE_START + PARTITION_BOOT_FLAG_OFFSET), %bp
-#	movw $4, %cx
+	movw $(RELO_START + PARTITION_TABLE_START + PARTITION_BOOT_FLAG_OFFSET), %bp
+	movw $4, %cx
 
 find_bootable_partition_loop:
-#	movw (%bp), %dx
-#	cmpw $(RELO_START + PARTITION_BOOT_FLAG), %dx
-#	je load_partition
-#	addw $(RELO_START + PARTITION_ENTRY_SIZE), %bp
-#	dec %cx
-#	testw %cx, %cx
-#	jz check_os_loader_failure
-#	jmp find_bootable_partition_loop
-# TODO: check & debug after creating fine mbr & disk
-# now it raises "Missing operating system" since mbr is incorrect
+	movw (%bp), %dx
+# TODO: Loop looks for first bootable partition but according to standard
+# for MBR it should check number of bootable partitions first and then
+# if number there is more than one bootable partition it should raise
+# invalid partition table error.
+	cmpw $PARTITION_BOOT_FLAG, %dx
+	je load_partition
+	addw $(PARTITION_ENTRY_SIZE), %bp
+	dec %cx
+	jcxz check_os_loader_failure		# jump if CX is zero
+	jmp find_bootable_partition_loop
 
+# After loop %bp points to the partition_active flag [=begging partition entry]
+# *_R_AF = "relative active flag"
+.set CYLINDERS_LOW_OFFSET_R_AF, 3
+.set SECTORS_OFFSET_R_AF, 2
+.set HEADS_OFFSET_R_AF, 1
 load_partition:
 
 .if DEBUG
@@ -136,13 +142,15 @@ load_partition:
 # %dh - head number
 # %dl - boot drive
 # %es.%bx - data buffer
-# TODO: load real values!!!
 # Requires -hdachs option for running kvm
 	movb $2, %ah
 	movb $1, %al
-	movb $0, %ch
-	movb $2, %cl
-	movb $0, %dh
+
+# Load to CHS to registers
+	movb CYLINDERS_LOW_OFFSET_R_AF(%bp), %ch
+	movb SECTORS_OFFSET_R_AF(%bp), %cl
+	movb HEADS_OFFSET_R_AF(%bp), %dh
+
 	movb (RELO_START + boot_device), %dl
 	movw $LOAD_START, %bx
 	int $0x13
