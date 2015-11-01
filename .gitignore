@@ -1,0 +1,4 @@
+# for building from source tree
+build/
+# vim swap files
+.*.swp
