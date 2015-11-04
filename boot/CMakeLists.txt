@@ -83,8 +83,9 @@ add_dependencies(${disk_image} ${boot_image} ${part_boot_image} kernel.bin)
 # Runtime targets
 
 set(start_target "start")
+# Also update Bochs' disk geometry!
 add_custom_target(${start_target}
-	COMMAND kvm -hda ${disk_image}
+	COMMAND kvm -hdachs 2,4,32 -hda ${disk_image}
 )
 add_dependencies(${start_target} ${disk_image})
 
@@ -95,8 +96,9 @@ set(debug_parameters_src "${CMAKE_CURRENT_SOURCE_DIR}/debug_parameters.gdb")
 set(debug_parameters "debug_parameters")
 add_custom_target(${debug_parameters} SOURCES "${debug_parameters_src}")
 
+# Also update Bochs' disk geometry!
 add_custom_target(${debug_target}
-	COMMAND kvm -s -S -hda ${disk_image} &
+	COMMAND kvm -s -S -hdachs 2,4,32 -hda ${disk_image} &
 	COMMAND sleep ${vm_startup_time}
 	COMMAND echo ${debug_command}
 	COMMAND xterm -hold -e gdb\ -ex\ 'source\ ${debug_parameters_src}'
