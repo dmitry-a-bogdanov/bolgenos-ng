@@ -1,0 +1,109 @@
+#include<bolgenos-ng/mmu.h>
+
+.code16
+.text
+.org 0x0
+
+
+.global _start
+_start:
+	# Code segment is adjusted after long jump here.
+	# Set other segments to correct value.
+	mov %cs, %ax
+	mov %ax, %ds
+	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
+	mov %ax, %ss
+
+	mov $_start, %sp # [stack]<-|->[code]
+	jmp main
+
+
+.func puts
+# Description:
+#   Prints given string to console.
+#
+# Args:
+#   %ds.%si points to string
+#
+puts:
+	lodsb				# Load char from %ds.%si to %al.
+	testb %al, %al			# Test current byte;
+	jz ret_from_puts		# and finish writing if it's '\0'
+
+# BIOS interrput 0x10:
+# http://www.ctyme.com/intr/rb-0106.htm
+# %ah = 0xe - "Teletype output";
+# %al - character to write;
+# %bh - page number; WTF?. Not needed;
+# %bl - foreground color for graphic mode. Not needed;
+	movb $0xe, %ah
+	movw $0x2, %bx
+	int $0x10
+
+	jmp puts
+
+ret_from_puts:
+	ret
+.endfunc
+
+
+
+main:
+	leaw status_kernel_started, %si
+	call puts
+
+seta20.1:	inb	$0x64,%al		# Get status
+		testb	$0x2,%al		# Busy?
+		jnz	seta20.1		# Yes
+		movb	$0xd1,%al		# Command: Write
+		outb	%al,$0x64		#  output port
+seta20.2:	inb	$0x64,%al		# Get status
+		testb	$0x2,%al		# Busy?
+		jnz	seta20.2		# Yes
+		movb	$0xdf,%al		# Enable
+		outb	%al,$0x60		#  A20
+
+
+.set SEGMENT_CODE, 0x08
+.set SEGMENT_DATA, 0x10
+goto_protected_mode:
+	cli
+
+	lgdt gdt_descriptor
+
+	movl %cr0, %eax
+	orl $PROTECTED_MODE, %eax
+	movl %eax, %cr0
+
+	ljmp $0x08, $ relocate_forward(protected_code, KERNEL_SEGMENT, KERNEL_OFFSET)
+
+protected_code: .code32
+	movw $SEGMENT_DATA, %ax
+	movw %ax, %ds
+	movw %ax, %es
+	movw %ax, %fs
+	movw %ax, %gs
+	movw %ax, %ss
+
+
+hang:
+	jmp hang
+
+
+
+status_kernel_started:
+	.asciz "kernel.img started"
+
+.p2align 3
+gdt:
+	.long 0x0
+	.long 0x0
+	SEGMENT_DESCRIPTOR(0x0, 0xfffff, S_CODE|S_CODE_READ|S_CODE_CONF, 1, 0, 1, S_CODE_32)
+	SEGMENT_DESCRIPTOR(0x0, 0xfffff, S_DATA|S_DATA_WRITE, 1, 0, 1, 0)
+
+gdt_descriptor:
+	.word 0x17
+	.long relocate_forward(gdt, KERNEL_SEGMENT, KERNEL_OFFSET)
+

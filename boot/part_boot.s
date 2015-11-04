@@ -1,64 +1,92 @@
 .code16
-.intel_syntax
 .text
+.set PART_BOOT_SEGMENT,	0x7c00	# part_boot.img is loaded to 0x0000:0x7c00
 .org 0x0
 
-LOAD_START = 0x7c00
-RELO_START = 0x0600
-MBR_SIZE = 0x0200
+.set KERNEL_SEGMENT,	0x0800	# segment for kernel.img
+.set KERNEL_OFFSET,	0x0000	# offset in segment for kernel.img
+
+.set KERNEL_IMG_ADDR,		(PART_BOOT_SEGMENT + 490)
+.set KERNEL_IMG_HEADS_ADDR,	(KERNEL_IMG_ADDR + 0)
+.set KERNEL_IMG_SECTORS_ADDR,	(KERNEL_IMG_ADDR + 1)
+.set KERNEL_IMG_CYLINDERS_ADDR,	(KERNEL_IMG_ADDR + 2)
+.set KERNEL_IMG_SIZE_ADDR,	(KERNEL_IMG_ADDR + 3)
 
 .global _start
 _start:
 	jmp main
 
-.func put_string
-put_string:
-	lodsb			# load byte at ds:si into al (advancing si)
-	or %al, %al		# test if character is 0 (end)
-	jz put_string_done	# jump to end if 0.
+.func puts
+# Description:
+#   Prints given string to console.
+#
+# Args:
+#   %ds.%si points to string
+#
+puts:
+	lodsb				# Load char from %ds.%si to %al.
+	testb %al, %al			# Test current byte;
+	jz ret_from_puts		# and finish writing if it's '\0'
 
-	mov %ah, 0xe		# Subfunction 0xe of int 10h (video teletype output)
-	mov %bx, 0xa
-	int 0x10		# call BIOS interrupt.
+# BIOS interrput 0x10:
+# http://www.ctyme.com/intr/rb-0106.htm
+# %ah = 0xe - "Teletype output";
+# %al - character to write;
+# %bh - page number; WTF?. Not needed;
+# %bl - foreground color for graphic mode. Not needed;
+	movb $0xe, %ah
+	movw $0x2, %bx
+	int $0x10
 
-	jmp put_string		# Repeat for next character.
+	jmp puts
 
-put_string_done:
+ret_from_puts:
 	ret
 .endfunc
 
-.func reboot
-reboot:
-	lea %si, [LOAD_START + rebootmsg]	# Load address of reboot message into si
-	call put_string		# print the string
-	xor %ax, %ax		# subfuction 0
-	int 0x16		# call bios to wait for key
-	ljmp 0xFFFF, 0x0000	# jump to FFFF:0000 is restart
-.endfunc
-
 main:
-	# Setup segments:
-	cli
-	mov %ax, %cs			# CS = 0x0, since that's where boot sector is (0x07c00)
-	mov %ds, %ax			# DS = CS = 0x0
-	mov %es, %ax			# ES = CS = 0x0
-	mov %ss, %ax			# SS = CS = 0x0
-	mov %sp, LOAD_START			# Stack grows down from offset 0x7C00 toward 0x0000.
-	sti
+	movb %dl, boot_device
+	leaw status_part_boot_img_loaded, %si
+	call puts
 
-	# Display "loading" message:
-	lea %si, [LOAD_START + load_message]
-	call put_string
+read_kernel_img_info:
+	movb KERNEL_IMG_CYLINDERS_ADDR, %ch
+	movb KERNEL_IMG_SECTORS_ADDR, %cl
+	movb KERNEL_IMG_HEADS_ADDR, %dh
+	movb KERNEL_IMG_SIZE_ADDR, %al
 
-	call reboot
+load_kernel_img:
+	movb boot_device, %dl
+	movb $2, %ah
+	movw $(KERNEL_SEGMENT), %bx
+	movw %bx, %es
+	movw $(KERNEL_OFFSET), %bx
+	int $0x13
+	jc load_kernel_img_failure
+
+	leaw status_kernel_img_loaded, %si
+	call puts
+	jmp start_kernel_img
+
+.quad 0xeeeeeeeeeeeeeeee
+
+start_kernel_img:
+	ljmp $KERNEL_SEGMENT, $KERNEL_OFFSET
+
+load_kernel_img_failure:
+	leaw error_load_kernel_img, %si
+	call puts
+	jmp hang
+
+hang:
+	jmp hang
 
 
-#.global bootloader_bss
-_boot__boot_drive:		.byte 0
-bootable_partition:		.byte 0
+.data
+boot_device:			.byte 0
 
-#.global bootloader_data
+error_load_kernel_img:		.asciz "loading kernel.img failure\n\r"
 
-load_message:		.asciz "TEST OS STARTED\n\r"
+status_part_boot_img_loaded:	.asciz "part_boot.img started\n\r"
+status_kernel_img_loaded:	.asciz "kernel.img loaded\n\r"
 
-rebootmsg:		.asciz "press any key to reboot\n\r"
