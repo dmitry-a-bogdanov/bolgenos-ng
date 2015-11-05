@@ -1,4 +1,4 @@
-# new-bolgenos
+# Bolgenos-ng
 > I'm doing a (free) operating system (just a hobby, won't be big and professional like gnu) for 386 (486) AT clones.
 >  -- <cite>Linus Benedict Torvalds</cite>
 
