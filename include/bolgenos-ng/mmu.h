@@ -7,6 +7,9 @@
 #define KERNEL_SEGMENT		(0x800)
 #define KERNEL_OFFSET		(0x0000)
 
+#define KERNEL_CODE_SEGMENT	(0x08)
+#define KERNEL_DATA_SEGMENT	(0x10)
+
 #define SEGMENT_ORDER (4)
 
 #define linear_address(segment, offset)	\

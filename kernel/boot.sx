@@ -70,8 +70,6 @@ outb	%al, $0x92
 
 a20_enabled:
 
-.set SEGMENT_CODE, 0x08
-.set SEGMENT_DATA, 0x10
 goto_protected_mode:
 	cli
 
@@ -81,10 +79,12 @@ goto_protected_mode:
 	orl $PROTECTED_MODE, %eax
 	movl %eax, %cr0
 
-	ljmp $0x08, $ relocate_forward(protected_code, KERNEL_SEGMENT, KERNEL_OFFSET)
+	ljmp $KERNEL_CODE_SEGMENT, \
+		$relocate_forward(protected_code, \
+			KERNEL_SEGMENT, KERNEL_OFFSET)
 
 protected_code: .code32
-	movw $SEGMENT_DATA, %ax
+	movw $KERNEL_DATA_SEGMENT, %ax
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %fs

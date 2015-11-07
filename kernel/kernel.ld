@@ -1,10 +1,9 @@
 SECTIONS
 {
 	. = 0x0;
-	boot_code :
+	kernel :
 	{
 		*(.text)
 		*(.data)
-		*(prot_mode)
 	}
 }
