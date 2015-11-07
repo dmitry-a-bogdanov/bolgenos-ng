@@ -54,17 +54,21 @@ main:
 	leaw status_kernel_started, %si
 	call puts
 
-seta20.1:	inb	$0x64,%al		# Get status
-		testb	$0x2,%al		# Busy?
-		jnz	seta20.1		# Yes
-		movb	$0xd1,%al		# Command: Write
-		outb	%al,$0x64		#  output port
-seta20.2:	inb	$0x64,%al		# Get status
-		testb	$0x2,%al		# Busy?
-		jnz	seta20.2		# Yes
-		movb	$0xdf,%al		# Enable
-		outb	%al,$0x60		#  A20
+# It looks like all modern PCs support fast a20 enabling, however I didn't
+# find any proofs. Since no problems are triggered by fast enabling a20 line
+# it's ok to use only this way. For more info see
+# http://wiki.osdev.org/A20#Fast_A20_Gate
 
+fast_a20_enable:
+inb	$0x92, %al
+testb	$2, %al
+jnz	a20_enabled
+
+orb	$2, %al
+andb	$0xfe, %al
+outb	%al, $0x92
+
+a20_enabled:
 
 .set SEGMENT_CODE, 0x08
 .set SEGMENT_DATA, 0x10
