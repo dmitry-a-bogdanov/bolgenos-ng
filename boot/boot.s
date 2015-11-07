@@ -173,7 +173,7 @@ check_os_loader_succeess:
 # Now we loaded OS loader and verified boot flag.
 # Let's start OS loader
 start_kernel:
-
+	movb (RELO_START + boot_device), %dl
 	ljmp $0x0000, $0x7c00
 
 # Should never come here but I'm not so experienced in asm.
@@ -206,8 +206,8 @@ disk_error:			.asciz "disk error\n\r"
 load_error:			.asciz "load error\n\r"
 
 # Status messages.
-status_kernel_loaded:		.asciz "kernel loaded\n\r"
-status_loading:			.asciz "loading\n\r"
+status_kernel_loaded:		.asciz "part_boot.img loaded\n\r"
+status_loading:			.asciz "boot.img started\n\r"
 .if DEBUG
 # To don't spend a lot of memory for debug messages.
 status_mbr_copied:		.asciz "1."
