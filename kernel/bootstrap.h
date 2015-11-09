@@ -1,5 +1,5 @@
 #ifndef __BOLGENOS_NG__BOOTSTRAP_H__
-#define __BOLGENOS_NG__BOOTSTRAP_H__
+#define __BOLGENOS_NG__BOOTSTRAP_H__ (1)
 
 /*
  * KERNEL_STACK_SIZE defines size of kernel bootstrap stack in bytes
@@ -13,6 +13,8 @@
 
 
 #if !defined(__ASSEMBLER__)
+
+#include <bolgenos-ng/int_types.h>
 
 #define __MBH_MAGIC (0x1badb002)
 

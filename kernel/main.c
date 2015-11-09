@@ -1,5 +1,3 @@
-#include <bolgenos-ng/int_types.h>
-
 #include "bootstrap.h"
 
 multiboot_header_t
