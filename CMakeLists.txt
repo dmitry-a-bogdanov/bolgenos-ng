@@ -1,10 +1,13 @@
-project(bolgenos-ng)
+cmake_policy(SET CMP0048 NEW)
+project(bolgenos-ng
+	VERSION 0.0.1)
 cmake_minimum_required(VERSION 3.0.2)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/;"
-	${CMAKE_MODULE_PATH})
+add_definitions(-DBOLGENOS_NG_VERSION="${PROJECT_VERSION}")
 
-add_subdirectory(boot)
+set(kernel_headers_dir "include/")
+include_directories(${kernel_headers_dir})
+file(GLOB_RECURSE kernel_headers include/*.h)
+
 add_subdirectory(kernel)
-add_subdirectory(tools)
 
