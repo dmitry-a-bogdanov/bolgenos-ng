@@ -8,7 +8,7 @@ set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_C_FLAGS "-ffreestanding -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "-ffreestanding -Wall -Wextra -Werror -Wstrict-aliasing")
 set(CMAKE_ASM-ATT_COMPILER "${CMAKE_C_COMPILER}")
 set(CMAKE_ASM-ATT_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})

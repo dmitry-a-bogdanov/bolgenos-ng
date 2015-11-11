@@ -1,17 +1,24 @@
 #ifndef __BOGLENOS_NG__MEM_UTILS_H__
 #define __BOGLENOS_NG__MEM_UTILS_H__ (1)
 
-static inline void __write_16(volatile uint16_t *addr, uint16_t data) {
-	*addr = data;
+#define address_of(var) ((char *)&var)
+
+static inline void __write_8(volatile char *dest, char *src) {
+	*dest = *src;
 }
 
-static inline void write_16(uint16_t *addr, uint16_t data) {
-	__write_16((volatile uint16_t*) addr, data);
+static inline void write_8(char *dest, char *src) {
+	__write_8((volatile char *) dest, src);
 }
 
-static void memset_16(uint16_t *mem, uint16_t chunk, uint32_t size) {
-	for(uint32_t pos = 0; pos != size; ++pos) {
-		write_16(mem + pos, chunk);
+static inline void write_16(char *dest, char *src) {
+	write_8(dest, src);
+	write_8(dest + 1, src + 1);
+}
+
+static inline void memset_16(char* mem, char* chunk, uint32_t size) {
+	for(uint32_t pos = 0; pos != size; ++pos, mem += 2) {
+		write_16(mem, chunk);
 	}
 }
 
