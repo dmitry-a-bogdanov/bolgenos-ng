@@ -1,5 +1,6 @@
 #include <bolgenos-ng/mmu.h>
 
+#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
 
@@ -91,11 +92,6 @@ typedef struct __attribute__((packed)) {
 
 check_type_size(segment_t, 8);
 
-typedef struct __attribute__((packed)) {
-	uint16_t limit:16;
-	uint32_t base:32;
-} gdt_pointer_t;
-
 static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
 	// null-segment
 	__decl_segment(0x0, 0x0, 0x0, ssf_null, dpl_null, spf_null, slf_null,
@@ -112,7 +108,7 @@ static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
 
 
 void setup_segments() {
-	static gdt_pointer_t gdt_pointer __attribute__((aligned(16)));
+	static descriptor_table_ptr_t gdt_pointer __attribute__((aligned(16)));
 	gdt_pointer.limit = sizeof(__global_descriptor_table) - 1;
 	gdt_pointer.base = (uint32_t) __global_descriptor_table;
 	asm volatile("lgdt %0"::"m" (gdt_pointer));

@@ -16,12 +16,6 @@ static void swap(char *a, char *b) {
 	*b = tmp;
 }
 
-/*
-uint32_t uint32_to_string(uint32_t val, char *str, unsigned int base) {
-	return uint64_to_string((uint64_t) val, str, base);
-}
-*/
-
 uint32_t uint32_to_string(uint32_t val, char *str, unsigned int base) {
 	char *end = str;
 	uint32_t chrs_written = 0;

@@ -23,16 +23,6 @@ void kernel_main() {
 
 	vga_console_puts("CPU is initialized\n");
 
-	char test_str[100];
-	char *print_to = test_str;
-	print_to += uint32_to_string(128, print_to, 10);
-	*print_to++ = '\n';
-	print_to += uint32_to_string(128, print_to, 16);
-	*print_to++ = '\n';
-	*print_to++ = 0;
-
-	vga_console_puts(test_str);
-
 	interrupts_enable();
 
 	asm ("int $3");

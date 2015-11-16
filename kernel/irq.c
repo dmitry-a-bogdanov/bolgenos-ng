@@ -1,10 +1,13 @@
 #include <bolgenos-ng/irq.h>
 
+#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/mmu.h>
 
 #define IRQ_VECTORS_NUMBER	(256)
+
+#define __align_for_irq__	aligned(16)
 
 #define __macro_concat(x, y) x ## y
 #define macro_concat(x, y) __macro_concat(x, y)
@@ -116,74 +119,33 @@ typedef struct __attribute__((packed)) {
 	uint32_t base:32;
 } idt_pointer_t;
 
-#define ret_from_interrupt() asm ("iret\n")
-
+#include <bolgenos-ng/vga_console.h>
 void __attribute__((used)) __dummy_int_function() {
 	vga_console_puts("Got interrupt\n");
 };
 
-extern void __dummy_interrupt_handler();
 
-asm(	"__dummy_interrupt_handler:\n"
+__link_from_asm__ void __dummy_interrupt_handler();
+asm(
+"__dummy_interrupt_handler:\n"
 	"pushal\n"
 	"call __dummy_int_function\n"
 	"popal\n"
 	"iret\n");
 
-//void __dummy_interrupt_handler() {
-//	asm ("pushal");
-//	asm ("cld");
-//	vga_console_puts("Got interrupt\n");
-//	do {
-//		asm ("hlt");
-//	} while(1);
-//	ret_from_interrupt();
-//	asm ("popal");
-//	asm ("iret");
-//}
 
-/*
-void __dummy_fill_idt(gate_t *idt_table) {
-	memset(idt_table, 0, IRQ_VECTORS_NUMBER * sizeof(gate_t));
-	int_gate_t int_gate_tmp = __decl_int_gate((uint32_t)((void*)__dummy_interrput_handler), 0x8);
-	union {
-		int_gate_t int_gate;
-		gate_t gate;
-	} __std_int_gate;
-	__std_int_gate.int_gate = int_gate_tmp;
-	for (int i = 0; i < IRQ_VECTORS_NUMBER; ++i) {
-		idt_table[i] = __std_int_gate.gate;
-	}
-}
-*/
-
-static const uint32_t handler_addr = (uint32_t) ((void *) __dummy_interrupt_handler);
-
-#include <bolgenos-ng/vga_console.h>
-#include <bolgenos-ng/string.h>
+static gate_t idt[IRQ_VECTORS_NUMBER] __attribute__((__align_for_irq__));
+static descriptor_table_ptr_t idt_pointer __attribute__((__align_for_irq__));
 
 void setup_interrupts() {
-	static gate_t idt_table[256];
-		//__attribute__((aligned(16)));
-	int_gate_t intr = __decl_int_gate(handler_addr, 0x08);
-	trap_gate_t trap = __decl_trap_gate(handler_addr, 0x08);
-	(void) trap;
-	for (int i = 0; i < 256; ++i) {
-		idt_table[i] = *as_gate(&intr);
+	uint32_t empty_handler_addr =
+			(uint32_t) ((void *) __dummy_interrupt_handler);
+	int_gate_t intr = __decl_int_gate(empty_handler_addr, KERNEL_CS);
+	for (int i = 0; i < IRQ_VECTORS_NUMBER; ++i) {
+		idt[i] = *as_gate(&intr);
 	}
 
-	static idt_pointer_t idt_pointer;// __attribute__((aligned(16)));
-	idt_pointer.limit = sizeof(idt_table) - 1;
-	idt_pointer.base = (uint32_t) idt_table;
+	idt_pointer.limit = sizeof(idt) - 1;
+	idt_pointer.base = (uint32_t) idt;
 	asm volatile("lidt %0"::"m" (idt_pointer));
-	char debug_info[100];
-	char *print_ptr = debug_info;
-
-	print_ptr += uint32_to_string(*((uint32_t*)(void *)&idt_table[8]), print_ptr, 16);
-	//print_ptr += uint32_to_string(1, print_ptr, 16);
-	*print_ptr++ = ' ';
-	print_ptr += uint32_to_string(*((uint32_t*) (4 + (void *)&idt_table[8])), print_ptr, 16);
-	*print_ptr++ = '\n';
-	*print_ptr++ = '\0';
-	vga_console_puts(debug_info);
 }
