@@ -110,6 +110,7 @@ static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
 		dpl_kernel, spf_present, slf_other, sdbf_32_bit, sgf_4k_pages)
 };
 
+
 void setup_segments() {
 	static gdt_pointer_t gdt_pointer __attribute__((aligned(16)));
 	gdt_pointer.limit = sizeof(__global_descriptor_table) - 1;

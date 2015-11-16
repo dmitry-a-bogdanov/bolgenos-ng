@@ -21,10 +21,12 @@ set(kernel_binary "kernel.bin")
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
-	main.c
 	bootstrap.h
-	vga_console.c
+	irq.c
+	main.c
 	mmu.c
+	string.c
+	vga_console.c
 	)
 
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")

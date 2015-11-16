@@ -2,19 +2,23 @@
 
 # nobits option is required to move kernel stack to BSS section.
 # BSS section is the place for stack since it's collapsed in ELF binaries.
+.bss
 .section .kernel_stack, "aw", @nobits
 __kernel_stack_bottom:
-.skip KERNEL_STACK_SIZE
+.fill KERNEL_STACK_SIZE, 1
+.global __kernel_stack_top
 __kernel_stack_top:
 
 .text
 .global _start_kernel
 _start_kernel:
-	movl $__kernel_stack_top, %esp
+# Disable interrputs until setting own IDT & GDT
+#	cli
+	leal __kernel_stack_top, %ecx
+	movl %ecx, %esp
 
 	call kernel_main
 
-	cli
 	hlt
 
 _could_not_start:
