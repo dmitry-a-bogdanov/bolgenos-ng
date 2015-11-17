@@ -118,6 +118,7 @@ static void __vga_cursor_next() {
 static void __vga_newline() {
 	if (++__vga_pos_line == __vga_height) {
 		__vga_pos_line = 0;
+		vga_clear_screen();
 	}
 }
 
