@@ -11,4 +11,13 @@ typedef struct __attribute__((packed)) {
 	uint32_t base:32;
 } descriptor_table_ptr_t;
 
+
+static inline void outb(uint16_t port, uint8_t byte) {
+	asm volatile ("outb %0, %1":: "a"(byte), "Nd"(port));
+}
+
+static inline void iowait() {
+	outb(0x80, 0x00);
+}
+
 #endif // __BOLGENOS_NG__ASM_H__

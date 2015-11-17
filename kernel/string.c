@@ -37,3 +37,12 @@ uint32_t uint32_to_string(uint32_t val, char *str, unsigned int base) {
 	}
 	return chrs_written;
 }
+
+uint32_t _strcpy(char *dest, const char *src) {
+	uint32_t length = 0;
+	while (*src != 0) {
+		*dest = *src;
+		++dest; ++src; ++length;
+	}
+	return length;
+}

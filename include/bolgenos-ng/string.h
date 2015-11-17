@@ -5,4 +5,6 @@
 
 uint32_t uint32_to_string(uint32_t val, char *str, unsigned int base);
 
+uint32_t _strcpy(char *dest, const char *src);
+
 #endif // __BOLGENOS_NG__STRING_H__

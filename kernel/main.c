@@ -1,3 +1,4 @@
+#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/vga_console.h>
 #include <bolgenos-ng/mmu.h>
@@ -20,13 +21,11 @@ void kernel_main() {
 	setup_segments();
 	setup_interrupts();
 
+	interrupts_enable();
 
 	vga_console_puts("CPU is initialized\n");
 
-	interrupts_enable();
 
-	asm ("int $3");
-	asm ("int $3");
 
 	do {
 		asm ("hlt");
