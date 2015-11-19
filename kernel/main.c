@@ -1,9 +1,10 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
-#include <bolgenos-ng/vga_console.h>
-#include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/irq.h>
+#include <bolgenos-ng/mmu.h>
+#include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/string.h>
+#include <bolgenos-ng/vga_console.h>
 
 #include "bootstrap.h"
 
@@ -20,12 +21,11 @@ void kernel_main() {
 
 	setup_segments();
 	setup_interrupts();
+	pic_8259_setup();
 
 	interrupts_enable();
 
 	vga_console_puts("CPU is initialized\n");
-
-
 
 	do {
 		asm ("hlt");

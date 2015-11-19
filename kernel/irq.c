@@ -4,7 +4,9 @@
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
+#include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/string.h>
+#include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
 #define IRQ_VECTORS_NUMBER	(256)
@@ -74,7 +76,7 @@ typedef struct __attribute__((packed)) {
 check_type_size(int_gate_t, 8);
 
 #define __decl_int_gate(offset_, segment_) {				\
-	.offset_00_15 = bitmask(offset_, 0, 0xff),			\
+	.offset_00_15 = bitmask(offset_, 0, 0xffff),			\
 	.segment = segment_,						\
 	.zeros = 0x0,							\
 	.gate_type = GATE_INT,						\
@@ -82,7 +84,7 @@ check_type_size(int_gate_t, 8);
 	.zero_bit = 0,							\
 	.dpl = 0x0,							\
 	.present = 1,							\
-	.offset_16_31 = bitmask(offset_, 16, 0xff)			\
+	.offset_16_31 = bitmask(offset_, 16, 0xffff)			\
 }
 
 typedef struct __attribute__((packed)) {
@@ -99,7 +101,7 @@ typedef struct __attribute__((packed)) {
 } trap_gate_t;
 
 #define __decl_trap_gate(offset_, segment_) {				\
-	.offset_00_15 = bitmask(offset_, 0, 0xff),			\
+	.offset_00_15 = bitmask(offset_, 0, 0xffff),			\
 	.segment = segment_,						\
 	.zeros = 0x0,							\
 	.gate_type = GATE_TRAP,						\
@@ -107,7 +109,7 @@ typedef struct __attribute__((packed)) {
 	.zero_bit = 0,							\
 	.dpl = 0x0,							\
 	.present = 1,							\
-	.offset_16_31 = bitmask(offset_, 16, 0xff)			\
+	.offset_16_31 = bitmask(offset_, 16, 0xffff)			\
 }
 
 #define __decl_empty_gate() {						\
@@ -131,9 +133,8 @@ check_type_size(trap_gate_t, 8);
 
 #define __decl_isr_stage_c(num, generic_isr)				\
 	void __attribute__((used)) __isr_stage_c_ ## num () {		\
-		generic_isr("int#" #num "\n");				\
-		outb(0x20, 0x20);					\
-		iowait();						\
+		generic_isr(num);					\
+		pic_8259_send_end_of_interrput(num);			\
 	}
 
 #define __decl_isr(num, function)					\
@@ -148,10 +149,34 @@ check_type_size(trap_gate_t, 8);
 		table[num] = *__as_gate(&gate);				\
 	} while(0)
 
-
-static __attribute__((used)) void __generic_isr(char *msg) {
-	vga_console_puts(msg);
+#define EMPTY_HANDLER 0
+static void handle_timer_interrupt() {
+#if EMPTY_HANDLER == 1
+	++ticks;
+	vga_console_puts("timer irq\n");
+#else
+	char info[20];
+	char *pptr = info;
+	pptr += uint32_to_string(ticks, pptr, 10);
+	*pptr = '\n';
+	++pptr;
+	*pptr = '\0';
+	vga_console_puts(info);
+	++ticks;
+#endif
 }
+
+static void __generic_isr(uint8_t irq) {
+	switch(irq) {
+	case 0x20:
+		handle_timer_interrupt();
+		break;
+	default:
+		vga_console_puts("generic irq\n");
+		break;
+	}
+}
+
 
 // comment__why_not_use_counter:
 //

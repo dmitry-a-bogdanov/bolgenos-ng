@@ -25,7 +25,9 @@ set(kernel_sources ${kernel_start_file}
 	irq.c
 	main.c
 	mmu.c
+	pic_8259.c
 	string.c
+	time.c
 	vga_console.c
 	)
 
