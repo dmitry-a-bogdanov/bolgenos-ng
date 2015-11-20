@@ -8,4 +8,6 @@
  */
 #include <stdint.h>
 
+typedef uint32_t size_t;
+
 #endif // __BOLGENOS_NG__INT_TYPES_H__
