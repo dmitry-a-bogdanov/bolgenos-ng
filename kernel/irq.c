@@ -49,14 +49,24 @@ typedef struct __attribute__((packed)) {
 	__reserved(3);
 	gate_field_t gate_type : 3;
 	gate_field_t task_zero : 1;
-
+	__reserved(1);
 	gate_field_t dpl : 2;
 	gate_field_t present : 1;
 	__reserved(16);
 } task_gate_t;
 
-
 check_type_size(task_gate_t, 8);
+
+// Comment__why_using_get_gate:
+//
+// Strict aliasing rules are only applied to pointer and cannot be applied
+// to lvalue of some non-pointer type. This constraint include also explicit
+// typecasting after getting address. As the result, workaround with
+// casting function is need. However, it doesn't mean that code violates
+// strict alising rules, because types are still compatible.
+static inline gate_t *task_get_gate(task_gate_t *task) {
+	return __as_gate(task);
+}
 
 typedef struct __attribute__((packed)) {
 	gate_field_t offset_00_15: 16;
@@ -72,6 +82,11 @@ typedef struct __attribute__((packed)) {
 } int_gate_t;
 
 check_type_size(int_gate_t, 8);
+
+// see Comment__why_using_get_gate
+static inline gate_t *int_get_gate(int_gate_t *intr) {
+	return __as_gate(intr);
+}
 
 #define __decl_int_gate(offset_, segment_) {				\
 	.offset_00_15 = bitmask(offset_, 0, 0xffff),			\
@@ -110,6 +125,11 @@ typedef struct __attribute__((packed)) {
 	.offset_16_31 = bitmask(offset_, 16, 0xffff)			\
 }
 
+// See Comment__why_using_get_gate
+static inline gate_t *trap_get_gate(trap_gate_t *trap) {
+	return __as_gate(trap);
+}
+
 #define __decl_empty_gate() {						\
 	.present = 0							\
 }
@@ -144,7 +164,7 @@ check_type_size(trap_gate_t, 8);
 	do {								\
 		int_gate_t gate = __decl_int_gate(			\
 			(uint32_t) __isr_stage_asm_ ## num, KERNEL_CS);	\
-		table[num] = *__as_gate(&gate);				\
+		table[num] = *int_get_gate(&gate);			\
 	} while(0)
 
 
