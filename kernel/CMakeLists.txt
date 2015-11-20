@@ -6,6 +6,7 @@ set(CMAKE_C_COMPILER i686-elf-gcc)
 set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
 
 add_definitions(-DCONFIG_VERBOSE_TIMER_INTERRUPT)
+add_definitions(-std=gnu99)
 
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
