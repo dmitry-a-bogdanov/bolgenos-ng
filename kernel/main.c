@@ -5,6 +5,7 @@
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
+#include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
 #include "bootstrap.h"
@@ -28,7 +29,9 @@ void kernel_main() {
 
 	interrupts_enable();
 
-	vga_console_puts("CPU is initialized\n");
+	char msg[100];
+	snprintf(msg, 100, "%s at %lu\n", "CPU is initialized", ticks);
+	vga_console_puts(msg);
 
 	do {
 		asm ("hlt");
