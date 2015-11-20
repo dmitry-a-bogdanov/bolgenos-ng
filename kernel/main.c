@@ -3,6 +3,7 @@
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
+#include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
@@ -21,7 +22,9 @@ void kernel_main() {
 
 	setup_segments();
 	setup_interrupts();
-	pic_8259_setup();
+
+	system_pic = &pic_8259;
+	system_pic->setup();
 
 	interrupts_enable();
 

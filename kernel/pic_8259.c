@@ -1,8 +1,18 @@
 #include <bolgenos-ng/pic_8259.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
+
+static void pic_setup();
+static void pic_end_of_interrupt(irq_t irq);
+
+struct pic_device pic_8259 = {
+	.setup				= pic_setup,
+	.end_of_interrupt		= pic_end_of_interrupt
+};
+
 
 #define PIC_COMM_OFFSET			(0)
 #define PIC_DATA_OFFSET			(1)
@@ -32,7 +42,7 @@ typedef enum {
 	pic_comm_end_of_interrupt	= 0x20
 } pic_comm_t;
 
-void pic_8259_send_end_of_interrput(uint8_t irq) {
+void pic_end_of_interrupt(uint8_t irq) {
 	if (irq > 8) {
 		outb(pic_slave_comm, pic_comm_end_of_interrupt);
 	}
@@ -41,7 +51,7 @@ void pic_8259_send_end_of_interrput(uint8_t irq) {
 }
 
 
-void pic_8259_setup() {
+void pic_setup() {
 	int offset1 = 0x20;
 	int offset2 = 0x28;
 

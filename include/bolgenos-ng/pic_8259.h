@@ -1,9 +1,8 @@
 #ifndef __BOLGENOS_NG__APIC_H__
 #define __BOLGENOS_NG__APIC_H__ (1)
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/pic_common.h>
 
-void pic_8259_setup();
-void pic_8259_send_end_of_interrput(uint8_t irq);
+extern struct pic_device pic_8259;
 
 #endif // __BOLGENOS_NG__APIC_H__

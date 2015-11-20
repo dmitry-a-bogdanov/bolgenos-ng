@@ -1,6 +1,10 @@
 #ifndef __BOGLENOS_NG__MEM_UTILS_H__
 #define __BOGLENOS_NG__MEM_UTILS_H__ (1)
 
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 #define address_of(var) ((char *)&var)
 
 #define check_type_size(type, expected_size)				\
