@@ -5,10 +5,12 @@ set(CMAKE_CXX_COMPILER i686-elf-g++)
 set(CMAKE_C_COMPILER i686-elf-gcc)
 set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
 
+add_definitions(-DCONFIG_VERBOSE_TIMER_INTERRUPT)
+
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_C_FLAGS "-ffreestanding -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "-ffreestanding -Wall -Wextra -Werror -Wstrict-aliasing")
 set(CMAKE_ASM-ATT_COMPILER "${CMAKE_C_COMPILER}")
 set(CMAKE_ASM-ATT_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
@@ -21,10 +23,16 @@ set(kernel_binary "kernel.bin")
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
-	main.c
 	bootstrap.h
-	vga_console.h
-	vga_console.c)
+	irq.c
+	main.c
+	mmu.c
+	pic_8259.c
+	pic_common.c
+	string.c
+	time.c
+	vga_console.c
+	)
 
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
