@@ -3,6 +3,8 @@
 #include <stdarg.h> // from gcc!
 
 #include <bolgenos-ng/mem_utils.h>
+#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/error.h>
 
 static char __to_printable(int chr) {
 	if (chr < 10) {
@@ -46,7 +48,7 @@ struct format_entry {
 #define __FMT_ERROR		(-1)
 #define __FMT_END		(0)
 
-int parse_specifier(const char *fmt, struct format_entry *ret) {
+static int parse_specifier(const char *fmt, struct format_entry *ret) {
 	switch (*fmt) {
 	case __SPEC_LONG:
 		switch (*++fmt) {
@@ -69,7 +71,7 @@ int parse_specifier(const char *fmt, struct format_entry *ret) {
 	}
 }
 
-int read_format(const char *fmt, struct format_entry *ret) {
+static int read_format(const char *fmt, struct format_entry *ret) {
 	switch (*fmt) {
 	case '\0':
 		return __FMT_END;
@@ -104,16 +106,16 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 
 		switch (fmt_entry_length) {
 		case __FMT_ERROR:
-			return -1;
+			goto out_fail;
 		case __FMT_END:
-			return written;
+			goto out;
 		}
 
 		switch (entry.spec) {
 		case fmt_s_copy:
 			{
 				size_t print_chars = fmt_entry_length;
-				if ((size_t) fmt_entry_length >= size) {
+				if ((size_t) print_chars >= size - 1) {
 					print_chars = size - 1;
 					// one char is reserved for null byte
 				}
@@ -127,7 +129,7 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 			{
 				char *string = va_arg(arg, char *);
 				int print_chars = strlen(string);
-				if ((size_t) print_chars >= size) {
+				if ((size_t) print_chars >= size - 1) {
 					print_chars = size - 1;
 				}
 				strncpy(str, string, print_chars);
@@ -157,15 +159,19 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 				break;
 			}
 		default:
-			return -1;
+			goto out_fail;
 		}
 
 		format += fmt_entry_length;
 	}
+out:
 	va_end(arg);
-	*++str = '\0';
+	*str = '\0';
 	return written;
 
+out_fail:
+	vga_console_puts("out_fail");
+	panic();
 }
 
 static int __snprintf_int32(char *str, size_t size, int32_t value) {
@@ -194,7 +200,7 @@ static int __snprintf_uint32(char *str, size_t size, uint32_t value) {
 	uint32_t divisor = __uint32_max_divisor;
 	int leading_zero = 1;
 	size_t written = 0;
-	while (divisor != 0 && value != 0 && written < size) {
+	while (divisor != 0 && written < size) {
 		int q = value / divisor;
 		if (q)
 			leading_zero = 0;

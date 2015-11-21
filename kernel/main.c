@@ -29,10 +29,7 @@ void kernel_main() {
 
 	interrupts_enable();
 
-	char msg[100];
-	snprintf(msg, 100, "%s at %lu ticks 0 - 1 = %li\n",
-			"CPU is initialized", ticks, -1);
-	vga_console_puts(msg);
+	vga_console_puts("CPU is initialized\n");
 
 	do {
 		asm ("hlt");
