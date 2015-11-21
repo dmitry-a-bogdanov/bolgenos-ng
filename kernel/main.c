@@ -5,6 +5,7 @@
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
+#include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
 #include "bootstrap.h"

@@ -6,6 +6,7 @@ set(CMAKE_C_COMPILER i686-elf-gcc)
 set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
 
 add_definitions(-DCONFIG_VERBOSE_TIMER_INTERRUPT)
+add_definitions(-std=gnu99)
 
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
@@ -24,14 +25,16 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
 	bootstrap.h
+	error.c
 	irq.c
 	main.c
 	mmu.c
 	pic_8259.c
 	pic_common.c
-	string.c
 	time.c
 	vga_console.c
+	lib/snprintf.c
+	lib/string.c
 	)
 
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")

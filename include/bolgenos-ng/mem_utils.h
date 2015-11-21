@@ -26,25 +26,25 @@ static inline void write_16(char *dest, char *src) {
 	write_8(dest + 1, src + 1);
 }
 
-static inline void memset(void *mem, char val, uint32_t size) {
+static inline void memset(void *mem, char val, size_t size) {
 	char *__mem = (char *) mem;
-	for(uint32_t pos = 0; pos != size; ++pos, ++mem) {
+	for(size_t pos = 0; pos != size; ++pos, ++mem) {
 		write_8(__mem, &val);
 	}
 }
 
-static inline void memset_16(char* mem, char* chunk, uint32_t size) {
-	for(uint32_t pos = 0; pos != size; ++pos, mem += 2) {
+static inline void memset_16(char* mem, char* chunk, size_t size) {
+	for(size_t pos = 0; pos != size; ++pos, mem += 2) {
 		write_16(mem, chunk);
 	}
 }
 
 #define bitmask(value, offset, mask) (((value) >> (offset)) & (mask))
 
-static inline void memcpy(void *dest, const void *src, uint32_t size) {
+static inline void memcpy(void *dest, const void *src, size_t size) {
 	char *__dest = (char *) dest;
 	char *__src = (char* ) src;
-	for (uint32_t pos = 0; pos != size; ++pos) {
+	for (size_t pos = 0; pos != size; ++pos) {
 		__dest[pos] = __src[pos];
 	}
 }
