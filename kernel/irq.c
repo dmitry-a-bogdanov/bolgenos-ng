@@ -5,6 +5,7 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
@@ -169,12 +170,20 @@ check_type_size(trap_gate_t, 8);
 
 
 static void __generic_isr(uint8_t irq) {
+	char info[100];
 	switch(irq) {
 	case 0x20:
 		handle_timer_interrupt();
 		break;
+	case 0x21:
+		handle_first_ps2_dev_int();
+		break;
+	case 0x2c:
+		handle_second_ps2_dev_int();
+		break;
 	default:
-		vga_console_puts("generic irq\n");
+		snprintf(info, 100, "got IRQ %lu\n", (long unsigned) irq);
+		vga_console_puts(info);
 		break;
 	}
 }

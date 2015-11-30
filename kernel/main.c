@@ -4,6 +4,7 @@
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
@@ -30,6 +31,8 @@ void kernel_main() {
 	interrupts_enable();
 
 	vga_console_puts("CPU is initialized\n");
+
+	ps2_init();
 
 	do {
 		asm ("hlt");

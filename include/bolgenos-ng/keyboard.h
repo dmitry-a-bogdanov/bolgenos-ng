@@ -1,0 +1,3 @@
+#ifndef __BOLGENOS_NG__KEYBOARD_H__
+#define __BOLGENOS_NG__KEYBOARD_H__ (1)
+#endif // __BOLGENOS_NG__KEYBOARD_H__

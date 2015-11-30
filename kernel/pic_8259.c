@@ -43,7 +43,7 @@ typedef enum {
 } pic_comm_t;
 
 void pic_end_of_interrupt(uint8_t irq) {
-	if (irq > 8) {
+	if (irq > 8 + 0x20) {
 		outb(pic_slave_comm, pic_comm_end_of_interrupt);
 	}
 
