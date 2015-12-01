@@ -1,6 +1,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/irq.h>
+#include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
@@ -32,6 +33,7 @@ void kernel_main() {
 
 	vga_console_puts("CPU is initialized\n");
 
+	ps2_register_device(&ps2_keyboard);
 	ps2_init();
 
 	do {

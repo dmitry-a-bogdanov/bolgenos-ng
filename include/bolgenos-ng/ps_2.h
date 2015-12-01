@@ -3,8 +3,29 @@
 
 enum ps2_dev_idx {
 	ps2_dev_1		= 0x0,
-	ps2_dev_2		= 0x1
+#define __ps2_dev_min		ps2_dev_1
+	ps2_dev_2		= 0x1,
+#define __ps2_dev_max		(ps2_dev_2 + 1)
 };
+
+typedef enum {
+	probe_ok,
+	probe_next
+} probe_ret_t;
+
+// ps2_dev structure describes ps2 device driver and contains pointer to
+// functions for handling device.
+//
+// Fields:
+// @probe - function that checks that PS/2 device can be handled by the
+//	driver that provides this ps2_dev structure.
+// @irq_handler - function that will be called when getting IRQ from the device
+//	managed by this driver.
+struct ps2_dev {
+	probe_ret_t (*probe)(enum ps2_dev_idx);
+	void (*irq_handler)(void);
+};
+
 
 enum ps2_port {
 	ps2_data_port		= 0x60,
@@ -61,5 +82,7 @@ void ps2_init();
 
 void handle_first_ps2_dev_int();
 void handle_second_ps2_dev_int();
+
+void ps2_register_device(struct ps2_dev *dev);
 
 #endif // __BOLGENOS_NG__PS_2_H__
