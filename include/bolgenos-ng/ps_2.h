@@ -1,6 +1,11 @@
 #ifndef __BOLGENOS_NG__PS_2_H__
 #define __BOLGENOS_NG__PS_2_H__ (1)
 
+enum ps2_dev_idx {
+	ps2_dev_1		= 0x0,
+	ps2_dev_2		= 0x1
+};
+
 enum ps2_port {
 	ps2_data_port		= 0x60,
 	ps2_status_reg		= 0x64,
@@ -48,6 +53,9 @@ enum ps2_reply {
 	ps2_rpl_self_test_fail	= 0xfc,
 	ps2_rpl_port_test_ok	= 0x0
 };
+
+void ps2_enable_dev(enum ps2_dev_idx idx);
+void ps2_disable_dev(enum ps2_dev_idx idx);
 
 void ps2_init();
 

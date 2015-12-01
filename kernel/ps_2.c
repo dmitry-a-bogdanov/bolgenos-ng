@@ -4,18 +4,33 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
+static uint8_t __ps2_read_conf_byte();
+static void __ps2_write_conf_byte(uint8_t conf_byte);
+
+void ps2_enable_dev(enum ps2_dev_idx idx) {
+	(void) idx;
+}
+
+void ps2_disable_dev(enum ps2_dev_idx idx) {
+	enum ps2_command cmd;
+	if (idx == ps2_dev_1) {
+		cmd = ps2_cmd_disable_1;
+	} else {
+		cmd = ps2_cmd_disable_2;
+	}
+	outb(ps2_command_reg, cmd);
+}
 
 void ps2_init() {
 	char info[100];
 	snprintf(info, 100, "initializing PS/2 controller...\n");
 	vga_console_puts(info);
-	outb(ps2_command_reg, ps2_cmd_disable_2);
-	outb(ps2_command_reg, ps2_cmd_disable_1);
+	ps2_disable_dev(ps2_dev_2);
+	ps2_disable_dev(ps2_dev_1);
 
 	//FIXME: flush chip's output buffer
 
-	outb(ps2_command_reg, ps2_cmd_read_cb);
-	uint8_t configuration_byte = inb(ps2_data_port);
+	uint8_t configuration_byte = __ps2_read_conf_byte();
 
 	snprintf(info, 100, "PS/2 conf byte=%lu\n",
 		(unsigned long) configuration_byte);
@@ -35,8 +50,7 @@ void ps2_init() {
 	uint8_t disable_int_cb = configuration_byte & (~ps2_cb_int_first) &
 			(~ps2_cb_int_second) & (~ps2_cb_translation);
 
-	outb(ps2_command_reg, ps2_cmd_write_cb);
-	outb(ps2_data_port, disable_int_cb);
+	__ps2_write_conf_byte(disable_int_cb);
 
 	// run self-test
 	outb(ps2_command_reg, ps2_cmd_self_test);
@@ -67,11 +81,9 @@ void ps2_init() {
 	outb(ps2_command_reg, ps2_cmd_enable_1);
 
 	// enable interrupts
-	outb(ps2_command_reg, ps2_cmd_read_cb);
-	uint8_t enable_int_cb = inb(ps2_data_port);
+	uint8_t enable_int_cb = __ps2_read_conf_byte();
 	enable_int_cb |= ps2_cb_int_first;
-	outb(ps2_command_reg, ps2_cmd_write_cb);
-	outb(ps2_data_port, enable_int_cb);
+	__ps2_write_conf_byte(enable_int_cb);
 };
 
 
@@ -89,4 +101,17 @@ void handle_second_ps2_dev_int() {
 	snprintf(info, 100, "got '%lu' from second PS/2\n",
 		(long unsigned) byte);
 	vga_console_puts(info);
+}
+
+
+static uint8_t __ps2_read_conf_byte() {
+	uint8_t conf_byte;
+	outb(ps2_command_reg, ps2_cmd_read_cb);
+	conf_byte = inb(ps2_data_port);
+	return conf_byte;
+}
+
+static void __ps2_write_conf_byte(uint8_t conf_byte) {
+	outb(ps2_command_reg, ps2_cmd_write_cb);
+	outb(ps2_data_port, conf_byte);
 }
