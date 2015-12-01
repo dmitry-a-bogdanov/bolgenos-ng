@@ -170,8 +170,7 @@ out:
 	return written;
 
 out_fail:
-	vga_console_puts("out_fail");
-	panic();
+	bug("out_fail reached in snprintf");
 }
 
 static int __snprintf_int32(char *str, size_t size, int32_t value) {
