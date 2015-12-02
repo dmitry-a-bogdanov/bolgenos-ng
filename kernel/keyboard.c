@@ -1,6 +1,7 @@
 #include <bolgenos-ng/keyboard.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
@@ -24,4 +25,8 @@ static void ps2_keyboard_handle_irq() {
 	snprintf(info, 100, "got '%lu' from keyboard PS/2\n",
 			(long unsigned) byte);
 	vga_console_puts(info);
+}
+
+void ps2_keyboard_init() {
+	ps2_register_device(&ps2_keyboard);
 }

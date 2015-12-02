@@ -10,7 +10,8 @@ static void pic_end_of_interrupt(irq_t irq);
 
 struct pic_device pic_8259 = {
 	.setup				= pic_setup,
-	.end_of_interrupt		= pic_end_of_interrupt
+	.end_of_interrupt		= pic_end_of_interrupt,
+	.min_irq_vector			= 0x20
 };
 
 

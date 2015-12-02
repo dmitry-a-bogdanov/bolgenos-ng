@@ -4,6 +4,7 @@
 #include <bolgenos-ng/int_types.h>
 
 typedef uint8_t irq_t;
+typedef void (*irq_handler_t)(irq_t);
 
 #define MAX_IRQ_NUMBER (0x2f)
 #define NUMBER_OF_IRQS (MAX_IRQ_NUMBER + 1)
@@ -19,5 +20,6 @@ typedef uint8_t irq_t;
 	} while(0)
 
 void setup_interrupts();
+void register_irq_handler(irq_t vector, irq_handler_t routine);
 
 #endif // __BOLGENOS_NG__IRQ_H__

@@ -29,11 +29,13 @@ void kernel_main() {
 	system_pic = &pic_8259;
 	system_pic->setup();
 
+	init_timer();
+
 	interrupts_enable();
 
 	vga_console_puts("CPU is initialized\n");
 
-	ps2_register_device(&ps2_keyboard);
+	ps2_keyboard_init();
 	ps2_init();
 
 	do {

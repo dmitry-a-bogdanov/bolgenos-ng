@@ -80,9 +80,6 @@ void ps2_disable_dev(enum ps2_dev_idx idx);
 
 void ps2_init();
 
-void handle_first_ps2_dev_int();
-void handle_second_ps2_dev_int();
-
 void ps2_register_device(struct ps2_dev *dev);
 
 #endif // __BOLGENOS_NG__PS_2_H__

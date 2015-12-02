@@ -3,6 +3,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
+#include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
@@ -26,6 +27,8 @@ static uint8_t __ps2_read_conf_byte();
 static void __ps2_write_conf_byte(uint8_t conf_byte);
 static probe_ret_t __ps2_probe_devices();
 static void __handle_ps2_interrupt(enum ps2_dev_idx line);
+static void handle_first_ps2_dev_int(irq_t);
+static void handle_second_ps2_dev_int(irq_t);
 
 void ps2_enable_dev(enum ps2_dev_idx idx) {
 	(void) idx;
@@ -41,7 +44,8 @@ void ps2_disable_dev(enum ps2_dev_idx idx) {
 	outb(ps2_command_reg, cmd);
 }
 
-
+#define __PS2_FIRST_LINE_IRQ		(min_pic_irq + 1)
+#define __PS2_SECOND_LINE_IRQ		(min_pic_irq + 12)
 
 void ps2_init() {
 	char info[100];
@@ -107,6 +111,11 @@ void ps2_init() {
 		return;
 	}
 
+	register_irq_handler(__PS2_FIRST_LINE_IRQ,
+			handle_first_ps2_dev_int);
+	register_irq_handler(__PS2_SECOND_LINE_IRQ,
+			handle_second_ps2_dev_int);
+
 	// enable interrupts
 	uint8_t enable_int_cb = __ps2_read_conf_byte();
 	enable_int_cb |= ps2_cb_int_first;
@@ -116,11 +125,11 @@ void ps2_init() {
 
 };
 
-void handle_first_ps2_dev_int() {
+static void handle_first_ps2_dev_int(irq_t vec __attribute__((unused))) {
 	__handle_ps2_interrupt(ps2_dev_1);
 }
 
-void handle_second_ps2_dev_int() {
+static void handle_second_ps2_dev_int(irq_t vec __attribute__((unused))) {
 	__handle_ps2_interrupt(ps2_dev_2);
 }
 
