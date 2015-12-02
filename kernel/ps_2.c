@@ -7,6 +7,65 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
+enum ps2_reply {
+	ps2_rpl_self_test_ok	= 0x55,
+	ps2_rpl_self_test_fail	= 0xfc,
+	ps2_rpl_port_test_ok	= 0x0
+};
+
+// PS/2 status register bits
+enum ps2_sr {
+	ps2_sr_out_buf_status	= 1 << 0,
+	ps2_sr_in_buf_status	= 1 << 1,
+	ps2_sr_post_passed	= 1 << 2,
+	ps2_sr_comm_or_data	= 1 << 3,
+	// unknown		= 1 << 4,
+	// unknown		= 1 << 5,
+	ps2_sr_timeout		= 1 << 6,
+	ps2_sr_parity_error	= 1 << 7
+};
+
+// PS/2 configuration byte bits
+enum ps2_cb {
+	ps2_cb_int_first	= 1 << 0,
+	ps2_cb_int_second	= 1 << 1,
+	ps2_cb_system		= 1 << 2,
+	ps2_cb_clock_first	= 1 << 4,
+	ps2_cb_clock_second	= 1 << 5,
+	ps2_cb_translation	= 1 << 6
+};
+
+typedef enum {
+	ps2_cmd_read_cb		= 0x20,
+	ps2_cmd_write_cb	= 0x60,
+
+	ps2_cmd_self_test	= 0xaa,
+	ps2_cmd_port_test_1	= 0xab,
+	ps2_cmd_port_test_2	= 0xa9,
+
+	ps2_cmd_disable_1	= 0xad,
+	ps2_cmd_enable_1	= 0xae,
+	ps2_cmd_disable_2	= 0xa7,
+	ps2_cmd_enable_2	= 0xa8
+} ps2_command_t;
+
+enum ps2_port {
+	ps2_data_port		= 0x60,
+	ps2_status_reg		= 0x64,
+	ps2_command_reg		= 0x64
+};
+
+uint8_t ps2_receive_byte() {
+	return inb(ps2_data_port);
+}
+
+void ps2_send_command(ps2_command_t cmd) {
+	outb(ps2_command_reg, cmd);
+}
+
+static void ps2_enable_dev(ps2_line_t idx);
+static void ps2_disable_dev(ps2_line_t idx);
+
 #define MAX_PS2_KNOWN_DEVS 10
 #define MAX_PS2_ACTIVE_DEVS 2
 
@@ -26,22 +85,26 @@ static struct ps2_dev *ps2_active_devices[__ps2_dev_max];
 static uint8_t __ps2_read_conf_byte();
 static void __ps2_write_conf_byte(uint8_t conf_byte);
 static probe_ret_t __ps2_probe_devices();
-static void __handle_ps2_interrupt(enum ps2_dev_idx line);
+static void __handle_ps2_interrupt(ps2_line_t line);
 static void handle_first_ps2_dev_int(irq_t);
 static void handle_second_ps2_dev_int(irq_t);
 
-void ps2_enable_dev(enum ps2_dev_idx idx) {
-	(void) idx;
+static void ps2_enable_dev(ps2_line_t idx) {
+	if (idx == ps2_dev_1) {
+		ps2_send_command(ps2_cmd_enable_1);
+	} else {
+		ps2_send_command(ps2_cmd_enable_2);
+	}
 }
 
-void ps2_disable_dev(enum ps2_dev_idx idx) {
-	enum ps2_command cmd;
+static void ps2_disable_dev(ps2_line_t idx) {
+	ps2_command_t cmd;
 	if (idx == ps2_dev_1) {
 		cmd = ps2_cmd_disable_1;
 	} else {
 		cmd = ps2_cmd_disable_2;
 	}
-	outb(ps2_command_reg, cmd);
+	ps2_send_command(cmd);
 }
 
 #define __PS2_FIRST_LINE_IRQ		(min_pic_irq + 1)
@@ -79,10 +142,10 @@ void ps2_init() {
 	__ps2_write_conf_byte(disable_int_cb);
 
 	// run self-test
-	outb(ps2_command_reg, ps2_cmd_self_test);
+	ps2_send_command(ps2_cmd_self_test);
 	long tries = 0;
 	// FIXME: handle self-test failure
-	while (inb(ps2_data_port) != ps2_rpl_self_test_ok) {
+	while (ps2_receive_byte() != ps2_rpl_self_test_ok) {
 		snprintf(info, 100, "try #%li failed\n", tries);
 		vga_console_puts(info);
 		++tries;
@@ -91,13 +154,13 @@ void ps2_init() {
 	vga_console_puts(info);
 
 	// test PS/2 ports
-	outb(ps2_command_reg, ps2_cmd_port_test_1);
+	ps2_send_command(ps2_cmd_port_test_1);
 
 	tries = 0;
 	// FIXME handle failure
 	// FIXME since this code related to PS/2 lines separately it's neeeded
 	//	to move this code to probe function
-	while (inb(ps2_data_port) != ps2_rpl_port_test_ok) {
+	while (ps2_receive_byte() != ps2_rpl_port_test_ok) {
 		snprintf(info, 100, "try #%li failed\n", tries);
 		vga_console_puts(info);
 		++tries;
@@ -120,9 +183,8 @@ void ps2_init() {
 	uint8_t enable_int_cb = __ps2_read_conf_byte();
 	enable_int_cb |= ps2_cb_int_first;
 	__ps2_write_conf_byte(enable_int_cb);
-	// enable device
-	outb(ps2_command_reg, ps2_cmd_enable_1);
 
+	ps2_enable_dev(ps2_dev_1);
 };
 
 static void handle_first_ps2_dev_int(irq_t vec __attribute__((unused))) {
@@ -133,7 +195,7 @@ static void handle_second_ps2_dev_int(irq_t vec __attribute__((unused))) {
 	__handle_ps2_interrupt(ps2_dev_2);
 }
 
-static void __handle_ps2_interrupt(enum ps2_dev_idx line) {
+static void __handle_ps2_interrupt(ps2_line_t line) {
 	if (ps2_active_devices[line]) {
 		ps2_active_devices[line]->irq_handler();
 	} else {
@@ -147,7 +209,7 @@ static void __handle_ps2_interrupt(enum ps2_dev_idx line) {
 static uint8_t __ps2_read_conf_byte() {
 	uint8_t conf_byte;
 	outb(ps2_command_reg, ps2_cmd_read_cb);
-	conf_byte = inb(ps2_data_port);
+	conf_byte = ps2_receive_byte();
 	return conf_byte;
 }
 
@@ -158,10 +220,12 @@ static void __ps2_write_conf_byte(uint8_t conf_byte) {
 
 static probe_ret_t __ps2_probe_devices() {
 	probe_ret_t global_probe_ret = probe_next;
-	for (enum ps2_dev_idx ps2_line = __ps2_dev_min;
+	// for each line do ...
+	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
 		struct ps2_dev *active_dev = NULL;
 		int active_dev_count = 0;
+		// for each registered device
 		for (int dev_index = 0; dev_index < ps2_known_device_count;
 				++dev_index) {
 			probe_ret_t ret;
