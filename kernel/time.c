@@ -1,5 +1,6 @@
 #include <bolgenos-ng/time.h>
 
+#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/pic_common.h>
@@ -31,4 +32,11 @@ static void handle_timer_interrupt(irq_t vector __attribute__((unused))) {
 #else
 	++ticks;
 #endif
+}
+
+void __sleep(uint32_t ticks_timeout) {
+	uint32_t end_of_sleep = ticks + ticks_timeout;
+	while (ticks < end_of_sleep) {
+		halt_cpu();
+	}
 }

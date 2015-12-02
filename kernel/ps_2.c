@@ -59,12 +59,14 @@ uint8_t ps2_receive_byte() {
 	return inb(ps2_data_port);
 }
 
+static void ps2_send_byte(uint8_t byte) {
+	outb(ps2_data_port, byte);
+}
+
 void ps2_send_command(ps2_command_t cmd) {
 	outb(ps2_command_reg, cmd);
 }
 
-static void ps2_enable_dev(ps2_line_t idx);
-static void ps2_disable_dev(ps2_line_t idx);
 
 #define MAX_PS2_KNOWN_DEVS 10
 #define MAX_PS2_ACTIVE_DEVS 2
@@ -82,120 +84,90 @@ void ps2_register_device(struct ps2_dev *dev) {
 
 static struct ps2_dev *ps2_active_devices[__ps2_dev_max];
 
-static uint8_t __ps2_read_conf_byte();
-static void __ps2_write_conf_byte(uint8_t conf_byte);
-static probe_ret_t __ps2_probe_devices();
-static void __handle_ps2_interrupt(ps2_line_t line);
-static void handle_first_ps2_dev_int(irq_t);
-static void handle_second_ps2_dev_int(irq_t);
+static uint8_t ps2_read_conf_byte();
+static void ps2_write_conf_byte(uint8_t conf_byte);
 
-static void ps2_enable_dev(ps2_line_t idx) {
-	if (idx == ps2_dev_1) {
-		ps2_send_command(ps2_cmd_enable_1);
-	} else {
-		ps2_send_command(ps2_cmd_enable_2);
-	}
-}
+static probe_ret_t ps2_probe_devices();
 
-static void ps2_disable_dev(ps2_line_t idx) {
-	ps2_command_t cmd;
-	if (idx == ps2_dev_1) {
-		cmd = ps2_cmd_disable_1;
-	} else {
-		cmd = ps2_cmd_disable_2;
-	}
-	ps2_send_command(cmd);
-}
+static void ps2_irq_handler(ps2_line_t line);
 
-#define __PS2_FIRST_LINE_IRQ		(min_pic_irq + 1)
-#define __PS2_SECOND_LINE_IRQ		(min_pic_irq + 12)
+static void first_line_isr(irq_t);
+static void second_line_isr(irq_t);
+
+static void ps2_enable_dev(ps2_line_t idx);
+static void ps2_disable_dev(ps2_line_t idx);
+
+static int ps2_get_lines(uint8_t conf_byte);
+
+static void ps2_enable_interrupts(uint8_t *conf_byte, int lines);
+static void ps2_disable_interrupts(uint8_t *conf_byte, int lines);
+
+static void ps2_disable_translation(uint8_t *conf_byte);
+
+static void ps2_clean_buffer();
+static void ps2_controller_test();
+
+#define PS2_FIRST_LINE_IRQ		(min_pic_irq + 1)
+#define PS2_SECOND_LINE_IRQ		(min_pic_irq + 12)
 
 void ps2_init() {
 	char info[100];
+	uint8_t conf;
 	snprintf(info, 100, "initializing PS/2 controller...\n");
 	vga_console_puts(info);
 	ps2_disable_dev(ps2_dev_2);
 	ps2_disable_dev(ps2_dev_1);
 
-	//FIXME: flush chip's output buffer
+	ps2_clean_buffer();
 
-	uint8_t configuration_byte = __ps2_read_conf_byte();
+	conf = ps2_read_conf_byte();
 
 	snprintf(info, 100, "PS/2 conf byte=%lu\n",
-		(unsigned long) configuration_byte);
+		(unsigned long) conf);
 	vga_console_puts(info);
 
-	int ps2_ports;
-	if (configuration_byte & ps2_cb_clock_second) {
-		ps2_ports = 2;
-	} else {
-		ps2_ports = 1;
-	}
+	int ps2_lines = ps2_get_lines(conf);
+
 	snprintf(info, 100, "this system has %lu PS/2 port(s)\n",
-		(unsigned long) ps2_ports);
+			(long unsigned) ps2_lines);
 	vga_console_puts(info);
 
-	// temporary disable interrupts from PS/2
-	uint8_t disable_int_cb = configuration_byte & (~ps2_cb_int_first) &
-			(~ps2_cb_int_second) & (~ps2_cb_translation);
+	ps2_disable_interrupts(&conf, ps2_dev_1|ps2_dev_1);
+	ps2_disable_translation(&conf);
 
-	__ps2_write_conf_byte(disable_int_cb);
+	ps2_write_conf_byte(conf);
 
-	// run self-test
-	ps2_send_command(ps2_cmd_self_test);
-	long tries = 0;
-	// FIXME: handle self-test failure
-	while (ps2_receive_byte() != ps2_rpl_self_test_ok) {
-		snprintf(info, 100, "try #%li failed\n", tries);
-		vga_console_puts(info);
-		++tries;
-	}
-	snprintf(info, 100, "PS/2 controller passed self-test\n");
-	vga_console_puts(info);
+	ps2_controller_test();
 
 	// test PS/2 ports
 	ps2_send_command(ps2_cmd_port_test_1);
 
-	tries = 0;
-	// FIXME handle failure
-	// FIXME since this code related to PS/2 lines separately it's neeeded
-	//	to move this code to probe function
-	while (ps2_receive_byte() != ps2_rpl_port_test_ok) {
-		snprintf(info, 100, "try #%li failed\n", tries);
-		vga_console_puts(info);
-		++tries;
-	}
-	snprintf(info, 100, "PS/2 first port passed test\n");
-	vga_console_puts(info);
 
-	probe_ret_t probe_result = __ps2_probe_devices();
+	probe_ret_t probe_result = ps2_probe_devices();
 	if (probe_result != probe_ok) {
 		vga_console_puts("No PS/2 devices found!\n");
 		return;
 	}
 
-	register_irq_handler(__PS2_FIRST_LINE_IRQ,
-			handle_first_ps2_dev_int);
-	register_irq_handler(__PS2_SECOND_LINE_IRQ,
-			handle_second_ps2_dev_int);
+	register_irq_handler(PS2_FIRST_LINE_IRQ, first_line_isr);
+	register_irq_handler(PS2_SECOND_LINE_IRQ, second_line_isr);
 
-	// enable interrupts
-	uint8_t enable_int_cb = __ps2_read_conf_byte();
-	enable_int_cb |= ps2_cb_int_first;
-	__ps2_write_conf_byte(enable_int_cb);
+	conf = ps2_read_conf_byte();
+	ps2_enable_interrupts(&conf, ps2_dev_1);
+	ps2_write_conf_byte(conf);
 
 	ps2_enable_dev(ps2_dev_1);
 };
 
-static void handle_first_ps2_dev_int(irq_t vec __attribute__((unused))) {
-	__handle_ps2_interrupt(ps2_dev_1);
+static void first_line_isr(irq_t vec __attribute__((unused))) {
+	ps2_irq_handler(ps2_dev_1);
 }
 
-static void handle_second_ps2_dev_int(irq_t vec __attribute__((unused))) {
-	__handle_ps2_interrupt(ps2_dev_2);
+static void second_line_isr(irq_t vec __attribute__((unused))) {
+	ps2_irq_handler(ps2_dev_2);
 }
 
-static void __handle_ps2_interrupt(ps2_line_t line) {
+static void ps2_irq_handler(ps2_line_t line) {
 	if (ps2_active_devices[line]) {
 		ps2_active_devices[line]->irq_handler();
 	} else {
@@ -206,20 +178,33 @@ static void __handle_ps2_interrupt(ps2_line_t line) {
 	}
 }
 
-static uint8_t __ps2_read_conf_byte() {
+static uint8_t ps2_read_conf_byte() {
 	uint8_t conf_byte;
-	outb(ps2_command_reg, ps2_cmd_read_cb);
+	ps2_send_command(ps2_cmd_read_cb);
 	conf_byte = ps2_receive_byte();
 	return conf_byte;
 }
 
-static void __ps2_write_conf_byte(uint8_t conf_byte) {
-	outb(ps2_command_reg, ps2_cmd_write_cb);
-	outb(ps2_data_port, conf_byte);
+static void ps2_write_conf_byte(uint8_t conf_byte) {
+	ps2_send_command(ps2_cmd_write_cb);
+	ps2_send_byte(conf_byte);
 }
 
-static probe_ret_t __ps2_probe_devices() {
+static probe_ret_t ps2_probe_devices() {
+	char info[100];
 	probe_ret_t global_probe_ret = probe_next;
+
+	long tries = 0;
+	// FIXME handle failure
+	// FIXME handle second PS/2 line
+	while (ps2_receive_byte() != ps2_rpl_port_test_ok) {
+		snprintf(info, 100, "try #%li failed\n", tries);
+		vga_console_puts(info);
+		++tries;
+	}
+	snprintf(info, 100, "PS/2 first port passed test\n");
+	vga_console_puts(info);
+
 	// for each line do ...
 	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
@@ -247,3 +232,69 @@ static probe_ret_t __ps2_probe_devices() {
 	return global_probe_ret;
 }
 
+static void ps2_enable_dev(ps2_line_t idx) {
+	if (idx == ps2_dev_1) {
+		ps2_send_command(ps2_cmd_enable_1);
+	} else {
+		ps2_send_command(ps2_cmd_enable_2);
+	}
+}
+
+static void ps2_disable_dev(ps2_line_t idx) {
+	ps2_command_t cmd;
+	if (idx == ps2_dev_1) {
+		cmd = ps2_cmd_disable_1;
+	} else {
+		cmd = ps2_cmd_disable_2;
+	}
+	ps2_send_command(cmd);
+}
+
+static int ps2_get_lines(uint8_t conf_byte) {
+	int ps2_lines = 1;
+	if (conf_byte & ps2_cb_clock_second) {
+		ps2_lines = 2;
+	}
+	return ps2_lines;
+}
+
+static void ps2_enable_interrupts(uint8_t *conf_byte, int lines) {
+	if (lines & ps2_dev_1) {
+		*conf_byte |= ps2_cb_int_first;
+	}
+	if (lines & ps2_dev_2) {
+		*conf_byte |= ps2_cb_int_second;
+	}
+}
+
+static void ps2_disable_interrupts(uint8_t *conf_byte, int lines) {
+	if (lines & ps2_dev_1) {
+		*conf_byte &= ~ps2_cb_int_first;
+	}
+	if (lines & ps2_dev_2) {
+		*conf_byte &= ~ps2_cb_int_second;
+	}
+}
+
+static void ps2_disable_translation(uint8_t *conf_byte) {
+	*conf_byte &= ~ps2_cb_translation;
+}
+
+static void ps2_clean_buffer() {
+	//FIXME: add real stuff
+}
+
+static void ps2_controller_test() {
+	char info[100];
+	// run self-test
+	ps2_send_command(ps2_cmd_self_test);
+	long tries = 0;
+	// FIXME: handle self-test failure
+	while (ps2_receive_byte() != ps2_rpl_self_test_ok) {
+		snprintf(info, 100, "try #%li failed\n", tries);
+		vga_console_puts(info);
+		++tries;
+	}
+	snprintf(info, 100, "PS/2 controller passed self-test\n");
+	vga_console_puts(info);
+}
