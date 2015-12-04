@@ -5,12 +5,18 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
+#include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
 enum ps2_reply {
-	ps2_rpl_self_test_ok	= 0x55,
-	ps2_rpl_self_test_fail	= 0xfc,
-	ps2_rpl_port_test_ok	= 0x0
+	ps2_rpl_port_test_ok		= 0x00,
+	ps2_rpl_port_test_clk_low	= 0x01,
+	ps2_rpl_port_test_clk_high	= 0x02,
+	ps2_rpl_port_test_data_low	= 0x03,
+	ps2_rpl_port_test_data_high	= 0x04,
+
+	ps2_rpl_self_test_ok		= 0x55,
+	ps2_rpl_self_test_fail		= 0xfc
 };
 
 // PS/2 status register bits
@@ -67,9 +73,25 @@ void ps2_send_command(ps2_command_t cmd) {
 	outb(ps2_command_reg, cmd);
 }
 
+static uint8_t ps2_read_status() {
+	return inb(ps2_status_reg);
+}
 
-#define MAX_PS2_KNOWN_DEVS 10
-#define MAX_PS2_ACTIVE_DEVS 2
+static int ps2_wait_for_input(int retries, int tick_timeout) {
+	uint8_t status;
+	int tries = 0;
+	while (!((status = ps2_read_status()) & ps2_sr_out_buf_status)
+			&& tries < retries) {
+		++tries;
+		__sleep(tick_timeout);
+	}
+	return status & ps2_sr_out_buf_status;
+}
+
+
+#define MAX_PS2_KNOWN_DEVS		10
+#define PS2_SELF_TEST_RETRIES		5
+#define PS2_SELF_TEST_TIMEOUT		1 /* ticks */
 
 // TODO: replace array with list in order to avoid troubles with support
 // of many types of keyboards or mice
@@ -87,7 +109,7 @@ static struct ps2_dev *ps2_active_devices[__ps2_dev_max];
 static uint8_t ps2_read_conf_byte();
 static void ps2_write_conf_byte(uint8_t conf_byte);
 
-static probe_ret_t ps2_probe_devices();
+static void ps2_probe_devices();
 
 static void ps2_irq_handler(ps2_line_t line);
 
@@ -105,7 +127,9 @@ static void ps2_disable_interrupts(uint8_t *conf_byte, int lines);
 static void ps2_disable_translation(uint8_t *conf_byte);
 
 static void ps2_clean_buffer();
-static void ps2_controller_test();
+static int ps2_controller_test();
+
+static int ps2_test_line(ps2_line_t line);
 
 #define PS2_FIRST_LINE_IRQ		(min_pic_irq + 1)
 #define PS2_SECOND_LINE_IRQ		(min_pic_irq + 12)
@@ -137,17 +161,11 @@ void ps2_init() {
 
 	ps2_write_conf_byte(conf);
 
-	ps2_controller_test();
-
-	// test PS/2 ports
-	ps2_send_command(ps2_cmd_port_test_1);
-
-
-	probe_ret_t probe_result = ps2_probe_devices();
-	if (probe_result != probe_ok) {
-		vga_console_puts("No PS/2 devices found!\n");
-		return;
+	if (!ps2_controller_test()) {
+		panic("PS/2: controller self-test failed!");
 	}
+
+	ps2_probe_devices();
 
 	register_irq_handler(PS2_FIRST_LINE_IRQ, first_line_isr);
 	register_irq_handler(PS2_SECOND_LINE_IRQ, second_line_isr);
@@ -190,24 +208,24 @@ static void ps2_write_conf_byte(uint8_t conf_byte) {
 	ps2_send_byte(conf_byte);
 }
 
-static probe_ret_t ps2_probe_devices() {
+static void ps2_probe_devices() {
 	char info[100];
-	probe_ret_t global_probe_ret = probe_next;
-
-	long tries = 0;
-	// FIXME handle failure
-	// FIXME handle second PS/2 line
-	while (ps2_receive_byte() != ps2_rpl_port_test_ok) {
-		snprintf(info, 100, "try #%li failed\n", tries);
-		vga_console_puts(info);
-		++tries;
-	}
-	snprintf(info, 100, "PS/2 first port passed test\n");
-	vga_console_puts(info);
 
 	// for each line do ...
 	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
+		if (!ps2_test_line(ps2_line)) {
+			snprintf(info, 100, "PS/2: line %li"
+					" failed self-test!\n",
+					(long) ps2_line);
+			vga_console_puts(info);
+			continue;
+		} else {
+			snprintf(info, 100, "PS/2: line %li"
+					" passed self-test\n",
+					(long) ps2_line);
+			vga_console_puts(info);
+		}
 		struct ps2_dev *active_dev = NULL;
 		int active_dev_count = 0;
 		// for each registered device
@@ -218,18 +236,20 @@ static probe_ret_t ps2_probe_devices() {
 			if (ret == probe_ok) {
 				active_dev = ps2_known_devices[dev_index];
 				active_dev_count++;
-				global_probe_ret = probe_ok;
 			}
 		}
 		if (active_dev_count > 1) {
-			char msg[100];
-			snprintf(msg, 100, "more than 1 probed devices for "
+			snprintf(info, 100, "more than 1 probed devices for "
 				"PS/2 line %li\n", (long) ps2_line);
-			bug(msg);
+			bug(info);
 		}
+
+		snprintf(info, 100, "PS/2[%li]: active_dev = %li\n",
+			(long) ps2_line, (long) active_dev);
+		vga_console_puts(info);
+
 		ps2_active_devices[ps2_line] = active_dev;
 	}
-	return global_probe_ret;
 }
 
 static void ps2_enable_dev(ps2_line_t idx) {
@@ -281,20 +301,45 @@ static void ps2_disable_translation(uint8_t *conf_byte) {
 }
 
 static void ps2_clean_buffer() {
-	//FIXME: add real stuff
+	uint8_t status_register = ps2_read_status();
+	while (status_register & ps2_sr_out_buf_status) {
+		ps2_receive_byte(); // ignore input
+		status_register = ps2_read_status();
+	}
 }
 
-static void ps2_controller_test() {
-	char info[100];
-	// run self-test
+static int ps2_controller_test() {
 	ps2_send_command(ps2_cmd_self_test);
-	long tries = 0;
-	// FIXME: handle self-test failure
-	while (ps2_receive_byte() != ps2_rpl_self_test_ok) {
-		snprintf(info, 100, "try #%li failed\n", tries);
-		vga_console_puts(info);
-		++tries;
+	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
+			PS2_SELF_TEST_TIMEOUT);
+	if (!can_read) {
+		// self-test timeout!
+		return 0;
 	}
-	snprintf(info, 100, "PS/2 controller passed self-test\n");
-	vga_console_puts(info);
+	uint8_t test_result = ps2_receive_byte();
+	if (test_result == ps2_rpl_self_test_ok) {
+		return 1;
+	}
+	return 0;
+}
+
+
+static int ps2_test_line(ps2_line_t line) {
+	ps2_command_t cmd;
+	if (line == ps2_dev_1) {
+		cmd = ps2_cmd_port_test_1;
+	} else {
+		cmd = ps2_cmd_port_test_2;
+	}
+	ps2_send_command(cmd);
+	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
+			PS2_SELF_TEST_TIMEOUT);
+	if (!can_read) {
+		return 0;
+	}
+	uint8_t test_result = ps2_receive_byte();
+	if (test_result == ps2_rpl_port_test_ok) {
+		return 1;
+	}
+	return 0;
 }
