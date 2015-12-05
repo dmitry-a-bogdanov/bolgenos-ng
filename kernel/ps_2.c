@@ -20,7 +20,7 @@ enum ps2_reply {
 };
 
 // PS/2 status register bits
-enum ps2_sr {
+typedef enum {
 	ps2_sr_out_buf_status	= 1 << 0,
 	ps2_sr_in_buf_status	= 1 << 1,
 	ps2_sr_post_passed	= 1 << 2,
@@ -29,7 +29,7 @@ enum ps2_sr {
 	// unknown		= 1 << 5,
 	ps2_sr_timeout		= 1 << 6,
 	ps2_sr_parity_error	= 1 << 7
-};
+} ps2_sr_field_t;
 
 // PS/2 configuration byte bits
 enum ps2_cb {
@@ -52,7 +52,9 @@ typedef enum {
 	ps2_cmd_disable_1	= 0xad,
 	ps2_cmd_enable_1	= 0xae,
 	ps2_cmd_disable_2	= 0xa7,
-	ps2_cmd_enable_2	= 0xa8
+	ps2_cmd_enable_2	= 0xa8,
+
+	ps2_cmd_redirect_2nd	= 0xd4
 } ps2_command_t;
 
 enum ps2_port {
@@ -77,21 +79,42 @@ static uint8_t ps2_read_status() {
 	return inb(ps2_status_reg);
 }
 
-static int ps2_wait_for_input(int retries, int tick_timeout) {
+static int __ps2_wait_for_flag(ps2_sr_field_t flag, int val, int retries,
+		int tick_timeout) {
 	uint8_t status;
 	int tries = 0;
-	while (!((status = ps2_read_status()) & ps2_sr_out_buf_status)
-			&& tries < retries) {
-		++tries;
-		__sleep(tick_timeout);
+	if (val) {
+		while (!((status = ps2_read_status()) & flag)
+				&& tries < retries) {
+			++tries;
+			__sleep(tick_timeout);
+		}
+	} else {
+		while (((status = ps2_read_status()) & flag)
+				&& tries < retries) {
+			++tries;
+			__sleep(tick_timeout);
+		}
 	}
-	return status & ps2_sr_out_buf_status;
+	return status & flag;
+}
+
+int ps2_wait_for_output(int retries, int tick_timeout) {
+	return ! __ps2_wait_for_flag(ps2_sr_in_buf_status, 0, retries,
+				tick_timeout);
+}
+
+int ps2_wait_for_input(int retries, int tick_timeout) {
+	return !! __ps2_wait_for_flag(ps2_sr_out_buf_status, 1, retries,
+				tick_timeout);
 }
 
 
 #define MAX_PS2_KNOWN_DEVS		10
 #define PS2_SELF_TEST_RETRIES		5
 #define PS2_SELF_TEST_TIMEOUT		1 /* ticks */
+#define PS2_OUTPUT_RETRIES		5
+#define PS2_OUTPUT_TIMEOUT		5
 
 // TODO: replace array with list in order to avoid troubles with support
 // of many types of keyboards or mice
@@ -126,7 +149,6 @@ static void ps2_disable_interrupts(uint8_t *conf_byte, int lines);
 
 static void ps2_disable_translation(uint8_t *conf_byte);
 
-static void ps2_clean_buffer();
 static int ps2_controller_test();
 
 static int ps2_test_line(ps2_line_t line);
@@ -139,8 +161,8 @@ void ps2_init() {
 	uint8_t conf;
 	snprintf(info, 100, "initializing PS/2 controller...\n");
 	vga_console_puts(info);
-	ps2_disable_dev(ps2_dev_2);
 	ps2_disable_dev(ps2_dev_1);
+	ps2_disable_dev(ps2_dev_2);
 
 	ps2_clean_buffer();
 
@@ -165,16 +187,49 @@ void ps2_init() {
 		panic("PS/2: controller self-test failed!");
 	}
 
-	ps2_probe_devices();
+	ps2_enable_dev(ps2_dev_2);
+	
+	conf = ps2_read_conf_byte();
+	if (conf & (ps2_cb_clock_second|ps2_cb_clock_first)) {
+		snprintf(info, 100, "both PS/2 devs present\n");
+	} else if (conf & ps2_cb_clock_first) {
+		snprintf(info, 100, "only first PS/2 dev present\n");
+	} else if (conf & ps2_cb_clock_second) {
+		snprintf(info, 100, "only second PS/2 dev present\n");
+	} else {
+		snprintf(info, 100, "no devs present\n");
+	}
+	vga_console_puts(info);
+
+	ps2_disable_dev(ps2_dev_2);
+
+	for (ps2_line_t ps2_line = __ps2_dev_min;
+			ps2_line < __ps2_dev_max; ++ps2_line) {
+		if (!ps2_test_line(ps2_line)) {
+			snprintf(info, 100, "PS/2: line %li"
+					" failed self-test!\n",
+					(long) ps2_line);
+			vga_console_puts(info);
+		} else {
+			snprintf(info, 100, "PS/2: line %li"
+					" passed self-test\n",
+					(long) ps2_line);
+			vga_console_puts(info);
+		}
+	}
 
 	register_irq_handler(PS2_FIRST_LINE_IRQ, first_line_isr);
 	register_irq_handler(PS2_SECOND_LINE_IRQ, second_line_isr);
 
-	conf = ps2_read_conf_byte();
-	ps2_enable_interrupts(&conf, ps2_dev_1);
-	ps2_write_conf_byte(conf);
 
 	ps2_enable_dev(ps2_dev_1);
+	ps2_enable_dev(ps2_dev_2);
+
+	ps2_probe_devices();
+
+	conf = ps2_read_conf_byte();
+	ps2_enable_interrupts(&conf, ps2_dev_1|ps2_dev_2);
+	ps2_write_conf_byte(conf);
 };
 
 static void first_line_isr(irq_t vec __attribute__((unused))) {
@@ -192,7 +247,7 @@ static void ps2_irq_handler(ps2_line_t line) {
 		char error_msg[50];
 		snprintf(error_msg, 50, "No ps2 device exists for %li "
 				"PS/2 line\n", (long) line);
-		bug(error_msg);
+		//bug(error_msg);
 	}
 }
 
@@ -214,18 +269,6 @@ static void ps2_probe_devices() {
 	// for each line do ...
 	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
-		if (!ps2_test_line(ps2_line)) {
-			snprintf(info, 100, "PS/2: line %li"
-					" failed self-test!\n",
-					(long) ps2_line);
-			vga_console_puts(info);
-			continue;
-		} else {
-			snprintf(info, 100, "PS/2: line %li"
-					" passed self-test\n",
-					(long) ps2_line);
-			vga_console_puts(info);
-		}
 		struct ps2_dev *active_dev = NULL;
 		int active_dev_count = 0;
 		// for each registered device
@@ -300,7 +343,7 @@ static void ps2_disable_translation(uint8_t *conf_byte) {
 	*conf_byte &= ~ps2_cb_translation;
 }
 
-static void ps2_clean_buffer() {
+void ps2_clean_buffer() {
 	uint8_t status_register = ps2_read_status();
 	while (status_register & ps2_sr_out_buf_status) {
 		ps2_receive_byte(); // ignore input
@@ -332,14 +375,62 @@ static int ps2_test_line(ps2_line_t line) {
 		cmd = ps2_cmd_port_test_2;
 	}
 	ps2_send_command(cmd);
+	char err[100];
 	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
 			PS2_SELF_TEST_TIMEOUT);
 	if (!can_read) {
+		snprintf(err, 100, "no responce to self-test\n");
+		vga_console_puts(err);
 		return 0;
 	}
 	uint8_t test_result = ps2_receive_byte();
 	if (test_result == ps2_rpl_port_test_ok) {
 		return 1;
 	}
+	snprintf(err, 100, "line test result = %lu\n",
+			(long unsigned) test_result);
+	vga_console_puts(err);
 	return 0;
+}
+
+int ps2_send_byte_dev(ps2_line_t line, uint8_t byte) {
+	if (line == ps2_dev_2) {
+		ps2_send_command(ps2_cmd_redirect_2nd);
+	}
+	int can_write = ps2_wait_for_output(PS2_OUTPUT_RETRIES,
+			PS2_OUTPUT_TIMEOUT);
+	if (!can_write) {
+		return 0;
+	}
+	ps2_send_byte(byte);
+	return 1;
+}
+
+ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte,
+		uint8_t ack) {
+	if (!ps2_send_byte_dev(line, byte)) {
+		return ps2_ioret_timeout;
+	}
+	if (ps2_wait_for_input(5,5)) {
+		uint8_t byte = ps2_receive_byte();
+		if (byte != ack) {
+			return ps2_ioret_wrong_ack;
+		}
+	} else {
+		return ps2_ioret_timeout;
+	}
+	return ps2_ioret_ok;
+}
+
+static char *ps2_err_descr[] = {
+	"No error",
+	"Wrong ack",
+	"Timeout",
+	"Not specified"
+};
+
+char *ps2_ioret_strerror(ps2_ioret_t error) {
+	if (error >= __ps2_ioret_max_error)
+		return ps2_err_descr[__ps2_ioret_max_error];
+	return ps2_err_descr[error];
 }

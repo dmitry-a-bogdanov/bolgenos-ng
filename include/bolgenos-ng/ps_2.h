@@ -24,7 +24,23 @@ struct ps2_dev {
 	void (*irq_handler)(void);
 };
 
+int ps2_wait_for_output(int retries, int tick_timeout);
+int ps2_wait_for_input(int retries, int tick_timeout);
 uint8_t ps2_receive_byte();
+
+void ps2_clean_buffer();
+
+typedef enum {
+	ps2_ioret_ok = 0,
+	ps2_ioret_wrong_ack,
+	ps2_ioret_timeout,
+	__ps2_ioret_max_error
+} ps2_ioret_t;
+
+char *ps2_ioret_strerror(ps2_ioret_t error);
+
+int ps2_send_byte_dev(ps2_line_t line, uint8_t byte);
+ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte, uint8_t ack);
 
 void ps2_init();
 
