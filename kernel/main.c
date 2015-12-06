@@ -1,9 +1,11 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/irq.h>
+#include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
@@ -27,9 +29,14 @@ void kernel_main() {
 	system_pic = &pic_8259;
 	system_pic->setup();
 
+	init_timer();
+
 	interrupts_enable();
 
 	vga_console_puts("CPU is initialized\n");
+
+	ps2_keyboard_init();
+	ps2_init();
 
 	do {
 		asm ("hlt");

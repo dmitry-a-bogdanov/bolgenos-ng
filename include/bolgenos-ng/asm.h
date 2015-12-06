@@ -26,6 +26,10 @@ static inline void iowait() {
 	outb(0x80, 0x00);
 }
 
+static inline void halt_cpu() {
+	asm volatile("hlt");
+}
+
 static inline void cpuid(uint32_t eax, uint32_t *edx, uint32_t *ecx) {
 	asm volatile("cpuid": "=d"(*edx), "=c"(*ecx): "a"(eax));
 }

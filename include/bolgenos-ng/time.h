@@ -5,6 +5,9 @@
 
 extern volatile uint32_t ticks;
 
-void handle_timer_interrupt();
+void init_timer();
+
+void __sleep(uint32_t ticks_timeout);
+
 
 #endif // __BOLGENOS_NG__TIME_H__

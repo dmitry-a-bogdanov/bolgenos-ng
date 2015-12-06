@@ -1,15 +1,19 @@
 #include <bolgenos-ng/error.h>
 
+#include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/vga_console.h>
 
-void panic() {
-	vga_console_puts("Panic!");
-	asm volatile("cli");
+void panic(const char *msg) {
+	interrupts_disable();
+	vga_console_puts("Kernel Panic:");
+	vga_console_puts(msg);
 	while(1) {
-		asm volatile("hlt");
+		halt_cpu();
 	}
 }
 
-void bug() {
-	panic();
+void bug(const char *msg) {
+	vga_console_puts("Kernel Bug! Escalating to Kernel Panic...\n");
+	panic(msg);
 }

@@ -5,6 +5,7 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
@@ -13,6 +14,12 @@
 
 #define __macro_concat(x, y) x ## y
 #define macro_concat(x, y) __macro_concat(x, y)
+
+
+static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };
+
+static void __irq_dispatcher(irq_t vector);
+static void __handler_not_specified(irq_t vector);
 
 
 typedef uint64_t gate_field_t;
@@ -152,7 +159,7 @@ check_type_size(trap_gate_t, 8);
 #define __decl_isr_stage_c(num, generic_isr)				\
 	void __attribute__((used)) __isr_stage_c_ ## num () {		\
 		generic_isr(num);					\
-		system_pic->end_of_interrupt(num);			\
+		end_of_irq(num);					\
 	}
 
 #define __decl_isr(num, function)					\
@@ -167,71 +174,80 @@ check_type_size(trap_gate_t, 8);
 		table[num] = *int_get_gate(&gate);			\
 	} while(0)
 
-
-static void __generic_isr(uint8_t irq) {
+/*
+void __generic_isr(uint8_t irq) {
+	char info[100];
 	switch(irq) {
 	case 0x20:
 		handle_timer_interrupt();
 		break;
+	case 0x21:
+		handle_first_ps2_dev_int();
+		break;
+	case 0x2c:
+		handle_second_ps2_dev_int();
+		break;
 	default:
-		vga_console_puts("generic irq\n");
+		snprintf(info, 100, "got IRQ %lu\n", (long unsigned) irq);
+		vga_console_puts(info);
 		break;
 	}
 }
+*/
 
 
 // comment__why_not_use_counter:
 //
 // Looks like using __COUNTER__ is unsafe since it may depends on
 // compilation order.
-__decl_isr(0, __generic_isr);
-__decl_isr(1, __generic_isr);
-__decl_isr(2, __generic_isr);
-__decl_isr(3, __generic_isr);
-__decl_isr(4, __generic_isr);
-__decl_isr(5, __generic_isr);
-__decl_isr(6, __generic_isr);
-__decl_isr(7, __generic_isr);
-__decl_isr(8, __generic_isr);
-__decl_isr(9, __generic_isr);
-__decl_isr(10, __generic_isr);
-__decl_isr(11, __generic_isr);
-__decl_isr(12, __generic_isr);
-__decl_isr(13, __generic_isr);
-__decl_isr(14, __generic_isr);
-__decl_isr(15, __generic_isr);
-__decl_isr(16, __generic_isr);
-__decl_isr(17, __generic_isr);
-__decl_isr(18, __generic_isr);
-__decl_isr(19, __generic_isr);
-__decl_isr(20, __generic_isr);
-__decl_isr(21, __generic_isr);
-__decl_isr(22, __generic_isr);
-__decl_isr(23, __generic_isr);
-__decl_isr(24, __generic_isr);
-__decl_isr(25, __generic_isr);
-__decl_isr(26, __generic_isr);
-__decl_isr(27, __generic_isr);
-__decl_isr(28, __generic_isr);
-__decl_isr(29, __generic_isr);
-__decl_isr(30, __generic_isr);
-__decl_isr(31, __generic_isr);
-__decl_isr(32, __generic_isr);
-__decl_isr(33, __generic_isr);
-__decl_isr(34, __generic_isr);
-__decl_isr(35, __generic_isr);
-__decl_isr(36, __generic_isr);
-__decl_isr(37, __generic_isr);
-__decl_isr(38, __generic_isr);
-__decl_isr(39, __generic_isr);
-__decl_isr(40, __generic_isr);
-__decl_isr(41, __generic_isr);
-__decl_isr(42, __generic_isr);
-__decl_isr(43, __generic_isr);
-__decl_isr(44, __generic_isr);
-__decl_isr(45, __generic_isr);
-__decl_isr(46, __generic_isr);
-__decl_isr(47, __generic_isr);
+__decl_isr(0, __irq_dispatcher);
+__decl_isr(1, __irq_dispatcher);
+__decl_isr(2, __irq_dispatcher);
+__decl_isr(3, __irq_dispatcher);
+__decl_isr(4, __irq_dispatcher);
+__decl_isr(5, __irq_dispatcher);
+__decl_isr(6, __irq_dispatcher);
+__decl_isr(7, __irq_dispatcher);
+__decl_isr(8, __irq_dispatcher);
+__decl_isr(9, __irq_dispatcher);
+__decl_isr(10, __irq_dispatcher);
+__decl_isr(11, __irq_dispatcher);
+__decl_isr(12, __irq_dispatcher);
+__decl_isr(13, __irq_dispatcher);
+__decl_isr(14, __irq_dispatcher);
+__decl_isr(15, __irq_dispatcher);
+__decl_isr(16, __irq_dispatcher);
+__decl_isr(17, __irq_dispatcher);
+__decl_isr(18, __irq_dispatcher);
+__decl_isr(19, __irq_dispatcher);
+__decl_isr(20, __irq_dispatcher);
+__decl_isr(21, __irq_dispatcher);
+__decl_isr(22, __irq_dispatcher);
+__decl_isr(23, __irq_dispatcher);
+__decl_isr(24, __irq_dispatcher);
+__decl_isr(25, __irq_dispatcher);
+__decl_isr(26, __irq_dispatcher);
+__decl_isr(27, __irq_dispatcher);
+__decl_isr(28, __irq_dispatcher);
+__decl_isr(29, __irq_dispatcher);
+__decl_isr(30, __irq_dispatcher);
+__decl_isr(31, __irq_dispatcher);
+__decl_isr(32, __irq_dispatcher);
+__decl_isr(33, __irq_dispatcher);
+__decl_isr(34, __irq_dispatcher);
+__decl_isr(35, __irq_dispatcher);
+__decl_isr(36, __irq_dispatcher);
+__decl_isr(37, __irq_dispatcher);
+__decl_isr(38, __irq_dispatcher);
+__decl_isr(39, __irq_dispatcher);
+__decl_isr(40, __irq_dispatcher);
+__decl_isr(41, __irq_dispatcher);
+__decl_isr(42, __irq_dispatcher);
+__decl_isr(43, __irq_dispatcher);
+__decl_isr(44, __irq_dispatcher);
+__decl_isr(45, __irq_dispatcher);
+__decl_isr(46, __irq_dispatcher);
+__decl_isr(47, __irq_dispatcher);
 
 
 static gate_t idt[NUMBER_OF_IRQS] __attribute__((__align_for_irq__));
@@ -291,4 +307,22 @@ void setup_interrupts() {
 	idt_pointer.limit = sizeof(idt) - 1;
 	idt_pointer.base = (uint32_t) idt;
 	asm volatile("lidt %0"::"m" (idt_pointer));
+}
+
+void register_irq_handler(irq_t vector, irq_handler_t routine) {
+	__irq_handlers[vector] = routine;
+}
+
+static void __handler_not_specified(irq_t vector) {
+	char msg[50];
+	snprintf(msg, 50, "Unhandled IRQ (vector=%lu)\n",
+			(long unsigned) vector);
+	vga_console_puts(msg);
+}
+
+static void __irq_dispatcher(irq_t vector) {
+	irq_handler_t handler = __irq_handlers[vector];
+	if (handler == NULL)
+		handler = __handler_not_specified;
+	handler(vector);
 }
