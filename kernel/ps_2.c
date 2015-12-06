@@ -109,6 +109,9 @@ int ps2_wait_for_input(int retries, int tick_timeout) {
 				tick_timeout);
 }
 
+int ps2_can_read() {
+	return ps2_wait_for_input(1, 0);
+}
 
 #define MAX_PS2_KNOWN_DEVS		10
 #define PS2_SELF_TEST_RETRIES		5

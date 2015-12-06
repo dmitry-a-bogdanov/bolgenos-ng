@@ -5,6 +5,8 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
+#include "ps2_keyboard_sm.h"
+
 static probe_ret_t ps2_keyboard_probe(ps2_line_t line);
 static void ps2_keyboard_handle_irq();
 
@@ -75,11 +77,10 @@ ok:
 }
 
 static void ps2_keyboard_handle_irq() {
-	uint8_t byte = ps2_receive_byte();
-	char info[100];
-	snprintf(info, 100, "got '%lu' from keyboard PS/2\n",
-			(long unsigned) byte);
-	vga_console_puts(info);
+	while (ps2_can_read()) {
+		uint8_t byte = ps2_receive_byte();
+		ps2_kb_sm_put_byte(byte);
+	}
 }
 
 void ps2_keyboard_init() {

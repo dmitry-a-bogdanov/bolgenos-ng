@@ -26,6 +26,9 @@ struct ps2_dev {
 
 int ps2_wait_for_output(int retries, int tick_timeout);
 int ps2_wait_for_input(int retries, int tick_timeout);
+
+int ps2_can_read();
+
 uint8_t ps2_receive_byte();
 
 void ps2_clean_buffer();
