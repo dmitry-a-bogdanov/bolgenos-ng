@@ -1,7 +1,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/irq.h>
-#include <bolgenos-ng/keyboard.h>
+#include <bolgenos-ng/ps2_keyboard.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>

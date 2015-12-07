@@ -27,7 +27,7 @@ set(kernel_sources ${kernel_start_file}
 	bootstrap.h
 	error.c
 	irq.c
-	keyboard.c
+	ps2_keyboard.c
 	main.c
 	mmu.c
 	pic_8259.c
