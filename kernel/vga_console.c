@@ -45,6 +45,7 @@ static vga_cell_t __vga_cell(char symbol, vga_color_t fg, vga_color_t bg);
 static void __vga_cursor_next();
 static void __vga_linebreak();
 static void __vga_newline();
+static void __vga_scroll();
 static void __vga_carriage_return();
 
 void vga_console_putc_color(char symbol, vga_color_t fg,
@@ -117,14 +118,25 @@ static void __vga_cursor_next() {
 
 static void __vga_newline() {
 	if (++__vga_pos_line == __vga_height) {
-		__vga_pos_line = 0;
-		vga_clear_screen();
+		__vga_pos_line = __vga_height - 1;
+		__vga_scroll();
 	}
 }
 
 static void __vga_linebreak() {
 	__vga_newline();
 	__vga_carriage_return();
+}
+
+static void __vga_scroll() {
+	for (int i = 0; i < __vga_height - 1; ++i) {
+		memcpy((char *)(__vga_memory + i * __vga_width),
+			(char *)(__vga_memory + (i + 1) * __vga_width),
+			(__vga_width * sizeof(vga_cell_t)));
+	}
+	uint16_t zero = 0;
+	memset_16((char *)(__vga_memory + (__vga_height - 1) * __vga_width),
+		(char *) &zero, __vga_width);
 }
 
 static void __vga_carriage_return() {
