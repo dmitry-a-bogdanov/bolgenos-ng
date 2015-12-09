@@ -1,9 +1,9 @@
 #include <bolgenos-ng/ps2_keyboard.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
 
 #include "ps2_keyboard_sm.h"
 
@@ -27,23 +27,21 @@ enum {
 static uint8_t this_dev_id[this_dev_id_len] = { 0xab, 0x83 };
 
 static probe_ret_t ps2_keyboard_probe(ps2_line_t line) {
-	char info[100];
 	ps2_clean_buffer();
 	ps2_ioret_t ret;
 	ret = ps2_send_byte_with_ack(line, ps2_dcmd_disable_scan,
 			ps2_keyboard_ack);
 	if (ret != ps2_ioret_ok) {
-		snprintf(info, 100, "failed to disable scan: %s\n",
-				ps2_ioret_strerror(ret));
-		vga_console_puts(info);
+		printk("failed to disable scan: %s\n",
+			ps2_ioret_strerror(ret));
 		goto fail;
 	}
 
 	ret = ps2_send_byte_with_ack(line, ps2_dcmd_identify,
 			ps2_keyboard_ack);
 	if (ret != ps2_ioret_ok) {
-		snprintf(info, 100, "failed to identify dev: %s\n");
-		vga_console_puts(info);
+		printk("failed to identify dev: %s\n",
+			ps2_ioret_strerror(ret));
 		goto fail;
 	}
 
@@ -52,9 +50,8 @@ static probe_ret_t ps2_keyboard_probe(ps2_line_t line) {
 		uint8_t id_byte;
 		id_byte = ps2_receive_byte();
 		if (id_byte != this_dev_id[id_count]) {
-			snprintf(info, 100, "got wrong id_byte = %li:%lu\n",
-				(long) id_count, id_byte);
-			vga_console_puts(info);
+			printk("got wrong id_byte = %li:%lu\n",
+				(long) id_count, (unsigned long) id_byte);
 			goto fail;
 		}
 		++id_count;
@@ -62,17 +59,13 @@ static probe_ret_t ps2_keyboard_probe(ps2_line_t line) {
 			goto ok;
 	}
 fail:
-	snprintf(info, 100, "line %li: probe as ps2_keyboard FAILED\n",
-			(long) line);
-	vga_console_puts(info);
+	printk("line %li: probe as ps2_keyboard FAILED\n", (long) line);
 	return probe_next;
 ok:
 	// leave in a SCANNING state!
 	(void) ps2_send_byte_with_ack(line, ps2_dcmd_enable_scan,
 			ps2_keyboard_ack);
-	snprintf(info, 100, "line %li: probe as ps2_keyboard PASSED\n",
-			(long) line);
-	vga_console_puts(info);
+	printk("line %li: probe as ps2_keyboard PASSED\n", (long) line);
 	return probe_ok;
 }
 

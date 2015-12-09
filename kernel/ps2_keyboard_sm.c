@@ -4,7 +4,6 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
-
 char codeset2_ascii[256] = {
 	  0,   0,    0,   0,      0,    0,    0, 0,		// 0x00 - 0x07
 	  0,   0,    0,   0,      0, '\t',  '`', 0,		// 0x08 - 0x0f
@@ -67,10 +66,6 @@ static char ps2_kbd_lshift(char sym) {
 #define __release_byte			240
 #define __left_shift_byte		0x12
 void ps2_kb_sm_put_byte(uint8_t byte) {
-	//char info[100];
-	//snprintf(info, 100, "got '%lu' from keyboard PS/2\n",
-	//		(long unsigned) byte);
-	//vga_console_puts(info);
 	static int skip_next = 0;
 	static int left_shift = 0;
 	if (skip_next) {

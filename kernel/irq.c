@@ -5,10 +5,10 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
-#include <bolgenos-ng/vga_console.h>
 
 #define __align_for_irq__	aligned(16)
 
@@ -174,28 +174,6 @@ check_type_size(trap_gate_t, 8);
 		table[num] = *int_get_gate(&gate);			\
 	} while(0)
 
-/*
-void __generic_isr(uint8_t irq) {
-	char info[100];
-	switch(irq) {
-	case 0x20:
-		handle_timer_interrupt();
-		break;
-	case 0x21:
-		handle_first_ps2_dev_int();
-		break;
-	case 0x2c:
-		handle_second_ps2_dev_int();
-		break;
-	default:
-		snprintf(info, 100, "got IRQ %lu\n", (long unsigned) irq);
-		vga_console_puts(info);
-		break;
-	}
-}
-*/
-
-
 // comment__why_not_use_counter:
 //
 // Looks like using __COUNTER__ is unsafe since it may depends on
@@ -314,10 +292,7 @@ void register_irq_handler(irq_t vector, irq_handler_t routine) {
 }
 
 static void __handler_not_specified(irq_t vector) {
-	char msg[50];
-	snprintf(msg, 50, "Unhandled IRQ (vector=%lu)\n",
-			(long unsigned) vector);
-	vga_console_puts(msg);
+	printk("Unhandled IRQ (vector=%lu)\n", (long unsigned) vector);
 }
 
 static void __irq_dispatcher(irq_t vector) {

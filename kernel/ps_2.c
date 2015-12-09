@@ -4,9 +4,9 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
-#include <bolgenos-ng/vga_console.h>
 
 enum ps2_reply {
 	ps2_rpl_port_test_ok		= 0x00,
@@ -160,10 +160,8 @@ static int ps2_test_line(ps2_line_t line);
 #define PS2_SECOND_LINE_IRQ		(min_pic_irq + 12)
 
 void ps2_init() {
-	char info[100];
 	uint8_t conf;
-	snprintf(info, 100, "initializing PS/2 controller...\n");
-	vga_console_puts(info);
+	printk("initializing PS/2 controller...\n");
 	ps2_disable_dev(ps2_dev_1);
 	ps2_disable_dev(ps2_dev_2);
 
@@ -171,15 +169,12 @@ void ps2_init() {
 
 	conf = ps2_read_conf_byte();
 
-	snprintf(info, 100, "PS/2 conf byte=%lu\n",
-		(unsigned long) conf);
-	vga_console_puts(info);
+	printk("PS/2 conf byte=%lu\n", (unsigned long) conf);
 
 	int ps2_lines = ps2_get_lines(conf);
 
-	snprintf(info, 100, "this system has %lu PS/2 port(s)\n",
-			(long unsigned) ps2_lines);
-	vga_console_puts(info);
+	printk("this system has %lu PS/2 port(s)\n",
+		(long unsigned) ps2_lines);
 
 	ps2_disable_interrupts(&conf, ps2_dev_1|ps2_dev_1);
 	ps2_disable_translation(&conf);
@@ -194,30 +189,25 @@ void ps2_init() {
 	
 	conf = ps2_read_conf_byte();
 	if (conf & (ps2_cb_clock_second|ps2_cb_clock_first)) {
-		snprintf(info, 100, "both PS/2 devs present\n");
+		printk("both PS/2 devs present\n");
 	} else if (conf & ps2_cb_clock_first) {
-		snprintf(info, 100, "only first PS/2 dev present\n");
+		printk("only first PS/2 dev present\n");
 	} else if (conf & ps2_cb_clock_second) {
-		snprintf(info, 100, "only second PS/2 dev present\n");
+		printk("only second PS/2 dev present\n");
 	} else {
-		snprintf(info, 100, "no devs present\n");
+		printk("no devs present\n");
 	}
-	vga_console_puts(info);
 
 	ps2_disable_dev(ps2_dev_2);
 
 	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
 		if (!ps2_test_line(ps2_line)) {
-			snprintf(info, 100, "PS/2: line %li"
-					" failed self-test!\n",
+			printk("PS/2: line %li failed self-test!\n",
 					(long) ps2_line);
-			vga_console_puts(info);
 		} else {
-			snprintf(info, 100, "PS/2: line %li"
-					" passed self-test\n",
+			printk("PS/2: line %li passed self-test\n",
 					(long) ps2_line);
-			vga_console_puts(info);
 		}
 	}
 
@@ -246,11 +236,6 @@ static void second_line_isr(irq_t vec __attribute__((unused))) {
 static void ps2_irq_handler(ps2_line_t line) {
 	if (ps2_active_devices[line]) {
 		ps2_active_devices[line]->irq_handler();
-	} else {
-		char error_msg[50];
-		snprintf(error_msg, 50, "No ps2 device exists for %li "
-				"PS/2 line\n", (long) line);
-		//bug(error_msg);
 	}
 }
 
@@ -267,8 +252,6 @@ static void ps2_write_conf_byte(uint8_t conf_byte) {
 }
 
 static void ps2_probe_devices() {
-	char info[100];
-
 	// for each line do ...
 	for (ps2_line_t ps2_line = __ps2_dev_min;
 			ps2_line < __ps2_dev_max; ++ps2_line) {
@@ -285,14 +268,14 @@ static void ps2_probe_devices() {
 			}
 		}
 		if (active_dev_count > 1) {
+			char info[100];
 			snprintf(info, 100, "more than 1 probed devices for "
 				"PS/2 line %li\n", (long) ps2_line);
 			bug(info);
 		}
 
-		snprintf(info, 100, "PS/2[%li]: active_dev = %li\n",
+		printk("PS/2[%li]: active_dev = %li\n",
 			(long) ps2_line, (long) active_dev);
-		vga_console_puts(info);
 
 		ps2_active_devices[ps2_line] = active_dev;
 	}
@@ -378,21 +361,17 @@ static int ps2_test_line(ps2_line_t line) {
 		cmd = ps2_cmd_port_test_2;
 	}
 	ps2_send_command(cmd);
-	char err[100];
 	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
 			PS2_SELF_TEST_TIMEOUT);
 	if (!can_read) {
-		snprintf(err, 100, "no responce to self-test\n");
-		vga_console_puts(err);
+		printk("no responce to self-test\n");
 		return 0;
 	}
 	uint8_t test_result = ps2_receive_byte();
 	if (test_result == ps2_rpl_port_test_ok) {
 		return 1;
 	}
-	snprintf(err, 100, "line test result = %lu\n",
-			(long unsigned) test_result);
-	vga_console_puts(err);
+	printk("line test result = %lu\n", (long unsigned) test_result);
 	return 0;
 }
 

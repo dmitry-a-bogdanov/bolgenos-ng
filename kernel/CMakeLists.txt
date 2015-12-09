@@ -37,6 +37,7 @@ set(kernel_sources ${kernel_start_file}
 	ps2_keyboard_sm.c
 	time.c
 	vga_console.c
+	lib/printk.c
 	lib/snprintf.c
 	lib/string.c
 	)

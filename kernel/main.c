@@ -5,6 +5,7 @@
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
@@ -21,7 +22,7 @@ void kernel_main() {
 	vga_console_init();
 	vga_clear_screen();
 
-	vga_console_puts("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n"); 
+	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n"); 
 
 	setup_segments();
 	setup_interrupts();
@@ -33,7 +34,7 @@ void kernel_main() {
 
 	interrupts_enable();
 
-	vga_console_puts("CPU is initialized\n");
+	printk("CPU is initialized\n");
 
 	ps2_keyboard_init();
 	ps2_init();
