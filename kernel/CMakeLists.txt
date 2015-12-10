@@ -33,10 +33,12 @@ set(kernel_sources ${kernel_start_file}
 	pic_8259.c
 	pic_common.c
 	ps_2.c
+	ps2_keyboard.c
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
 	time.c
 	vga_console.c
+	lib/printk.c
 	lib/snprintf.c
 	lib/string.c
 	)

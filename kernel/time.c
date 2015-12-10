@@ -24,13 +24,9 @@ void init_timer() {
 }
 
 static void handle_timer_interrupt(irq_t vector __attribute__((unused))) {
+	++ticks;
 #if VERBOSE_TIMER_INTERRUPT
-	++ticks;
-	char info[30];
-	snprintf(info, 30, "tick #%lu\n", ticks);
-	vga_console_puts(info);
-#else
-	++ticks;
+	printk("tick #%lu\n", ticks);
 #endif
 }
 

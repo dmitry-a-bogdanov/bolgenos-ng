@@ -1,88 +1,90 @@
 #include <bolgenos-ng/keyboard.h>
 
-#include <bolgenos-ng/asm.h>
-#include <bolgenos-ng/ps_2.h>
-#include <bolgenos-ng/string.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/vga_console.h>
 
-#include "ps2_keyboard_sm.h"
 
-static probe_ret_t ps2_keyboard_probe(ps2_line_t line);
-static void ps2_keyboard_handle_irq();
+char kb_keys_pressed[__kb_key_max] = { KEY_RELEASED };
 
-struct ps2_dev ps2_keyboard = {
-	.probe			= ps2_keyboard_probe,
-	.irq_handler		= ps2_keyboard_handle_irq
-};
+static int __is_letter(kb_key key) {
+	return (kb_key_a <= key && key <= kb_key_z);
+}
 
-enum {
-	ps2_dcmd_enable_scan		= 0xf4,
-	ps2_dcmd_disable_scan		= 0xf5,
-	ps2_dcmd_identify		= 0xf2
-} ps2_dev_cmd_t;
+static int __is_digit(kb_key key) {
+	return (kb_key_0 <= key && key <= kb_key_9);
+}
 
-#define ps2_keyboard_ack		(0xfa)
-
-#define this_dev_id_len			2
-static uint8_t this_dev_id[this_dev_id_len] = { 0xab, 0x83 };
-
-static probe_ret_t ps2_keyboard_probe(ps2_line_t line) {
-	char info[100];
-	ps2_clean_buffer();
-	ps2_ioret_t ret;
-	ret = ps2_send_byte_with_ack(line, ps2_dcmd_disable_scan,
-			ps2_keyboard_ack);
-	if (ret != ps2_ioret_ok) {
-		snprintf(info, 100, "failed to disable scan: %s\n",
-				ps2_ioret_strerror(ret));
-		vga_console_puts(info);
-		goto fail;
+static char printable_key(kb_key key) {
+	if (__is_letter(key)) {
+		return 'a' + (key - kb_key_a);
 	}
 
-	ret = ps2_send_byte_with_ack(line, ps2_dcmd_identify,
-			ps2_keyboard_ack);
-	if (ret != ps2_ioret_ok) {
-		snprintf(info, 100, "failed to identify dev: %s\n");
-		vga_console_puts(info);
-		goto fail;
+	if (__is_digit(key)) {
+		return '0' + (key - kb_key_0);
 	}
 
-	int id_count = 0;
-	while(ps2_wait_for_input(5,5)) {
-		uint8_t id_byte;
-		id_byte = ps2_receive_byte();
-		if (id_byte != this_dev_id[id_count]) {
-			snprintf(info, 100, "got wrong id_byte = %li:%lu\n",
-				(long) id_count, id_byte);
-			vga_console_puts(info);
-			goto fail;
+	switch (key) {
+	case kb_key_space:				return ' ';
+	case kb_key_back_tick:				return '`';
+	case kb_key_comma:				return ',';
+	case kb_key_dot:				return '.';
+	case kb_key_slash:				return '/';
+	case kb_key_semicolon:				return ';';
+	case kb_key_minus:				return '-';
+	case kb_key_apos:				return '\'';
+	case kb_key_sqbracketl:				return '[';
+	case kb_key_equal:				return '=';
+	case kb_key_enter:				return '\n';
+	case kb_key_sqbracketr:				return ']';
+	case kb_key_backslash:				return '\\';
+
+	default:return 0;
+	}
+}
+
+static char kb_lshift(char sym) {
+	if ('a' <= sym && sym <= 'z') {
+		char offset = sym - 'a';
+		return 'A' + offset;
+	}
+	switch (sym) {
+	case '0':	return ')';
+	case '1':	return '!';
+	case '2':	return '@';
+	case '3':	return '#';
+	case '4':	return '$';
+	case '5':	return '%';
+	case '6':	return '^';
+	case '7':	return '&';
+	case '8':	return '*';
+	case '9':	return '(';
+	case '`':	return '~';
+	case ',':	return '<';
+	case '.':	return '>';
+	case '/':	return '?';
+	case ';':	return ':';
+	case '-':	return '_';
+	case '\'':	return '"';
+	case '[':	return '{';
+	case ']':	return '}';
+	case '=':	return '+';
+	case '\\':	return '|';
+	default:	return sym;
+	}
+}
+
+void kb_print_to_vga() {
+	int lshift = (kb_keys_pressed[kb_key_lshift] == KEY_PRESSED);
+	for (kb_key key = __kb_key_none; key < __kb_key_max; ++key) {
+		if (kb_keys_pressed[key] == KEY_PRESSED) {
+			char symbol = printable_key(key);
+			if (symbol) {
+				if (lshift) {
+					symbol = kb_lshift(symbol);
+				}
+				vga_console_putc(symbol);
+				kb_keys_pressed[key] = KEY_RELEASED;
+			}
 		}
-		++id_count;
-		if (id_count == this_dev_id_len)
-			goto ok;
 	}
-fail:
-	snprintf(info, 100, "line %li: probe as ps2_keyboard FAILED\n",
-			(long) line);
-	vga_console_puts(info);
-	return probe_next;
-ok:
-	// leave in a SCANNING state!
-	(void) ps2_send_byte_with_ack(line, ps2_dcmd_enable_scan,
-			ps2_keyboard_ack);
-	snprintf(info, 100, "line %li: probe as ps2_keyboard PASSED\n",
-			(long) line);
-	vga_console_puts(info);
-	return probe_ok;
-}
-
-static void ps2_keyboard_handle_irq() {
-	while (ps2_can_read()) {
-		uint8_t byte = ps2_receive_byte();
-		ps2_kb_sm_put_byte(byte);
-	}
-}
-
-void ps2_keyboard_init() {
-	ps2_register_device(&ps2_keyboard);
 }

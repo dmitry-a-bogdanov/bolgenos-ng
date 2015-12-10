@@ -97,8 +97,15 @@ static int read_format(const char *fmt, struct format_entry *ret) {
 }
 
 int snprintf(char *str, size_t size, const char *format, ...) {
-	va_list arg;
-	va_start(arg, format);
+	va_list args;
+	va_start(args, format);
+	int ret = vsnprintf(str, size, format, args);
+	va_end(args);
+
+	return ret;
+}
+
+int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 	int written = 0;
 	while (*format && size > 1) {
 		struct format_entry entry;
@@ -165,7 +172,6 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 		format += fmt_entry_length;
 	}
 out:
-	va_end(arg);
 	*str = '\0';
 	return written;
 
