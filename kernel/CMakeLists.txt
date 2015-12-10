@@ -27,12 +27,13 @@ set(kernel_sources ${kernel_start_file}
 	bootstrap.h
 	error.c
 	irq.c
-	ps2_keyboard.c
+	keyboard.c
 	main.c
 	mmu.c
 	pic_8259.c
 	pic_common.c
 	ps_2.c
+	ps2_keyboard.c
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
 	time.c

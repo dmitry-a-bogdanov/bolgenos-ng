@@ -3,10 +3,6 @@
 
 #include <bolgenos-ng/int_types.h>
 
-#define ps2_keyboard_keys		(256)
-
-extern char pressed_keys[ps2_keyboard_keys];
-
-void ps2_kb_sm_put_byte(uint8_t byte);
+void kbd_put_byte(uint8_t byte);
 
 #endif // __BOLGENOS_NG__PS2_KEYBOARD_SM_H__

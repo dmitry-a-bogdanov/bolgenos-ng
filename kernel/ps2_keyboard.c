@@ -1,6 +1,7 @@
 #include <bolgenos-ng/ps2_keyboard.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps_2.h>
 #include <bolgenos-ng/string.h>
@@ -20,6 +21,8 @@ enum {
 	ps2_dcmd_disable_scan		= 0xf5,
 	ps2_dcmd_identify		= 0xf2
 } ps2_dev_cmd_t;
+
+
 
 #define ps2_keyboard_ack		(0xfa)
 
@@ -70,10 +73,10 @@ ok:
 }
 
 static void ps2_keyboard_handle_irq() {
-	while (ps2_can_read()) {
+	//while (ps2_can_read()) {
 		uint8_t byte = ps2_receive_byte();
-		ps2_kb_sm_put_byte(byte);
-	}
+		kbd_put_byte(byte);
+	//}
 }
 
 void ps2_keyboard_init() {
