@@ -15,18 +15,55 @@
 
 #include "bootstrap.h"
 
+
+/**
+* \brief Multiboot header.
+*
+* This symbols declares multiboot header for kernel. It must be placed into
+*	separate section and this section must be placed by linker to the
+*	beginning of resulting ELF-file.
+*/
 multiboot_header_t
 	__attribute__((section(".multiboot_header"), used))
 	multiboot_header = mbh_initializer(MBH_ALIGN | MBH_MEMINFO);
 
+
+/**
+* \brief Boot info from bootloader.
+*
+* Pointer to boot info structure provided by the bootloader. This symbol
+* is set by assembler part of bootstrap code.
+* \warning Data that is pointer by this symbol should be copied to kernel
+*	internal memory before using memory allocation!
+*/
 boot_info_t *__boot_loader_boot_info;
 
+
+/**
+* \brief Boot info structure.
+*
+* This structure is an own instance of boot info provided by bootloader.
+* Structure has valid value only after calling extract_boot_info.
+*/
 boot_info_t boot_info;
 
+/**
+* \brief Extract boot info.
+*
+* Copy boot information structure provided by Multiboot bootloader to
+*	internal kernel memory.
+*/
 void extract_boot_info() {
 	memcpy(&boot_info, __boot_loader_boot_info, sizeof(boot_info_t));
 }
 
+
+/**
+* \brief Kernel main function.
+*
+* The main kernel function. The fuction performs full bootstrap of kernel
+*	and then goes to idle state.
+*/
 void kernel_main() {
 	interrupts_disable();
 

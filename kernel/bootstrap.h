@@ -4,7 +4,8 @@
 /**
 * \brief Kernel stack size.
 *
-* Macro defines size of kernel bootstrap stack in bytes.
+* Macro defines size of kernel bootstrap stack in bytes. If buildsystem
+*	doesn't set CONFIG_KERNEL_STACK_SIZE, default value (16 MB) is used.
 */
 #if defined(CONFIG_KERNEL_STACK_SIZE)
 #	define KERNEL_STACK_SIZE (CONFIG_KERNEL_STACK_SIZE)
