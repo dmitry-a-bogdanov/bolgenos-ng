@@ -1,19 +1,30 @@
 #ifndef __BOGLENOS_NG__MEM_UTILS_H__
 #define __BOGLENOS_NG__MEM_UTILS_H__
 
+/**
+* \brief Universal pointer type.
+*
+* Universal pointer type aliased to pointer to void.
+*/
+typedef void *ptr_t;
+
+
 #ifndef NULL
 /**
-* NULL-pointer constant.
+* \brief NULL-pointer.
+*
+* Zero constant casted to pointer to universal pointer.
 */
-#define NULL ((void *)0)
+#define NULL ((ptr_t)0)
 #endif
 
 
 /**
-* Address of lvalue castet to pointer to char.
+* \brief Get address of argument.
+*
+* Address of lvalue casted to universal pointer.
 */
-#define address_of(var) ((char *)&var)
-
+#define address_of(var) ((ptr_t)&var)
 
 /**
 * \brief Size of type compile-time assertion.
