@@ -1,12 +1,12 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/irq.h>
-#include <bolgenos-ng/ps2_keyboard.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/ps_2.h>
+#include <bolgenos-ng/ps2.h>
+#include <bolgenos-ng/ps2_keyboard.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>

@@ -113,8 +113,7 @@ typedef enum {
 	ps2_ioret_ok = 0, /*!< No erros detected. */
 	ps2_ioret_wrong_ack, /*!< Wrong ack is received. */
 	ps2_ioret_timeout, /*!< Operation was not finished in time. */
-	// TODO: replace to ps2_ioret_unknown_error.
-	__ps2_ioret_max_error
+	ps2_ioret_unknown_error /*!< Unknown error. */
 } ps2_ioret_t;
 
 
@@ -129,16 +128,15 @@ typedef enum {
 char *ps2_ioret_strerror(ps2_ioret_t error);
 
 
-// TODO: use ps2_ioret_t as return type.
 /**
 * \brief Send byte to PS/2 device instead of controller.
 *
 * Functions sends byte to specified PS/2 device instead of PS/2 controller.
 * \param line PS/2 device index.
 * \param byte Byte to be written.
-* \return 1 on success; 0 on failure.
+* \return Status of PS/2 IO operation.
 */
-int ps2_send_byte_dev(ps2_line_t line, uint8_t byte);
+ps2_ioret_t ps2_send_byte_dev(ps2_line_t line, uint8_t byte);
 
 
 /**

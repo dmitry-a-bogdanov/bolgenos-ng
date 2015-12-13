@@ -6,7 +6,7 @@
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/ps_2.h>
+#include <bolgenos-ng/ps2.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
