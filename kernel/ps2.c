@@ -1,4 +1,4 @@
-#include <bolgenos-ng/ps_2.h>
+#include <bolgenos-ng/ps2.h>
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>

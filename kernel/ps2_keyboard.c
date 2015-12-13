@@ -3,7 +3,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/ps_2.h>
+#include <bolgenos-ng/ps2.h>
 #include <bolgenos-ng/string.h>
 
 #include "ps2_keyboard_sm.h"
