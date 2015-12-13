@@ -1,6 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 project(bolgenos-ng
-	VERSION 0.0.1)
+	VERSION 0.0.2)
 cmake_minimum_required(VERSION 3.0.2)
 
 add_definitions(-DBOLGENOS_NG_VERSION="${PROJECT_VERSION}")
