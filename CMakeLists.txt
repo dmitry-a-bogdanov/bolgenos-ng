@@ -11,3 +11,6 @@ file(GLOB_RECURSE kernel_headers include/*.h)
 
 add_subdirectory(kernel)
 
+# Doxygen project
+add_subdirectory(doc)
+

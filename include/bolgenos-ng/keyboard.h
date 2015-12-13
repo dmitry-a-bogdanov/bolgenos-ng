@@ -1,8 +1,13 @@
 #ifndef __BOLGENOS_NG__KEYBOARD_H__
-#define __BOLGENOS_NG__KEYBOARD_H__ (1)
+#define __BOLGENOS_NG__KEYBOARD_H__
 
+/** \brief Keyboard's key.
+*
+* Enum holds key on keyboard and additional internal value to make coding
+*	easier.
+*/
 typedef enum {
-	__kb_key_none		= 0x00,
+	__kb_key_none		= 0x00, /*!< Invalid key */
 
 	kb_key_f1,
 	kb_key_f2,
@@ -147,14 +152,40 @@ typedef enum {
 	kb_key_print_screen,
 	kb_key_pause,
 
-	__kb_key_max
+	__kb_key_max /*!< Number of values in this enum */
 } kb_key;
 
 
+/**
+* \brief Key released flag.
+*
+* Flag for kb_keys_pressed used to mark key is not pressed or released.
+*/
 #define KEY_RELEASED			0x0
+
+
+/**
+* \brief Key pressed flag.
+*
+* Flag for kb_keys_pressed used to mark key as pressed.
+*/
 #define KEY_PRESSED			0x1
+
+
+/**
+* \brief Key status array
+*
+* Array shows which keys are pressed and released. For differentiating these
+*	statuses KEY_PRESSED and KEY_RELEASED constants are used.
+*/
 extern char kb_keys_pressed[__kb_key_max];
 
+
+/**
+* \brief React to pressed keys with VGA display
+*
+* Function prints to VGA display data that is got from keyboard.
+*/
 void kb_print_to_vga();
 
 #endif // __BOLGENOS_NG__KEYBOARD_H__
