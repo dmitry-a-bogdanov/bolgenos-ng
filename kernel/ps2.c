@@ -375,44 +375,47 @@ static int ps2_test_line(ps2_line_t line) {
 	return 0;
 }
 
-int ps2_send_byte_dev(ps2_line_t line, uint8_t byte) {
+ps2_ioret_t ps2_send_byte_dev(ps2_line_t line, uint8_t byte) {
 	if (line == ps2_dev_2) {
 		ps2_send_command(ps2_cmd_redirect_2nd);
 	}
 	int can_write = ps2_wait_for_output(PS2_OUTPUT_RETRIES,
 			PS2_OUTPUT_TIMEOUT);
 	if (!can_write) {
-		return 0;
+		return ps2_ioret_timeout;
 	}
 	ps2_send_byte(byte);
-	return 1;
+	return ps2_ioret_ok;
 }
 
 ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte,
 		uint8_t ack) {
-	if (!ps2_send_byte_dev(line, byte)) {
-		return ps2_ioret_timeout;
+	ps2_ioret_t ret;
+	ret = ps2_send_byte_dev(line, byte);
+	if (ret != ps2_ioret_ok) {
+		return ret;
 	}
 	if (ps2_wait_for_input(5,5)) {
 		uint8_t byte = ps2_receive_byte();
-		if (byte != ack) {
+		if (byte == ack) {
+			return ps2_ioret_ok;
+		} else {
 			return ps2_ioret_wrong_ack;
 		}
 	} else {
 		return ps2_ioret_timeout;
 	}
-	return ps2_ioret_ok;
 }
 
 static char *ps2_err_descr[] = {
 	"No error",
 	"Wrong ack",
 	"Timeout",
-	"Not specified"
+	"Unknown error"
 };
 
 char *ps2_ioret_strerror(ps2_ioret_t error) {
-	if (error >= __ps2_ioret_max_error)
-		return ps2_err_descr[__ps2_ioret_max_error];
+	if (error >= ps2_ioret_unknown_error)
+		return ps2_err_descr[ps2_ioret_unknown_error];
 	return ps2_err_descr[error];
 }
