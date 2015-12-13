@@ -12,8 +12,7 @@ __kernel_stack_top:
 .text
 .global _start_kernel
 _start_kernel:
-# Disable interrputs until setting own IDT & GDT
-#	cli
+	movl %ebx, __boot_loader_boot_info
 	leal __kernel_stack_top, %ecx
 	movl %ecx, %esp
 
