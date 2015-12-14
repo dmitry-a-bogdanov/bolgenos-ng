@@ -130,7 +130,7 @@ typedef struct __attribute__((packed)) {
 	.base_24_31 = bitmask(base_, 24, 0xff),				\
 }
 
-check_type_size(segment_t, __SEGMENT_DESCR_SIZE);
+assert_type_size(segment_t, __SEGMENT_DESCR_SIZE);
 
 static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
 	[__NULL_SEGMENT] = __decl_segment(0x0, 0x0, 0x0, ssf_null, dpl_null,

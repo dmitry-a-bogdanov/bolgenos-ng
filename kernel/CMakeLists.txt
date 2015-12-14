@@ -30,6 +30,8 @@ set(kernel_sources ${kernel_start_file}
 	keyboard.c
 	main.c
 	mmu.c
+	multiboot_header.c
+	multiboot_info.c
 	pic_8259.c
 	pic_common.c
 	ps2.c
