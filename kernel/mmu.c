@@ -3,6 +3,10 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
+#include <bolgenos-ng/printk.h>
+
+__link_from_asm__ char __ld_kernel_memory_begin[0];
+__link_from_asm__ char __ld_kernel_memory_end[0];
 
 /**
 * \brief Memory segment: system flag
@@ -147,6 +151,9 @@ static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
 
 
 void setup_segments() {
+	printk("kernel is loaded to %lu-%lu\n",
+		(long unsigned) &__ld_kernel_memory_begin,
+		(long unsigned) &__ld_kernel_memory_end);
 	static descriptor_table_ptr_t gdt_pointer __attribute__((aligned(16)));
 	gdt_pointer.limit = sizeof(__global_descriptor_table) - 1;
 	gdt_pointer.base = (uint32_t) __global_descriptor_table;
