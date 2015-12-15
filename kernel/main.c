@@ -3,6 +3,7 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
+#include <bolgenos-ng/memory.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
@@ -10,7 +11,6 @@
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps2.h>
 #include <bolgenos-ng/ps2_keyboard.h>
-#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
@@ -30,13 +30,6 @@ void kernel_main() {
 	vga_clear_screen();
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
-	if (mboot_is_meminfo_valid()) {
-		printk("Detected memory: low = %lu kb, high = %lu kb\n",
-			(long unsigned) mboot_get_low_mem(),
-			(long unsigned) mboot_get_high_mem());
-	} else {
-		panic("Bootloader didn't provide memory info!\n");
-	}
 
 	setup_segments();
 	setup_interrupts();
@@ -49,6 +42,8 @@ void kernel_main() {
 	interrupts_enable();
 
 	printk("CPU is initialized\n");
+
+	init_memory();
 
 	ps2_keyboard_init();
 	ps2_init();

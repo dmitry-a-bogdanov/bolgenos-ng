@@ -2,6 +2,7 @@
 #define __BOGLENOS_NG__MEM_UTILS_H__
 
 #include <bolgenos-ng/compiler.h>
+#include <bolgenos-ng/int_types.h>
 
 /**
 * \brief Universal pointer type.

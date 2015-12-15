@@ -2,7 +2,7 @@ ENTRY(_start_kernel)
 
 SECTIONS {
 	. = 0x100000; /* Kernel load address */
-	__ld_kernel_memory_begin = .;
+	__kernel_obj_start = .;
 
 	. = ALIGN(4);
 	/* multiboot header should be in first 8kb and aligned by 4 */
@@ -20,5 +20,5 @@ SECTIONS {
 		*(.bss)
 		*(.kernel_stack)
 	}
-	__ld_kernel_memory_end = .;
+	__kernel_obj_end = .;
 }
