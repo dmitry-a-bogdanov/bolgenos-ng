@@ -45,6 +45,17 @@ void kernel_main() {
 
 	init_memory();
 
+	void *one_page = alloc_pages(1);
+	void *two_page = alloc_pages(2);
+	void *three_page = alloc_pages(3);
+	void *one_page_2 = alloc_pages(1);
+
+	printk("[MEM_TEST]: addresses: %lu, %lu, %lu, %lu\n",
+		(unsigned long) one_page,
+		(unsigned long) two_page,
+		(unsigned long) three_page,
+		(unsigned long) one_page_2);
+
 	ps2_keyboard_init();
 	ps2_init();
 

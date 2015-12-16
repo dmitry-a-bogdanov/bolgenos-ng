@@ -144,9 +144,41 @@ void init_memory() {
 	dump_system_memory();
 }
 
+#define pp_descr_for_each(m_region, name)				\
+	for(pp_descr_t *name = (m_region)->descriptors;			\
+		name != (m_region)->descriptors + (m_region)->size;	\
+		++name)
 
+#define pp_descr_for_each_from(m_region, name, start)			\
+	for(pp_descr_t *name = start;					\
+		name != (m_region)->descriptors + (m_region)->size;	\
+		++name)
 
-void *alloc_free_pages(size_t n) {
-	(void) n;
-	return NULL;
+void *alloc_pages(size_t n) {
+	pp_frame_t *mem = NULL;
+	pp_descr_for_each(&__system_memory, page) {
+		if (page->free == ppf_in_use) {
+			continue;
+		}
+		size_t free_pages = 0;
+		pp_descr_for_each_from(&__system_memory, other_page, page) {
+			if (other_page->free == ppf_in_use)
+				break;
+			++free_pages;
+			if (free_pages == n)
+				break;
+		}
+
+		size_t free_page_index = page - __system_memory.descriptors;
+
+		if (free_pages == n) {
+			mem = &__system_memory.pages[free_page_index];
+			for (size_t i = 0; i != n; ++i) {
+				__system_memory.descriptors[free_page_index
+					+ i].free = ppf_in_use;
+			}
+			break;
+		}
+	}
+	return mem;
 }

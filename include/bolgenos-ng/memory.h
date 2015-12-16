@@ -20,6 +20,6 @@ void init_memory();
 *
 * \return Pointer to allocated area.
 */
-void *alloc_free_pages(size_t n);
+void *alloc_pages(size_t n);
 
 #endif // __BOLGENOS_NG__MEMORY_H__
