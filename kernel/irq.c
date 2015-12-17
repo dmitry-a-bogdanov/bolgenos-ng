@@ -1,6 +1,7 @@
 #include <bolgenos-ng/irq.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
@@ -11,10 +12,6 @@
 #include <bolgenos-ng/time.h>
 
 #define __align_for_irq__	aligned(16)
-
-#define __macro_concat(x, y) x ## y
-#define macro_concat(x, y) __macro_concat(x, y)
-
 
 static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };
 
@@ -41,7 +38,7 @@ typedef struct __attribute__((packed)) {
 	__reserved(16);
 } gate_t;
 
-check_type_size(gate_t, 8);
+assert_type_size(gate_t, 8);
 
 #define GATE_TASK	(0x5)
 #define GATE_INT	(0x6)
@@ -62,7 +59,7 @@ typedef struct __attribute__((packed)) {
 	__reserved(16);
 } task_gate_t;
 
-check_type_size(task_gate_t, 8);
+assert_type_size(task_gate_t, 8);
 
 // Comment__why_using_get_gate:
 //
@@ -88,7 +85,7 @@ typedef struct __attribute__((packed)) {
 	gate_field_t offset_16_31 : 16;
 } int_gate_t;
 
-check_type_size(int_gate_t, 8);
+assert_type_size(int_gate_t, 8);
 
 // see Comment__why_using_get_gate
 static inline gate_t *int_get_gate(int_gate_t *intr) {
@@ -141,7 +138,7 @@ static inline gate_t *trap_get_gate(trap_gate_t *trap) {
 	.present = 0							\
 }
 
-check_type_size(trap_gate_t, 8);
+assert_type_size(trap_gate_t, 8);
 
 
 #define __decl_isr_stage_asm(num)					\

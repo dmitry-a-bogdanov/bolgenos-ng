@@ -3,30 +3,56 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
+#include <bolgenos-ng/printk.h>
 
+
+/**
+* \brief Memory segment: system flag
+*
+* Enum holds values of system flag for memory segment descriptor.
+*/
 typedef enum {
-	ssf_null = 0x0,
-	ssf_system = 0x0,
-	ssf_code_or_data = 0x1
+	ssf_null		= 0x0, /*!< NULL-segments */
+	ssf_system		= 0x0, /*!< System segment */
+	ssf_code_or_data	= 0x1, /*!< Code or data segments */
 } segment_system_flag_t;
 
+
+/**
+* \brief Memory segment: privilege level.
+*
+* Enum holds values of privilege level for memory segment descriptor.
+*/
 typedef enum {
-	dpl_null = 0x0,
-	dpl_kernel = 0x0,
-	dpl_user = 0x3
+	dpl_null		= 0x0, /*!< NULL-segments */
+	dpl_kernel		= 0x0, /*!< Kernel segments */
+	dpl_user		= 0x3, /*!< Userspace segments */
 } dpl_t;
 
+
+/**
+* \brief Memory segment: present flag.
+*
+* Enum holds values of present flag for memory segment descriptor.
+*/
 typedef enum {
-	spf_null = 0x0,
-	spf_not_present = 0x0,
-	spf_present = 0x1
+	spf_null		= 0x0, /*!< NULL-segment */
+	spf_not_present		= 0x0, /*!< Segment is not present */
+	spf_present		= 0x1, /*!< Segment is present */
 } segment_present_flag_t;
 
+
+/**
+* \brief Memory segment: long flag.
+*
+* Enum holds values of long flag for memory segment descriptor.
+*/
 typedef enum {
-	slf_null = 0x0,
-	slf_64 = 0x1,
-	slf_other = 0x0
+	slf_null		= 0x0, /*!< NULL-segment */
+	slf_64			= 0x1, /*!< 64-bit segment */
+	slf_other		= 0x0, /*!< 32-bit segment */
 } segment_long_flag_t;
+
 
 typedef enum {
 	sdbf_null = 0x0,
@@ -34,12 +60,27 @@ typedef enum {
 	sdbf_16_bit = 0x0,
 } segment_db_flag_t;
 
+
+/**
+* \brief Memory segment: granularity flag.
+*
+* Enum holds values of granularity flag for memory segment descriptor.
+*/
 typedef enum {
-	sgf_null = 0x0,
-	sgf_4k_pages = 0x1,
-	sgf_bytes = 0x0
+	sgf_null		= 0x0, /*!< NULL-segment */
+	sgf_4k_pages		= 0x1, /*!< Use 4K pages */
+	sgf_bytes		= 0x0, /*!< Do not use pages */
 } segment_granularity_flag_t;
 
+
+/**
+* \brief Memory segment: D/B flag.
+*
+* \warning hard to document this option without good description of
+*	segmentation mechanism.
+*
+* TODO: document this shit.
+*/
 typedef enum {
 	st_null				= 0 << 0,
 // common
@@ -73,6 +114,7 @@ typedef struct __attribute__((packed)) {
 	uint8_t					base_24_31		 :8;
 } segment_t;
 
+
 #define __decl_segment(base_, limit_, type_, ssf_, dpl_, spf_, slf_,	\
 		       sdbf_, sgf_ ) {					\
 	.limit_00_15 = bitmask(limit_, 0, 0xffff),			\
@@ -90,20 +132,19 @@ typedef struct __attribute__((packed)) {
 	.base_24_31 = bitmask(base_, 24, 0xff),				\
 }
 
-check_type_size(segment_t, 8);
+assert_type_size(segment_t, __SEGMENT_DESCR_SIZE);
 
 static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
-	// null-segment
-	__decl_segment(0x0, 0x0, 0x0, ssf_null, dpl_null, spf_null, slf_null,
-		sdbf_null, sgf_null),
+	[__NULL_SEGMENT] = __decl_segment(0x0, 0x0, 0x0, ssf_null, dpl_null,
+		spf_null, slf_null, sdbf_null, sgf_null),
 
-	// kernel code segment
-	__decl_segment(0x0, 0xfffff, st_code|st_code_read, ssf_code_or_data,
-		dpl_kernel, spf_present, slf_other, sdbf_32_bit, sgf_4k_pages),
+	[__KERNEL_CS] = __decl_segment(0x0, 0xfffff, st_code|st_code_read,
+		ssf_code_or_data, dpl_kernel, spf_present, slf_other,
+		sdbf_32_bit, sgf_4k_pages),
 
-	// kernel data segment
-	__decl_segment(0x0, 0xfffff, st_data|st_data_write, ssf_code_or_data,
-		dpl_kernel, spf_present, slf_other, sdbf_32_bit, sgf_4k_pages)
+	[__KERNEL_DS] = __decl_segment(0x0, 0xfffff, st_data|st_data_write,
+		ssf_code_or_data, dpl_kernel, spf_present, slf_other,
+		sdbf_32_bit, sgf_4k_pages),
 };
 
 

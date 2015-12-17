@@ -2,21 +2,44 @@
 #define __BOLGENOS_NG__MMU_H__
 
 /**
-* \brief Kernel code segment
-*
-* Segment of kernel code. Segment with index 1. The next after null-segment.
+* Size of segment descriptor.
 */
-#define KERNEL_CS		(0x8)
+#define __SEGMENT_DESCR_SIZE		(8)
 
 
 /**
-* \brief Kernel data segment
-*
-* Segment of kernel data. Segment with index 2. The next after kernel code
-*	segment.
+* Index of null segment.
 */
-#define KERNEL_DS		(0x10)
+#define __NULL_SEGMENT			(0x0)
 
+
+/**
+* Null segment.
+*/
+#define NULL_SEGMENT			(__NULL_SEGMENT * __SEGMENT_DESCR_SIZE)
+
+
+/**
+* Index of kernel code segment.
+*/
+#define __KERNEL_CS			(1)
+
+
+/**
+* Kernel code segment.
+*/
+#define KERNEL_CS			(__KERNEL_CS * __SEGMENT_DESCR_SIZE)
+
+
+/**
+* Index of kernel data segment.
+*/
+#define __KERNEL_DS			(2)
+
+/**
+* Kernel data segment.
+*/
+#define KERNEL_DS			(__KERNEL_DS * __SEGMENT_DESCR_SIZE)
 
 /**
 * \brief Setup segmentation support.

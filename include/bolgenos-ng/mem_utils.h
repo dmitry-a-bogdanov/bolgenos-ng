@@ -1,33 +1,33 @@
 #ifndef __BOGLENOS_NG__MEM_UTILS_H__
 #define __BOGLENOS_NG__MEM_UTILS_H__
 
+#include <bolgenos-ng/compiler.h>
+#include <bolgenos-ng/int_types.h>
+
+/**
+* \brief Universal pointer type.
+*
+* Universal pointer type aliased to pointer to void.
+*/
+typedef void *ptr_t;
+
+
 #ifndef NULL
 /**
-* NULL-pointer constant.
+* \brief NULL-pointer.
+*
+* Zero constant casted to pointer to universal pointer.
 */
-#define NULL ((void *)0)
+#define NULL ((ptr_t)0)
 #endif
 
 
 /**
-* Address of lvalue castet to pointer to char.
-*/
-#define address_of(var) ((char *)&var)
-
-
-/**
-* \brief Size of type compile-time assertion.
+* \brief Get address of argument.
 *
-* Compile-time assertion that checks size of type. If assertion is failed
-*	compilation will be aborted.
-* \param type Type that should be checked for size.
-* \param expected_size Expected size of given type in bytes.
+* Address of lvalue casted to universal pointer.
 */
-#define check_type_size(type, expected_size)				\
-	static char ___ ## type ## _size_assertion_1[sizeof(type) -	\
-		expected_size] __attribute__((unused));			\
-	static char ___ ## type ## _size_assertion_2[expected_size -	\
-		sizeof(type)] __attribute__((unused))
+#define address_of(var) ((ptr_t)&var)
 
 
 /**

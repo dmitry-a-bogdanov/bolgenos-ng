@@ -29,7 +29,10 @@ set(kernel_sources ${kernel_start_file}
 	irq.c
 	keyboard.c
 	main.c
+	memory.c
 	mmu.c
+	multiboot_header.c
+	multiboot_info.c
 	pic_8259.c
 	pic_common.c
 	ps2.c
