@@ -63,6 +63,7 @@ static void *align_addr(void *addr, size_t boundary) {
 		addr;
 }
 
+
 /**
 * \brief Page descriptor structure.
 *
@@ -97,6 +98,7 @@ struct __attribute__((packed)) page {
 */
 #define ZERO_PAGE			((void *)0x10)
 
+
 /**
 *
 * Used only for simplifying address arithmetics.
@@ -130,10 +132,10 @@ struct memory_region {
 * Get index of specified page in given memory region.
 *
 * \param m_region Pointer to memory region.
-* \param page Specified page.
+* \param the_page Specified page.
 */
-#define page_index(m_region, page) \
-	(((struct page *)(page)) - (m_region)->pages)
+#define page_index(m_region, the_page) \
+	(((struct page *)(the_page)) - (m_region)->pages)
 
 
 /**
@@ -301,16 +303,24 @@ static void __alloc_pages(struct page *from, size_t n) {
 }
 
 
-void *alloc_pages(size_t n) {
-	if (n == 0)
-		return ZERO_PAGE;
-	struct page_frame *mem = NULL;
-	for_each_page(&high_memory, page) {
+/**
+* \brief Find free pages.
+*
+* The function finds specified number of continious free pages in the given
+* memory region.
+*
+* \param region Given memory region.
+* \param n Number of free pages to find.
+* \return Pointer to first free page or NULL.
+*/
+static struct page *__find_free_pages(struct memory_region *region, size_t n) {
+	struct page *page_block = NULL;
+	for_each_page(region, page) {
 		if (page->free == PAGE_USED) {
 			continue;
 		}
 		size_t free_pages = 0;
-		for_each_page_from(&high_memory, other_page, page) {
+		for_each_page_from(region, other_page, page) {
 			if (other_page->free == PAGE_USED)
 				break;
 			++free_pages;
@@ -319,13 +329,25 @@ void *alloc_pages(size_t n) {
 		}
 
 		if (free_pages == n) {
-			mem = &high_memory.frames[page_index(&high_memory,
-				page)];
-			__alloc_pages(page, n);
+			page_block = page;
 			break;
 		}
 	}
-	return mem;
+	return page_block;
+}
+
+
+void *alloc_pages(size_t n) {
+	if (n == 0)
+		return ZERO_PAGE;
+	struct page_frame *first_frame = NULL;
+	struct page *free_page_block = __find_free_pages(&high_memory, n);
+	if (free_page_block) {
+		__alloc_pages(free_page_block, n);
+		first_frame = high_memory.frames + page_index(&high_memory,
+				free_page_block);
+	}
+	return (void*) first_frame;
 }
 
 
