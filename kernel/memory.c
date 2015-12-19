@@ -90,6 +90,12 @@ struct __attribute__((packed)) page {
 #define PAGE_FREE			(0x1)
 
 
+/**
+* \brief Page with zero size.
+*
+* This address will be returned if allocator is called with zero size argument.
+*/
+#define ZERO_PAGE			((void *)0x10)
 
 /**
 *
@@ -296,6 +302,8 @@ static void __alloc_pages(struct page *from, size_t n) {
 
 
 void *alloc_pages(size_t n) {
+	if (n == 0)
+		return ZERO_PAGE;
 	struct page_frame *mem = NULL;
 	for_each_page(&high_memory, page) {
 		if (page->free == PAGE_USED) {
@@ -322,7 +330,7 @@ void *alloc_pages(size_t n) {
 
 
 void free_pages(void *addr) {
-	if (addr == NULL)
+	if (addr == NULL || addr == ZERO_PAGE)
 		return;
 
 	struct page *page = high_memory.pages + frame_index(&high_memory, addr);
