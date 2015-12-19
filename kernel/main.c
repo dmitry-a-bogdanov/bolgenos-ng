@@ -49,10 +49,13 @@ void kernel_main() {
 	void *two_page = alloc_pages(2);
 	void *three_page = alloc_pages(3);
 	void *one_page_2 = alloc_pages(1);
+	free_pages(two_page);
+	void *two_page_2 = alloc_pages(2);
 
-	printk("[MEM_TEST]: addresses: %lu, %lu, %lu, %lu\n",
+	printk("[MEM_TEST]: addresses: %lu, %lu==%lu, %lu, %lu\n",
 		(unsigned long) one_page,
 		(unsigned long) two_page,
+		(unsigned long) two_page_2,
 		(unsigned long) three_page,
 		(unsigned long) one_page_2);
 

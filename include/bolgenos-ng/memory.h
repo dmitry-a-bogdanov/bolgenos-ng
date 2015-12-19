@@ -22,4 +22,13 @@ void init_memory();
 */
 void *alloc_pages(size_t n);
 
+/*
+* \brief Free allocated pages.
+*
+* The function frees allocated page block.
+*
+* \param addr Address of page block.
+*/
+void free_pages(void *addr);
+
 #endif // __BOLGENOS_NG__MEMORY_H__

@@ -69,6 +69,7 @@ static void *align_addr(void *addr, size_t boundary) {
 * The structure is intended to describe page frame.
 */
 struct __attribute__((packed)) page {
+	struct page *next; /*!< Next page in allocation block. */
 	int free:1; /*!< Page is free flag. */
 };
 
@@ -115,6 +116,30 @@ struct memory_region {
 	struct page_frame *frames;
 	/*!< Pointer to region of pages frames. */
 };
+
+
+/**
+* \brief Get page index.
+*
+* Get index of specified page in given memory region.
+*
+* \param m_region Pointer to memory region.
+* \param page Specified page.
+*/
+#define page_index(m_region, page) \
+	(((struct page *)(page)) - (m_region)->pages)
+
+
+/**
+* \brief Get page frame index.
+*
+* Get index of specified page frame in given memory region.
+*
+* \param m_region Pointer to memory region.
+* \param page Specified page frame.
+*/
+#define frame_index(m_region, frame) \
+	(((struct page_frame *)(frame)) - (m_region)->frames)
 
 
 /**
@@ -239,6 +264,7 @@ void init_memory() {
 
 	for_each_page(&high_memory, p) {
 		p->free = PAGE_FREE;
+		p->next = NULL;
 	}
 
 	printk("[MEM_INFO] high_memory: size=%lu, pages=%lu, frames=%lu\n",
@@ -246,6 +272,28 @@ void init_memory() {
 		(unsigned long) high_memory.pages,
 		(unsigned long) high_memory.frames);
 }
+
+
+/**
+* \brief Mark pages as allocated.
+*
+* The function marks specified page range as allocated and connected pages
+* to one page allocation block.
+* \param from First page in block.
+* \param n Number of pages in block.
+*/
+static void __alloc_pages(struct page *from, size_t n) {
+	for (struct page *prev_page = NULL, *page = from; page != from + n;
+			++page) {
+		page->free = PAGE_USED;
+		page->next = NULL;
+		if (prev_page) {
+			prev_page->next = page;
+		}
+		prev_page = page;
+	}
+}
+
 
 void *alloc_pages(size_t n) {
 	struct page_frame *mem = NULL;
@@ -262,15 +310,30 @@ void *alloc_pages(size_t n) {
 				break;
 		}
 
-		size_t free_page_index = page - high_memory.pages;
-
 		if (free_pages == n) {
-			mem = &high_memory.frames[free_page_index];
-			for (size_t i = 0; i != n; ++i) {
-				high_memory.pages[free_page_index + i].free = PAGE_USED;
-			}
+			mem = &high_memory.frames[page_index(&high_memory,
+				page)];
+			__alloc_pages(page, n);
 			break;
 		}
 	}
 	return mem;
+}
+
+
+void free_pages(void *addr) {
+	if (addr == NULL)
+		return;
+
+	struct page *page = high_memory.pages + frame_index(&high_memory, addr);
+	struct page *next;
+	do {
+		if (page->free) {
+			panic("Double freeing was detected\n");
+		}
+		next = page->next;
+		page->free = PAGE_FREE;
+		page->next = NULL;
+		page = next;
+	} while (next != NULL);
 }
