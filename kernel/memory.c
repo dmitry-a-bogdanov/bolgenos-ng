@@ -6,13 +6,7 @@
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/printk.h>
 
-
-/**
-* \brief Page size
-*
-* Size of page in bytes.
-*/
-#define PAGE_SIZE			(4 * 1024)
+#include "config.h"
 
 
 /**

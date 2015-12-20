@@ -1,0 +1,73 @@
+#ifndef __BOLGENOS_NG__CONFIG_H__
+#define __BOLGENOS_NG__CONFIG_H__
+
+#define CONFIG_ON				(1)
+#define CONFIG_OFF				(0)
+
+
+/**
+* \def BOLGENOS_NG_VESRION
+* \brief Version of bolgenos-ng kernel
+*
+* Bolgenos-ng kernel's version. If the version is not specified by buildsystem
+*	version "undefined" will be used.
+*/
+#cmakedefine CONFIG__BOLGENOS_NG_VERSION	"@CONFIG__BOLGENOS_NG_VERSION@"
+#if defined(CONFIG__BOLGENOS_NG_VERSION)
+#	define BOLGENOS_NG_VERSION CONFIG__BOLGENOS_NG_VERSION
+#else
+#	define BOLGENOS_NG_VERSION "undefined"
+#endif
+
+
+/**
+* \def KERNEL_STACK_SIZE
+* \brief Kernel stack size.
+*
+* Macro defines size of kernel bootstrap stack in bytes. If the buildsystem
+* doesn't set CONFIG_KERNEL_STACK_SIZE, value 16*1024 will be used.
+*/
+#cmakedefine CONFIG__KERNEL_STACK_SIZE		@CONFIG__KERNEL_STACK_SIZE@
+#if defined(CONFIG__KERNEL_STACK_SIZE) && (CONFIG__KERNEL_STACK_SIZE > 0)
+#	define KERNEL_STACK_SIZE (CONFIG__KERNEL_STACK_SIZE)
+#else
+#	define KERNEL_STACK_SIZE (16*1024)
+#endif
+
+
+/**
+* \def MULTITASKING
+* \brief Enable multitasking.
+*
+* Macro enables multitasking during compilation.
+*/
+#cmakedefine CONFIG__MULTITASKING		@CONFIG__MULTITASKING@
+#if defined(CONFIG__MULTITASKING) && (CONFIG__MULTITASKING == y)
+#	define MULTITASKING			CONFIG_ON
+#else
+#	define MULTITASKING			CONFIG_OFF
+#endif
+
+
+/**
+* \def PAGE_SIZE
+* \brief Size of memory page.
+*
+* Macro defines size of memory page in bytes.
+*/
+#cmakedefine CONFIG__PAGE_SIZE			@CONFIG__PAGE_SIZE@
+#if defined(CONFIG__PAGE_SIZE) && (CONFIG__PAGE_SIZE > 0)
+#	define PAGE_SIZE (CONFIG__PAGE_SIZE)
+#else
+#	define PAGE_SIZE (4096)
+#endif
+
+#cmakedefine CONFIG__VERBOSE_TIMER_INTERRUPT @CONFIG__VERBOSE_TIMER_INTERRUPT@
+#if defined(CONFIG__VERBOSE_TIMER_INTERRUPT) \
+		&& (CONFIG__VERBOSE_TIMER_INTERRUPT == y)
+#	define VERBOSE_TIMER_INTERRUPT		CONFIG_ON
+#else
+#	define VERBOSE_TIMER_INTERRUPT		CONFIG_OFF
+#endif
+
+#endif // __BOLGENOS_NG__CONFIG_H__

@@ -3,11 +3,12 @@ project(bolgenos-ng
 	VERSION 0.0.2)
 cmake_minimum_required(VERSION 3.0.2)
 
-add_definitions(-DBOLGENOS_NG_VERSION="${PROJECT_VERSION}")
-
 set(kernel_headers_dir "include/")
 include_directories(${kernel_headers_dir})
 file(GLOB_RECURSE kernel_headers include/*.h)
+
+set(kernel_config_dir "config/")
+add_subdirectory(${kernel_config_dir})
 
 add_subdirectory(kernel)
 

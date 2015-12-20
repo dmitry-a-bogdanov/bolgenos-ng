@@ -4,18 +4,13 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.h>
 
+#include "config.h"
 
 volatile uint32_t ticks = 0;
-
-
-#if defined(CONFIG_VERBOSE_TIMER_INTERRUPT)
-#define VERBOSE_TIMER_INTERRUPT 1
-#else
-#define VERBOSE_TIMER_INTERRUPT 0
-#endif
 
 
 /**
