@@ -1,5 +1,5 @@
-#ifndef __BOGLENOS_NG__MEM_UTILS_H__
-#define __BOGLENOS_NG__MEM_UTILS_H__
+#ifndef __BOLGENOS_NG__MEM_UTILS_H__
+#define __BOLGENOS_NG__MEM_UTILS_H__
 
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/int_types.h>
@@ -132,4 +132,4 @@ static inline void memcpy(void *dest, const void *src, size_t size) {
 	}
 }
 
-#endif // __BOGLENOS_NG__MEM_UTILS_H__
+#endif // __BOLGENOS_NG__MEM_UTILS_H__

@@ -1,5 +1,4 @@
 #include <bolgenos-ng/asm.h>
-#include <bolgenos-ng/bolgenos-ng.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
@@ -14,6 +13,7 @@
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
+#include "config.h"
 
 /**
 * \brief Kernel main function.

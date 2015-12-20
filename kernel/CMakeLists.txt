@@ -5,7 +5,6 @@ set(CMAKE_CXX_COMPILER i686-elf-g++)
 set(CMAKE_C_COMPILER i686-elf-gcc)
 set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
 
-#add_definitions(-DCONFIG_VERBOSE_TIMER_INTERRUPT)
 add_definitions(-std=gnu99)
 
 # FIXME: looks like a crap
@@ -18,13 +17,15 @@ set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
 
 set(kernel_binary "kernel.bin")
 
+include_directories(${CONFIG_INCLUDE_DIRS})
+
 # Variable $kernel_start_file should keep source file that will be included
 # in kernel of any configuration and can be compiled very fast.
 # This file can be used for forcing relinking and other dirty hacks.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
-	bootstrap.h
+	${config_h}
 	error.c
 	irq.c
 	keyboard.c

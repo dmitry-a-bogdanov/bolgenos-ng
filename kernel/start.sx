@@ -1,4 +1,4 @@
-#include "bootstrap.h"
+#include "config.h"
 
 # nobits option is required to move kernel stack to BSS section.
 # BSS section is the place for stack since it's collapsed in ELF binaries.

@@ -2,8 +2,6 @@
 #define __BOLGENOS_NG__COMPILER_H__
 
 
-
-
 /**
 * \def macro_concat(begin, end)
 * \brief Concatenate given sequencies of symbols.
@@ -24,6 +22,7 @@
 		macro_concat(__a_ct_ge_, __COUNTER__)[(first) - (second)] \
 		__attribute__((unused))
 
+
 /**
 * \brief Two numbers equality compile-time assertion.
 *
@@ -35,6 +34,7 @@
 #define assert_ct_equal(first, second) \
 		__assert_ct_ge(first, second); \
 		__assert_ct_ge(second, first)
+
 
 /**
 * \brief Size of type compile-time assertion.
