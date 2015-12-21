@@ -79,45 +79,40 @@ static uint8_t ps2_read_status() {
 	return inb(ps2_status_reg);
 }
 
-static int __ps2_wait_for_flag(ps2_sr_field_t flag, int val, int retries,
-		int tick_timeout) {
+static int __ps2_wait_for_flag(ps2_sr_field_t flag, int val, int ms) {
 	uint8_t status;
-	int tries = 0;
+	int wait = 0;
 	if (val) {
 		while (!((status = ps2_read_status()) & flag)
-				&& tries < retries) {
-			++tries;
-			__sleep(tick_timeout);
+				&& wait < ms) {
+			++wait;
+			sleep_ms(1 /* ms */);
 		}
 	} else {
 		while (((status = ps2_read_status()) & flag)
-				&& tries < retries) {
-			++tries;
-			__sleep(tick_timeout);
+				&& wait < ms) {
+			++wait;
+			sleep_ms(1 /* ms */);
 		}
 	}
 	return status & flag;
 }
 
-int ps2_wait_for_output(int retries, int tick_timeout) {
-	return ! __ps2_wait_for_flag(ps2_sr_in_buf_status, 0, retries,
-				tick_timeout);
+int ps2_wait_for_output(int ms) {
+	return ! __ps2_wait_for_flag(ps2_sr_in_buf_status, 0, ms);
 }
 
-int ps2_wait_for_input(int retries, int tick_timeout) {
-	return !! __ps2_wait_for_flag(ps2_sr_out_buf_status, 1, retries,
-				tick_timeout);
+int ps2_wait_for_input(int ms) {
+	return !! __ps2_wait_for_flag(ps2_sr_out_buf_status, 1, ms);
 }
 
 int ps2_can_read() {
-	return ps2_wait_for_input(1, 0);
+	return ps2_wait_for_input(0);
 }
 
-#define MAX_PS2_KNOWN_DEVS		10
-#define PS2_SELF_TEST_RETRIES		5
-#define PS2_SELF_TEST_TIMEOUT		1 /* ticks */
-#define PS2_OUTPUT_RETRIES		5
-#define PS2_OUTPUT_TIMEOUT		5
+#define MAX_PS2_KNOWN_DEVS			10
+#define SELFTEST_TIMEOUT			5 /* ms */
+#define OUTPUT_TIMEOUT				1 /* ms */
 
 // TODO: replace array with list in order to avoid troubles with support
 // of many types of keyboards or mice
@@ -339,8 +334,7 @@ void ps2_clean_buffer() {
 
 static int ps2_controller_test() {
 	ps2_send_command(ps2_cmd_self_test);
-	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
-			PS2_SELF_TEST_TIMEOUT);
+	int can_read = ps2_wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
 		// self-test timeout!
 		return 0;
@@ -361,8 +355,7 @@ static int ps2_test_line(ps2_line_t line) {
 		cmd = ps2_cmd_port_test_2;
 	}
 	ps2_send_command(cmd);
-	int can_read = ps2_wait_for_input(PS2_SELF_TEST_RETRIES,
-			PS2_SELF_TEST_TIMEOUT);
+	int can_read = ps2_wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
 		printk("no responce to self-test\n");
 		return 0;
@@ -379,8 +372,7 @@ ps2_ioret_t ps2_send_byte_dev(ps2_line_t line, uint8_t byte) {
 	if (line == ps2_dev_2) {
 		ps2_send_command(ps2_cmd_redirect_2nd);
 	}
-	int can_write = ps2_wait_for_output(PS2_OUTPUT_RETRIES,
-			PS2_OUTPUT_TIMEOUT);
+	int can_write = ps2_wait_for_output(OUTPUT_TIMEOUT);
 	if (!can_write) {
 		return ps2_ioret_timeout;
 	}
@@ -395,7 +387,7 @@ ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte,
 	if (ret != ps2_ioret_ok) {
 		return ret;
 	}
-	if (ps2_wait_for_input(5,5)) {
+	if (ps2_wait_for_input(OUTPUT_TIMEOUT)) {
 		uint8_t byte = ps2_receive_byte();
 		if (byte == ack) {
 			return ps2_ioret_ok;

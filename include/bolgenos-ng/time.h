@@ -9,7 +9,7 @@
 *
 * This variable keeps number of ticks since start of kernel.
 */
-extern volatile uint32_t ticks;
+extern volatile uint32_t jiffies;
 
 
 /**
@@ -30,7 +30,13 @@ void init_timer();
 * \param ticks_timeout Timeout for doing nothing in ticks.
 */
 void __sleep(uint32_t ticks_timeout);
-// TODO: version with timeout in ms is needed!
 
+/**
+* \brief Do nothing during specified time.
+*
+* Function does nothing during specified at least specified time.
+* \param ms Timeout for doing nothing in milliseconds.
+*/
+void sleep_ms(uint32_t ms);
 
 #endif // __BOLGENOS_NG__TIME_H__

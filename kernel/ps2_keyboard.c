@@ -49,7 +49,7 @@ static probe_ret_t ps2_keyboard_probe(ps2_line_t line) {
 	}
 
 	int id_count = 0;
-	while(ps2_wait_for_input(5,5)) {
+	while(ps2_wait_for_input(5 /* ms */)) {
 		uint8_t id_byte;
 		id_byte = ps2_receive_byte();
 		if (id_byte != this_dev_id[id_count]) {

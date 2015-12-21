@@ -1,47 +1,21 @@
 #include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/asm.h>
-#include <bolgenos-ng/error.h>
-#include <bolgenos-ng/irq.h>
-#include <bolgenos-ng/pic_common.h>
-#include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/pit.h>
 
 #include "config.h"
 
-volatile uint32_t ticks = 0;
-
-
-/**
-* Timer IRQ line.
-*/
-#define __TIMER_IRQ	(min_pic_irq + 0)
-
-
-static void handle_timer_interrupt(irq_t vector);
-
-void init_timer() {
-	register_irq_handler(__TIMER_IRQ, handle_timer_interrupt);
-}
-
-
-/**
-* \brief Handle timer interrupt.
-*
-* The function is a timer interrupt handler.
-*/
-static void handle_timer_interrupt(irq_t vector __attribute__((unused))) {
-	++ticks;
-#if VERBOSE_TIMER_INTERRUPT
-	printk("tick #%lu\n", ticks);
-#endif
-}
+volatile uint32_t jiffies = 0;
 
 
 void __sleep(uint32_t ticks_timeout) {
-	uint32_t end_of_sleep = ticks + ticks_timeout;
-	while (ticks < end_of_sleep) {
+	uint32_t end_of_sleep = jiffies + ticks_timeout;
+	while (jiffies < end_of_sleep) {
 		halt_cpu();
 	}
+}
+
+
+void sleep_ms(uint32_t ms) {
+	__sleep(ms_to_ticks(ms));
 }
