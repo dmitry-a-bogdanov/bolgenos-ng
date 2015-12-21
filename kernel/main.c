@@ -38,7 +38,6 @@ void kernel_main() {
 	system_pic = &pic_8259;
 	system_pic->setup();
 
-	init_timer();
 	init_pit();
 
 	interrupts_enable();

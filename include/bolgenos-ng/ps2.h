@@ -56,24 +56,20 @@ struct ps2_dev {
 * \brief Wait for ability to write to PS/2.
 *
 * Function waits until it will be possible to write to PS/2 controller.
-* \param retries Maximal number that function can check PS/2 controller for
-*	for ability to write to.
-* \param tick_timeout Time between each retry in timer ticks.
+* \param ms Time to wait in milliseconds.
 * \return 1 if writing to PS/2 is possible; 0 otherwice.
 */
-int ps2_wait_for_output(int retries, int tick_timeout);
+int ps2_wait_for_output(int ms);
 
 
 /**
 * \brief Wait for ability to read from PS/2.
 *
 * Function waits until it will be possible to read from PS/2 controller.
-* \param retries Maximal number that function can check PS/2 controller for
-*	for ability to read from.
-* \param tick_timeout Time between each retry in timer ticks.
+* \param ms Time to wait in milliseconds.
 * \return 1 if reading to PS/2 is possible; 0 otherwice.
 */
-int ps2_wait_for_input(int retries, int tick_timeout);
+int ps2_wait_for_input(int ms);
 
 
 /**

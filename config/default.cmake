@@ -3,4 +3,6 @@ set(CONFIG__PAGE_SIZE			4096)
 
 set(CONFIG__MULTITASKING		y)
 set(CONFIG__VERBOSE_TIMER_INTERRUPT	y)
-set(CONFIG__HZ				100)
+
+# For development needs
+set(CONFIG__HZ				1)
