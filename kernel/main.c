@@ -7,6 +7,7 @@
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/pit.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps2.h>
 #include <bolgenos-ng/ps2_keyboard.h>
@@ -38,6 +39,7 @@ void kernel_main() {
 	system_pic->setup();
 
 	init_timer();
+	init_pit();
 
 	interrupts_enable();
 

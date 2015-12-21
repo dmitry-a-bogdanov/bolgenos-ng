@@ -21,6 +21,20 @@
 
 
 /**
+* \def HZ
+* \brief Herz.
+*
+* Number of timer ticks per second.
+*/
+#cmakedefine CONFIG__HZ				@CONFIG__HZ@
+#if defined(CONFIG__HZ) && (CONFIG__HZ > 0)
+#	define HZ				CONFIG__HZ
+#else
+#	define HZ				100
+#endif
+
+
+/**
 * \def KERNEL_STACK_SIZE
 * \brief Kernel stack size.
 *
@@ -32,20 +46,6 @@
 #	define KERNEL_STACK_SIZE (CONFIG__KERNEL_STACK_SIZE)
 #else
 #	define KERNEL_STACK_SIZE (16*1024)
-#endif
-
-
-/**
-* \def MULTITASKING
-* \brief Enable multitasking.
-*
-* Macro enables multitasking during compilation.
-*/
-#cmakedefine CONFIG__MULTITASKING		@CONFIG__MULTITASKING@
-#if defined(CONFIG__MULTITASKING) && (CONFIG__MULTITASKING == y)
-#	define MULTITASKING			CONFIG_ON
-#else
-#	define MULTITASKING			CONFIG_OFF
 #endif
 
 
