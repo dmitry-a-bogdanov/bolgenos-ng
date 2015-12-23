@@ -138,7 +138,7 @@ struct memory_region {
 * Get index of specified page frame in given memory region.
 *
 * \param m_region Pointer to memory region.
-* \param page Specified page frame.
+* \param frame Specified page frame.
 */
 #define frame_index(m_region, frame) \
 	(((struct page_frame *)(frame)) - (m_region)->frames)
