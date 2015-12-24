@@ -2,15 +2,10 @@
 #define __BOLGENOS_NG__ASM_H__
 
 #include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/compiler.h>
 
 
-/**
-* \brief Link name from assember code.
-*
-* Macro for marking symbols that are defined in asm code. Actually, it's just
-*	extern declaration.
-*/
-#define __link_from_asm__ extern
+
 
 
 /**
@@ -18,10 +13,10 @@
 *
 * Structure for keeping pointer to IDT and GDT.
 */
-typedef struct __attribute__((packed)) {
-	uint16_t limit:16;	/*!< Size of table in items minus one */
-	uint32_t base:32;	/*!< 32-bit address of table in memory */
-} descriptor_table_ptr_t;
+struct _packed_ table_pointer {
+	uint16_t limit:16;	/*!< Size of table minus one */
+	void *base;		/*!< 32-bit address of table in memory */
+};
 
 
 /**

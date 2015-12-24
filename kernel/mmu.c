@@ -98,7 +98,7 @@ typedef enum {
 } segment_type_t;
 
 
-typedef struct __attribute__((packed)) {
+struct _packed_ seg {
 	uint16_t				limit_00_15		:16;
 	uint16_t				base_00_15		:16;
 	uint8_t					base_16_23		 :8;
@@ -112,10 +112,10 @@ typedef struct __attribute__((packed)) {
 	segment_db_flag_t			db_flag			 :1;
 	segment_granularity_flag_t		granularity_flag	 :1;
 	uint8_t					base_24_31		 :8;
-} segment_t;
+};
 
 
-#define __decl_segment(base_, limit_, type_, ssf_, dpl_, spf_, slf_,	\
+#define SEG_INITIALIZER(base_, limit_, type_, ssf_, dpl_, spf_, slf_,	\
 		       sdbf_, sgf_ ) {					\
 	.limit_00_15 = bitmask(limit_, 0, 0xffff),			\
 	.base_00_15 = bitmask(base_, 0, 0xffff),			\
@@ -132,25 +132,26 @@ typedef struct __attribute__((packed)) {
 	.base_24_31 = bitmask(base_, 24, 0xff),				\
 }
 
-assert_type_size(segment_t, __SEGMENT_DESCR_SIZE);
+assert_type_size(struct seg, STRUCT_SEG_SIZE);
 
-static segment_t __global_descriptor_table[] __attribute__((aligned(16))) = {
-	[__NULL_SEGMENT] = __decl_segment(0x0, 0x0, 0x0, ssf_null, dpl_null,
+static struct seg gdt[] _mmu_aligned_ = {
+	[__NULL_SEGMENT] = SEG_INITIALIZER(0x0, 0x0, 0x0, ssf_null, dpl_null,
 		spf_null, slf_null, sdbf_null, sgf_null),
 
-	[__KERNEL_CS] = __decl_segment(0x0, 0xfffff, st_code|st_code_read,
+	[__KERNEL_CS] = SEG_INITIALIZER(0x0, 0xfffff, st_code|st_code_read,
 		ssf_code_or_data, dpl_kernel, spf_present, slf_other,
 		sdbf_32_bit, sgf_4k_pages),
 
-	[__KERNEL_DS] = __decl_segment(0x0, 0xfffff, st_data|st_data_write,
+	[__KERNEL_DS] = SEG_INITIALIZER(0x0, 0xfffff, st_data|st_data_write,
 		ssf_code_or_data, dpl_kernel, spf_present, slf_other,
 		sdbf_32_bit, sgf_4k_pages),
 };
 
 
+static struct table_pointer gdtp _mmu_aligned_;
+
 void setup_segments() {
-	static descriptor_table_ptr_t gdt_pointer __attribute__((aligned(16)));
-	gdt_pointer.limit = sizeof(__global_descriptor_table) - 1;
-	gdt_pointer.base = (uint32_t) __global_descriptor_table;
-	asm volatile("lgdt %0"::"m" (gdt_pointer));
+	gdtp.limit = sizeof(gdt) - 1;
+	gdtp.base = gdt;
+	asm volatile("lgdt %0"::"m" (gdtp));
 }

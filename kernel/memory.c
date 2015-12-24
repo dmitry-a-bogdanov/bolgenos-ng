@@ -15,7 +15,7 @@
 * Pointer to start of memory where kernel ELF is loaded.
 *
 */
-__link_from_asm__ char __kernel_obj_start[0];
+_asm_linked_ char __kernel_obj_start[0];
 
 
 /**
@@ -23,7 +23,7 @@ __link_from_asm__ char __kernel_obj_start[0];
 *
 * Pointer to end of memory where kernel ELF is loaded.
 */
-__link_from_asm__ char __kernel_obj_end[0];
+_asm_linked_ char __kernel_obj_end[0];
 
 
 /**

@@ -17,6 +17,7 @@
 #define macro_concat(begin, end) \
 		__macro_concat(begin, end)
 
+
 #define __assert_ct_ge(first, second) \
 		static char \
 		macro_concat(__a_ct_ge_, __COUNTER__)[(first) - (second)] \
@@ -47,5 +48,34 @@
 #define assert_type_size(type, size) \
 		assert_ct_equal(sizeof(type), (size))
 
+
+/**
+* \brief Aligned for MMU.
+*
+* Alignes symbol to allow use for MMU-related instructions. Alias to
+* __attribute__((aligned(16)))
+*/
+#define _mmu_aligned_			__attribute__((aligned(16)))
+
+
+/**
+* \brief Aligned for IRQ.
+*
+* Alignes symbol to allow use for IRQ-related instructions. Alias to
+* __attribute__((aligned(16)))
+*/
+#define _irq_aligned_			__attribute__((aligned(16)))
+
+#define _packed_			__attribute__((packed))
+
+#define _used_				__attribute__((used))
+
+/**
+* \brief Link name from assember code.
+*
+* Macro for marking symbols that are defined in asm code. Actually, it's just
+*	extern declaration.
+*/
+#define _asm_linked_			extern
 
 #endif // __BOLGENOS_NG__COMPILER_H__

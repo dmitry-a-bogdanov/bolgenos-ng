@@ -11,8 +11,6 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
-#define __align_for_irq__	aligned(16)
-
 static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };
 
 static void __irq_dispatcher(irq_t vector);
@@ -150,7 +148,7 @@ assert_type_size(trap_gate_t, 8);
 			"popal\n"					\
 			"iret\n"					\
 	);								\
-	__link_from_asm__ void __isr_stage_asm_ ## num()
+	_asm_linked_ void __isr_stage_asm_ ## num()
 
 
 #define __decl_isr_stage_c(num, generic_isr)				\
@@ -225,8 +223,8 @@ __decl_isr(46, __irq_dispatcher);
 __decl_isr(47, __irq_dispatcher);
 
 
-static gate_t idt[NUMBER_OF_IRQS] __attribute__((__align_for_irq__));
-static descriptor_table_ptr_t idt_pointer __attribute__((__align_for_irq__));
+static gate_t idt[NUMBER_OF_IRQS] _irq_aligned_;
+static struct table_pointer idt_pointer _irq_aligned_;
 
 void setup_interrupts() {
 	// See comment__why_not_use_counter
@@ -280,7 +278,7 @@ void setup_interrupts() {
 	__decl_common_gate(47, idt);
 
 	idt_pointer.limit = sizeof(idt) - 1;
-	idt_pointer.base = (uint32_t) idt;
+	idt_pointer.base = idt;
 	asm volatile("lidt %0"::"m" (idt_pointer));
 }
 

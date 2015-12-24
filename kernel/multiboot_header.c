@@ -1,7 +1,8 @@
+#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/int_types.h>
 
 
-struct __attribute__((packed)) multiboot_hdr {
+struct _packed_ multiboot_hdr {
 	uint32_t magic;
 	uint32_t flags;
 	uint32_t checksum;
@@ -18,7 +19,6 @@ struct __attribute__((packed)) multiboot_hdr {
 
 #define mboot_section			".multiboot_header"
 #define __multiboot_section__		__attribute__((section(mboot_section)))
-#define __in_use__			__attribute__((used))
 
 #define mboot_magic			(0x1badb002)
 #define mboot_checksum(flags)		(-(mboot_magic + ((uint32_t) flags)))
@@ -41,5 +41,5 @@ enum mboot_flags {
 *	separate section and this section must be placed by linker to the
 *	beginning of resulting ELF-file.
 */
-struct multiboot_hdr __multiboot_section__ __in_use__
+struct multiboot_hdr __multiboot_section__ _used_
 	multiboot_header = mboot_header_initializer(mbf_align | mbf_meminfo);
