@@ -25,6 +25,17 @@
 
 
 /**
+* \def stringify(x)
+* \brief Stringify symbol.
+*
+* Macro make an ascii null-terminated string from specified symbol.
+* \param x Symbol to be stringified.
+* \return Stringified symbol.
+*/
+#define __stringify(x) #x
+#define stringify(x) __stringify(x)
+
+/**
 * \brief Two numbers equality compile-time assertion.
 *
 * Statement checks that given arguments are equal. If check fails

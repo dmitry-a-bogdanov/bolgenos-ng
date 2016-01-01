@@ -32,8 +32,8 @@ void kernel_main() {
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
 
-	setup_segments();
 	setup_interrupts();
+	setup_segments();
 
 	system_pic = &pic_8259;
 	system_pic->setup();

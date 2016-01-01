@@ -1,6 +1,7 @@
 #include <bolgenos-ng/mmu.h>
 
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/printk.h>
@@ -87,7 +88,7 @@ typedef enum {
 	st_accessed			= 1 << 0,
 
 // data & data-specific flags
-	st_data				= 0 << 0,
+	st_data				= 0 << 3,
 	st_data_write			= 1 << 1,
 	st_data_down			= 1 << 2,
 
@@ -150,8 +151,28 @@ static struct seg gdt[] _mmu_aligned_ = {
 
 static struct table_pointer gdtp _mmu_aligned_;
 
+/**
+*
+* Changing in segment descriptor takes effect only when segment register
+* is set.
+*/
+static void reload_segments() {
+	asm volatile(
+		"movw $" stringify(KERNEL_DS) ", %ax\n"
+		"movw %ax, %ds\n"
+		"movw %ax, %es\n"
+		"movw %ax, %ss\n"
+		"movw %ax, %fs\n"
+		"movw %ax, %gs\n"
+		"ljmp $" stringify(KERNEL_CS) ", $__update_cs\n"
+		"__update_cs:\n"
+		);
+}
+
+
 void setup_segments() {
 	gdtp.limit = sizeof(gdt) - 1;
 	gdtp.base = gdt;
 	asm volatile("lgdt %0"::"m" (gdtp));
+	reload_segments();
 }
