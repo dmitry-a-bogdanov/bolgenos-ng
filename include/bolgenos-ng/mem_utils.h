@@ -94,9 +94,8 @@ static inline void write_16(char *dest, char *src) {
 * \param size Size of memory to be set in bytes.
 */
 static inline void memset(void *mem, char val, size_t size) {
-	char *__mem = (char *) mem;
-	for(size_t pos = 0; pos != size; ++pos, ++mem) {
-		write_8(__mem, &val);
+	for(size_t pos = 0; pos != size; ++pos) {
+		write_8(mem + pos, &val);
 	}
 }
 
