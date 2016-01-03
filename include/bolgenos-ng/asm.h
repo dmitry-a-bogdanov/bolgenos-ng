@@ -5,9 +5,6 @@
 #include <bolgenos-ng/compiler.h>
 
 
-
-
-
 /**
 * \brief Pointer to descriptor table.
 *

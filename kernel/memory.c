@@ -46,6 +46,7 @@ struct __attribute__((packed)) page {
 
 
 /**
+* \brief Page in real memory.
 *
 * Used only for simplifying address arithmetics.
 */

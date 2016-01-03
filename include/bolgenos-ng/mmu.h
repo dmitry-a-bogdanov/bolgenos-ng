@@ -1,6 +1,7 @@
 #ifndef __BOLGENOS_NG__MMU_H__
 #define __BOLGENOS_NG__MMU_H__
 
+
 /**
 * Size of segment descriptor.
 */

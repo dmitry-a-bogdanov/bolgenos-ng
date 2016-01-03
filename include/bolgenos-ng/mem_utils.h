@@ -95,7 +95,7 @@ static inline void write_16(char *dest, char *src) {
 */
 static inline void memset(void *mem, char val, size_t size) {
 	for(size_t pos = 0; pos != size; ++pos) {
-		write_8(mem + pos, &val);
+		write_8(((char *)mem) + pos, &val);
 	}
 }
 

@@ -99,6 +99,11 @@ typedef enum {
 } segment_type_t;
 
 
+/**
+* \brief Segment descriptor.
+*
+* Structure that provides fine interface for filling segment descriptor.
+*/
 struct _packed_ seg {
 	uint16_t				limit_00_15		:16;
 	uint16_t				base_00_15		:16;

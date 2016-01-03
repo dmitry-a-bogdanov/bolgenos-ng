@@ -8,12 +8,30 @@
 #include "config.h"
 
 
-int get_status(const struct slab_area *slab, size_t index) {
+/**
+* \brief Get allocation status of memory unit.
+*
+* The function gets allocation status of specified memory unit in slab area.
+* \param slab Slab area.
+* \param index Index of memory unit in slab.
+* \return Allocation status of memory unit (\ref MEM_FREE or \ref MEM_USED).
+*/
+static int get_status(const struct slab_area *slab, size_t index) {
 	return slab->allocation_map[index];
 }
 
 
-void set_status(struct slab_area *slab, size_t index, int status) {
+/**
+* \brief Set allocation status of memory unit.
+*
+* The function sets given allocation status to specified memory unit
+* in slab area.
+* \param slab Slab area.
+* \param index Index of memory unit in slab.
+* \param status Memory allocation status to be set (\ref MEM_FREE
+*	or \ref MEM_USED)
+*/
+static void set_status(struct slab_area *slab, size_t index, int status) {
 	slab->allocation_map[index] = status;
 }
 
@@ -48,11 +66,11 @@ void *slab_alloc(struct slab_area *slab) {
 	}
 	void *free_mem = NULL;
 	for (size_t chunk = 0; chunk != slab->nelems; ++chunk) {
-		if (slab->allocation_map[chunk] == MEM_FREE) {
+		if (get_status(slab, chunk) == MEM_FREE) {
 			size_t offset = chunk * slab->elem_size;
 			free_mem = (void *) (((size_t) (slab->memory)) +
 				offset);
-			slab->allocation_map[chunk] = MEM_USED;
+			set_status(slab, chunk, MEM_USED);
 			return free_mem;
 		}
 	}
@@ -66,5 +84,5 @@ void slab_free(struct slab_area *slab, void *entry) {
 	}
 	size_t chunk = (((size_t) entry) - ((size_t) slab->memory)) /
 		slab->elem_size;
-	slab->allocation_map[chunk] = MEM_FREE;
+	set_status(slab, chunk, MEM_FREE);
 }

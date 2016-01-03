@@ -5,17 +5,17 @@
 
 
 /**
-* \brief Page is used flag.
+* \brief Memory unit is used flag.
 *
-* Flag for page::free field that the page is used.
+* Flag for allocation map that the memory unit is used.
 */
 #define MEM_USED			(0x0)
 
 
 /**
-* \brief Page is free flag.
+* \brief Memory unit is free flag.
 *
-* Flag for page::free field that the page is free.
+* Flag for allocation map that the memory unit is free.
 */
 #define MEM_FREE			(0x1)
 
@@ -25,7 +25,7 @@
 *
 * Align given value down to specified boundary.
 *
-* \param addr Value to be aligned.
+* \param value Value to be aligned.
 * \param boundary Alignment boundary.
 * \return Aligned value.
 */
@@ -39,7 +39,7 @@ static inline size_t align_down(size_t value, size_t boundary) {
 *
 * Align given value up to specified boundary.
 *
-* \param addr Value to be aligned.
+* \param value Value to be aligned.
 * \param boundary Alignment boundary.
 * \return Aligned value.
 */
