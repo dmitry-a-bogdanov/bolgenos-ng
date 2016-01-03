@@ -442,6 +442,7 @@ static int get_ps2_lines(uint8_t conf_byte) {
 *
 * The function enable interrupts from specified PS/2 devices.
 *
+* \param conf_byte Pointer to configuration byte variable.
 * \param lines Bitwise OR-ed PS/2 lines devices that should start raise
 * interrupts.
 */
@@ -460,6 +461,7 @@ static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 *
 * The function disables interrupts from specified PS/2 devices.
 *
+* \param conf_byte Pointer to configuration byte variable.
 * \param lines Bitwise OR-ed PS/2 lines devices that should not raise
 * interrupts.
 */

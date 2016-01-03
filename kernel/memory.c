@@ -15,7 +15,7 @@
 * Pointer to start of memory where kernel ELF is loaded.
 *
 */
-__link_from_asm__ char __kernel_obj_start[0];
+_asm_linked_ char __kernel_obj_start[0];
 
 
 /**
@@ -23,39 +23,7 @@ __link_from_asm__ char __kernel_obj_start[0];
 *
 * Pointer to end of memory where kernel ELF is loaded.
 */
-__link_from_asm__ char __kernel_obj_end[0];
-
-
-/**
-* \brief Aling address down.
-*
-* Align given address down to specified boundary.
-*
-* \param addr Address to be aligned.
-* \param boundary Alignment boundary.
-* \return Aligned address.
-*/
-static void *align_addr_down(void *addr, size_t boundary) {
-	char *__addr = addr;
-	return (void *)(((size_t) __addr) & ~(boundary - 1));
-}
-
-
-/**
-* \brief Aling specified address.
-*
-* Align given address up to specified boundary.
-*
-* \param addr Address to be aligned.
-* \param boundary Alignment boundary.
-* \return Aligned address.
-*/
-static void *align_addr(void *addr, size_t boundary) {
-	char *__addr = addr;
-	return (((size_t) __addr) & (boundary - 1)) ?
-		align_addr_down(__addr, boundary) + boundary :
-		addr;
-}
+_asm_linked_ char __kernel_obj_end[0];
 
 
 /**
@@ -70,22 +38,6 @@ struct __attribute__((packed)) page {
 
 
 /**
-* \brief Page is used flag.
-*
-* Flag for page::free field that the page is used.
-*/
-#define PAGE_USED			(0x0)
-
-
-/**
-* \brief Page is free flag.
-*
-* Flag for page::free field that the page is free.
-*/
-#define PAGE_FREE			(0x1)
-
-
-/**
 * \brief Page with zero size.
 *
 * This address will be returned if allocator is called with zero size argument.
@@ -94,6 +46,7 @@ struct __attribute__((packed)) page {
 
 
 /**
+* \brief Page in real memory.
 *
 * Used only for simplifying address arithmetics.
 */
@@ -155,8 +108,7 @@ struct memory_region {
 */
 static size_t descriptor_pages(size_t pages) {
 	size_t required_memory = sizeof(struct page) * pages;
-	return (size_t) align_addr((void *) required_memory,
-			PAGE_SIZE) / PAGE_SIZE;
+	return align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
 }
 
 
@@ -244,12 +196,14 @@ void init_memory() {
 		panic("Bootloader didn't provide memory info!\n");
 	}
 
-	struct page_frame *highmem_first_free =
-		align_addr(__kernel_obj_end, PAGE_SIZE);
+	struct page_frame *highmem_first_free = (struct page_frame *)
+		align_up((size_t) __kernel_obj_end, PAGE_SIZE);
 
-	struct page_frame *highmem_last_free = align_addr_down(
-		__high_memory_start + mboot_get_high_mem() * 1024,
-		PAGE_SIZE); // points to page that contains last RAM address.
+	// points to page that contains last RAM address.
+	struct page_frame *highmem_last_free = (struct page_frame *)
+		align_down((size_t) ( __high_memory_start
+			+ mboot_get_high_mem() * 1024),
+			PAGE_SIZE);
 
 	printk("[MEM_INFO] highmem free frames: %lu...%lu\n",
 		(long unsigned) highmem_first_free,
@@ -265,7 +219,7 @@ void init_memory() {
 	high_memory.frames = highmem_first_free + highmem_split.pages;
 
 	for_each_page(&high_memory, p) {
-		p->free = PAGE_FREE;
+		p->free = MEM_FREE;
 		p->next = NULL;
 	}
 
@@ -287,7 +241,7 @@ void init_memory() {
 static void __alloc_pages(struct page *from, size_t n) {
 	for (struct page *prev_page = NULL, *page = from; page != from + n;
 			++page) {
-		page->free = PAGE_USED;
+		page->free = MEM_USED;
 		page->next = NULL;
 		if (prev_page) {
 			prev_page->next = page;
@@ -310,12 +264,12 @@ static void __alloc_pages(struct page *from, size_t n) {
 static struct page *__find_free_pages(struct memory_region *region, size_t n) {
 	struct page *page_block = NULL;
 	for_each_page(region, page) {
-		if (page->free == PAGE_USED) {
+		if (page->free == MEM_USED) {
 			continue;
 		}
 		size_t free_pages = 0;
 		for_each_page_from(region, other_page, page) {
-			if (other_page->free == PAGE_USED)
+			if (other_page->free == MEM_USED)
 				break;
 			++free_pages;
 			if (free_pages == n)
@@ -356,7 +310,7 @@ void free_pages(void *addr) {
 			panic("Double freeing was detected\n");
 		}
 		next = page->next;
-		page->free = PAGE_FREE;
+		page->free = MEM_FREE;
 		page->next = NULL;
 		page = next;
 	} while (next != NULL);

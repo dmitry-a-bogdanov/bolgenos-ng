@@ -42,6 +42,7 @@ set(kernel_sources ${kernel_start_file}
 	ps2_keyboard.c
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
+	slab.c
 	time.c
 	vga_console.c
 	lib/snprintf.c

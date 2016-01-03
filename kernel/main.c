@@ -11,6 +11,7 @@
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/ps2.h>
 #include <bolgenos-ng/ps2_keyboard.h>
+#include <bolgenos-ng/slab.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
@@ -32,8 +33,8 @@ void kernel_main() {
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
 
-	setup_segments();
 	setup_interrupts();
+	setup_segments();
 
 	system_pic = &pic_8259;
 	system_pic->setup();
@@ -46,12 +47,16 @@ void kernel_main() {
 
 	init_memory();
 
-	void *one_page = alloc_pages(1);
-	void *two_page = alloc_pages(2);
-	void *three_page = alloc_pages(3);
-	void *one_page_2 = alloc_pages(1);
-	free_pages(two_page);
-	void *two_page_2 = alloc_pages(2);
+	struct slab_area test_slab;
+	if (slab_init(&test_slab, sizeof(long), 10) != SLAB_OK) {
+		panic("slab initilization failure\n");
+	}
+	long *one_page = slab_alloc(&test_slab);
+	long *two_page = slab_alloc(&test_slab);
+	long *three_page = slab_alloc(&test_slab);
+	long *one_page_2 = slab_alloc(&test_slab);
+	slab_free(&test_slab, two_page);
+	long *two_page_2 = slab_alloc(&test_slab);
 
 	printk("[MEM_TEST]: addresses: %lu, %lu==%lu, %lu, %lu\n",
 		(unsigned long) one_page,
