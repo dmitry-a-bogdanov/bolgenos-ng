@@ -1,16 +1,15 @@
 project(bolgneos-ng ASM-ATT C)
 
-# FIXME: will not work on different machines
-set(CMAKE_CXX_COMPILER i686-elf-g++)
-set(CMAKE_C_COMPILER i686-elf-gcc)
-set(CMAKE_ASM-ATT_COMPILER i686-elf-gcc)
-
 add_definitions(-std=gnu99)
+
+set(output_format_flags "-m32 -march=i686")
+set(dep_flags "-ffreestanding")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_C_FLAGS "-ffreestanding -Wall -Wextra -Werror -Wstrict-aliasing")
+set(CMAKE_C_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags}")
 set(CMAKE_ASM-ATT_COMPILER "${CMAKE_C_COMPILER}")
 set(CMAKE_ASM-ATT_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
@@ -21,7 +20,7 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 
 # Variable $kernel_start_file should keep source file that will be included
 # in kernel of any configuration and can be compiled very fast.
-# This file can be used for forcing relinking and other dirty hacks.
+# This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
