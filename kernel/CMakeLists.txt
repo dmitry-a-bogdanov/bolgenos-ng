@@ -6,6 +6,31 @@ set(output_format_flags "-m32 -march=i686")
 set(dep_flags "-ffreestanding")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 
+
+#--- BEGIN OF CROSS COMPILER DETECTION ---
+
+set(target_hw "i686")
+set(target_format "elf")
+set(target_c "gcc")
+set(target_c_compiler_name "${target_hw}-${target_format}-${target_c}")
+
+find_program(found_c_compiler ${target_c_compiler_name})
+
+if (${found_c_compiler})
+	set(CMAKE_C_COMPILER "${found_c_compiler}")
+else()
+	message(WARNING "Cross-compiler for target platform is not found!"
+		" Default compiler (${CMAKE_C_COMPILER}) will be used.")
+endif()
+
+message(STATUS
+	"Toolchain information\n"
+	"C Compiler = ${CMAKE_C_COMPILER}\n"
+)
+
+#--- END OF CROSS COMPILER DETECTION ---
+
+
 # FIXME: looks like a crap
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
