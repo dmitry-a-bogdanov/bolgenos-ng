@@ -3,6 +3,9 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Current ticks number.
@@ -38,5 +41,9 @@ void sleep_ms(uint32_t ms);
 * \return Number of ticks.
 */
 uint32_t ms_to_ticks(uint32_t ms);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__TIME_H__

@@ -1,12 +1,9 @@
-#ifndef __BOLGENOS_NG__PS_2_H__
-#define __BOLGENOS_NG__PS_2_H__
+#pragma once
 
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/device.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace ps2 {
 
 /**
 * \brief Enum that holds PS/2 line number.
@@ -14,10 +11,12 @@ extern "C" {
 * Enum keeps PS/2 line for device. x86 family doesn't support more than two
 *	PS/2 device, thus enum has only two values.
 */
-typedef enum {
-	ps2_dev_1		= 0x0, /*!< First PS/2 device. */
-	ps2_dev_2		= 0x1, /*!< Second PS/2 device. */
-} ps2_line_t;
+enum line_t {
+	dev_1		= 0x0, /*!< First PS/2 device. */
+	dev_2		= 0x1, /*!< Second PS/2 device. */
+	__dev_min	= dev_1,
+	__dev_max	= dev_2 + 1,
+};
 
 
 /**
@@ -26,7 +25,7 @@ typedef enum {
 * First PS/2 dev index that can be used as start value for looping through
 *	all PS/2 devices.
 */
-#define __ps2_dev_min		ps2_dev_1
+//#define __ps2_dev_min		ps2_dev_1
 
 
 /**
@@ -35,7 +34,7 @@ typedef enum {
 * The value following the last valid PS/2 device index. This constant is to
 *	be used as upper bound for looping through all PS/2 devices.
 */
-#define __ps2_dev_max		(ps2_dev_2 + 1)
+//#define __ps2_dev_max		(ps2_dev_2 + 1)
 
 /**
 * \brief Descriptor for PS/2 device.
@@ -44,14 +43,16 @@ typedef enum {
 * functions for handling device.
 *
 */
-struct ps2_dev {
-	probe_ret_t (*probe)(ps2_line_t); /*!< function that checks that
+class ps2_dev {
+public:
+	virtual probe_ret_t probe(line_t) = 0; /*!< function that checks that
 			* PS/2 device can be handled by the driver that
 			* provides this ps2_dev structure.
 			*/
-	void (*irq_handler)(void); /*!< function that will be called when
+	virtual void handle_irq() = 0; /*!< function that will be called when
 			* receiving IRQ from the device managed by this driver.
 			*/
+	virtual ~ps2_dev() {}
 };
 
 
@@ -62,7 +63,7 @@ struct ps2_dev {
 * \param ms Time to wait in milliseconds.
 * \return 1 if writing to PS/2 is possible; 0 otherwice.
 */
-int ps2_wait_for_output(int ms);
+int wait_for_output(int ms);
 
 
 /**
@@ -72,7 +73,7 @@ int ps2_wait_for_output(int ms);
 * \param ms Time to wait in milliseconds.
 * \return 1 if reading to PS/2 is possible; 0 otherwice.
 */
-int ps2_wait_for_input(int ms);
+int wait_for_input(int ms);
 
 
 /**
@@ -82,7 +83,7 @@ int ps2_wait_for_input(int ms);
 *	is possible without blocking.
 * \return 0 if non-blocking reading is impossible and non-zero value otherwise.
 */
-int ps2_can_read();
+int can_read();
 
 
 /**
@@ -91,7 +92,7 @@ int ps2_can_read();
 * Read one byte fro PS/2 data port.
 * \return Byte that was read.
 */
-uint8_t ps2_receive_byte();
+uint8_t receive_byte();
 
 
 /**
@@ -99,7 +100,7 @@ uint8_t ps2_receive_byte();
 *
 * Drop all data that is stored in PS/2 controller output buffer.
 */
-void ps2_clean_buffer();
+void clean_buffer();
 
 
 /**
@@ -109,11 +110,11 @@ void ps2_clean_buffer();
 *	successfully performed.
 */
 typedef enum {
-	ps2_ioret_ok = 0, /*!< No erros detected. */
-	ps2_ioret_wrong_ack, /*!< Wrong ack is received. */
-	ps2_ioret_timeout, /*!< Operation was not finished in time. */
-	ps2_ioret_unknown_error /*!< Unknown error. */
-} ps2_ioret_t;
+	ok = 0, /*!< No erros detected. */
+	wrong_ack, /*!< Wrong ack is received. */
+	timeout, /*!< Operation was not finished in time. */
+	unknown, /*!< Unknown error. */
+} ioret_t;
 
 
 /**
@@ -124,7 +125,7 @@ typedef enum {
 * \param error Status of operation.
 * \return Pointer to description string.
 */
-char *ps2_ioret_strerror(ps2_ioret_t error);
+const char *strerror(ioret_t error);
 
 
 /**
@@ -135,7 +136,7 @@ char *ps2_ioret_strerror(ps2_ioret_t error);
 * \param byte Byte to be written.
 * \return Status of PS/2 IO operation.
 */
-ps2_ioret_t ps2_send_byte_dev(ps2_line_t line, uint8_t byte);
+ioret_t send_byte_dev(line_t line, uint8_t byte);
 
 
 /**
@@ -148,7 +149,7 @@ ps2_ioret_t ps2_send_byte_dev(ps2_line_t line, uint8_t byte);
 * \param ack Byte that should be received as ack.
 * \return Status of PS/2 IO operation.
 */
-ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte, uint8_t ack);
+ioret_t send_byte_with_ack(line_t line, uint8_t byte, uint8_t ack);
 
 
 /**
@@ -161,7 +162,7 @@ ps2_ioret_t ps2_send_byte_with_ack(ps2_line_t line, uint8_t byte, uint8_t ack);
 * \warning All PS/2 drivers should be registered in PS/2 subsystem before
 *	calling this function.
 */
-void ps2_init();
+void init();
 
 
 /**
@@ -172,10 +173,6 @@ void ps2_init();
 * \warning All PS/2 drivers should be registered in PS/2 subsystem before
 *	calling this function.
 */
-void ps2_register_device(struct ps2_dev *dev);
+void register_device(struct ps2_dev *dev);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // __BOLGENOS_NG__PS_2_H__
+} // namespace ps2

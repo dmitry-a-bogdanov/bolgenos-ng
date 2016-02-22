@@ -4,7 +4,7 @@ set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
-set(dep_flags "-ffreestanding")
+set(dep_flags "-ffreestanding -fPIC")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
@@ -60,6 +60,7 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
 	${config_h}
+	cxxabi.cpp
 	error.c
 	irq.c
 	keyboard.c
@@ -72,8 +73,8 @@ set(kernel_sources ${kernel_start_file}
 	pic_common.c
 	pit.cpp
 	printk.c
-	ps2.c
-	ps2_keyboard.c
+	ps2.cpp
+	ps2_keyboard.cpp
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
 	slab.cpp

@@ -8,12 +8,12 @@
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/ps2.h>
-#include <bolgenos-ng/ps2_keyboard.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
 #include <bolgenos-ng/pit.hpp>
+#include <bolgenos-ng/ps2.hpp>
+#include <bolgenos-ng/ps2_keyboard.hpp>
 #include <bolgenos-ng/slab.hpp>
 
 #include "config.h"
@@ -49,7 +49,7 @@ extern "C" void kernel_main() {
 	init_memory();
 
 	ps2_keyboard_init();
-	ps2_init();
+	ps2::init();
 
 	do {
 		asm ("hlt");

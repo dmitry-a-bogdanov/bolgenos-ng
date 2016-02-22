@@ -5,6 +5,10 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /**
 * \brief Calculate length of specified string.
@@ -72,5 +76,9 @@ char *strcpy(char *dest, const char *src);
 * \return Pointer to destination.
 */
 char *strncpy(char *dest, const char *src, size_t n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__STRING_H__
