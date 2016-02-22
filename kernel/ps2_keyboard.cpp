@@ -74,10 +74,8 @@ ok:
 }
 
 void ps2_keyboard::handle_irq() {
-	//while (ps2_can_read()) {
-		uint8_t byte = ps2::receive_byte();
-		kbd_put_byte(byte);
-	//}
+	uint8_t byte = ps2::receive_byte();
+	kbd_put_byte(byte);
 }
 
 static ps2_keyboard ps2_kbd;

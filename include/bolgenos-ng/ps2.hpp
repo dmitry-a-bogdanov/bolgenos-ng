@@ -14,27 +14,10 @@ namespace ps2 {
 enum line_t {
 	dev_1		= 0x0, /*!< First PS/2 device. */
 	dev_2		= 0x1, /*!< Second PS/2 device. */
-	__dev_min	= dev_1,
-	__dev_max	= dev_2 + 1,
+	__dev_min	= dev_1, /*!< First PS/2 dev index. */
+	__dev_max	= dev_2 + 1, /*!< First invalid PS/2 device index. */
+
 };
-
-
-/**
-* \brief First PS/2 dev index.
-*
-* First PS/2 dev index that can be used as start value for looping through
-*	all PS/2 devices.
-*/
-//#define __ps2_dev_min		ps2_dev_1
-
-
-/**
-* \brief First invalid PS/2 device index.
-*
-* The value following the last valid PS/2 device index. This constant is to
-*	be used as upper bound for looping through all PS/2 devices.
-*/
-//#define __ps2_dev_max		(ps2_dev_2 + 1)
 
 /**
 * \brief Descriptor for PS/2 device.
