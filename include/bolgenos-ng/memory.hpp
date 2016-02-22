@@ -1,26 +1,6 @@
-#ifndef __BOLGENOS_NG__MEMORY_H__
-#define __BOLGENOS_NG__MEMORY_H__
+#pragma once
 
 #include <bolgenos-ng/int_types.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
-* \brief Memory unit is used flag.
-*
-* Flag for allocation map that the memory unit is used.
-*/
-#define MEM_USED			(0x0)
-
-
-/**
-* \brief Memory unit is free flag.
-*
-* Flag for allocation map that the memory unit is free.
-*/
-#define MEM_FREE			(0x1)
 
 
 /**
@@ -82,8 +62,4 @@ void *alloc_pages(size_t n);
 */
 void free_pages(void *addr);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif // __BOLGENOS_NG__MEMORY_H__

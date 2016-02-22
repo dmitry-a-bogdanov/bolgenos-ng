@@ -63,28 +63,29 @@ protected:
 	/**
 	* \brief Get allocation status of memory unit.
 	*
-	* The function gets allocation status of specified memory unit in slab area.
+	* The function gets allocation status of specified memory unit
+	* in slab area.
 	* \param index Index of memory unit in slab.
-	* \return Allocation status of memory unit (\ref MEM_FREE or \ref MEM_USED).
+e	* \return true if unit is free, false otherwise.
 	*/
-	int get_status(size_t index);
+	bool is_free(size_t index);
 
 
 	/**
 	* \brief Set allocation status of memory unit.
 	*
-	* The function sets given allocation status to specified memory unit
-	* in slab area.
+	* The function sets boolean value of allocation status
+	* to specified memory unit in the slab area.
 	* \param index Index of memory unit in slab.
-	* \param status Memory allocation status to be set (\ref MEM_FREE
-	*	or \ref MEM_USED)
+	* \param free Memory allocation status to be set. True if free,
+	* false otherwise.
 	*/
-	void set_status(size_t index, int status);
+	void set_free(size_t index, bool free);
 private:
 	size_t _elem_size;		/*!< Size of element in size slab. */
 	size_t _nelems;			/*!< Number of elements in slab. */
 	void *_memory;			/*!< Pointer to memory of slab. */
-	uint8_t *_allocation_map;	/*!< Allocation status of elements. */
+	bool *_allocation_map;	/*!< Allocation status of elements. */
 	bool _initialized;		/*!< Initilization was successed. */
 };
 

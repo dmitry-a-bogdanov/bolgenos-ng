@@ -65,7 +65,7 @@ set(kernel_sources ${kernel_start_file}
 	irq.c
 	keyboard.c
 	main.cpp
-	memory.c
+	memory.cpp
 	mmu.c
 	multiboot_header.c
 	multiboot_info.c

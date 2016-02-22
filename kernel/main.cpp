@@ -2,7 +2,6 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/memory.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
@@ -11,6 +10,7 @@
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.h>
 
+#include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/ps2_keyboard.hpp>
