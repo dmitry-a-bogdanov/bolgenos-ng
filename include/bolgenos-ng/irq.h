@@ -3,6 +3,9 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief IRQ line type.
@@ -79,5 +82,9 @@ void setup_interrupts();
 * \param routine Fuction to be called when specified IRQ vector happens.
 */
 void register_irq_handler(irq_t vector, irq_handler_t routine);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__IRQ_H__

@@ -4,6 +4,9 @@
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/device.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Enum that holds PS/2 line number.
@@ -171,5 +174,8 @@ void ps2_init();
 */
 void ps2_register_device(struct ps2_dev *dev);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__PS_2_H__

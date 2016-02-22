@@ -3,6 +3,9 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Memory unit is used flag.
@@ -78,5 +81,9 @@ void *alloc_pages(size_t n);
 * \param addr Address of page block.
 */
 void free_pages(void *addr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__MEMORY_H__

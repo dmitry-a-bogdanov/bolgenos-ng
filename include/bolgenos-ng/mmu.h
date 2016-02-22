@@ -1,6 +1,9 @@
 #ifndef __BOLGENOS_NG__MMU_H__
 #define __BOLGENOS_NG__MMU_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * Size of segment descriptor.
@@ -51,5 +54,9 @@
 *	Table and loads it to appropriate CPU register.
 */
 void setup_segments();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__MMU_H__

@@ -23,7 +23,7 @@
 * The main kernel function. The fuction performs full bootstrap of kernel
 *	and then goes to idle state.
 */
-void kernel_main() {
+extern "C" void kernel_main() {
 	interrupts_disable();
 
 	multiboot_info_init();
@@ -51,12 +51,12 @@ void kernel_main() {
 	if (slab_init(&test_slab, sizeof(long), 10) != SLAB_OK) {
 		panic("slab initilization failure\n");
 	}
-	long *one_page = slab_alloc(&test_slab);
-	long *two_page = slab_alloc(&test_slab);
-	long *three_page = slab_alloc(&test_slab);
-	long *one_page_2 = slab_alloc(&test_slab);
+	void *one_page = slab_alloc(&test_slab);
+	void *two_page = slab_alloc(&test_slab);
+	void *three_page = slab_alloc(&test_slab);
+	void *one_page_2 = slab_alloc(&test_slab);
 	slab_free(&test_slab, two_page);
-	long *two_page_2 = slab_alloc(&test_slab);
+	void *two_page_2 = slab_alloc(&test_slab);
 
 	printk("[MEM_TEST]: addresses: %lu, %lu==%lu, %lu, %lu\n",
 		(unsigned long) one_page,

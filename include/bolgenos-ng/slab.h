@@ -3,6 +3,9 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Slab allocation area descriptor.
@@ -62,5 +65,9 @@ void *slab_alloc(struct slab_area *slab);
 * \param entry Allocated element from slab area.
 */
 void slab_free(struct slab_area *slab, void *entry);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__SLAB_H__
