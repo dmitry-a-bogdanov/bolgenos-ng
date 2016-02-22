@@ -6,6 +6,7 @@ set(cxxstd_flags "-std=gnu++11")
 set(output_format_flags "-m32 -march=i686")
 set(dep_flags "-ffreestanding")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
+set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
 
 set(target_hw "i686")
@@ -34,7 +35,7 @@ endif()
 
 message(STATUS
 	"Toolchain information\n"
-	"C Compiler = ${CMAKE_C_COMPILER}"
+	"C Compiler = ${CMAKE_C_COMPILER}\n"
 	"CXX Compiler = ${CMAKE_CXX_COMPILER}")
 
 
@@ -43,7 +44,7 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
 set(CMAKE_C_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags} ${cstd_flags}")
-set(CMAKE_CXX_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags} ${cxxstd_flags}")
+set(CMAKE_CXX_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags} ${cxxstd_flags} ${cxx_features_flags}")
 set(CMAKE_ASM-ATT_COMPILER "${CMAKE_C_COMPILER}")
 set(CMAKE_ASM-ATT_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
@@ -75,7 +76,7 @@ set(kernel_sources ${kernel_start_file}
 	ps2_keyboard.c
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
-	slab.c
+	slab.cpp
 	time.c
 	vga_console.c
 	lib/snprintf.c
