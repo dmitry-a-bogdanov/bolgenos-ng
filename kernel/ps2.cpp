@@ -155,7 +155,7 @@ void ps2::init() {
 	printk("this system has %lu PS/2 port(s)\n",
 		(long unsigned) ps2_lines);
 
-	disable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_1); // FIXME: wrong dev!
+	disable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
 	disable_translation(&conf);
 
 	write_conf_byte(conf);
