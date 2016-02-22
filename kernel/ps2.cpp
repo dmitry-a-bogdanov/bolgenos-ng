@@ -39,9 +39,7 @@
 #define OUTPUT_TIMEOUT				1 /* ms */
 
 
-namespace ps2 {
-
-enum test_reply {
+enum test_reply: uint8_t {
 	port_test_ok		= 0x00,
 	port_test_clk_low	= 0x01,
 	port_test_clk_high	= 0x02,
@@ -68,41 +66,39 @@ enum cmd_t: uint8_t {
 	redirect_2nd	= 0xd4
 };
 
-void send_command(cmd_t cmd);
-
-} // namespace ps2
+static void send_command(cmd_t cmd);
 
 
 // PS/2 status register bits
-typedef enum {
-	ps2_sr_out_buf_status	= 1 << 0,
-	ps2_sr_in_buf_status	= 1 << 1,
-	ps2_sr_post_passed	= 1 << 2,
-	ps2_sr_comm_or_data	= 1 << 3,
+enum status_reg_t: uint8_t {
+	out_buf_status	= 1 << 0,
+	in_buf_status	= 1 << 1,
+	post_passed	= 1 << 2,
+	comm_or_data	= 1 << 3,
 	// unknown		= 1 << 4,
 	// unknown		= 1 << 5,
-	ps2_sr_timeout		= 1 << 6,
-	ps2_sr_parity_error	= 1 << 7
-} ps2_sr_field_t;
+	timeout		= 1 << 6,
+	parity_error	= 1 << 7
+};
 
 
 // PS/2 configuration byte bits
-enum ps2_cb {
-	ps2_cb_int_first	= 1 << 0,
-	ps2_cb_int_second	= 1 << 1,
-	ps2_cb_system		= 1 << 2,
-	ps2_cb_clock_first	= 1 << 4,
-	ps2_cb_clock_second	= 1 << 5,
-	ps2_cb_translation	= 1 << 6
+enum conf_byte_t: uint8_t {
+	int_first	= 1 << 0,
+	int_second	= 1 << 1,
+	system		= 1 << 2,
+	clock_first	= 1 << 4,
+	clock_second	= 1 << 5,
+	translation	= 1 << 6
 };
 
 
 
 
-enum ps2_port {
-	ps2_data_port		= 0x60,
-	ps2_status_reg		= 0x64,
-	ps2_command_reg		= 0x64
+enum ps2_port_t: uint16_t  {
+	data		= 0x60,
+	status		= 0x64,
+	command		= 0x64
 };
 
 
@@ -116,6 +112,7 @@ static int ps2_known_device_count = 0;
 static class ps2::ps2_dev *ps2_active_devices[ps2::line_t::__dev_max];
 
 static void send_byte(uint8_t byte);
+static ps2::ioret_t send_byte_dev(ps2::line_t line, uint8_t byte);
 static uint8_t read_conf_byte();
 static void write_conf_byte(uint8_t conf_byte);
 static void probe_devices();
@@ -131,7 +128,8 @@ static void disable_translation(uint8_t *conf_byte);
 static int controller_selftest();
 static int test_line(ps2::line_t line);
 static uint8_t read_status();
-static int wait_for_flag(ps2_sr_field_t flag, int val, int ms);
+static int wait_for_flag(status_reg_t flag, int val, int ms);
+static int wait_for_output(int ms);
 
 void ps2::register_device(ps2::ps2_dev *dev) {
 	if (ps2_known_device_count < MAX_REGISTERED_DEVICES) {
@@ -169,11 +167,11 @@ void ps2::init() {
 	enable_device(line_t::dev_2);
 	
 	conf = read_conf_byte();
-	if (conf & (ps2_cb_clock_second|ps2_cb_clock_first)) {
+	if (conf & (conf_byte_t::clock_second|conf_byte_t::clock_first)) {
 		printk("both PS/2 devs present\n");
-	} else if (conf & ps2_cb_clock_first) {
+	} else if (conf & conf_byte_t::clock_first) {
 		printk("only first PS/2 dev present\n");
-	} else if (conf & ps2_cb_clock_second) {
+	} else if (conf & conf_byte_t::clock_second) {
 		printk("only second PS/2 dev present\n");
 	} else {
 		printk("no devs present\n");
@@ -208,22 +206,29 @@ void ps2::init() {
 
 
 uint8_t ps2::receive_byte() {
-	return inb(ps2_data_port);
+	return inb(ps2_port_t::data);
 }
 
 
-void ps2::send_command(ps2::cmd_t cmd) {
-	outb(ps2_command_reg, cmd);
+void send_command(cmd_t cmd) {
+	outb(ps2_port_t::command, cmd);
 }
 
 
-int ps2_wait_for_output(int ms) {
-	return ! wait_for_flag(ps2_sr_in_buf_status, 0, ms);
+/**
+* \brief Wait for ability to write to PS/2.
+*
+* Function waits until it will be possible to write to PS/2 controller.
+* \param ms Time to wait in milliseconds.
+* \return 1 if writing to PS/2 is possible; 0 otherwice.
+*/
+int wait_for_output(int ms) {
+	return ! wait_for_flag(status_reg_t::in_buf_status, 0, ms);
 }
 
 
 int ps2::wait_for_input(int ms) {
-	return !! wait_for_flag(ps2_sr_out_buf_status, 1, ms);
+	return !! wait_for_flag(status_reg_t::out_buf_status, 1, ms);
 }
 
 
@@ -233,31 +238,39 @@ int ps2::can_read() {
 
 
 void ps2::clean_buffer() {
-	uint8_t status_register = read_status();
-	while (status_register & ps2_sr_out_buf_status) {
+	uint8_t status_reg_tister = read_status();
+	while (status_reg_tister & status_reg_t::out_buf_status) {
 		receive_byte(); // ignore input
-		status_register = read_status();
+		status_reg_tister = read_status();
 	}
 }
 
 
-ps2::ioret_t ps2::send_byte_dev(ps2::line_t line, uint8_t byte) {
-	if (line == line_t::dev_2) {
+/**
+* \brief Send byte to PS/2 device instead of controller.
+*
+* Functions sends byte to specified PS/2 device instead of PS/2 controller.
+* \param line PS/2 device index.
+* \param byte Byte to be written.
+* \return Status of PS/2 IO operation.
+*/
+ps2::ioret_t send_byte_dev(ps2::line_t line, uint8_t byte) {
+	if (line == ps2::line_t::dev_2) {
 		send_command(cmd_t::redirect_2nd);
 	}
-	int can_write = ps2_wait_for_output(OUTPUT_TIMEOUT);
+	int can_write = wait_for_output(OUTPUT_TIMEOUT);
 	if (!can_write) {
-		return ioret_t::timeout;
+		return ps2::ioret_t::timeout;
 	}
 	send_byte(byte);
-	return ioret_t::ok;
+	return ps2::ioret_t::ok;
 }
 
 
 ps2::ioret_t ps2::send_byte_with_ack(ps2::line_t line, uint8_t byte,
 		uint8_t ack) {
 	ioret_t ret;
-	ret = ps2::send_byte_dev(line, byte);
+	ret = send_byte_dev(line, byte);
 	if (ret != ioret_t::ok) {
 		return ret;
 	}
@@ -340,7 +353,7 @@ static void ps2_irq_handler(ps2::line_t line) {
 */
 static uint8_t read_conf_byte() {
 	uint8_t conf_byte;
-	ps2::send_command(ps2::cmd_t::read_cb);
+	send_command(cmd_t::read_cb);
 	conf_byte = ps2::receive_byte();
 	return conf_byte;
 }
@@ -354,7 +367,7 @@ static uint8_t read_conf_byte() {
 * \param conf_byte Configuration byte to be written.
 */
 static void write_conf_byte(uint8_t conf_byte) {
-	ps2::send_command(ps2::cmd_t::write_cb);
+	send_command(cmd_t::write_cb);
 	send_byte(conf_byte);
 }
 
@@ -403,9 +416,9 @@ static void probe_devices() {
 */
 static void enable_device(ps2::line_t idx) {
 	if (idx == ps2::line_t::dev_1) {
-		ps2::send_command(ps2::cmd_t::enable_1);
+		send_command(cmd_t::enable_1);
 	} else {
-		ps2::send_command(ps2::cmd_t::enable_2);
+		send_command(cmd_t::enable_2);
 	}
 }
 
@@ -417,13 +430,13 @@ static void enable_device(ps2::line_t idx) {
 * \param idx Device to be disabled.
 */
 static void disable_device(ps2::line_t idx) {
-	ps2::cmd_t cmd;
+	cmd_t cmd;
 	if (idx == ps2::line_t::dev_1) {
-		cmd = ps2::cmd_t::disable_1;
+		cmd = cmd_t::disable_1;
 	} else {
-		cmd = ps2::cmd_t::disable_2;
+		cmd = cmd_t::disable_2;
 	}
-	ps2::send_command(cmd);
+	send_command(cmd);
 }
 
 
@@ -437,7 +450,7 @@ static void disable_device(ps2::line_t idx) {
 */
 static int get_ps2_lines(uint8_t conf_byte) {
 	int ps2_lines = 1;
-	if (conf_byte & ps2_cb_clock_second) {
+	if (conf_byte & conf_byte_t::clock_second) {
 		ps2_lines = 2;
 	}
 	return ps2_lines;
@@ -455,10 +468,10 @@ static int get_ps2_lines(uint8_t conf_byte) {
 */
 static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 	if (lines & ps2::line_t::dev_1) {
-		*conf_byte |= ps2_cb_int_first;
+		*conf_byte |= conf_byte_t::int_first;
 	}
 	if (lines & ps2::line_t::dev_2) {
-		*conf_byte |= ps2_cb_int_second;
+		*conf_byte |= conf_byte_t::int_second;
 	}
 }
 
@@ -474,10 +487,10 @@ static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 */
 static void disable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 	if (lines & ps2::line_t::dev_1) {
-		*conf_byte &= ~ps2_cb_int_first;
+		*conf_byte &= ~conf_byte_t::int_first;
 	}
 	if (lines & ps2::line_t::dev_2) {
-		*conf_byte &= ~ps2_cb_int_second;
+		*conf_byte &= ~conf_byte_t::int_second;
 	}
 }
 
@@ -490,7 +503,7 @@ static void disable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 * \param conf_byte Pointer to configuration byte.
 */
 static void disable_translation(uint8_t *conf_byte) {
-	*conf_byte &= ~ps2_cb_translation;
+	*conf_byte &= ~conf_byte_t::translation;
 }
 
 
@@ -501,14 +514,14 @@ static void disable_translation(uint8_t *conf_byte) {
 * returns status.
 */
 static int controller_selftest() {
-	ps2::send_command(ps2::cmd_t::self_test);
+	send_command(cmd_t::self_test);
 	int can_read = ps2::wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
 		// self-test timeout!
 		return 0;
 	}
 	uint8_t test_result = ps2::receive_byte();
-	if (test_result == ps2::test_reply::self_test_ok) {
+	if (test_result == test_reply::self_test_ok) {
 		return 1;
 	}
 	return 0;
@@ -523,7 +536,7 @@ static int controller_selftest() {
 * \param byte Byte to be sent.
 */
 static void send_byte(uint8_t byte) {
-	outb(ps2_data_port, byte);
+	outb(ps2_port_t::data, byte);
 }
 
 
@@ -535,7 +548,7 @@ static void send_byte(uint8_t byte) {
 * \return PS/2 status register.
 */
 static uint8_t read_status() {
-	return inb(ps2_status_reg);
+	return inb(ps2_port_t::status);
 }
 
 
@@ -549,7 +562,7 @@ static uint8_t read_status() {
 * \param ms Time to wait.
 * \return Value of flag after waiting.
 */
-static int wait_for_flag(ps2_sr_field_t flag, int val, int ms) {
+static int wait_for_flag(status_reg_t flag, int val, int ms) {
 	uint8_t status;
 	int wait = 0;
 	if (val) {
@@ -578,20 +591,20 @@ static int wait_for_flag(ps2_sr_field_t flag, int val, int ms) {
 * \return 1 if test is ok; 0 otherwise.
 */
 static int test_line(ps2::line_t line) {
-	ps2::cmd_t cmd;
+	cmd_t cmd;
 	if (line == ps2::line_t::dev_1) {
-		cmd = ps2::cmd_t::port_test_1;
+		cmd = cmd_t::port_test_1;
 	} else {
-		cmd = ps2::cmd_t::port_test_2;
+		cmd = cmd_t::port_test_2;
 	}
-	ps2::send_command(cmd);
+	send_command(cmd);
 	int can_read = ps2::wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
 		printk("no responce to self-test\n");
 		return 0;
 	}
 	uint8_t test_result = ps2::receive_byte();
-	if (test_result == ps2::test_reply::port_test_ok) {
+	if (test_result == test_reply::port_test_ok) {
 		return 1;
 	}
 	printk("line test result = %lu\n", (long unsigned) test_result);

@@ -16,7 +16,6 @@ enum line_t {
 	dev_2		= 0x1, /*!< Second PS/2 device. */
 	__dev_min	= dev_1, /*!< First PS/2 dev index. */
 	__dev_max	= dev_2 + 1, /*!< First invalid PS/2 device index. */
-
 };
 
 /**
@@ -39,14 +38,6 @@ public:
 };
 
 
-/**
-* \brief Wait for ability to write to PS/2.
-*
-* Function waits until it will be possible to write to PS/2 controller.
-* \param ms Time to wait in milliseconds.
-* \return 1 if writing to PS/2 is possible; 0 otherwice.
-*/
-int wait_for_output(int ms);
 
 
 /**
@@ -92,12 +83,12 @@ void clean_buffer();
 * This enum holds status of PS/2 IO operations that are not guarantied to be
 *	successfully performed.
 */
-typedef enum {
-	ok = 0, /*!< No erros detected. */
-	wrong_ack, /*!< Wrong ack is received. */
-	timeout, /*!< Operation was not finished in time. */
-	unknown, /*!< Unknown error. */
-} ioret_t;
+enum ioret_t {
+	ok		= 0, /*!< No erros detected. */
+	wrong_ack	= 1, /*!< Wrong ack is received. */
+	timeout		= 2, /*!< Operation was not finished in time. */
+	unknown		= 3, /*!< Unknown error. */
+};
 
 
 /**
@@ -109,17 +100,6 @@ typedef enum {
 * \return Pointer to description string.
 */
 const char *strerror(ioret_t error);
-
-
-/**
-* \brief Send byte to PS/2 device instead of controller.
-*
-* Functions sends byte to specified PS/2 device instead of PS/2 controller.
-* \param line PS/2 device index.
-* \param byte Byte to be written.
-* \return Status of PS/2 IO operation.
-*/
-ioret_t send_byte_dev(line_t line, uint8_t byte);
 
 
 /**
