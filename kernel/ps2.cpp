@@ -109,7 +109,7 @@ static ps2::ps2_dev *ps2_known_devices[MAX_REGISTERED_DEVICES];
 static int ps2_known_device_count = 0;
 
 
-static class ps2::ps2_dev *ps2_active_devices[ps2::line_t::__dev_max];
+static class ps2::ps2_dev *ps2_active_devices[ps2::line_t::max_devs];
 
 static void send_byte(uint8_t byte);
 static ps2::ioret_t send_byte_dev(ps2::line_t line, uint8_t byte);
@@ -179,16 +179,15 @@ void ps2::init() {
 
 	disable_device(line_t::dev_2);
 
-	for (int ps2_line = line_t::__dev_min;
-			ps2_line < line_t::__dev_max; ++ps2_line) {
-		if (!test_line(line_t(ps2_line))) {
+	ps2::for_each_line([](ps2::line_t line) {
+		if (!test_line(line)) {
 			printk("PS/2: line %li failed self-test!\n",
-					(long) ps2_line);
+					(long) line);
 		} else {
 			printk("PS/2: line %li passed self-test\n",
-					(long) ps2_line);
+					(long) line);
 		}
-	}
+	});
 
 	register_irq_handler(FIRST_LINE_IRQ, first_line_irq);
 	register_irq_handler(SECOND_LINE_IRQ, second_line_irq);
@@ -372,39 +371,40 @@ static void write_conf_byte(uint8_t conf_byte) {
 }
 
 
+static void probe_line(ps2::line_t line) {
+	ps2::ps2_dev *active_dev = nullptr;
+	int active_dev_count = 0;
+	// for each registered device
+	for (int dev_index = 0; dev_index < ps2_known_device_count;
+			++dev_index) {
+		probe_ret_t ret;
+		ret = ps2_known_devices[dev_index]->probe(ps2::line_t(line));
+		if (ret == probe_ok) {
+			active_dev = ps2_known_devices[dev_index];
+			active_dev_count++;
+		}
+	}
+	if (active_dev_count > 1) {
+		char info[100];
+		snprintf(info, 100, "more than 1 probed devices for "
+			"PS/2 line %li\n", (long) line);
+		bug(info);
+	}
+
+	printk("PS/2[%li]: active_dev = %li\n",
+		(long) line, (long) active_dev);
+
+	ps2_active_devices[line] = active_dev;
+}
+
+
 /**
 * \brief Probe PS/2 devices.
 *
 * Function probes all registered PS/2 drivers to all PS/2 devices.
 */
 static void probe_devices() {
-	// for each line do ...
-	for (int line = ps2::line_t::__dev_min;
-			line < ps2::line_t::__dev_max; ++line) {
-		ps2::ps2_dev *active_dev = nullptr;
-		int active_dev_count = 0;
-		// for each registered device
-		for (int dev_index = 0; dev_index < ps2_known_device_count;
-				++dev_index) {
-			probe_ret_t ret;
-			ret = ps2_known_devices[dev_index]->probe(ps2::line_t(line));
-			if (ret == probe_ok) {
-				active_dev = ps2_known_devices[dev_index];
-				active_dev_count++;
-			}
-		}
-		if (active_dev_count > 1) {
-			char info[100];
-			snprintf(info, 100, "more than 1 probed devices for "
-				"PS/2 line %li\n", (long) line);
-			bug(info);
-		}
-
-		printk("PS/2[%li]: active_dev = %li\n",
-			(long) line, (long) active_dev);
-
-		ps2_active_devices[line] = active_dev;
-	}
+	ps2::for_each_line(probe_line);
 }
 
 

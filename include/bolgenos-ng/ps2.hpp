@@ -14,8 +14,12 @@ namespace ps2 {
 enum line_t {
 	dev_1		= 0x0, /*!< First PS/2 device. */
 	dev_2		= 0x1, /*!< Second PS/2 device. */
-	__dev_min	= dev_1, /*!< First PS/2 dev index. */
-	__dev_max	= dev_2 + 1, /*!< First invalid PS/2 device index. */
+	max_devs	= 2, /*!< Max number of PS/2 devices. */
+};
+
+template<typename Func>
+void for_each_line(Func f) {
+	for(int line = 0; line < line_t::max_devs; ++line) f(line_t(line));
 };
 
 /**
