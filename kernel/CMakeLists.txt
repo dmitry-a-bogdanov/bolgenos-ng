@@ -70,7 +70,7 @@ set(kernel_sources ${kernel_start_file}
 	multiboot_info.c
 	pic_8259.c
 	pic_common.c
-	pit.c
+	pit.cpp
 	printk.c
 	ps2.c
 	ps2_keyboard.c
