@@ -108,7 +108,7 @@ struct memory_region {
 */
 static size_t descriptor_pages(size_t pages) {
 	size_t required_memory = sizeof(page_t) * pages;
-	return align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
+	return memory::align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
 }
 
 
@@ -192,7 +192,7 @@ static struct memory_region high_memory;
 void run_memory_test();
 #endif
 
-void init_memory() {
+void memory::init() {
 	if (mboot_is_meminfo_valid()) {
 		printk("Detected memory: low = %lu kb, high = %lu kb\n",
 			(long unsigned) mboot_get_low_mem(),
@@ -299,7 +299,7 @@ static page_t *__find_free_pages(memory_region *region, size_t n) {
 }
 
 
-void *alloc_pages(size_t n) {
+void *memory::alloc_pages(size_t n) {
 	if (n == 0)
 		return ZERO_PAGE;
 	page_frame_t *first_frame = nullptr;
@@ -313,7 +313,7 @@ void *alloc_pages(size_t n) {
 }
 
 
-void free_pages(void *addr) {
+void memory::free_pages(void *addr) {
 	if (addr == nullptr || addr == ZERO_PAGE)
 		return;
 
@@ -332,6 +332,7 @@ void free_pages(void *addr) {
 
 
 void run_memory_test() {
+	using namespace memory;
 	char *allocated[5];
 	allocated[0] = reinterpret_cast<char*>(alloc_pages(1));
 	allocated[1] = reinterpret_cast<char*>(alloc_pages(2));

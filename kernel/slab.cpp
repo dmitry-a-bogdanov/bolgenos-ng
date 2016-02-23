@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+using namespace memory;
 
 slab_area::slab_area(size_t elem_size, size_t nelems) {
 	_elem_size = elem_size;

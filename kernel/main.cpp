@@ -46,7 +46,7 @@ extern "C" void kernel_main() {
 
 	printk("CPU is initialized\n");
 
-	init_memory();
+	memory::init();
 
 	ps2_keyboard_init();
 	ps2::init();

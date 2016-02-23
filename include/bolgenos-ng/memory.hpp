@@ -2,7 +2,7 @@
 
 #include <bolgenos-ng/int_types.h>
 
-
+namespace memory {
 /**
 * \brief Aling value down.
 *
@@ -38,7 +38,7 @@ static inline size_t align_up(size_t value, size_t boundary) {
 *
 * The function initializes memory subsystem.
 */
-void init_memory();
+void init();
 
 
 /**
@@ -63,3 +63,4 @@ void *alloc_pages(size_t n);
 void free_pages(void *addr);
 
 
+} // namespace memory
