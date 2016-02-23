@@ -4,12 +4,13 @@
 #include <bolgenos-ng/printk.h>
 
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/slab.hpp>
 
 #include <config.h>
 #include <ost.h>
 
 #ifdef OST_MEMORY
-void ost::memory_test() {
+void ost::page_alloc_test() {
 	char *allocated[5];
 	allocated[0] = reinterpret_cast<char*>(memory::alloc_pages(1));
 	allocated[1] = reinterpret_cast<char*>(memory::alloc_pages(2));
@@ -17,6 +18,10 @@ void ost::memory_test() {
 	allocated[3] = reinterpret_cast<char*>(memory::alloc_pages(2));
 	memory::free_pages(allocated[1]);
 	allocated[4] = reinterpret_cast<char*>(memory::alloc_pages(2));
+	memory::free_pages(allocated[0]);
+	memory::free_pages(allocated[2]);
+	memory::free_pages(allocated[3]);
+	memory::free_pages(allocated[4]);
 
 	if (allocated[1] == allocated[0] + PAGE_SIZE &&
 		allocated[2] == allocated[1] + PAGE_SIZE*2 &&
@@ -33,8 +38,38 @@ void ost::memory_test() {
 		panic("");
 	}
 }
+
+void ost::slab_test() {
+	struct slab_area test_slab(sizeof(long), 10);
+	if (!test_slab.initialized()) {
+		printk("%s: slab initialization failure\n");
+		panic("FAILED TEST\n");
+	}
+	char *p[5];
+	p[0] = reinterpret_cast<char*>(test_slab.allocate());
+	p[1] = reinterpret_cast<char*>(test_slab.allocate());
+	p[2] = reinterpret_cast<char*>(test_slab.allocate());
+	p[3] = reinterpret_cast<char*>(test_slab.allocate());
+	test_slab.deallocate(p[2]);
+	p[4] = reinterpret_cast<char*>(test_slab.allocate());
+	if (p[1] == p[0] + sizeof(long) &&
+		p[2] == p[1] + sizeof(long) &&
+		p[3] == p[2] + sizeof(long) &&
+		p[4] == p[2]) {
+		printk("%s: ok\n", __func__);
+	} else {
+		printk("%s: fail: ");
+		for (int i = 0; i < 5; ++i) {
+			printk("p[%lu] = %lu ", (long unsigned) i,
+				(long unsigned) p[i]);
+		}
+		printk("\n");
+		panic("");
+	}
+}
 #else
-void ost::memory_test() {
-	// skiping memory test due to build configuration
+void ost::page_alloc_test() {
+}
+void ost::slab_test() {
 }
 #endif

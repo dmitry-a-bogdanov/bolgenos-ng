@@ -8,7 +8,8 @@
 #ifdef OST_ENABLE_TESTS
 void ost::run() {
 	printk("OST: running...\n");
-	ost::memory_test();
+	ost::page_alloc_test();
+	ost::slab_test();
 	printk("OST: finished\n");
 }
 #else

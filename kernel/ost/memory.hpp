@@ -2,6 +2,7 @@
 
 namespace ost {
 
-void memory_test();
+void page_alloc_test();
+void slab_test();
 
 } // namespace ost
