@@ -11,6 +11,7 @@
 #include <bolgenos-ng/vga_console.h>
 
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/slab.hpp>
@@ -48,6 +49,8 @@ extern "C" void kernel_main() {
 	memory::init();
 
 	ps2::init();
+
+	ost::run();
 
 	do {
 		asm ("hlt");

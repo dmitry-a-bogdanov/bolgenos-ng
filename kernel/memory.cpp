@@ -187,11 +187,6 @@ static struct memory_region high_memory;
 		++name)
 
 
-#define RUN_MEMORY_TEST
-#if defined(RUN_MEMORY_TEST)
-void run_memory_test();
-#endif
-
 void memory::init() {
 	if (mboot_is_meminfo_valid()) {
 		printk("Detected memory: low = %lu kb, high = %lu kb\n",
@@ -233,9 +228,6 @@ void memory::init() {
 		(unsigned long) high_memory.pages,
 		(unsigned long) high_memory.frames);
 
-#ifdef RUN_MEMORY_TEST
-	run_memory_test();
-#endif
 }
 
 
@@ -330,29 +322,3 @@ void memory::free_pages(void *addr) {
 	} while (next != nullptr);
 }
 
-
-void run_memory_test() {
-	using namespace memory;
-	char *allocated[5];
-	allocated[0] = reinterpret_cast<char*>(alloc_pages(1));
-	allocated[1] = reinterpret_cast<char*>(alloc_pages(2));
-	allocated[2] = reinterpret_cast<char*>(alloc_pages(3));
-	allocated[3] = reinterpret_cast<char*>(alloc_pages(2));
-	free_pages(allocated[1]);
-	allocated[4] = reinterpret_cast<char*>(alloc_pages(2));
-
-	if (allocated[1] == allocated[0] + PAGE_SIZE &&
-		allocated[2] == allocated[1] + PAGE_SIZE*2 &&
-		allocated[3] == allocated[2] + PAGE_SIZE*3 &&
-		allocated[4] == allocated[1]) {
-		printk("%s: ok\n", __func__);
-	} else {
-		printk("%s: fail: ");
-		for (int i = 0; i < 5; ++i) {
-			printk("a[%lu] = %lu ", (long unsigned) i,
-				(long unsigned) allocated[i]);
-		}
-		printk("\n");
-		panic("");
-	}
-}

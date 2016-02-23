@@ -60,6 +60,7 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
 set(kernel_sources ${kernel_start_file}
 	${config_h}
+	${ost_h}
 	cxxabi.cpp
 	error.c
 	irq.c
@@ -83,6 +84,9 @@ set(kernel_sources ${kernel_start_file}
 	vga_console.c
 	lib/snprintf.c
 	lib/string.c
+	ost/ost.cpp
+	ost/memory.hpp
+	ost/memory.cpp
 	)
 
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
