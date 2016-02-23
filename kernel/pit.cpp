@@ -11,7 +11,8 @@
 
 #include "config.h"
 
-namespace pit {
+namespace {
+
 /**
 * \brief PIT frequency.
 *
@@ -29,7 +30,7 @@ const unsigned long PIT_FREQ = 1193182;
 const unsigned long MAX_DIVIDER = 65535;
 
 
-enum pic_port: uint16_t {
+enum pit_port: uint16_t {
 	timer			= 0x40,
 	speaker			= 0x42,
 	cmd			= 0x43,
@@ -67,54 +68,29 @@ enum pit_channel: uint8_t {
 	back			= 3 << 6,
 };
 
-
 class FrequencyDivider {
 public:
-	FrequencyDivider() { }
-	~FrequencyDivider() = default;
+	FrequencyDivider();
+	FrequencyDivider(const FrequencyDivider&) = delete;
+	FrequencyDivider& operator=(const FrequencyDivider&) = delete;
+
+	~FrequencyDivider();
 
 	void set_frequency(unsigned long hz);
-	inline uint8_t pit_timeout() { return pit_; }
+	uint16_t pit_timeout() const;
 	bool do_tick();
-	bool is_low_frequency() const { return restart_ != 0; }
+	bool is_low_frequency() const;
 private:
 	uint16_t pit_;
 	unsigned long counter_;
 	unsigned long restart_;
 };
 
-} // namespace pit
 
 
-void pit::FrequencyDivider::set_frequency(unsigned long hz) {
-	unsigned long full_div = pit::PIT_FREQ / hz;
-	if (full_div == 0) {
-		full_div = 1; // PIT interprets 0 as 0xffff
-	}
-	if (full_div > pit::MAX_DIVIDER) {
-		pit_ = 100;
-		restart_ = full_div / 100;
-	} else {
-		pit_ = bitmask(full_div, 0, 0xffff);
-		restart_ = 0;
-	}
-	counter_ = restart_;
-}
 
 
-bool pit::FrequencyDivider::do_tick() {
-	if (counter_ != 0) {
-		--counter_;
-		return false;
-	} else {
-		counter_ = restart_;
-		return true;
-	}
-}
-
-
-static pit::FrequencyDivider freq_divider;
-
+FrequencyDivider freq_divider;
 
 /**
 * \brief Handle timer interrupt.
@@ -131,6 +107,54 @@ static void handle_pit_irq(irq_t vector __attribute__((unused))) {
 	++jiffies;
 }
 
+} // namespace
+
+
+FrequencyDivider::FrequencyDivider()
+		: pit_(0x0), counter_(0), restart_(0) {
+}
+
+FrequencyDivider::~FrequencyDivider() {
+}
+
+
+bool FrequencyDivider::do_tick() {
+	if (counter_ != 0) {
+		--counter_;
+		return false;
+	} else {
+		counter_ = restart_;
+		return true;
+	}
+}
+
+
+uint16_t FrequencyDivider::pit_timeout() const {
+	return pit_;
+}
+
+
+bool FrequencyDivider::is_low_frequency() const {
+	return restart_ != 0;
+}
+
+
+void FrequencyDivider::set_frequency(unsigned long hz) {
+	unsigned long full_div = PIT_FREQ / hz;
+	if (full_div == 0) {
+		full_div = 1; // PIT interprets 0 as 0xffff
+	}
+	if (full_div > MAX_DIVIDER) {
+		pit_ = 100;
+		restart_ = full_div / 100;
+	} else {
+		pit_ = bitmask(full_div, 0, 0xffff);
+		restart_ = 0;
+	}
+	counter_ = restart_;
+}
+
+
 /**
 * Timer IRQ line.
 */
@@ -145,8 +169,8 @@ void pit::init() {
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
-	outb(pic_port::cmd, cmd);
-	outb(pic_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
-	outb(pic_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
+	outb(pit_port::cmd, cmd);
+	outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
+	outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
 }
 

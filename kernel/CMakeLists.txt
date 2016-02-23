@@ -74,6 +74,7 @@ set(kernel_sources ${kernel_start_file}
 	pit.cpp
 	printk.c
 	ps2.cpp
+	ps2_keyboard.hpp
 	ps2_keyboard.cpp
 	ps2_keyboard_sm.h
 	ps2_keyboard_sm.c
