@@ -3,6 +3,9 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Read multiboot info.
@@ -55,5 +58,9 @@ uint32_t mboot_get_low_mem();
 * \return Size of high memory.
 */
 uint32_t mboot_get_high_mem();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__MULTIBOOT_H__

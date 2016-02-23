@@ -3,6 +3,9 @@
 
 #include <stdarg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Print formatted message.
@@ -25,5 +28,9 @@ int printk(const char *fmt, ...);
 * \return Number of printed symbols.
 */
 int vprintk(const char *fmt, va_list args);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOLGENOS_NG__PRINTK_H__

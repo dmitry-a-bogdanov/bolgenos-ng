@@ -1,25 +1,8 @@
-#ifndef __BOLGENOS_NG__MEMORY_H__
-#define __BOLGENOS_NG__MEMORY_H__
+#pragma once
 
 #include <bolgenos-ng/int_types.h>
 
-
-/**
-* \brief Memory unit is used flag.
-*
-* Flag for allocation map that the memory unit is used.
-*/
-#define MEM_USED			(0x0)
-
-
-/**
-* \brief Memory unit is free flag.
-*
-* Flag for allocation map that the memory unit is free.
-*/
-#define MEM_FREE			(0x1)
-
-
+namespace memory {
 /**
 * \brief Aling value down.
 *
@@ -55,7 +38,7 @@ static inline size_t align_up(size_t value, size_t boundary) {
 *
 * The function initializes memory subsystem.
 */
-void init_memory();
+void init();
 
 
 /**
@@ -79,4 +62,5 @@ void *alloc_pages(size_t n);
 */
 void free_pages(void *addr);
 
-#endif // __BOLGENOS_NG__MEMORY_H__
+
+} // namespace memory

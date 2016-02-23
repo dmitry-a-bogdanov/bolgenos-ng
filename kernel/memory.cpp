@@ -1,4 +1,4 @@
-#include <bolgenos-ng/memory.h>
+#include <bolgenos-ng/memory.hpp>
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
@@ -31,9 +31,9 @@ _asm_linked_ char __kernel_obj_end[0];
 *
 * The structure is intended to describe page frame.
 */
-struct __attribute__((packed)) page {
-	struct page *next; /*!< Next page in allocation block. */
-	int free:1; /*!< Page is free flag. */
+struct __attribute__((packed)) page_t {
+	page_t *next; /*!< Next page in allocation block. */
+	bool free; /*!< Page is free flag. */
 };
 
 
@@ -50,10 +50,10 @@ struct __attribute__((packed)) page {
 *
 * Used only for simplifying address arithmetics.
 */
-struct __attribute__((packed)) page_frame {
+struct __attribute__((packed)) page_frame_t {
 	char __data[PAGE_SIZE];
 };
-assert_type_size(struct page_frame, PAGE_SIZE);
+static_assert(sizeof(page_frame_t) == PAGE_SIZE, "Wrong size of page_frame_t");
 
 
 /**
@@ -65,10 +65,10 @@ struct memory_region {
 	size_t size;
 	/*!< Number of allocatable pages in region. */
 
-	struct page *pages;
+	page_t *pages;
 	/*!< Pointer to array of page descriptors. */
 
-	struct page_frame *frames;
+	page_frame_t *frames;
 	/*!< Pointer to region of pages frames. */
 };
 
@@ -82,7 +82,7 @@ struct memory_region {
 * \param the_page Specified page.
 */
 #define page_index(m_region, the_page) \
-	(((struct page *)(the_page)) - (m_region)->pages)
+	(reinterpret_cast<page_t *>((the_page)) - (m_region)->pages)
 
 
 /**
@@ -94,7 +94,7 @@ struct memory_region {
 * \param frame Specified page frame.
 */
 #define frame_index(m_region, frame) \
-	(((struct page_frame *)(frame)) - (m_region)->frames)
+	(reinterpret_cast<page_frame_t *>((frame)) - (m_region)->frames)
 
 
 /**
@@ -107,8 +107,8 @@ struct memory_region {
 * \return Number of pages for holding page descriptors.
 */
 static size_t descriptor_pages(size_t pages) {
-	size_t required_memory = sizeof(struct page) * pages;
-	return align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
+	size_t required_memory = sizeof(page_t) * pages;
+	return memory::align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
 }
 
 
@@ -154,7 +154,7 @@ static struct memory_region high_memory;
 *
 * The address of the beginning of high memory.
 */
-#define __high_memory_start		((char *) 0x100000)
+#define __high_memory_start		reinterpret_cast<char *>(0x100000)
 
 
 /**
@@ -166,7 +166,7 @@ static struct memory_region high_memory;
 * \param name Name of iterator variable to be created.
 */
 #define for_each_page(m_region, name)					\
-	for(struct page *name = (m_region)->pages;			\
+	for(page_t *name = (m_region)->pages;			\
 		name != (m_region)->pages + (m_region)->size;		\
 		++name)
 
@@ -182,12 +182,12 @@ static struct memory_region high_memory;
 * \param start Pointer to the first page descriptor for looping.
 */
 #define for_each_page_from(m_region, name, start)			\
-	for(struct page *name = start;					\
+	for(page_t *name = start;					\
 		name != (m_region)->pages + (m_region)->size;		\
 		++name)
 
 
-void init_memory() {
+void memory::init() {
 	if (mboot_is_meminfo_valid()) {
 		printk("Detected memory: low = %lu kb, high = %lu kb\n",
 			(long unsigned) mboot_get_low_mem(),
@@ -196,14 +196,14 @@ void init_memory() {
 		panic("Bootloader didn't provide memory info!\n");
 	}
 
-	struct page_frame *highmem_first_free = (struct page_frame *)
-		align_up((size_t) __kernel_obj_end, PAGE_SIZE);
+	page_frame_t *highmem_first_free = reinterpret_cast<page_frame_t *>(
+		align_up((size_t) __kernel_obj_end, PAGE_SIZE));
 
 	// points to page that contains last RAM address.
-	struct page_frame *highmem_last_free = (struct page_frame *)
+	page_frame_t *highmem_last_free = reinterpret_cast<page_frame_t *>(
 		align_down((size_t) ( __high_memory_start
 			+ mboot_get_high_mem() * 1024),
-			PAGE_SIZE);
+			PAGE_SIZE));
 
 	printk("[MEM_INFO] highmem free frames: %lu...%lu\n",
 		(long unsigned) highmem_first_free,
@@ -215,18 +215,19 @@ void init_memory() {
 	mem_split_t highmem_split;
 	split_pages(highmem_free_pages, &highmem_split);
 	high_memory.size = highmem_split.frames;
-	high_memory.pages = (struct page *) highmem_first_free;
+	high_memory.pages = reinterpret_cast<page_t *>(highmem_first_free);
 	high_memory.frames = highmem_first_free + highmem_split.pages;
 
 	for_each_page(&high_memory, p) {
-		p->free = MEM_FREE;
-		p->next = NULL;
+		p->free = true;
+		p->next = nullptr;
 	}
 
 	printk("[MEM_INFO] high_memory: size=%lu, pages=%lu, frames=%lu\n",
 		(unsigned long) high_memory.size,
 		(unsigned long) high_memory.pages,
 		(unsigned long) high_memory.frames);
+
 }
 
 
@@ -238,11 +239,11 @@ void init_memory() {
 * \param from First page in block.
 * \param n Number of pages in block.
 */
-static void __alloc_pages(struct page *from, size_t n) {
-	for (struct page *prev_page = NULL, *page = from; page != from + n;
+static void __alloc_pages(page_t *from, size_t n) {
+	for (page_t *prev_page = nullptr, *page = from; page != from + n;
 			++page) {
-		page->free = MEM_USED;
-		page->next = NULL;
+		page->free = false;
+		page->next = nullptr;
 		if (prev_page) {
 			prev_page->next = page;
 		}
@@ -250,6 +251,17 @@ static void __alloc_pages(struct page *from, size_t n) {
 	}
 }
 
+
+size_t has_page_block(memory_region *region, page_t *page, size_t n) {
+	page_t *last = region->pages + region->size;
+	size_t cont_free_pages = 0;
+	for (; page != last && cont_free_pages != n; ++page) {
+		if (!page->free)
+			break;
+		++cont_free_pages;
+	}
+	return cont_free_pages;
+}
 
 /**
 * \brief Find free pages.
@@ -259,37 +271,31 @@ static void __alloc_pages(struct page *from, size_t n) {
 *
 * \param region Given memory region.
 * \param n Number of free pages to find.
-* \return Pointer to first free page or NULL.
+* \return Pointer to first free page or nullptr.
 */
-static struct page *__find_free_pages(struct memory_region *region, size_t n) {
-	struct page *page_block = NULL;
-	for_each_page(region, page) {
-		if (page->free == MEM_USED) {
+static page_t *__find_free_pages(memory_region *region, size_t n) {
+	page_t *page_block = nullptr;
+	for_each_page(region, page_iterator) {
+		if (!page_iterator->free) {
 			continue;
 		}
-		size_t free_pages = 0;
-		for_each_page_from(region, other_page, page) {
-			if (other_page->free == MEM_USED)
-				break;
-			++free_pages;
-			if (free_pages == n)
-				break;
-		}
-
+		size_t free_pages = has_page_block(region, page_iterator, n);
 		if (free_pages == n) {
-			page_block = page;
+			page_block = page_iterator;
 			break;
+		} else {
+			page_iterator += free_pages;
 		}
 	}
 	return page_block;
 }
 
 
-void *alloc_pages(size_t n) {
+void *memory::alloc_pages(size_t n) {
 	if (n == 0)
 		return ZERO_PAGE;
-	struct page_frame *first_frame = NULL;
-	struct page *free_page_block = __find_free_pages(&high_memory, n);
+	page_frame_t *first_frame = nullptr;
+	page_t *free_page_block = __find_free_pages(&high_memory, n);
 	if (free_page_block) {
 		__alloc_pages(free_page_block, n);
 		first_frame = high_memory.frames + page_index(&high_memory,
@@ -299,19 +305,20 @@ void *alloc_pages(size_t n) {
 }
 
 
-void free_pages(void *addr) {
-	if (addr == NULL || addr == ZERO_PAGE)
+void memory::free_pages(void *addr) {
+	if (addr == nullptr || addr == ZERO_PAGE)
 		return;
 
-	struct page *page = high_memory.pages + frame_index(&high_memory, addr);
-	struct page *next;
+	page_t *page = high_memory.pages + frame_index(&high_memory, addr);
+	page_t *next;
 	do {
 		if (page->free) {
 			panic("Double freeing was detected\n");
 		}
 		next = page->next;
-		page->free = MEM_FREE;
-		page->next = NULL;
+		page->free = true;
+		page->next = nullptr;
 		page = next;
-	} while (next != NULL);
+	} while (next != nullptr);
 }
+
