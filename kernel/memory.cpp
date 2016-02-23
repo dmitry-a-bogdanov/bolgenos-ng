@@ -82,7 +82,7 @@ struct memory_region {
 * \param the_page Specified page.
 */
 #define page_index(m_region, the_page) \
-	(((page_t *)(the_page)) - (m_region)->pages)
+	(reinterpret_cast<page_t *>((the_page)) - (m_region)->pages)
 
 
 /**
@@ -94,7 +94,7 @@ struct memory_region {
 * \param frame Specified page frame.
 */
 #define frame_index(m_region, frame) \
-	(((page_frame_t *)(frame)) - (m_region)->frames)
+	(reinterpret_cast<page_frame_t *>((frame)) - (m_region)->frames)
 
 
 /**
@@ -154,7 +154,7 @@ static struct memory_region high_memory;
 *
 * The address of the beginning of high memory.
 */
-#define __high_memory_start		((char *) 0x100000)
+#define __high_memory_start		reinterpret_cast<char *>(0x100000)
 
 
 /**
@@ -215,7 +215,7 @@ void memory::init() {
 	mem_split_t highmem_split;
 	split_pages(highmem_free_pages, &highmem_split);
 	high_memory.size = highmem_split.frames;
-	high_memory.pages = (page_t *) highmem_first_free;
+	high_memory.pages = reinterpret_cast<page_t *>(highmem_first_free);
 	high_memory.frames = highmem_first_free + highmem_split.pages;
 
 	for_each_page(&high_memory, p) {
