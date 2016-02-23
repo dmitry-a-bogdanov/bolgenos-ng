@@ -1,4 +1,4 @@
-#include <bolgenos-ng/ps2_keyboard.hpp>
+#include "ps2_keyboard.hpp"
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/keyboard.h>
@@ -80,6 +80,6 @@ void ps2_keyboard::handle_irq() {
 
 static ps2_keyboard ps2_kbd;
 
-void ps2_keyboard_init() {
+void ps2::keyboard::init() {
 	ps2::register_device(&ps2_kbd);
 }

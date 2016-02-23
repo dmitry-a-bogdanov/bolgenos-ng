@@ -8,6 +8,8 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
+#include "ps2_keyboard.hpp"
+
 
 /**
 * IRQ for the first PS/2 line.
@@ -130,6 +132,7 @@ static int test_line(ps2::line_t line);
 static uint8_t read_status();
 static int wait_for_flag(status_reg_t flag, int val, int ms);
 static int wait_for_output(int ms);
+static void init_subsystems();
 
 void ps2::register_device(ps2::ps2_dev *dev) {
 	if (ps2_known_device_count < MAX_REGISTERED_DEVICES) {
@@ -137,8 +140,14 @@ void ps2::register_device(ps2::ps2_dev *dev) {
 	}
 }
 
+void init_subsystems() {
+	ps2::keyboard::init();
+}
+
 
 void ps2::init() {
+	init_subsystems();
+
 	uint8_t conf;
 	printk("initializing PS/2 controller...\n");
 	disable_device(ps2::line_t::dev_1);

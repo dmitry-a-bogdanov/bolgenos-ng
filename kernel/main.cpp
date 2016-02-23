@@ -13,7 +13,6 @@
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
-#include <bolgenos-ng/ps2_keyboard.hpp>
 #include <bolgenos-ng/slab.hpp>
 
 #include "config.h"
@@ -48,7 +47,6 @@ extern "C" void kernel_main() {
 
 	memory::init();
 
-	ps2_keyboard_init();
 	ps2::init();
 
 	do {
