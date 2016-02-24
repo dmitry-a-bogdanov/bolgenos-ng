@@ -9,7 +9,7 @@
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/time.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
@@ -30,8 +30,8 @@ extern "C" void kernel_main() {
 
 	multiboot_info_init();
 
-	vga_console_init();
-	vga_clear_screen();
+	vga_console::vga_console_init();
+	vga_console::vga_clear_screen();
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
 

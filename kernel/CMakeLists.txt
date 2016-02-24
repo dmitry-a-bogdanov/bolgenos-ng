@@ -80,7 +80,7 @@ set(kernel_sources ${kernel_start_file}
 	ps2_keyboard_sm.c
 	slab.cpp
 	time.c
-	vga_console.c
+	vga_console.cpp
 	abi/cxxabi.c
 	lib/snprintf.c
 	lib/string.c

@@ -1,7 +1,7 @@
 #include <bolgenos-ng/printk.h>
 
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 #define __printk_buf_size			(1024)
 
 int printk(const char *fmt, ...) {

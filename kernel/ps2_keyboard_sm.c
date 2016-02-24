@@ -4,7 +4,7 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 
 #define __st_debug_enable				(0)
 

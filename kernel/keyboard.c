@@ -1,7 +1,7 @@
 #include <bolgenos-ng/keyboard.h>
 
 #include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 
 
 char kb_keys_pressed[__kb_key_max] = { KEY_RELEASED };

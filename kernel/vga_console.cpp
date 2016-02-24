@@ -1,4 +1,4 @@
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 
 #include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
@@ -10,8 +10,8 @@
 
 typedef struct __attribute__((packed)) {
 	char ch:8;
-	vga_color_t fg:4;
-	vga_color_t bg:4;
+	vga_console::vga_color_t fg:4;
+	vga_console::vga_color_t bg:4;
 } vga_cell_t;
 
 assert_type_size(vga_cell_t, 2);
@@ -23,8 +23,10 @@ assert_type_size(vga_cell_t, 2);
 	}
 
 static vga_cell_t *vga_iomem;
-static vga_color_t global_bg;
-static vga_color_t global_fg;
+namespace {
+vga_console::vga_color_t global_bg;
+vga_console::vga_color_t global_fg;
+} // namespace
 
 static int screen_height, screen_width;
 static int cursor_line = 0, cursor_column = 0;
@@ -38,24 +40,24 @@ static void new_line();
 static void scroll();
 static void carriage_return();
 
-void vga_set_bg(vga_color_t bg) {
+void vga_console::vga_set_bg(vga_color_t bg) {
 	global_bg = bg;
 }
 
-vga_color_t vga_get_bg() {
+vga_console::vga_color_t vga_console::vga_get_bg() {
 	return global_bg;
 }
 
-void vga_set_fg(vga_color_t fg) {
+void vga_console::vga_set_fg(vga_color_t fg) {
 	global_fg = fg;
 }
 
-vga_color_t vga_get_fg() {
+vga_console::vga_color_t vga_console::vga_get_fg() {
 	return global_fg;
 }
 
 
-void vga_console_putc_color(char symbol, vga_color_t fg,
+void vga_console::vga_console_putc_color(char symbol, vga_color_t fg,
 		vga_color_t bg) {
 	switch (symbol) {
 	case LF:
@@ -67,21 +69,21 @@ void vga_console_putc_color(char symbol, vga_color_t fg,
 	default:
 		{
 			vga_cell_t cell = VGA_CELL_INITIALIZER(symbol, fg, bg);
-			write_16((char *) cursor_address, address_of(cell));
+			*cursor_address = cell;
 			cursor_next();
 		}
 	}
 }
 
-void vga_console_putc(char symbol) {
+void vga_console::vga_console_putc(char symbol) {
 	vga_console_putc_color(symbol, global_fg, global_bg);
 }
 
-void vga_console_puts(const char* string) {
+void vga_console::vga_console_puts(const char* string) {
 	vga_console_puts_color(string, global_fg, global_bg);
 }
 
-void vga_console_puts_color(const char* string, vga_color_t fg,
+void vga_console::vga_console_puts_color(const char* string, vga_color_t fg,
 		vga_color_t bg) {
 	while(*string) {
 		vga_console_putc_color(*string, fg, bg);
@@ -90,7 +92,7 @@ void vga_console_puts_color(const char* string, vga_color_t fg,
 }
 
 
-void vga_console_init() {
+void vga_console::vga_console_init() {
 	// there is other modes but this one more or less default
 	vga_iomem = (vga_cell_t *) 0xb8000;
 	screen_height = 25;
@@ -100,9 +102,10 @@ void vga_console_init() {
 }
 
 
-void vga_clear_screen() {
+void vga_console::vga_clear_screen() {
 	vga_cell_t empty = VGA_CELL_INITIALIZER(' ', global_fg, global_bg);
-	memset_16((char *)vga_iomem, address_of(empty),
+	memset_16(reinterpret_cast<char *>(vga_iomem),
+		reinterpret_cast<char *>(address_of(empty)),
 		screen_height*screen_width);
 }
 

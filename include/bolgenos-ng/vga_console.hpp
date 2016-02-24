@@ -1,8 +1,9 @@
-#ifndef __BOLGENOS_NG__VGA_CONSOLE_H__
-#define __BOLGENOS_NG__VGA_CONSOLE_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
+
+namespace vga_console {
 #endif
 
 /**
@@ -126,7 +127,7 @@ void vga_console_putc_color(char c, vga_color_t fg, vga_color_t bg);
 void vga_console_puts_color(const char* str, vga_color_t fg, vga_color_t bg);
 
 #ifdef __cplusplus
+} // namespace vga_console
+
 }
 #endif
-
-#endif // __BOLGENOS_NG__VGA_CONSOLE_H__
