@@ -1,4 +1,5 @@
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
@@ -33,6 +34,8 @@ extern "C" void kernel_main() {
 	vga_clear_screen();
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
+
+	call_global_ctors();
 
 	setup_interrupts();
 	setup_segments();

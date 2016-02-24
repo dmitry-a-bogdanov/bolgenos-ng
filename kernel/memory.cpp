@@ -322,3 +322,6 @@ void memory::free_pages(void *addr) {
 	} while (next != nullptr);
 }
 
+void operator delete(void *) {
+	// empty declaration
+}

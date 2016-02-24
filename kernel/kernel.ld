@@ -11,6 +11,12 @@ SECTIONS {
 		*(.text)
 	}
 
+	.ctors : {
+		__ctors_begin = .;
+		*(.ctors)
+		__ctors_end = .;
+	}
+
 	.data : {
 		*(.data)
 	}
