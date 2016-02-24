@@ -1,4 +1,4 @@
-#include "ps2_keyboard_sm.h"
+#include "ps2_keyboard_sm.hpp"
 
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/mem_utils.h>

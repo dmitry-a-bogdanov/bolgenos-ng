@@ -1,10 +1,6 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-
 namespace vga_console {
-#endif
 
 /**
 * \brief All colors supported by VGA console.
@@ -126,8 +122,4 @@ void vga_console_putc_color(char c, vga_color_t fg, vga_color_t bg);
 */
 void vga_console_puts_color(const char* str, vga_color_t fg, vga_color_t bg);
 
-#ifdef __cplusplus
 } // namespace vga_console
-
-}
-#endif

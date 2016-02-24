@@ -63,7 +63,7 @@ set(kernel_sources ${kernel_start_file}
 	${ost_h}
 	error.c
 	irq.c
-	keyboard.c
+	keyboard.cpp
 	main.cpp
 	memory.cpp
 	mmu.c
@@ -72,12 +72,12 @@ set(kernel_sources ${kernel_start_file}
 	pic_8259.c
 	pic_common.c
 	pit.cpp
-	printk.c
+	printk.cpp
 	ps2.cpp
 	ps2_keyboard.hpp
 	ps2_keyboard.cpp
-	ps2_keyboard_sm.h
-	ps2_keyboard_sm.c
+	ps2_keyboard_sm.hpp
+	ps2_keyboard_sm.cpp
 	slab.cpp
 	time.c
 	vga_console.cpp

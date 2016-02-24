@@ -3,6 +3,11 @@
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/vga_console.hpp>
 
+kb_key& operator++(kb_key &key) {
+	int num_val = static_cast<int>(key);
+	key = static_cast<kb_key>(++num_val);
+	return key;
+}
 
 char kb_keys_pressed[__kb_key_max] = { KEY_RELEASED };
 
@@ -82,7 +87,7 @@ void kb_print_to_vga() {
 				if (lshift) {
 					symbol = kb_lshift(symbol);
 				}
-				vga_console_putc(symbol);
+				vga_console::vga_console_putc(symbol);
 				kb_keys_pressed[key] = KEY_RELEASED;
 			}
 		}

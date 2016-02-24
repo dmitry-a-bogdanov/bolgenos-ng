@@ -1,5 +1,4 @@
-#ifndef __BOLGENOS_NG__KEYBOARD_H__
-#define __BOLGENOS_NG__KEYBOARD_H__
+#pragma once
 
 /** \brief Keyboard's key.
 *
@@ -155,6 +154,8 @@ typedef enum {
 	__kb_key_max /*!< Number of values in this enum */
 } kb_key;
 
+kb_key& operator++(kb_key& key);
+
 
 /**
 * \brief Key released flag.
@@ -188,4 +189,3 @@ extern char kb_keys_pressed[__kb_key_max];
 */
 void kb_print_to_vga();
 
-#endif // __BOLGENOS_NG__KEYBOARD_H__

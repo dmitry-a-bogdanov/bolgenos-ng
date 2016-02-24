@@ -16,6 +16,6 @@ int printk(const char *fmt, ...) {
 int vprintk(const char *fmt, va_list args) {
 	char buf[__printk_buf_size] = { 0 };
 	int ret = vsnprintf(buf, __printk_buf_size, fmt, args);
-	vga_console_puts(buf);
+	vga_console::vga_console_puts(buf);
 	return ret;
 }

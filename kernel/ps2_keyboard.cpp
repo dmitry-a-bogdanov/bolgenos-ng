@@ -6,7 +6,7 @@
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/string.h>
 
-#include "ps2_keyboard_sm.h"
+#include "ps2_keyboard_sm.hpp"
 
 using namespace ps2;
 
