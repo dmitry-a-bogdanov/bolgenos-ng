@@ -61,6 +61,7 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
+	cout.cpp
 	error.c
 	irq.c
 	keyboard.cpp

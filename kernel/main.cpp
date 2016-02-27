@@ -11,6 +11,7 @@
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
@@ -34,7 +35,8 @@ extern "C" void kernel_main() {
 
 	vga_console::clear_screen();
 
-	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
+	cio::cout	<< "Starting bolgenos-ng-"
+			<< BOLGENOS_NG_VERSION << cio::endl;
 
 
 	setup_interrupts();
