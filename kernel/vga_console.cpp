@@ -19,12 +19,12 @@ struct __attribute__((packed)) cell_t {
 
 static_assert(sizeof(cell_t) == 2, "cell_t has incorrect size!");
 
-cell_t *iomem;
+cell_t *iomem = reinterpret_cast<cell_t *>(0xb8000);
 
-vga_console::color_t global_bg;
-vga_console::color_t global_fg;
+vga_console::color_t global_bg = vga_console::color_t::black;
+vga_console::color_t global_fg = vga_console::color_t::grey;
 
-int screen_height, screen_width;
+int screen_height = 25, screen_width = 80;
 int cursor_line = 0, cursor_column = 0;
 
 void cursor_next();
@@ -89,16 +89,6 @@ void vga_console::puts_color(const char* string, color_t fg,
 		vga_console::putc_color(*string, fg, bg);
 		++string;
 	}
-}
-
-
-void vga_console::init() {
-	// there is other modes but this one more or less default
-	iomem = reinterpret_cast<cell_t *>(0xb8000);
-	screen_height = 25;
-	screen_width = 80;
-	set_fg(color_t::grey);
-	set_bg(color_t::black);
 }
 
 

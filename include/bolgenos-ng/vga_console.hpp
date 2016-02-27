@@ -30,14 +30,6 @@ enum color_t: uint8_t {
 
 
 /**
-* \brief Initilize VGA Console subsystem.
-*
-* The fuction initializes internal structures of VGA console subsystems.
-*/
-void init();
-
-
-/**
 * \brief Set background.
 *
 * Set background color to specified value.

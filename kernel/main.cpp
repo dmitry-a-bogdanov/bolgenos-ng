@@ -32,7 +32,6 @@ extern "C" void kernel_main() {
 
 	call_global_ctors();
 
-	vga_console::init();
 	vga_console::clear_screen();
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
