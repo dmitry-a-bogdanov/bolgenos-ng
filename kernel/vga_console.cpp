@@ -4,10 +4,6 @@
 #include <bolgenos-ng/mem_utils.h>
 
 
-#define LF						'\n'
-#define CR						'\r'
-
-
 namespace {
 
 
@@ -30,6 +26,10 @@ vga_console::color_t global_fg = vga_console::color_t::grey;
 
 int screen_height = 25, screen_width = 80;
 int cursor_line = 0, cursor_column = 0;
+
+
+const char LF = '\n';
+const char CR = '\r';
 
 
 void cursor_next();
