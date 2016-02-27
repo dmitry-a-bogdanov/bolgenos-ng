@@ -34,8 +34,8 @@ extern "C" void kernel_main() {
 
 	vga_console::clear_screen();
 
-	cio::cout	<< "Starting bolgenos-ng-"
-			<< BOLGENOS_NG_VERSION << cio::endl;
+	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< cio::endl;
 
 
 	setup_interrupts();
@@ -48,7 +48,7 @@ extern "C" void kernel_main() {
 
 	interrupts_enable();
 
-	cio::cout << "CPU is initialized" << cio::endl;
+	cio::cinfo << "CPU is initialized" << cio::endl;
 
 	memory::init();
 

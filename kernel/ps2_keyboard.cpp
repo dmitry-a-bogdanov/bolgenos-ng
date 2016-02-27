@@ -38,16 +38,16 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 	ret = send_byte_with_ack(line, ps2_dcmd_disable_scan,
 			ps2_keyboard_ack);
 	if (ret != ioret_t::ok) {
-		cio::cout	<< "failed to disable scan: "
-				<< ps2::strerror(ret) << cio::endl;
+		cio::cwarn << "failed to disable scan: "
+			<< ps2::strerror(ret) << cio::endl;
 		goto fail;
 	}
 
 	ret = send_byte_with_ack(line, ps2_dcmd_identify,
 			ps2_keyboard_ack);
 	if (ret != ioret_t::ok) {
-		cio::cout	<< "failed to identify dev: "
-				<< ps2::strerror(ret) << cio::endl;
+		cio::cwarn << "failed to identify dev: "
+			<< ps2::strerror(ret) << cio::endl;
 		goto fail;
 	}
 
@@ -55,9 +55,9 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 		uint8_t id_byte;
 		id_byte = ps2::receive_byte();
 		if (id_byte != this_dev_id[id_count]) {
-			cio::cout 	<< "got wrong id_byte = "
-					<< id_count << ":" << id_byte
-					<< cio::endl;
+			cio::cwarn << "got wrong id_byte = "
+				<< id_count << ":" << id_byte
+				<< cio::endl;
 			goto fail;
 		}
 		++id_count;
@@ -65,15 +65,15 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 			goto ok;
 	}
 fail:
-	cio::cout	<< "line " << line << ": "
-			<< "probe as ps2_keyboard FAILED" << cio::endl;
+	cio::cwarn << "line " << line << ": "
+		<< "probe as ps2_keyboard FAILED" << cio::endl;
 	return probe_next;
 ok:
 	// leave in a SCANNING state!
 	(void) ps2::send_byte_with_ack(line, ps2_dcmd_enable_scan,
 			ps2_keyboard_ack);
-	cio::cout	<< "line " << line << ": "
-			<< "probe as ps2_keyboard PASSED" << cio::endl;
+	cio::cnotice << "line " << line << ": "
+		<< "probe as ps2_keyboard PASSED" << cio::endl;
 	return probe_ok;
 }
 

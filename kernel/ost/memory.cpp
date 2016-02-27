@@ -27,13 +27,13 @@ void ost::page_alloc_test() {
 		allocated[2] == allocated[1] + PAGE_SIZE*2 &&
 		allocated[3] == allocated[2] + PAGE_SIZE*3 &&
 		allocated[4] == allocated[1]) {
-		cio::cout << __func__ << ": ok" << cio::endl;
+		cio::cinfo << __func__ << ": ok" << cio::endl;
 	} else {
-		cio::cout << __func__ << ": fail" << cio::endl;
+		cio::cerr << __func__ << ": fail" << cio::endl;
 		for (int i = 0; i < 5; ++i) {
-			cio::cout << "a[" << i << "]=" << allocated[i];
+			cio::cerr << "a[" << i << "]=" << allocated[i];
 		}
-		cio::cout << cio::endl;
+		cio::cerr << cio::endl;
 		panic("FAILED TEST");
 	}
 }
@@ -41,7 +41,7 @@ void ost::page_alloc_test() {
 void ost::slab_test() {
 	struct slab_area test_slab(sizeof(long), 10);
 	if (!test_slab.initialized()) {
-		cio::cout	<< __func__
+		cio::cerr	<< __func__
 				<< ": slab initialization failure" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -56,13 +56,13 @@ void ost::slab_test() {
 		p[2] == p[1] + sizeof(long) &&
 		p[3] == p[2] + sizeof(long) &&
 		p[4] == p[2]) {
-		cio::cout << __func__ << ": ok" << cio::endl;
+		cio::cinfo << __func__ << ": ok" << cio::endl;
 	} else {
-		cio::cout << __func__ << ": fail" << cio::endl;
+		cio::cerr << __func__ << ": fail" << cio::endl;
 		for (int i = 0; i < 5; ++i) {
-			cio::cout << "p[" << i << "]=" << p[i];
+			cio::cerr << "p[" << i << "]=" << p[i];
 		}
-		cio::cout << cio::endl;
+		cio::cerr << cio::endl;
 		panic("FAILED TEST");
 	}
 }

@@ -190,10 +190,10 @@ static struct memory_region high_memory;
 
 void memory::init() {
 	if (mboot_is_meminfo_valid()) {
-		cio::cout	<< "Detected memory: "
-				<< "low = " << mboot_get_low_mem() << " kb,"
-				<< "high = " << mboot_get_high_mem() << " kb"
-				<< cio::endl;
+		cio::cinfo << "Detected memory: "
+			<< "low = " << mboot_get_low_mem() << " kb,"
+			<< "high = " << mboot_get_high_mem() << " kb"
+			<< cio::endl;
 	} else {
 		panic("Bootloader didn't provide memory info!\n");
 	}
@@ -207,13 +207,13 @@ void memory::init() {
 			+ mboot_get_high_mem() * 1024),
 			PAGE_SIZE));
 
-	cio::cout	<< "[MEM_INFO] highmem free frames: "
-			<< highmem_first_free << "..."
-			<< highmem_last_free << cio::endl;
+	cio::cinfo << "highmem free frames: "
+		<< highmem_first_free << "..."
+		<< highmem_last_free << cio::endl;
 
 	size_t highmem_free_pages = highmem_last_free - highmem_first_free;
-	cio::cout	<< "[MEM_INFO] highmem_free_pages = "
-			<< highmem_free_pages << cio::endl;
+	cio::cinfo << "highmem_free_pages = "
+		<< highmem_free_pages << cio::endl;
 
 	mem_split_t highmem_split;
 	split_pages(highmem_free_pages, &highmem_split);
@@ -226,10 +226,10 @@ void memory::init() {
 		p->next = nullptr;
 	}
 
-	cio::cout	<< "[MEM_INFO] high_memory:"
-			<< " size=" << high_memory.size
-			<< " pages=" << high_memory.pages
-			<< " frames=" << high_memory.frames << cio::endl;
+	cio::cinfo << "high_memory:"
+		<< " size=" << high_memory.size
+		<< " pages=" << high_memory.pages
+		<< " frames=" << high_memory.frames << cio::endl;
 
 }
 
