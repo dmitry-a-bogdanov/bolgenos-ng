@@ -1,8 +1,8 @@
 #include "memory.hpp"
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/slab.hpp>
 
@@ -27,23 +27,23 @@ void ost::page_alloc_test() {
 		allocated[2] == allocated[1] + PAGE_SIZE*2 &&
 		allocated[3] == allocated[2] + PAGE_SIZE*3 &&
 		allocated[4] == allocated[1]) {
-		printk("%s: ok\n", __func__);
+		cio::cout << __func__ << ": ok" << cio::endl;
 	} else {
-		printk("%s: fail: ");
+		cio::cout << __func__ << ": fail" << cio::endl;
 		for (int i = 0; i < 5; ++i) {
-			printk("a[%lu] = %lu ", (long unsigned) i,
-				(long unsigned) allocated[i]);
+			cio::cout << "a[" << i << "]=" << allocated[i];
 		}
-		printk("\n");
-		panic("");
+		cio::cout << cio::endl;
+		panic("FAILED TEST");
 	}
 }
 
 void ost::slab_test() {
 	struct slab_area test_slab(sizeof(long), 10);
 	if (!test_slab.initialized()) {
-		printk("%s: slab initialization failure\n");
-		panic("FAILED TEST\n");
+		cio::cout	<< __func__
+				<< ": slab initialization failure" << cio::endl;
+		panic("FAILED TEST");
 	}
 	char *p[5];
 	p[0] = reinterpret_cast<char*>(test_slab.allocate());
@@ -56,15 +56,14 @@ void ost::slab_test() {
 		p[2] == p[1] + sizeof(long) &&
 		p[3] == p[2] + sizeof(long) &&
 		p[4] == p[2]) {
-		printk("%s: ok\n", __func__);
+		cio::cout << __func__ << ": ok" << cio::endl;
 	} else {
-		printk("%s: fail: ");
+		cio::cout << __func__ << ": fail" << cio::endl;
 		for (int i = 0; i < 5; ++i) {
-			printk("p[%lu] = %lu ", (long unsigned) i,
-				(long unsigned) p[i]);
+			cio::cout << "p[" << i << "]=" << p[i];
 		}
-		printk("\n");
-		panic("");
+		cio::cout << cio::endl;
+		panic("FAILED TEST");
 	}
 }
 #else

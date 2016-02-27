@@ -1,6 +1,5 @@
 #include <bolgenos-ng/keyboard.h>
 
-#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/vga_console.hpp>
 
 kb_key& operator++(kb_key &key) {

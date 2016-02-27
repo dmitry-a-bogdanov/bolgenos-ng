@@ -7,7 +7,6 @@
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
-#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/time.h>
 #include <bolgenos-ng/vga_console.hpp>
 
@@ -49,7 +48,7 @@ extern "C" void kernel_main() {
 
 	interrupts_enable();
 
-	printk("CPU is initialized\n");
+	cio::cout << "CPU is initialized" << cio::endl;
 
 	memory::init();
 

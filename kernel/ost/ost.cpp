@@ -1,19 +1,18 @@
 #include <bolgenos-ng/ost.hpp>
 
-#include <bolgenos-ng/printk.h>
+#include <bolgenos-ng/cout.hpp>
 
 #include <ost.h>
 #include "memory.hpp"
 
 #ifdef OST_ENABLE_TESTS
 void ost::run() {
-	printk("OST: running...\n");
+	cio::cout << "OST: running..." << cio::endl;
 	ost::page_alloc_test();
 	ost::slab_test();
-	printk("OST: finished\n");
+	cio::cout << "OST: finished" << cio::endl;;
 }
 #else
 void ost::run() {
-	printk("OST is disabled\n");
 }
 #endif

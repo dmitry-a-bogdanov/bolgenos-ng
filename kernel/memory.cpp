@@ -4,7 +4,8 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/multiboot_info.h>
-#include <bolgenos-ng/printk.h>
+
+#include <bolgenos-ng/cout.hpp>
 
 #include "config.h"
 
@@ -189,9 +190,10 @@ static struct memory_region high_memory;
 
 void memory::init() {
 	if (mboot_is_meminfo_valid()) {
-		printk("Detected memory: low = %lu kb, high = %lu kb\n",
-			(long unsigned) mboot_get_low_mem(),
-			(long unsigned) mboot_get_high_mem());
+		cio::cout	<< "Detected memory: "
+				<< "low = " << mboot_get_low_mem() << " kb,"
+				<< "high = " << mboot_get_high_mem() << " kb"
+				<< cio::endl;
 	} else {
 		panic("Bootloader didn't provide memory info!\n");
 	}
@@ -205,12 +207,13 @@ void memory::init() {
 			+ mboot_get_high_mem() * 1024),
 			PAGE_SIZE));
 
-	printk("[MEM_INFO] highmem free frames: %lu...%lu\n",
-		(long unsigned) highmem_first_free,
-		(long unsigned) highmem_last_free);
+	cio::cout	<< "[MEM_INFO] highmem free frames: "
+			<< highmem_first_free << "..."
+			<< highmem_last_free << cio::endl;
 
 	size_t highmem_free_pages = highmem_last_free - highmem_first_free;
-	printk("[MEM_INFO] highmem_free_pages=%lu\n", highmem_free_pages);
+	cio::cout	<< "[MEM_INFO] highmem_free_pages = "
+			<< highmem_free_pages << cio::endl;
 
 	mem_split_t highmem_split;
 	split_pages(highmem_free_pages, &highmem_split);
@@ -223,10 +226,10 @@ void memory::init() {
 		p->next = nullptr;
 	}
 
-	printk("[MEM_INFO] high_memory: size=%lu, pages=%lu, frames=%lu\n",
-		(unsigned long) high_memory.size,
-		(unsigned long) high_memory.pages,
-		(unsigned long) high_memory.frames);
+	cio::cout	<< "[MEM_INFO] high_memory:"
+			<< " size=" << high_memory.size
+			<< " pages=" << high_memory.pages
+			<< " frames=" << high_memory.frames << cio::endl;
 
 }
 

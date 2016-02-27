@@ -4,9 +4,10 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/pic_common.h>
-#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
+
+#include <bolgenos-ng/cout.hpp>
 
 #include "ps2_keyboard.hpp"
 
@@ -149,7 +150,7 @@ void ps2::init() {
 	init_subsystems();
 
 	uint8_t conf;
-	printk("initializing PS/2 controller...\n");
+	cio::cout << "initializing PS/2 controller..." << cio::endl;
 	disable_device(ps2::line_t::dev_1);
 	disable_device(ps2::line_t::dev_2);
 
@@ -157,12 +158,12 @@ void ps2::init() {
 
 	conf = read_conf_byte();
 
-	printk("PS/2 conf byte=%lu\n", (unsigned long) conf);
+	cio::cout << "PS/2 conf byte=" << conf << cio::endl;
 
 	int ps2_lines = get_ps2_lines(conf);
 
-	printk("this system has %lu PS/2 port(s)\n",
-		(long unsigned) ps2_lines);
+	cio::cout	<< "this system has " << ps2_lines
+			<< " PS/2 port(s)" << cio::endl;
 
 	disable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
 	disable_translation(&conf);
@@ -177,24 +178,24 @@ void ps2::init() {
 	
 	conf = read_conf_byte();
 	if (conf & (conf_byte_t::clock_second|conf_byte_t::clock_first)) {
-		printk("both PS/2 devs present\n");
+		cio::cout << "both PS/2 devs present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_first) {
-		printk("only first PS/2 dev present\n");
+		cio::cout << "only first PS/2 dev present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_second) {
-		printk("only second PS/2 dev present\n");
+		cio::cout << "only second PS/2 dev present" << cio::endl;
 	} else {
-		printk("no devs present\n");
+		cio::cout << "no devs present" << cio::endl;
 	}
 
 	disable_device(line_t::dev_2);
 
 	ps2::for_each_line([](ps2::line_t line) {
 		if (!test_line(line)) {
-			printk("PS/2: line %li failed self-test!\n",
-					(long) line);
+			cio::cout	<< "PS/2: line " << line
+					<< " failed self-test!" << cio::endl;
 		} else {
-			printk("PS/2: line %li passed self-test\n",
-					(long) line);
+			cio::cout	<< "PS/2: line " << line
+					<< " passed self-test" << cio::endl;
 		}
 	});
 
@@ -400,8 +401,8 @@ static void probe_line(ps2::line_t line) {
 		bug(info);
 	}
 
-	printk("PS/2[%li]: active_dev = %li\n",
-		(long) line, (long) active_dev);
+	cio::cout	<< "PS/2[" << line << "]: "
+			<< "active_dev = " << active_dev << cio::endl;
 
 	ps2_active_devices[line] = active_dev;
 }
@@ -609,13 +610,13 @@ static int test_line(ps2::line_t line) {
 	send_command(cmd);
 	int can_read = ps2::wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
-		printk("no responce to self-test\n");
+		cio::cout << "no responce to self-test" << cio::endl;
 		return 0;
 	}
 	uint8_t test_result = ps2::receive_byte();
 	if (test_result == test_reply::port_test_ok) {
 		return 1;
 	}
-	printk("line test result = %lu\n", (long unsigned) test_result);
+	cio::cout << "line test result = " << test_result << cio::endl;
 	return 0;
 }
