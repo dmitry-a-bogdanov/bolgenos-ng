@@ -7,7 +7,9 @@
 #define LF						'\n'
 #define CR						'\r'
 
+
 namespace {
+
 
 struct __attribute__((packed)) cell_t {
 	cell_t(char ch, vga_console::color_t fg, vga_console::color_t bg)
@@ -16,16 +18,19 @@ struct __attribute__((packed)) cell_t {
 	uint8_t fg_:4;
 	uint8_t bg_:4;
 };
-
 static_assert(sizeof(cell_t) == 2, "cell_t has incorrect size!");
 
+
 cell_t *iomem = reinterpret_cast<cell_t *>(0xb8000);
+
 
 vga_console::color_t global_bg = vga_console::color_t::black;
 vga_console::color_t global_fg = vga_console::color_t::grey;
 
+
 int screen_height = 25, screen_width = 80;
 int cursor_line = 0, cursor_column = 0;
+
 
 void cursor_next();
 void line_break();
@@ -33,7 +38,9 @@ void new_line();
 void scroll();
 void carriage_return();
 
+
 cell_t *cursor_address();
+
 
 } // namespace
 
@@ -45,13 +52,16 @@ void vga_console::set_bg(color_t bg) {
 	global_bg = bg;
 }
 
+
 vga_console::color_t vga_console::get_bg() {
 	return global_bg;
 }
 
+
 void vga_console::set_fg(color_t fg) {
 	global_fg = fg;
 }
+
 
 vga_console::color_t vga_console::get_fg() {
 	return global_fg;
@@ -75,13 +85,16 @@ void vga_console::putc_color(char symbol, color_t fg, color_t bg) {
 	}
 }
 
+
 void vga_console::putc(char symbol) {
 	putc_color(symbol, global_fg, global_bg);
 }
 
+
 void vga_console::puts(const char* string) {
 	puts_color(string, global_fg, global_bg);
 }
+
 
 void vga_console::puts_color(const char* string, color_t fg,
 		color_t bg) {
@@ -98,6 +111,7 @@ void vga_console::clear_screen() {
 		reinterpret_cast<char *>(address_of(empty)),
 		screen_height*screen_width);
 }
+
 
 namespace {
 
@@ -154,8 +168,10 @@ void carriage_return() {
 	cursor_column = 0;
 }
 
+
 cell_t *cursor_address() {
 	return iomem + cursor_line*screen_width + cursor_column;
 }
+
 
 } // namespace
