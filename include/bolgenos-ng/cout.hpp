@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bolgenos-ng/vga_console.hpp>
 
 namespace cio {
 
