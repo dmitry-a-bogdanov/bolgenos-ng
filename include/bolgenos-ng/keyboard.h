@@ -1,5 +1,4 @@
-#ifndef __BOLGENOS_NG__KEYBOARD_H__
-#define __BOLGENOS_NG__KEYBOARD_H__
+#pragma once
 
 /** \brief Keyboard's key.
 *
@@ -156,6 +155,13 @@ typedef enum {
 } kb_key;
 
 
+/// \brief Increment operator for kb_key.
+///
+/// Since C++ doesn't guarantee that enums values are overflow-safe and don't
+/// contain gapes; therefore incement operation should be implemented manually.
+kb_key& operator++(kb_key& key);
+
+
 /**
 * \brief Key released flag.
 *
@@ -188,4 +194,3 @@ extern char kb_keys_pressed[__kb_key_max];
 */
 void kb_print_to_vga();
 
-#endif // __BOLGENOS_NG__KEYBOARD_H__

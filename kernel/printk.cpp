@@ -1,7 +1,7 @@
 #include <bolgenos-ng/printk.h>
 
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 #define __printk_buf_size			(1024)
 
 int printk(const char *fmt, ...) {
@@ -16,6 +16,6 @@ int printk(const char *fmt, ...) {
 int vprintk(const char *fmt, va_list args) {
 	char buf[__printk_buf_size] = { 0 };
 	int ret = vsnprintf(buf, __printk_buf_size, fmt, args);
-	vga_console_puts(buf);
+	vga_console::puts(buf);
 	return ret;
 }

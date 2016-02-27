@@ -1,4 +1,5 @@
 #include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
@@ -6,10 +7,10 @@
 #include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
-#include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/time.h>
-#include <bolgenos-ng/vga_console.h>
+#include <bolgenos-ng/vga_console.hpp>
 
+#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
@@ -29,10 +30,13 @@ extern "C" void kernel_main() {
 
 	multiboot_info_init();
 
-	vga_console_init();
-	vga_clear_screen();
+	call_global_ctors();
 
-	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
+	vga_console::clear_screen();
+
+	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< cio::endl;
+
 
 	setup_interrupts();
 	setup_segments();
@@ -44,7 +48,7 @@ extern "C" void kernel_main() {
 
 	interrupts_enable();
 
-	printk("CPU is initialized\n");
+	cio::cinfo << "CPU is initialized" << cio::endl;
 
 	memory::init();
 

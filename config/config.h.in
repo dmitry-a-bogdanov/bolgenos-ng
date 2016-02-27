@@ -21,7 +21,7 @@
 
 
 /**
-* \def BOLGENOS_NG_VESRION
+* \def BOLGENOS_NG_VERSION
 * \brief Version of bolgenos-ng kernel
 *
 * Bolgenos-ng kernel's version. If the version is not specified by buildsystem

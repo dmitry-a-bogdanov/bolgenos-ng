@@ -1,10 +1,9 @@
-#include "ps2_keyboard_sm.h"
+#include "ps2_keyboard_sm.hpp"
 
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
 
 #define __st_debug_enable				(0)
 

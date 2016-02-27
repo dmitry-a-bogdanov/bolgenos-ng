@@ -140,6 +140,14 @@ struct _packed_ seg {
 
 assert_type_size(struct seg, STRUCT_SEG_SIZE);
 
+
+/**
+* \brief Global Descriptor Table.
+*
+* Array represents global descriptor table for the system. Note,
+* that it has zero overhead for filling it as structs, this initializers
+* works during compile-time.
+*/
 static struct seg gdt[] _mmu_aligned_ = {
 	[__NULL_SEGMENT] = SEG_INITIALIZER(0x0, 0x0, 0x0, ssf_null, dpl_null,
 		spf_null, slf_null, sdbf_null, sgf_null),
@@ -154,6 +162,11 @@ static struct seg gdt[] _mmu_aligned_ = {
 };
 
 
+/**
+* \brief Global Descriptor Table Pointer.
+*
+* Pointer to Global Descriptor Table that is used by x86 CPU to load GTD.
+*/
 static struct table_pointer gdtp _mmu_aligned_;
 
 /**

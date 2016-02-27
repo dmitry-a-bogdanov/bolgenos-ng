@@ -4,7 +4,7 @@ set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
-set(dep_flags "-ffreestanding -fPIC")
+set(dep_flags "-ffreestanding")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
@@ -61,10 +61,10 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
-	cxxabi.cpp
+	cout.cpp
 	error.c
 	irq.c
-	keyboard.c
+	keyboard.cpp
 	main.cpp
 	memory.cpp
 	mmu.c
@@ -73,15 +73,16 @@ set(kernel_sources ${kernel_start_file}
 	pic_8259.c
 	pic_common.c
 	pit.cpp
-	printk.c
+	printk.cpp
 	ps2.cpp
 	ps2_keyboard.hpp
 	ps2_keyboard.cpp
-	ps2_keyboard_sm.h
-	ps2_keyboard_sm.c
+	ps2_keyboard_sm.hpp
+	ps2_keyboard_sm.cpp
 	slab.cpp
 	time.c
-	vga_console.c
+	vga_console.cpp
+	abi/cxxabi.c
 	lib/snprintf.c
 	lib/string.c
 	ost/ost.cpp

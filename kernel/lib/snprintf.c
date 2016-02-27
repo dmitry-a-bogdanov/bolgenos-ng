@@ -3,7 +3,6 @@
 #include <stdarg.h> // from gcc!
 
 #include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/vga_console.h>
 #include <bolgenos-ng/error.h>
 
 static char __to_printable(int chr) {

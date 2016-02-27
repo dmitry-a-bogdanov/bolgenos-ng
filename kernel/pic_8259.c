@@ -3,7 +3,6 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.h>
 
 static void pic_setup();
 static void pic_end_of_interrupt(irq_t irq);
