@@ -4,7 +4,7 @@ set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
-set(dep_flags "-ffreestanding -fPIC")
+set(dep_flags "-ffreestanding")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
