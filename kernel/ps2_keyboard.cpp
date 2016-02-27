@@ -2,10 +2,10 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/keyboard.h>
-#include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/string.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/ps2.hpp>
 
 #include "ps2_keyboard_sm.hpp"
 

@@ -154,6 +154,11 @@ typedef enum {
 	__kb_key_max /*!< Number of values in this enum */
 } kb_key;
 
+
+/// \brief Increment operator for kb_key.
+///
+/// Since C++ doesn't guarantee that enums values are overflow-safe and don't
+/// contain gapes; therefore incement operation should be implemented manually.
 kb_key& operator++(kb_key& key);
 
 

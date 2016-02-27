@@ -169,6 +169,9 @@ void carriage_return() {
 }
 
 
+/**
+* Get pointer to cursor cell.
+*/
 cell_t *cursor_address() {
 	return iomem + cursor_line*screen_width + cursor_column;
 }
