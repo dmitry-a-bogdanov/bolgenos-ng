@@ -30,12 +30,13 @@ extern "C" void kernel_main() {
 
 	multiboot_info_init();
 
-	vga_console::vga_console_init();
-	vga_console::vga_clear_screen();
+	call_global_ctors();
+
+	vga_console::init();
+	vga_console::clear_screen();
 
 	printk("Starting bolgenos-ng-" BOLGENOS_NG_VERSION "\n");
 
-	call_global_ctors();
 
 	setup_interrupts();
 	setup_segments();

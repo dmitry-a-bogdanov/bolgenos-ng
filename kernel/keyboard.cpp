@@ -87,7 +87,7 @@ void kb_print_to_vga() {
 				if (lshift) {
 					symbol = kb_lshift(symbol);
 				}
-				vga_console::vga_console_putc(symbol);
+				vga_console::putc(symbol);
 				kb_keys_pressed[key] = KEY_RELEASED;
 			}
 		}

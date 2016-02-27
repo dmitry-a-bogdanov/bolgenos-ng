@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bolgenos-ng/int_types.h>
+
 namespace vga_console {
 
 /**
@@ -7,24 +9,24 @@ namespace vga_console {
 *
 * Enum hold all colors that are supported by VGA console.
 */
-typedef enum {
-	vga_black			= 0,
-	vga_blue			= 1,
-	vga_green			= 2,
-	vga_cyan			= 3,
-	vga_red				= 4,
-	vga_magenta			= 5,
-	vga_brown			= 6,
-	vga_grey			= 7,
-	vga_dark_grey			= 8,
-	vga_bright_blue			= 9,
-	vga_bright_green		= 10,
-	vga_bright_cyan			= 11,
-	vga_bright_red			= 12,
-	vga_bright_magenta		= 13,
-	vga_yellow			= 14,
-	vga_white			= 15
-} vga_color_t;
+enum color_t: uint8_t {
+	black			= 0,
+	blue			= 1,
+	green			= 2,
+	cyan			= 3,
+	red				= 4,
+	magenta			= 5,
+	brown			= 6,
+	grey			= 7,
+	dark_grey			= 8,
+	bright_blue			= 9,
+	bright_green		= 10,
+	bright_cyan			= 11,
+	bright_red			= 12,
+	bright_magenta		= 13,
+	yellow			= 14,
+	white			= 15
+};
 
 
 /**
@@ -32,7 +34,7 @@ typedef enum {
 *
 * The fuction initializes internal structures of VGA console subsystems.
 */
-void vga_console_init();
+void init();
 
 
 /**
@@ -41,7 +43,7 @@ void vga_console_init();
 * Set background color to specified value.
 * \param bg Background color to be set.
 */
-void vga_set_bg(vga_color_t bg);
+void set_bg(color_t bg);
 
 
 /**
@@ -50,7 +52,7 @@ void vga_set_bg(vga_color_t bg);
 * Get background color.
 * \return Current backgrond color.
 */
-vga_color_t vga_get_bg();
+color_t get_bg();
 
 
 /**
@@ -59,7 +61,7 @@ vga_color_t vga_get_bg();
 * Set foreground color to specified value.
 * \param fg Foreground color to be set.
 */
-void vga_set_fg(vga_color_t fg);
+void set_fg(color_t fg);
 
 
 /**
@@ -68,7 +70,7 @@ void vga_set_fg(vga_color_t fg);
 * Get foreground color.
 * \return Current foregrond color.
 */
-vga_color_t vga_get_fg();
+color_t get_fg();
 
 
 /**
@@ -76,7 +78,7 @@ vga_color_t vga_get_fg();
 *
 * Function clears VGA console
 */
-void vga_clear_screen();
+void clear_screen();
 
 
 /**
@@ -86,7 +88,7 @@ void vga_clear_screen();
 *	and foreground values.
 * \param c Symbol to be printed.
 */
-void vga_console_putc(char c);
+void putc(char c);
 
 
 /**
@@ -96,7 +98,7 @@ void vga_console_putc(char c);
 *	foreground values.
 * \param str String to be printed.
 */
-void vga_console_puts(const char* str);
+void puts(const char* str);
 
 
 /**
@@ -108,7 +110,7 @@ void vga_console_puts(const char* str);
 * \param fg Foreground color.
 * \param bg Background color.
 */
-void vga_console_putc_color(char c, vga_color_t fg, vga_color_t bg);
+void putc_color(char c, color_t fg, color_t bg);
 
 
 /**
@@ -120,6 +122,6 @@ void vga_console_putc_color(char c, vga_color_t fg, vga_color_t bg);
 * \param fg Foreground color.
 * \param bg Background color.
 */
-void vga_console_puts_color(const char* str, vga_color_t fg, vga_color_t bg);
+void puts_color(const char* str, color_t fg, color_t bg);
 
 } // namespace vga_console
