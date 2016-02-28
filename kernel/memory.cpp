@@ -109,7 +109,7 @@ struct memory_region {
 */
 static size_t descriptor_pages(size_t pages) {
 	size_t required_memory = sizeof(page_t) * pages;
-	return memory::align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
+	return memory::align_up<PAGE_SIZE>(required_memory) / PAGE_SIZE;
 }
 
 
@@ -201,13 +201,12 @@ void memory::init() {
 	}
 
 	page_frame_t *highmem_first_free = reinterpret_cast<page_frame_t *>(
-		align_up((size_t) __kernel_obj_end, PAGE_SIZE));
+		align_up<PAGE_SIZE>(__kernel_obj_end));
 
 	// points to page that contains last RAM address.
 	page_frame_t *highmem_last_free = reinterpret_cast<page_frame_t *>(
-		align_down((size_t) ( __high_memory_start
-			+ multiboot::boot_info->high_memory() * 1024),
-			PAGE_SIZE));
+		align_down<PAGE_SIZE>(__high_memory_start
+			+ multiboot::boot_info->high_memory() * 1024));
 
 	cio::cinfo << "highmem free frames: "
 		<< highmem_first_free << "..."
