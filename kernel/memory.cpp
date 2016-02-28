@@ -3,9 +3,9 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/multiboot_info.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/multiboot_info.hpp>
 
 #include "config.h"
 
@@ -189,10 +189,12 @@ static struct memory_region high_memory;
 
 
 void memory::init() {
-	if (mboot_is_meminfo_valid()) {
-		cio::cinfo << "Detected memory: "
-			<< "low = " << mboot_get_low_mem() << " kb,"
-			<< "high = " << mboot_get_high_mem() << " kb"
+	if (multiboot::boot_info->is_meminfo_valid()) {
+		cio::cnotice << "Detected memory: "
+			<< "low = "
+			<< multiboot::boot_info->low_memory() << " kB, "
+			<< "high = "
+			<< multiboot::boot_info->high_memory() << " kB"
 			<< cio::endl;
 	} else {
 		panic("Bootloader didn't provide memory info!\n");
@@ -204,7 +206,7 @@ void memory::init() {
 	// points to page that contains last RAM address.
 	page_frame_t *highmem_last_free = reinterpret_cast<page_frame_t *>(
 		align_down((size_t) ( __high_memory_start
-			+ mboot_get_high_mem() * 1024),
+			+ multiboot::boot_info->high_memory() * 1024),
 			PAGE_SIZE));
 
 	cio::cinfo << "highmem free frames: "

@@ -69,7 +69,7 @@ set(kernel_sources ${kernel_start_file}
 	memory.cpp
 	mmu.c
 	multiboot_header.c
-	multiboot_info.c
+	multiboot_info.cpp
 	pic_8259.c
 	pic_common.c
 	pit.cpp
