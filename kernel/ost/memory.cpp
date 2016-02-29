@@ -9,29 +9,34 @@
 #include <config.h>
 #include <ost.h>
 
+
 #ifdef OST_MEMORY
 void ost::page_alloc_test() {
-	char *allocated[5];
-	allocated[0] = reinterpret_cast<char*>(memory::alloc_pages(1));
-	allocated[1] = reinterpret_cast<char*>(memory::alloc_pages(2));
-	allocated[2] = reinterpret_cast<char*>(memory::alloc_pages(3));
-	allocated[3] = reinterpret_cast<char*>(memory::alloc_pages(2));
-	memory::free_pages(allocated[1]);
-	allocated[4] = reinterpret_cast<char*>(memory::alloc_pages(2));
-	memory::free_pages(allocated[0]);
-	memory::free_pages(allocated[2]);
-	memory::free_pages(allocated[3]);
-	memory::free_pages(allocated[4]);
+	void *p[5];
+	p[0] = memory::alloc_pages(1);
+	p[1] = memory::alloc_pages(2);
+	p[2] = memory::alloc_pages(3);
+	p[3] = memory::alloc_pages(2);
+	memory::free_pages(p[1]);
+	p[4] = memory::alloc_pages(2);
+	memory::free_pages(p[0]);
+	memory::free_pages(p[2]);
+	memory::free_pages(p[3]);
+	memory::free_pages(p[4]);
 
-	if (allocated[1] == allocated[0] + PAGE_SIZE &&
-		allocated[2] == allocated[1] + PAGE_SIZE*2 &&
-		allocated[3] == allocated[2] + PAGE_SIZE*3 &&
-		allocated[4] == allocated[1]) {
+	if (reinterpret_cast<char *>(p[1])
+			== reinterpret_cast<char *>(p[0]) + PAGE_SIZE &&
+		reinterpret_cast<char *>(p[2])
+			== reinterpret_cast<char *>(p[1]) + PAGE_SIZE*2 &&
+		reinterpret_cast<char *>(p[3])
+			== reinterpret_cast<char *>(p[2]) + PAGE_SIZE*3 &&
+		reinterpret_cast<char *>(p[4])
+			== reinterpret_cast<char *>(p[1])) {
 		cio::cinfo << __func__ << ": ok" << cio::endl;
 	} else {
 		cio::cerr << __func__ << ": fail" << cio::endl;
 		for (int i = 0; i < 5; ++i) {
-			cio::cerr << "a[" << i << "]=" << allocated[i];
+			cio::cerr << "a[" << i << "]=" << p[i] << " ";
 		}
 		cio::cerr << cio::endl;
 		panic("FAILED TEST");
@@ -45,17 +50,21 @@ void ost::slab_test() {
 				<< ": slab initialization failure" << cio::endl;
 		panic("FAILED TEST");
 	}
-	char *p[5];
-	p[0] = reinterpret_cast<char*>(test_slab.allocate());
-	p[1] = reinterpret_cast<char*>(test_slab.allocate());
-	p[2] = reinterpret_cast<char*>(test_slab.allocate());
-	p[3] = reinterpret_cast<char*>(test_slab.allocate());
+	void *p[5];
+	p[0] = test_slab.allocate();
+	p[1] = test_slab.allocate();
+	p[2] = test_slab.allocate();
+	p[3] = test_slab.allocate();
 	test_slab.deallocate(p[2]);
-	p[4] = reinterpret_cast<char*>(test_slab.allocate());
-	if (p[1] == p[0] + sizeof(long) &&
-		p[2] == p[1] + sizeof(long) &&
-		p[3] == p[2] + sizeof(long) &&
-		p[4] == p[2]) {
+	p[4] = test_slab.allocate();
+	if (reinterpret_cast<char *>(p[1])
+			== reinterpret_cast<char *>(p[0]) + sizeof(long) &&
+		reinterpret_cast<char *>(p[2])
+			== reinterpret_cast<char *>(p[1]) + sizeof(long) &&
+		reinterpret_cast<char *>(p[3])
+			== reinterpret_cast<char *>(p[2]) + sizeof(long) &&
+		reinterpret_cast<char *>(p[4])
+			== reinterpret_cast<char *>(p[2])) {
 		cio::cinfo << __func__ << ": ok" << cio::endl;
 	} else {
 		cio::cerr << __func__ << ": fail" << cio::endl;

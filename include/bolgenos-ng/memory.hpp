@@ -2,6 +2,7 @@
 
 #include <bolgenos-ng/int_types.h>
 
+#include <bolgenos-ng/memory_region.hpp>
 
 /// \brief Memory namespace
 ///
@@ -66,6 +67,12 @@ void *alloc_pages(size_t n);
 ///
 /// \param addr Address of page block.
 void free_pages(void *addr);
+
+
+/// \brief High memory.
+///
+/// High memory region descriptor.
+extern MemoryRegion highmem;
 
 
 } // namespace memory

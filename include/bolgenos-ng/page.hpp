@@ -23,6 +23,7 @@ struct __attribute__((packed)) page_t {
 	/// Next page in allocation block.
 	page_t *next;
 
+
 	/// Page is free flag.
 	bool free;
 };
