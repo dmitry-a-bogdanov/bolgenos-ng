@@ -61,8 +61,10 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
+	buddy_allocator.hpp
 	cout.cpp
 	error.c
+	free_list.hpp
 	irq.c
 	keyboard.cpp
 	main.cpp

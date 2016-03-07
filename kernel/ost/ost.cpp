@@ -11,6 +11,7 @@ void ost::run() {
 	ost::free_list_test();
 	ost::page_alloc_test();
 	ost::slab_test();
+	ost::buddy_allocator_test();
 	cio::cnotice << "OST: finished" << cio::endl;;
 }
 #else

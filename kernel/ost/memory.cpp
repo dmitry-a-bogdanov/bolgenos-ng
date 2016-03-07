@@ -7,6 +7,7 @@
 #include <bolgenos-ng/slab.hpp>
 
 #include "../free_list.hpp"
+#include "../buddy_allocator.hpp"
 
 #include <config.h>
 #include <ost.h>
@@ -279,7 +280,71 @@ void free_list_test__high_order__odd() {
 } // free_list_test__high_order__odd
 
 
-}
+} // namespace
+
+
+void ost::buddy_allocator_test() {
+	constexpr size_t PAGES = 1025;
+	memory::allocators::pblk_t blk;
+
+	blk.pages = PAGES;
+	blk.first = reinterpret_cast<memory::page_frame_t *>(
+			memory::alloc_pages(blk.pages));
+
+	if (!blk.first) {
+		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	memory::allocators::BuddyAllocator<3> buddy_system;
+
+	buddy_system.put(blk);
+
+	memory::allocators::pblk_t pages[PAGES];
+	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
+		pages[page_idx] = buddy_system.get(1);
+		if (pages[page_idx].first == nullptr) {
+			cio::cerr << __func__ << ": failed ["
+				<< page_idx << "] = " << pages[page_idx].first
+				<< cio::endl;
+			panic("FAILED TEST");
+		}
+
+	}
+
+	auto last_alloc = buddy_system.get(1);
+	if (last_alloc.first != nullptr) {
+		cio::cerr << __func__ << ": failed [last] = "
+			<< last_alloc.first << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
+		buddy_system.put(pages[page_idx]);
+	}
+
+	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
+		pages[page_idx] = buddy_system.get(1);
+		if (pages[page_idx].first == nullptr) {
+			cio::cerr << __func__ << ": failed ["
+				<< page_idx << "] = " << pages[page_idx].first
+				<< cio::endl;
+			panic("FAILED TEST");
+		}
+
+	}
+
+	last_alloc = buddy_system.get(1);
+	if (last_alloc.first != nullptr) {
+		cio::cerr << __func__ << ": failed [last] = "
+			<< last_alloc.first << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
+
+	memory::free_pages(blk.first);
+} // buddy_allocator_test
 
 
 void ost::free_list_test() {
@@ -287,6 +352,7 @@ void ost::free_list_test() {
 	free_list_test__small_order__odd();
 	free_list_test__high_order__even();
 	free_list_test__high_order__odd();
+	buddy_allocator_test();
 }
 #else
 void ost::page_alloc_test() {
@@ -294,5 +360,7 @@ void ost::page_alloc_test() {
 void ost::slab_test() {
 }
 void ost::free_list_test() {
+}
+void ost::buddy_allocator_test() {
 }
 #endif
