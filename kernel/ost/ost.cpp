@@ -8,6 +8,7 @@
 #ifdef OST_ENABLE_TESTS
 void ost::run() {
 	cio::cnotice << "OST: running..." << cio::endl;
+	ost::free_list_test();
 	ost::page_alloc_test();
 	ost::slab_test();
 	cio::cnotice << "OST: finished" << cio::endl;;

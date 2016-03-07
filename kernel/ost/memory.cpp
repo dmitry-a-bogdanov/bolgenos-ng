@@ -6,6 +6,8 @@
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/slab.hpp>
 
+#include "../free_list.hpp"
+
 #include <config.h>
 #include <ost.h>
 
@@ -75,9 +77,222 @@ void ost::slab_test() {
 		panic("FAILED TEST");
 	}
 }
+
+
+namespace {
+
+void free_list_test__small_order__even() {
+	void *pages = memory::alloc_pages(128);
+
+	if (!pages) {
+		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	memory::page_frame_t *first_address =
+		reinterpret_cast<memory::page_frame_t *>(
+			memory::align_up<PAGE_SIZE*2>(pages));
+	memory::page_frame_t *second_address =
+		first_address + 1;
+
+	memory::page_frame_t *third_address =
+		second_address + 1;
+
+	memory::allocators::FreeList<5> fl;
+	if (!fl.initialize(0)) {
+		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(first_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(second_address) != first_address) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(third_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.get() != third_address) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
+
+	memory::free_pages(pages);
+} // free_list_test__small_order__even
+
+
+void free_list_test__small_order__odd() {
+	void *pages = memory::alloc_pages(128);
+
+	if (!pages) {
+		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	memory::page_frame_t *first_address =
+		reinterpret_cast<memory::page_frame_t *>(
+			memory::align_up<PAGE_SIZE*2>(pages)) + 1;
+	memory::page_frame_t *second_address =
+		first_address + 1;
+
+	memory::page_frame_t *third_address =
+		second_address + 1;
+
+	memory::allocators::FreeList<5> fl;
+	if (!fl.initialize(0)) {
+		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(first_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(second_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(third_address) != second_address) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.get() != first_address) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
+
+	memory::free_pages(pages);
+} // free_list_test__small_order__odd
+
+
+void free_list_test__high_order__even() {
+	void *pages = memory::alloc_pages(128);
+
+	if (!pages) {
+		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	memory::page_frame_t *first_address =
+		reinterpret_cast<memory::page_frame_t *>(
+			memory::align_up<PAGE_SIZE*16>(pages));
+	memory::page_frame_t *second_address =
+		first_address + 8;
+
+	memory::page_frame_t *third_address =
+		second_address + 8;
+
+	memory::allocators::FreeList<3> fl;
+	if (!fl.initialize(3)) {
+		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(first_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(second_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(third_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	size_t got_addr = reinterpret_cast<size_t>(fl.get()) / PAGE_SIZE;
+	if (got_addr != reinterpret_cast<size_t>(first_address) / PAGE_SIZE) {
+		cio::cerr << __func__ << ": bug on (got_addr=" << got_addr
+			<< ") " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
+
+	memory::free_pages(pages);
+} // free_list_test__high_order__even
+
+
+void free_list_test__high_order__odd() {
+	void *pages = memory::alloc_pages(128);
+
+	if (!pages) {
+		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	memory::page_frame_t *first_address =
+		reinterpret_cast<memory::page_frame_t *>(
+			memory::align_up<PAGE_SIZE*16>(pages)) + 8;
+	memory::page_frame_t *second_address =
+		first_address + 8;
+
+	memory::page_frame_t *third_address =
+		second_address + 8;
+
+	memory::allocators::FreeList<5> fl;
+	if (!fl.initialize(0)) {
+		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(first_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(second_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.put(third_address) != nullptr) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	if (fl.get() != first_address) {
+		cio::cerr << __func__ << ": bug on " << __LINE__ << cio::endl;
+		panic("FAILED TEST");
+	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
+
+	memory::free_pages(pages);
+} // free_list_test__high_order__odd
+
+
+}
+
+
+void ost::free_list_test() {
+	free_list_test__small_order__even();
+	free_list_test__small_order__odd();
+	free_list_test__high_order__even();
+	free_list_test__high_order__odd();
+}
 #else
 void ost::page_alloc_test() {
 }
 void ost::slab_test() {
+}
+void ost::free_list_test() {
 }
 #endif
