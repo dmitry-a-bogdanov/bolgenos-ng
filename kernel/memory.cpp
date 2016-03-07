@@ -9,7 +9,16 @@
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
 
+#include "buddy_allocator.hpp"
+
 #include "config.h"
+
+void memset(void *mem, char val, size_t size) {
+	for(size_t pos = 0; pos != size; ++pos) {
+		write_8(((char *)mem) + pos, &val);
+	}
+}
+
 
 memory::MemoryRegion memory::highmem;
 
