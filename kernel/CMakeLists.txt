@@ -1,4 +1,4 @@
-project(bolgneos-ng ASM-ATT C)
+project(bolgenos-ng-kernel ASM-ATT C)
 
 set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
