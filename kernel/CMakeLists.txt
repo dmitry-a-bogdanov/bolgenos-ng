@@ -88,6 +88,8 @@ set(kernel_sources ${kernel_start_file}
 	lib/snprintf.c
 	lib/string.c
 	ost/ost.cpp
+	ost/bitarray.hpp
+	ost/bitarray.cpp
 	ost/memory.hpp
 	ost/memory.cpp
 	)

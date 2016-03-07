@@ -1,0 +1,57 @@
+#pragma once
+
+#include "stdtypes.hpp"
+#include "memory.hpp"
+
+namespace util {
+
+
+namespace inplace {
+
+class BitArray {
+public:
+	BitArray() = default;
+	BitArray(const BitArray &) = delete;
+	BitArray& operator =(const BitArray &) = delete;
+	~BitArray() {}
+	
+	void initialize(void *on_address, size_t size) {
+		size_ = size;
+		data_ = reinterpret_cast<decltype(data_)>(on_address);
+		size_t bytes = memory::align_up<8>(size_) / 8;
+		for (size_t idx = 0; idx != bytes; ++idx) {
+			data_[idx] = 0x00;
+		}
+	}
+
+
+	inline bool get(size_t index) const {
+		const size_t byte = index / 8;
+		const size_t bit = index % 8;
+		const uint8_t mask = uint8_t(1) << bit;
+		return data_[byte] & mask;
+	}
+	
+	
+	inline void set(size_t index, bool value) {
+		const size_t byte = index / 8;
+		const size_t bit = index % 8;
+		const uint8_t mask = uint8_t(1) << bit;
+		if (value) {
+			data_[byte] |= mask;
+		} else {
+			data_[byte] &= ~mask;
+		}
+	}
+	
+	static size_t expected_size(size_t elems);
+private:
+	size_t size_;
+	uint8_t *data_;
+};
+
+
+} // namespace inplace
+
+
+} // namespace util

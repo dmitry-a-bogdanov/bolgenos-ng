@@ -4,6 +4,7 @@
 
 #include <ost.h>
 #include "memory.hpp"
+#include "bitarray.hpp"
 
 #ifdef OST_ENABLE_TESTS
 void ost::run() {
@@ -12,6 +13,7 @@ void ost::run() {
 	ost::page_alloc_test();
 	ost::slab_test();
 	ost::buddy_allocator_test();
+	ost::test_bitarray();
 	cio::cnotice << "OST: finished" << cio::endl;;
 }
 #else

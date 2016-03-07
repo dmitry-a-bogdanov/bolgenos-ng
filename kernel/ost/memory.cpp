@@ -352,7 +352,6 @@ void ost::free_list_test() {
 	free_list_test__small_order__odd();
 	free_list_test__high_order__even();
 	free_list_test__high_order__odd();
-	buddy_allocator_test();
 }
 #else
 void ost::page_alloc_test() {
