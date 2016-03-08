@@ -1,3 +1,4 @@
+project(doc)
 
 find_package(Doxygen)
 
