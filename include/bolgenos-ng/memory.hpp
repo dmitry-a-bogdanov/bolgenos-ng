@@ -69,10 +69,4 @@ void *alloc_pages(size_t n);
 void free_pages(void *addr);
 
 
-/// \brief High memory.
-///
-/// High memory region descriptor.
-extern MemoryRegion highmem;
-
-
 } // namespace memory

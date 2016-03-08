@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bolgenos-ng/utility>
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
@@ -52,6 +51,15 @@ public:
 	struct max_order {
 		enum { value = MaxOrder };
 	};
+/*
+	struct stats_type {
+		size_t allocations = 0;
+		size_t deallocations = 0;
+		typename FreeList<max_order::value>::stats_type
+				*list[max_order::value + 1];
+	};
+	stats_type stats;
+*/
 
 	BuddyAllocator() {
 		region_ = nullptr;
@@ -62,6 +70,11 @@ public:
 
 	void initialize(MemoryRegion *region) {
 		region_ = region;
+/*
+		for(size_t i = 0; i <= max_order::value; ++i) {
+			stats.list[i] = &free_list_[i].stats;
+		}
+*/
 	}
 
 	virtual ~BuddyAllocator(){}
@@ -71,8 +84,23 @@ public:
 		if (blk.pages == 0) {
 			return;
 		}
+/*
+		if (reinterpret_cast<size_t>(blk.first) & ((1 << 12) - 1)) {
+			cio::cout << __func__ << ": bad page address: " << blk.first << cio::endl;
+			panic(__func__);
+		}
+*/
+/*
+		++stats.deallocations;
+*/
+
 		while(blk.pages) {
 			size_t block_order = compute_order(blk);
+/*
+			if (reinterpret_cast<size_t>(blk.first) & ((1 << 12) - 1)) {
+						panic("bad page addr in while!");
+			}
+*/
 			page_frame_t *squashed_page = free_list_[block_order].put(blk.first);
 			if (squashed_page) {
 				size_t putting_list = block_order + 1;
@@ -94,6 +122,9 @@ public:
 		blk.first = nullptr;
 		blk.pages = 0;
 		size_t order = 0;
+/*
+		++stats.allocations;
+*/
 		while (pages > (size_t(1) << order)) {
 			++order;
 		}
@@ -129,17 +160,23 @@ public:
 		return blk;
 	}
 
+
+	inline memory::MemoryRegion *region() const {
+		return region_;
+	}
+
 private:
 	static size_t compute_order(const pblk_t &blk) {
 		size_t order = 0;
 
 		auto numeric_address = reinterpret_cast<size_t>(blk.first);
+		auto page_number = numeric_address / PAGE_SIZE;
 		while (order < max_order::value) {
-			if (order % 2) {
+			if (page_number & 0x1) {
 				break;
 			} else {
 				++order;
-				numeric_address >>= 2;
+				page_number = page_number / 2;
 			}
 		}
 
@@ -158,7 +195,7 @@ private:
 	}
 
 	FreeList<max_order::value> free_list_[max_order::value + 1];
-	MemoryRegion *region_;
+	memory::MemoryRegion *region_;
 }; // class BuddyAllocator
 
 

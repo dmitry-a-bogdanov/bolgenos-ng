@@ -62,7 +62,7 @@ public:
 	/// The function returns size of the memory region.
 	///
 	/// \return Size of memory region in page frames.
-	inline ptrdiff_t size() const {
+	inline size_t size() const {
 		return end_ - begin_;
 	}
 

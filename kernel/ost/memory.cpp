@@ -27,23 +27,22 @@ void ost::page_alloc_test() {
 	memory::free_pages(p[3]);
 	memory::free_pages(p[4]);
 
-	if (reinterpret_cast<char *>(p[1])
-			== reinterpret_cast<char *>(p[0]) + PAGE_SIZE &&
-		reinterpret_cast<char *>(p[2])
-			== reinterpret_cast<char *>(p[1]) + PAGE_SIZE*2 &&
-		reinterpret_cast<char *>(p[3])
-			== reinterpret_cast<char *>(p[2]) + PAGE_SIZE*3 &&
-		reinterpret_cast<char *>(p[4])
-			== reinterpret_cast<char *>(p[1])) {
-		cio::cinfo << __func__ << ": ok" << cio::endl;
-	} else {
-		cio::cerr << __func__ << ": fail" << cio::endl;
-		for (int i = 0; i < 5; ++i) {
-			cio::cerr << "a[" << i << "]=" << p[i] << " ";
+	void *q[5];
+	q[0] = memory::alloc_pages(1);
+	q[1] = memory::alloc_pages(2);
+	q[2] = memory::alloc_pages(3);
+	q[3] = memory::alloc_pages(2);
+	memory::free_pages(q[1]);
+	q[4] = memory::alloc_pages(2);
+
+	for (size_t i = 0; i != 5; ++i) {
+		if (p[i] != q[i]) {
+			cio::cout << i << ": " << p[i] << " vs " << q[i] << cio::endl;
+			panic("Failed test!");
 		}
-		cio::cerr << cio::endl;
-		panic("FAILED TEST");
 	}
+
+	cio::cinfo << __func__ << ": ok" << cio::endl;
 }
 
 void ost::slab_test() {
@@ -284,7 +283,7 @@ void free_list_test__high_order__odd() {
 
 
 void ost::buddy_allocator_test() {
-	constexpr size_t PAGES = 1025;
+	constexpr size_t PAGES = 1023;
 	memory::allocators::pblk_t blk;
 
 	blk.pages = PAGES;
