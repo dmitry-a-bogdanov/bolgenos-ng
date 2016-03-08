@@ -1,9 +1,11 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include <bolgenos-ng/error.h>
+
+#include <bolgenos-ng/stdtypes>
+
 #include <bolgenos-ng/cout.hpp>
 
-#include <bolgenos-ng/error.h>
 
 namespace memory {
 namespace allocators {

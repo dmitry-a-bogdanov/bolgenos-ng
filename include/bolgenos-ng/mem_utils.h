@@ -1,7 +1,9 @@
 #pragma once
 
+#include <bolgenos-ng/stdtypes>
+
 #include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/int_types.h>
+
 
 #ifdef __cplusplus
 extern "C" {

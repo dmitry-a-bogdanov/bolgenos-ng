@@ -2,15 +2,17 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/time.h>
 
+#include <bolgenos-ng/stdtypes>
+
 #include <bolgenos-ng/cout.hpp>
 
 #include "config.h"
+
 
 namespace {
 

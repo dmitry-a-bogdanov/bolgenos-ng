@@ -2,13 +2,15 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
+
+#include <bolgenos-ng/stdtypes>
+
 
 static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };
 

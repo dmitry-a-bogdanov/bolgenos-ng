@@ -1,7 +1,8 @@
 #pragma once
 
-#include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/device.h>
+
+#include <bolgenos-ng/stdtypes>
 
 namespace ps2 {
 

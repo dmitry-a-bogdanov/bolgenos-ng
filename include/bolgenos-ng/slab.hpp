@@ -1,6 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/stdtypes>
+
 
 /**
 * \brief Slab allocation area descriptor.

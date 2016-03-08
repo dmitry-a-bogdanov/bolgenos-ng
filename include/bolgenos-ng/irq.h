@@ -1,7 +1,7 @@
 #ifndef __BOLGENOS_NG__IRQ_H__
 #define __BOLGENOS_NG__IRQ_H__
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/stdtypes>
 
 #ifdef __cplusplus
 extern "C" {

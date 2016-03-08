@@ -1,8 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/stdtypes>
 
-#include <bolgenos-ng/stdtypes.hpp>
 #include <bolgenos-ng/page.hpp>
 
 
