@@ -30,7 +30,7 @@ slab_area::slab_area(size_t elem_size, size_t nelems) {
 }
 
 slab_area::~slab_area() {
-	free_pages(_memory);
+	free_pages(_allocation_map);
 	_memory = nullptr;
 }
 
