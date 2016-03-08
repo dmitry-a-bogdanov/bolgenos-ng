@@ -44,7 +44,15 @@ public:
 		}
 	}
 	
-	static size_t expected_size(size_t elems);
+	static inline size_t expected_size(size_t elems) {
+		const size_t bytes = elems / 8;
+		const size_t bits = elems % 8;
+		if (bits) {
+			return bytes + 1;
+		} else {
+			return bytes;
+		}
+	}
 private:
 	size_t size_;
 	uint8_t *data_;
