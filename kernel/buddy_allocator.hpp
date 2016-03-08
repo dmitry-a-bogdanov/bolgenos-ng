@@ -21,30 +21,6 @@ inline cio::OutStream& operator <<(cio::OutStream &stream,
 }
 
 
-template<size_t n>
-struct power_of_2 {
-	enum {
-		value = 2 * power_of_2<n - 1>::value
-	};
-};
-
-
-template<>
-struct power_of_2<0> {
-	enum {
-		value = 1
-	};
-};
-
-template<typename T>
-T min(const T& a, const T& b) {
-	if (a < b)
-		return a;
-	else
-		return b;
-}
-
-
 template<size_t MaxOrder>
 class BuddyAllocator {
 public:
