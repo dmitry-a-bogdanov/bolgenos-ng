@@ -2,7 +2,7 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/bitarray>
+#include <bolgenos-ng/bitarray.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/cout.hpp>
 

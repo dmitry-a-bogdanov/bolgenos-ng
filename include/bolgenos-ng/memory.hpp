@@ -1,8 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes>
-
 #include <bolgenos-ng/memory_region.hpp>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 /// \brief Memory namespace

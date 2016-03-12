@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 /// \brief Handle recevied byte from PS/2 keyboard.

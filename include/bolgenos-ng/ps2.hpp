@@ -2,7 +2,7 @@
 
 #include <bolgenos-ng/device.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 namespace ps2 {
 

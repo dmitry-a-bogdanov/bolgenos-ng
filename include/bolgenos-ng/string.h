@@ -3,7 +3,7 @@
 
 #include <stdarg.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 #ifdef __cplusplus

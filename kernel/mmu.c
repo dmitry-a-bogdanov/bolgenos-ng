@@ -5,7 +5,7 @@
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/printk.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 /**

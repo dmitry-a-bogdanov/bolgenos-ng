@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes>
-
 #include <bolgenos-ng/compiler.h>
+
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 #ifdef __cplusplus

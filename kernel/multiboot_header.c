@@ -1,6 +1,6 @@
 #include <bolgenos-ng/compiler.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 struct _packed_ multiboot_hdr {

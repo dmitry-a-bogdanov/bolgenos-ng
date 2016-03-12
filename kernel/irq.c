@@ -9,7 +9,7 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };

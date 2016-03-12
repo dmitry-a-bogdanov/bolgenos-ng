@@ -3,7 +3,7 @@
 
 #include <bolgenos-ng/irq.h>
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 /**

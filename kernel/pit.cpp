@@ -7,9 +7,8 @@
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/stdtypes>
-
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/stdtypes.hpp>
 
 #include "config.h"
 

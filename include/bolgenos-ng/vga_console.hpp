@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes>
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 namespace vga_console {
