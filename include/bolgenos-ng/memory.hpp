@@ -14,34 +14,36 @@ namespace memory {
 *
 * Align given value down to specified boundary.
 *
-* \tparam boundary Alignment boundary.
+* \tparam Boundary Alignment boundary.
 * \tparam ValueType Type of value that is to be aligned.
 * \param value Value to be aligned.
 * \return Aligned value.
 */
-template<size_t boundary, typename ValueType>
+template<size_t Boundary, typename ValueType>
 inline ValueType align_down(ValueType value) {
-	size_t _val = reinterpret_cast<size_t>(value);
-	_val &= ~(boundary - 1);
+	constexpr size_t alignment_mask = ~(Boundary - 1);
+	auto _val = reinterpret_cast<size_t>(value);
+	_val &= alignment_mask;
 	return reinterpret_cast<ValueType>(_val);
 }
 
 
 /**
-*\brief Aling specified value up.
+* \brief Aling specified value up.
 *
 * Align given value up to specified boundary.
 *
-* \tparam boundary Alignment boundary.
+* \tparam Boundary Alignment boundary.
 * \tparam ValueType Type of value that is to be aligned.
 * \param value Value to be aligned.
 * \return Aligned value.
 */
-template<size_t boundary, typename ValueType>
+template<size_t Boundary, typename ValueType>
 inline ValueType align_up(ValueType value) {
-	size_t _val = reinterpret_cast<size_t>(value);
-	if (_val & (boundary - 1)) {
-		_val = align_down<boundary>(_val) + boundary;
+	constexpr size_t alignment_mask = Boundary - 1;
+	auto _val = reinterpret_cast<size_t>(value);
+	if (_val & alignment_mask) {
+		_val = align_down<Boundary>(_val) + Boundary;
 	}
 	return reinterpret_cast<ValueType>(_val);
 }
