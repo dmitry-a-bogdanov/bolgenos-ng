@@ -46,7 +46,7 @@ void ost::page_alloc_test() {
 }
 
 void ost::slab_test() {
-	struct slab_area test_slab(sizeof(long), 10);
+	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
 	if (!test_slab.initialized()) {
 		cio::cerr	<< __func__
 				<< ": slab initialization failure" << cio::endl;

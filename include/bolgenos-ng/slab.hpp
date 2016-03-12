@@ -3,12 +3,18 @@
 #include <bolgenos-ng/stdtypes.hpp>
 
 
+namespace memory {
+
+
+namespace allocators {
+
+
 /**
 * \brief Slab allocation area descriptor.
 *
 * The structure holds info for slab allocator.
 */
-class slab_area {
+class SlabAllocator {
 public:
 	/**
 	* \brief Initialize slab.
@@ -19,10 +25,20 @@ public:
 	* \param elem_size Size of element in slab area.
 	* \param nelems Number of elemnts in slab area.
 	*/
-	slab_area(size_t elem_size, size_t nelems);
+	SlabAllocator(size_t elem_size, size_t nelems);
 
-	slab_area() = delete;
-	slab_area(const slab_area&) = delete;
+
+	/// Default constructing is denied.
+	SlabAllocator() = delete;
+
+
+	/// Copy-constructing is denied.
+	SlabAllocator(const SlabAllocator&) = delete;
+
+
+	/// Copy-assignment is denied.
+	SlabAllocator& operator =(const SlabAllocator&) = delete;
+
 
 	/**
 	* \brief Allocate element from slab.
@@ -43,22 +59,24 @@ public:
 	*/
 	void deallocate(void *addr);
 
+
 	/**
-	* \brief Get initialization status of \ref slab_area.
+	* \brief Get initialization status of \ref SlabAllocator.
 	*
-	* The function returns initialization status of \ref slab_area.
+	* The function returns initialization status of \ref SlabAllocator.
 	*
 	* \return true if ok, false if error has occured.
 	*/
 	inline bool initialized() { return _initialized; }
 
+
 	/**
-	* \brief \ref slab_area destructor.
+	* \brief \ref SlabAllocator destructor.
 	*
-	* The functions destructs \ref slab_area object and frees memory
+	* The functions destructs \ref SlabAllocator object and frees memory
 	* related to this allocator.
 	*/
-	~slab_area();
+	~SlabAllocator();
 
 protected:
 	/**
@@ -82,11 +100,18 @@ e	* \return true if unit is free, false otherwise.
 	* false otherwise.
 	*/
 	void set_free(size_t index, bool free);
+
 private:
-	size_t _elem_size;		/*!< Size of element in size slab. */
-	size_t _nelems;			/*!< Number of elements in slab. */
-	void *_memory;			/*!< Pointer to memory of slab. */
+
+	size_t _elem_size;	/*!< Size of element in size slab. */
+	size_t _nelems;		/*!< Number of elements in slab. */
+	void *_memory;		/*!< Pointer to memory of slab. */
 	bool *_allocation_map;	/*!< Allocation status of elements. */
-	bool _initialized;		/*!< Initilization was successed. */
+	bool _initialized;	/*!< Initilization was successed. */
 };
 
+
+} // namespace allocators
+
+
+} // namespace memory

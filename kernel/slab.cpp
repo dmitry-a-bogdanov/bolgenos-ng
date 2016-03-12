@@ -9,7 +9,8 @@
 
 using namespace memory;
 
-slab_area::slab_area(size_t elem_size, size_t nelems) {
+memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
+		size_t nelems) {
 	_elem_size = elem_size;
 	_nelems = nelems;
 	size_t required_memory = _elem_size * _nelems + _nelems;
@@ -29,12 +30,12 @@ slab_area::slab_area(size_t elem_size, size_t nelems) {
 	_initialized = true;
 }
 
-slab_area::~slab_area() {
+memory::allocators::SlabAllocator::~SlabAllocator() {
 	free_pages(_allocation_map);
 	_memory = nullptr;
 }
 
-void *slab_area::allocate() {
+void *memory::allocators::SlabAllocator::allocate() {
 	void *free_mem = nullptr;
 	for (size_t chunk = 0; chunk != this->_nelems; ++chunk) {
 		if (is_free(chunk)) {
@@ -49,7 +50,7 @@ void *slab_area::allocate() {
 }
 
 
-void slab_area::deallocate(void *addr) {
+void memory::allocators::SlabAllocator::deallocate(void *addr) {
 	if (!addr) {
 		return;
 	}
@@ -58,12 +59,12 @@ void slab_area::deallocate(void *addr) {
 	set_free(chunk, true);
 }
 
-bool slab_area::is_free(size_t index) {
+bool memory::allocators::SlabAllocator::is_free(size_t index) {
 	return _allocation_map[index];
 }
 
 
-void slab_area::set_free(size_t index, bool status) {
+void memory::allocators::SlabAllocator::set_free(size_t index, bool status) {
 	_allocation_map[index] = status;
 }
 
