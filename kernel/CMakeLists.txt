@@ -61,35 +61,41 @@ set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
-	buddy_allocator.hpp
+
 	cout.cpp
 	error.c
-	free_list.hpp
 	irq.c
-	keyboard.cpp
 	main.cpp
 	memory.cpp
 	mmu.c
 	multiboot_header.c
 	multiboot_info.cpp
-	page.cpp
-	page_allocator.hpp
-	page_allocator.cpp
 	pic_8259.c
 	pic_common.c
 	pit.cpp
 	printk.cpp
 	ps2.cpp
+	time.c
+	vga_console.cpp
+	
+	keyboard.cpp
 	ps2_keyboard.hpp
 	ps2_keyboard.cpp
 	ps2_keyboard_sm.hpp
 	ps2_keyboard_sm.cpp
+	
+	buddy_allocator.hpp
+	free_list.hpp
+	page_allocator.hpp
+	page_allocator.cpp
+	page.cpp
 	slab.cpp
-	time.c
-	vga_console.cpp
+	
 	abi/cxxabi.c
+	
 	lib/snprintf.c
 	lib/string.c
+	
 	ost/ost.cpp
 	ost/bitarray.hpp
 	ost/bitarray.cpp
