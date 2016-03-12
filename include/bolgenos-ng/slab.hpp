@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bolgenos-ng/bitarray.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
 
@@ -67,7 +68,7 @@ public:
 	*
 	* \return true if ok, false if error has occured.
 	*/
-	inline bool initialized() { return _initialized; }
+	bool initialized() const;
 
 
 	/**
@@ -103,11 +104,28 @@ e	* \return true if unit is free, false otherwise.
 
 private:
 
-	size_t _elem_size;	/*!< Size of element in size slab. */
-	size_t _nelems;		/*!< Number of elements in slab. */
-	void *_memory;		/*!< Pointer to memory of slab. */
-	bool *_allocation_map;	/*!< Allocation status of elements. */
-	bool _initialized;	/*!< Initilization was successed. */
+	/// Size of element in size slab.
+	size_t elem_size_;
+
+
+	/// Number of elements in slab.
+	size_t nelems_;
+
+
+	/// Pointer to memory of slab.
+	void *memory_;
+
+
+	/// Allocated memory area.
+	void *area_;
+
+
+	/// Allocation status of elements.
+	util::inplace::BitArray allocation_map_;
+
+
+	/// Initialization was successed.
+	bool initialized_;
 };
 
 
