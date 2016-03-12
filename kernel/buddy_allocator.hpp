@@ -10,14 +10,18 @@
 namespace memory {
 namespace allocators {
 
+
 struct pblk_t {
-	page_frame_t *first = nullptr;
-	size_t pages = 0;
+	pblk_t() = default;
+	pblk_t(page_frame_t *p, size_t s)
+		: ptr(p), size(s) {}
+	page_frame_t *ptr = nullptr;
+	size_t size = 0;
 };
 
 inline cio::OutStream& operator <<(cio::OutStream &stream,
 		const pblk_t &blk) {
-	return stream << "pblk_t{" << blk.first << ", " << blk.pages << "}";
+	return stream << "pblk_t{" << blk.ptr << ", " << blk.size << "}";
 }
 
 
@@ -57,7 +61,7 @@ public:
 
 
 	void put(pblk_t blk) {
-		if (blk.pages == 0) {
+		if (blk.size == 0) {
 			return;
 		}
 /*
@@ -70,33 +74,31 @@ public:
 		++stats.deallocations;
 */
 
-		while(blk.pages) {
+		while(blk.size) {
 			size_t block_order = compute_order(blk);
 /*
 			if (reinterpret_cast<size_t>(blk.first) & ((1 << 12) - 1)) {
 						panic("bad page addr in while!");
 			}
 */
-			page_frame_t *squashed_page = free_list_[block_order].put(blk.first);
-			if (squashed_page) {
+			page_frame_t *squashed_pages = free_list_[block_order].put(blk.ptr);
+			if (squashed_pages) {
 				size_t putting_list = block_order + 1;
-				while ((squashed_page =
+				while ((squashed_pages =
 						free_list_[putting_list].put(
-							squashed_page))) {
+							squashed_pages))) {
 					++putting_list;
 				}
 			}
 			size_t block_size = 1 << block_order;
-			blk.pages -= block_size;
-			blk.first += block_size;
+			blk.size -= block_size;
+			blk.ptr += block_size;
 		}
 	}
 
 
 	pblk_t get(size_t pages) {
-		pblk_t blk;
-		blk.first = nullptr;
-		blk.pages = 0;
+		pblk_t blk = {nullptr, blk.size};
 		size_t order = 0;
 /*
 		++stats.allocations;
@@ -112,24 +114,22 @@ public:
 
 		while (order <= max_order::value) {
 
-			blk.first = free_list_[order].get();
-			if (blk.first)
+			blk.ptr = free_list_[order].get();
+			if (blk.ptr)
 				break;
 			else
 				++order;
 		}
 
-		if (!blk.first) {
+		if (!blk.ptr) {
 			return blk;
 		}
 
-		blk.pages = pages;
+		blk.size = pages;
 
-		pblk_t extra_memory;
-		extra_memory.first = blk.first + pages;
-		extra_memory.pages = (1 << order) - pages;
+		pblk_t extra_memory = {blk.ptr + pages, (1 << order) - pages};
 
-		if (extra_memory.pages) {
+		if (extra_memory.size) {
 			put(extra_memory);
 		}
 
@@ -145,7 +145,7 @@ private:
 	static size_t compute_order(const pblk_t &blk) {
 		size_t order = 0;
 
-		auto numeric_address = reinterpret_cast<size_t>(blk.first);
+		auto numeric_address = reinterpret_cast<size_t>(blk.ptr);
 		auto page_number = numeric_address / PAGE_SIZE;
 		while (order < max_order::value) {
 			if (page_number & 0x1) {
@@ -156,14 +156,14 @@ private:
 			}
 		}
 
-		if (blk.pages >= (size_t(1) << order)) {
+		if (blk.size >= (size_t(1) << order)) {
 			return order;
 		}
 
 		// Number of exiting pages is less than it's needed because of
 		// computed order. Therefore we should decrease this number.
 
-		while ((size_t(1) << order) > blk.pages) {
+		while ((size_t(1) << order) > blk.size) {
 			--order;
 		}
 

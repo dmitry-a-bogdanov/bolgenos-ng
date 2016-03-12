@@ -286,11 +286,11 @@ void ost::buddy_allocator_test() {
 	constexpr size_t PAGES = 1023;
 	memory::allocators::pblk_t blk;
 
-	blk.pages = PAGES;
-	blk.first = reinterpret_cast<memory::page_frame_t *>(
-			memory::alloc_pages(blk.pages));
+	blk.size = PAGES;
+	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
+			memory::alloc_pages(blk.size));
 
-	if (!blk.first) {
+	if (!blk.ptr) {
 		cio::cerr << __func__ << ": allocation failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -302,9 +302,9 @@ void ost::buddy_allocator_test() {
 	memory::allocators::pblk_t pages[PAGES];
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
-		if (pages[page_idx].first == nullptr) {
+		if (pages[page_idx].ptr == nullptr) {
 			cio::cerr << __func__ << ": failed ["
-				<< page_idx << "] = " << pages[page_idx].first
+				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
 			panic("FAILED TEST");
 		}
@@ -312,9 +312,9 @@ void ost::buddy_allocator_test() {
 	}
 
 	auto last_alloc = buddy_system.get(1);
-	if (last_alloc.first != nullptr) {
+	if (last_alloc.ptr != nullptr) {
 		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.first << cio::endl;
+			<< last_alloc.ptr << cio::endl;
 		panic("FAILED TEST");
 	}
 
@@ -324,9 +324,9 @@ void ost::buddy_allocator_test() {
 
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
-		if (pages[page_idx].first == nullptr) {
+		if (pages[page_idx].ptr == nullptr) {
 			cio::cerr << __func__ << ": failed ["
-				<< page_idx << "] = " << pages[page_idx].first
+				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
 			panic("FAILED TEST");
 		}
@@ -334,15 +334,15 @@ void ost::buddy_allocator_test() {
 	}
 
 	last_alloc = buddy_system.get(1);
-	if (last_alloc.first != nullptr) {
+	if (last_alloc.ptr != nullptr) {
 		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.first << cio::endl;
+			<< last_alloc.ptr << cio::endl;
 		panic("FAILED TEST");
 	}
 
 	cio::cinfo << __func__ << ": ok" << cio::endl;
 
-	memory::free_pages(blk.first);
+	memory::free_pages(blk.ptr);
 } // buddy_allocator_test
 
 
