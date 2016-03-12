@@ -10,6 +10,10 @@
 namespace multiboot {
 
 
+/// \brief Boot information.
+///
+/// More info about members can be read in the following article:
+/// https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
 class __attribute__((packed)) boot_info_t {
 public:
 	/// \brief Check that memory information is valid.
@@ -41,7 +45,13 @@ protected:
 	uint32_t mem_lower_;	///< Amount of low memory in kilobytes.
 	uint32_t mem_upper_;	///< Amount of high memory in kilobytes.
 	uint32_t boot_device;
-	uint32_t cmdline;
+
+	/// \brief Command line arguments.
+	///
+	/// The physical address of the command line to be passed to the kernel.
+	/// The command line is a normal C-style zero-terminated string. This
+	/// member will be set iff bit 2 of flags_ is set.
+	uint32_t cmdline_;
 	uint32_t mods_count;
 	uint32_t mods_addr;
 	uint8_t syms[16];

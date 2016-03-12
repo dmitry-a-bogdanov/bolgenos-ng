@@ -41,12 +41,6 @@ _asm_linked_ char __kernel_obj_end[0];
 namespace {
 
 
-/// \brief Page with zero size.
-///
-/// This address will be returned if allocator is called with
-/// zero size argument.
-
-
 /// \brief Start of high memory.
 ///
 /// The address of the beginning of high memory.
@@ -76,9 +70,13 @@ using memory::MemoryRegion;
 /// High memory region descriptor
 MemoryRegion highmem;
 
-PageAllocator highmem_page_allocator;
 
+/// Buddy system that is built on the \ref highmem memory region.
 BuddyAllocator<PageAllocator::buddy_order::value> highmem_buddy_allocator;
+
+
+/// Page allocator that is built on the \ref highmem_buddy_allocator.
+PageAllocator highmem_page_allocator;
 
 
 } // namespace

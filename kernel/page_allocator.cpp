@@ -8,7 +8,10 @@ memory::allocators::PageAllocator pa;
 
 namespace {
 
-
+/// \brief Page with zero size.
+///
+/// This address will be returned if allocator is called with
+/// zero size argument.
 void *zero_size_page = reinterpret_cast<void *>(0x10);
 
 

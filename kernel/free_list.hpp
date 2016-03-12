@@ -7,29 +7,63 @@
 
 #include "config.h"
 
+
 namespace memory {
+
+
 namespace allocators {
 
 
+/// \brief Free list allocator.
+///
+/// The structure provides functionality of free list list allocator. Such
+/// allocator keeps one-directional list of blocks of page frames.
+/// \tparam MaxOrder Maximal order of the free list in set. TODO: to remove.
 template<size_t MaxOrder>
 class FreeList {
-	struct item_type;
+	struct item_type; // forward declaration.
 public:
 	struct max_order {
+		/// Maximal order of the free list in set. TODO: to remove.
 		static constexpr size_t value = MaxOrder;
 	};
 
+
+	/// Structure that holds statistics of the usage of the free list.
 	struct stats_type {
+		/// Number of elements in list.
 		size_t items = 0;
 	};
+
+
+	/// Static of the usage of this free list.
 	stats_type stats;
 
+
+	/// Default constructor.
 	FreeList() = default;
+
+
+	/// Copy-initialization is denied.
 	FreeList(const FreeList &) = delete;
+
+
+	/// Copy-assignment is denied.
 	FreeList& operator =(const FreeList &) = delete;
+
+
+	/// Destructor.
 	~FreeList() {}
 
 
+	/// \brief Initialize.
+	///
+	/// The function initializes the free list structure of
+	/// the specified order.
+	///
+	/// \param order Order of free list.
+	/// \return boolean status of initalization. true if success; false
+	/// otherwise.
 	inline bool initialize(size_t order) {
 		if (order > max_order::value) {
 			return false;
@@ -40,6 +74,11 @@ public:
 	}
 
 
+	/// \brief Get next free page block.
+	///
+	/// The function allocates one page block from the allocator.
+	///
+	/// \return Allocated page block.
 	inline page_frame_t *get() {
 		item_type *free_item = list_;
 		if (free_item) {
@@ -52,6 +91,14 @@ public:
 	}
 
 
+	/// \brief Release page block.
+	///
+	/// The function release page block and puts to the allocator with
+	/// page block squashing.
+	///
+	/// \param frame Pointer to the page block to be released.
+	/// \returns Pointer to squashed page block is squashing is possible;
+	/// nullptr otherwise.
 	page_frame_t *put(page_frame_t *frame) {
 		auto new_item = reinterpret_cast<item_type *>(frame);
 		new_item->next = nullptr;
@@ -136,7 +183,10 @@ public:
 		return nullptr;
 	}
 
+
 private:
+
+	/// Find last lesser.
 	void find_last_lesser(const item_type *new_item, item_type * &last_lesser,
 			item_type * &prelast_lesser) const {
 		prelast_lesser = nullptr;
@@ -148,6 +198,7 @@ private:
 		}
 	}
 
+	/// Run sanity check.
 	void sanity_check() const {
 		item_type *fast_iter = list_, *slow_iter = list_;
 		do {
@@ -168,6 +219,7 @@ private:
 	}
 
 
+	/// Check that frames are consequent.
 	bool are_consequent(const page_frame_t *first,
 			const page_frame_t *second)
 	{
@@ -175,22 +227,38 @@ private:
 		return second - first == diff_frames;
 	}
 
+
+	/// The function is the first in the pair of squashed pages.
 	bool is_the_first_in_buddy(const page_frame_t *frame) const {
 		auto numeric = reinterpret_cast<size_t>(frame);
 		auto divided = numeric / (PAGE_SIZE*(1 << order_));
 		return divided % 2 == 0;
 	}
 
+
+	/// Type of list element.
 	struct item_type {
+		/// Pointer to the next element.
 		item_type *next;
+
+
+		/// Clear internal allocator's data in item
+		/// for security reasons.
 		void clear() {
 			next = nullptr;
 		}
 	};
 
+
+	/// Pointer to the first item in the list.
 	item_type *list_ = nullptr;
+
+
+	/// Order of the list.
 	size_t order_ = 0;
 
+
+	/// Output operator for \ref FreeLists
 	friend
 	cio::OutStream& operator<<(cio::OutStream& stream,
 				const FreeList<max_order::value>& fl) {
@@ -206,4 +274,6 @@ private:
 
 
 } // namespace allocators
+
+
 } // namespace memory

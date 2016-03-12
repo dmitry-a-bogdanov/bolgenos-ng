@@ -13,11 +13,13 @@ namespace memory {
 class MemoryRegion {
 public:
 
+	/// Set the beginning of the memory region.
 	inline void begin(page_frame_t *address) {
 		begin_ = address;
 	}
 
 
+	/// Get the beginning of the memory region.
 	inline page_frame_t *begin() const {
 		return begin_;
 	}
@@ -28,6 +30,7 @@ public:
 	}
 
 
+	/// Get the end of the memory region.
 	inline page_frame_t *end() const {
 		return end_;
 	}
