@@ -4,18 +4,18 @@
 #include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
-#include <bolgenos-ng/multiboot_info.h>
 #include <bolgenos-ng/pic_8259.h>
 #include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/time.h>
-#include <bolgenos-ng/vga_console.hpp>
 
 #include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/slab.hpp>
+#include <bolgenos-ng/vga_console.hpp>
 
 #include "config.h"
 
@@ -28,7 +28,7 @@
 extern "C" void kernel_main() {
 	interrupts_disable();
 
-	multiboot_info_init();
+	multiboot::init();
 
 	call_global_ctors();
 

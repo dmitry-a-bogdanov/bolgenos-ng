@@ -1,8 +1,9 @@
 #ifndef __BOLGENOS_NG__ASM_H__
 #define __BOLGENOS_NG__ASM_H__
 
-#include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/compiler.h>
+
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 /**

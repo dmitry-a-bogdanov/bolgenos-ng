@@ -1,3 +1,5 @@
+project(config)
+
 set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h")
 set(config_h_in		"config.h.in")
 

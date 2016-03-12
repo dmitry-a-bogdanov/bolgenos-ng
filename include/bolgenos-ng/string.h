@@ -3,7 +3,8 @@
 
 #include <stdarg.h>
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/stdtypes.hpp>
+
 
 #ifdef __cplusplus
 extern "C" {

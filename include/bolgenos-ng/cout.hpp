@@ -142,7 +142,7 @@ public:
 	/// printing.
 	/// \param val Value to be printed.
 	template<typename T>
-	LogStream &operator<<(T val) {
+	LogStream &operator<<(const T &val) {
 		if (log_level_ > system_log_level_) {
 			return *this;
 		}

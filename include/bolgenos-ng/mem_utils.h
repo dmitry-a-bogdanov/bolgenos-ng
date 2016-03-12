@@ -1,8 +1,13 @@
-#ifndef __BOLGENOS_NG__MEM_UTILS_H__
-#define __BOLGENOS_NG__MEM_UTILS_H__
+#pragma once
 
 #include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/int_types.h>
+
+#include <bolgenos-ng/stdtypes.hpp>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 * \brief Universal pointer type.
@@ -93,12 +98,7 @@ static inline void write_16(char *dest, char *src) {
 *	byte will be used.
 * \param size Size of memory to be set in bytes.
 */
-static inline void memset(void *mem, char val, size_t size) {
-	for(size_t pos = 0; pos != size; ++pos) {
-		write_8(((char *)mem) + pos, &val);
-	}
-}
-
+void memset(void *mem, char val, size_t size);
 
 /**
 * \brief Memset that uses 16-bit chunk for setting memory.
@@ -131,4 +131,6 @@ static inline void memcpy(void *dest, const void *src, size_t size) {
 	}
 }
 
-#endif // __BOLGENOS_NG__MEM_UTILS_H__
+#ifdef __cplusplus
+} // extern "C"
+#endif

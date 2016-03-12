@@ -14,7 +14,7 @@ slab_area::slab_area(size_t elem_size, size_t nelems) {
 	_nelems = nelems;
 	size_t required_memory = _elem_size * _nelems + _nelems;
 	size_t required_pages =
-		align_up(required_memory, PAGE_SIZE) / PAGE_SIZE;
+		align_up<PAGE_SIZE>(required_memory) / PAGE_SIZE;
 	void *area = alloc_pages(required_pages);
 	if (!area) {
 		_initialized = false;
@@ -30,7 +30,7 @@ slab_area::slab_area(size_t elem_size, size_t nelems) {
 }
 
 slab_area::~slab_area() {
-	free_pages(_memory);
+	free_pages(_allocation_map);
 	_memory = nullptr;
 }
 

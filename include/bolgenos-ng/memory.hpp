@@ -1,35 +1,51 @@
 #pragma once
 
-#include <bolgenos-ng/int_types.h>
+#include <bolgenos-ng/memory_region.hpp>
+#include <bolgenos-ng/stdtypes.hpp>
 
+
+/// \brief Memory namespace
+///
+/// Namespace contains functionality that is related to high-level memory
+/// management.
 namespace memory {
 /**
-* \brief Aling value down.
+* \brief Aling specified value down.
 *
 * Align given value down to specified boundary.
 *
+* \tparam Boundary Alignment boundary.
+* \tparam ValueType Type of value that is to be aligned.
 * \param value Value to be aligned.
-* \param boundary Alignment boundary.
 * \return Aligned value.
 */
-static inline size_t align_down(size_t value, size_t boundary) {
-	return value & ~(boundary - 1);
+template<size_t Boundary, typename ValueType>
+inline ValueType align_down(ValueType value) {
+	constexpr size_t alignment_mask = ~(Boundary - 1);
+	auto _val = reinterpret_cast<size_t>(value);
+	_val &= alignment_mask;
+	return reinterpret_cast<ValueType>(_val);
 }
 
 
 /**
-* \brief Aling specified value.
+* \brief Aling specified value up.
 *
 * Align given value up to specified boundary.
 *
+* \tparam Boundary Alignment boundary.
+* \tparam ValueType Type of value that is to be aligned.
 * \param value Value to be aligned.
-* \param boundary Alignment boundary.
 * \return Aligned value.
 */
-static inline size_t align_up(size_t value, size_t boundary) {
-	return (value & (boundary - 1)) ?
-		align_down(value, boundary) + boundary :
-		value;
+template<size_t Boundary, typename ValueType>
+inline ValueType align_up(ValueType value) {
+	constexpr size_t alignment_mask = Boundary - 1;
+	auto _val = reinterpret_cast<size_t>(value);
+	if (_val & alignment_mask) {
+		_val = align_down<Boundary>(_val) + Boundary;
+	}
+	return reinterpret_cast<ValueType>(_val);
 }
 
 
@@ -53,7 +69,7 @@ void init();
 void *alloc_pages(size_t n);
 
 
-/*
+/**
 * \brief Free allocated pages.
 *
 * The function frees allocated page block.

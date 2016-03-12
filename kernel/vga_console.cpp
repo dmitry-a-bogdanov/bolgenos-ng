@@ -1,7 +1,8 @@
 #include <bolgenos-ng/vga_console.hpp>
 
-#include <bolgenos-ng/int_types.h>
 #include <bolgenos-ng/mem_utils.h>
+
+#include <bolgenos-ng/stdtypes.hpp>
 
 
 namespace {
