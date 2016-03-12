@@ -18,12 +18,11 @@ public:
 	struct max_order {
 		static constexpr size_t value = MaxOrder;
 	};
-/*
+
 	struct stats_type {
 		size_t items = 0;
 	};
 	stats_type stats;
-*/
 
 	FreeList() = default;
 	FreeList(const FreeList &) = delete;
@@ -75,7 +74,7 @@ public:
 			// exist and we just puts frame to list.
 			new_item->next = last_lesser_item->next;
 			last_lesser_item->next = new_item;
-			//++stats.items;
+			++stats.items;
 			sanity_check();
 			return nullptr;
 		}
@@ -89,7 +88,7 @@ public:
 			if (are_consequent(frame, reinterpret_cast<page_frame_t *>(list_))
 				&& is_the_first_in_buddy(frame)) {
 				list_ = list_->next;
-				//--stats.items;
+				--stats.items;
 				sanity_check();
 				return frame;
 			} else {
@@ -106,7 +105,7 @@ public:
 
 		if (are_consequent(last_lesser_frame, frame)
 				&& is_the_first_in_buddy(last_lesser_frame)) {
-			//--stats.items;
+			--stats.items;
 			if (prelast_lesser_item) {
 				prelast_lesser_item->next = last_lesser_item->next;
 				last_lesser_item->next = nullptr;
@@ -123,7 +122,7 @@ public:
 		if (are_consequent(frame, next_frame)
 				&& is_the_first_in_buddy(frame)) {
 			last_lesser_item->next = next_item->next;
-			//--stats.items;
+			--stats.items;
 			sanity_check();
 			return frame;
 		}
@@ -131,7 +130,7 @@ public:
 
 		new_item->next = last_lesser_item->next;
 		last_lesser_item->next = new_item;
-//		++stats.items;
+		++stats.items;
 		sanity_check();
 
 		return nullptr;
@@ -185,7 +184,7 @@ private:
 	struct item_type {
 		item_type *next;
 		void clear() {
-//			next = nullptr;
+			next = nullptr;
 		}
 	};
 
