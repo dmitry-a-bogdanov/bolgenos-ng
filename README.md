@@ -7,4 +7,4 @@
 It's hobby project intended to sort out operating system's internals like bootstrapping,
 interrupt handling, memory management etc.
 I expect that project can be booted on properly configured KVM/Qemu and I don't want to waste time
-because of supporting real hardware.
+because of supporting real hardware. The kernel will be written on C/C++.
