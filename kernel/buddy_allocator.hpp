@@ -69,7 +69,7 @@ public:
 		size_t deallocations = 0;
 
 		/// Array of pointers to stats structure of of \ref FreeList.
-		typename FreeList<max_order::value>::stats_type
+		FreeList::stats_type
 				*list[max_order::value + 1];
 	};
 
@@ -82,7 +82,7 @@ public:
 	BuddyAllocator() {
 		region_ = nullptr;
 		for(size_t i = 0; i <= max_order::value; ++i) {
-			free_list_[i].initialize(i);
+			free_list_[i].initialize(i, i == max_order::value);
 		}
 	}
 
@@ -230,7 +230,7 @@ private:
 	}
 
 	/// Set of free list allocators.
-	FreeList<max_order::value> free_list_[max_order::value + 1];
+	FreeList free_list_[max_order::value + 1];
 
 
 	/// Region of memory that are covered by this buddy system.

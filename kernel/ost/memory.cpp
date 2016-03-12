@@ -98,7 +98,7 @@ void free_list_test__small_order__even() {
 	memory::page_frame_t *third_address =
 		second_address + 1;
 
-	memory::allocators::FreeList<5> fl;
+	memory::allocators::FreeList fl;
 	if (!fl.initialize(0)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
@@ -147,7 +147,7 @@ void free_list_test__small_order__odd() {
 	memory::page_frame_t *third_address =
 		second_address + 1;
 
-	memory::allocators::FreeList<5> fl;
+	memory::allocators::FreeList fl;
 	if (!fl.initialize(0)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
@@ -196,8 +196,8 @@ void free_list_test__high_order__even() {
 	memory::page_frame_t *third_address =
 		second_address + 8;
 
-	memory::allocators::FreeList<3> fl;
-	if (!fl.initialize(3)) {
+	memory::allocators::FreeList fl;
+	if (!fl.initialize(3, true)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -247,8 +247,8 @@ void free_list_test__high_order__odd() {
 	memory::page_frame_t *third_address =
 		second_address + 8;
 
-	memory::allocators::FreeList<5> fl;
-	if (!fl.initialize(0)) {
+	memory::allocators::FreeList fl;
+	if (!fl.initialize(3, true)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
