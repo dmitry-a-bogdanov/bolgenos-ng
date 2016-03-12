@@ -6,6 +6,7 @@
 
 #include <bolgenos-ng/cout.hpp>
 
+#include "config.h"
 
 namespace memory {
 namespace allocators {
@@ -15,9 +16,8 @@ template<size_t MaxOrder>
 class FreeList {
 	struct item_type;
 public:
-	// compile-time constant
 	struct max_order {
-		enum { value = MaxOrder };
+		static constexpr size_t value = MaxOrder;
 	};
 /*
 	struct stats_type {
@@ -49,7 +49,7 @@ public:
 			free_item->next = nullptr;
 			//--stats.items;
 		}
-		// sanity_check();
+		sanity_check();
 		return reinterpret_cast<page_frame_t *>(free_item);
 	}
 
@@ -61,7 +61,7 @@ public:
 		if (list_ == nullptr) {
 			list_ = new_item;
 			//++stats.items;
-			//sanity_check();
+			sanity_check();
 			return nullptr;
 		}
 
@@ -77,7 +77,7 @@ public:
 			new_item->next = last_lesser_item->next;
 			last_lesser_item->next = new_item;
 			//++stats.items;
-			//sanity_check();
+			sanity_check();
 			return nullptr;
 		}
 
@@ -91,13 +91,13 @@ public:
 				&& is_the_first_in_buddy(frame)) {
 				list_ = list_->next;
 				//--stats.items;
-				//sanity_check();
+				sanity_check();
 				return frame;
 			} else {
 				new_item->next = list_;
 				list_ = new_item;
 				//++stats.items;
-				//sanity_check();
+				sanity_check();
 				return nullptr;
 			}
 		}
@@ -111,12 +111,12 @@ public:
 			if (prelast_lesser_item) {
 				prelast_lesser_item->next = last_lesser_item->next;
 				last_lesser_item->next = nullptr;
-				//sanity_check();
+				sanity_check();
 				return last_lesser_frame;
 			} else {
 				list_ = last_lesser_item->next;
 				last_lesser_item->next = nullptr;
-				//sanity_check();
+				sanity_check();
 				return last_lesser_frame;
 			}
 		}
@@ -125,7 +125,7 @@ public:
 				&& is_the_first_in_buddy(frame)) {
 			last_lesser_item->next = next_item->next;
 			//--stats.items;
-			// sanity_check();
+			sanity_check();
 			return frame;
 		}
 
@@ -133,7 +133,7 @@ public:
 		new_item->next = last_lesser_item->next;
 		last_lesser_item->next = new_item;
 //		++stats.items;
-//		sanity_check();
+		sanity_check();
 
 		return nullptr;
 	}
@@ -149,22 +149,31 @@ private:
 			last_lesser = item;
 		}
 	}
-/*
+
 	void sanity_check() const {
-		const size_t MAX_IDX = 100000;
-		size_t index = 0;
-		for(auto item = list_; item; item = item->next) {
-			++index;
-			if (index == MAX_IDX)
-				panic("sanity_check failed!");
+		item_type *fast_iter = list_, *slow_iter = list_;
+		do {
+			if (slow_iter) {
+				slow_iter = slow_iter->next;
+			}
+			if (fast_iter) {
+				fast_iter = fast_iter->next;
+			}
+			if (fast_iter) {
+				fast_iter = fast_iter->next;
+			}
+		} while(slow_iter && fast_iter && slow_iter != fast_iter);
+
+		if (slow_iter == fast_iter && slow_iter) {
+			panic("FreeList loop detected!");
 		}
 	}
-*/
+
 
 	bool are_consequent(const page_frame_t *first,
 			const page_frame_t *second)
 	{
-		const ptrdiff_t diff_frames = 1 << order_;
+		const auto diff_frames = 1 << order_;
 		return second - first == diff_frames;
 	}
 
