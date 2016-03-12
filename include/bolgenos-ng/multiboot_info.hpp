@@ -59,8 +59,6 @@ protected:
 	uint16_t vbe_interface_off;
 	uint16_t vbe_interface_len;
 };
-static_assert(sizeof(boot_info_t) == 88,
-	"Multiboot Information header has wrong size");
 
 
 // \brief Initialize multiboot information.

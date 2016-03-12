@@ -72,6 +72,7 @@ set(kernel_sources ${kernel_start_file}
 	mmu.c
 	multiboot_header.c
 	multiboot_info.cpp
+	page.cpp
 	page_allocator.hpp
 	page_allocator.cpp
 	pic_8259.c
