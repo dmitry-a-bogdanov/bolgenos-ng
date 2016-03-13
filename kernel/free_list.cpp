@@ -45,13 +45,14 @@ memory::page_frame_t *memory::allocators::FreeList::get() {
 	return reinterpret_cast<page_frame_t *>(free_item);
 }
 
+
 memory::page_frame_t *memory::allocators::FreeList::put(page_frame_t *frame) {
 	auto new_item = reinterpret_cast<item_type *>(frame);
 	new_item->next = nullptr;
 
 	if (list_ == nullptr) {
 		list_ = new_item;
-		//++stats.items;
+		++stats.items;
 		sanity_check();
 		return nullptr;
 	}
@@ -61,11 +62,13 @@ memory::page_frame_t *memory::allocators::FreeList::put(page_frame_t *frame) {
 	find_last_lesser(new_item, last_lesser_item, prelast_lesser_item);
 
 	if (disable_squashing_) {
-		// this FreeList is a free list of max order.
-		// it means that allocators of higher orders don't
-		// exist and we just puts frame to list.
-		new_item->next = last_lesser_item->next;
-		last_lesser_item->next = new_item;
+		if (last_lesser_item == nullptr) {
+			new_item->next = list_;
+			list_ = new_item;
+		} else {
+			new_item->next = last_lesser_item->next;
+			last_lesser_item->next = new_item;
+		}
 		++stats.items;
 		sanity_check();
 		return nullptr;
@@ -98,15 +101,16 @@ memory::page_frame_t *memory::allocators::FreeList::put(page_frame_t *frame) {
 
 	if (are_consequent(last_lesser_frame, frame, order_)
 			&& is_the_first_in_buddy(last_lesser_frame, order_)) {
-		--stats.items;
 		if (prelast_lesser_item) {
 			prelast_lesser_item->next = last_lesser_item->next;
 			last_lesser_item->next = nullptr;
+			--stats.items;
 			sanity_check();
 			return last_lesser_frame;
 		} else {
 			list_ = last_lesser_item->next;
 			last_lesser_item->next = nullptr;
+			--stats.items;
 			sanity_check();
 			return last_lesser_frame;
 		}
@@ -124,7 +128,6 @@ memory::page_frame_t *memory::allocators::FreeList::put(page_frame_t *frame) {
 	last_lesser_item->next = new_item;
 	++stats.items;
 	sanity_check();
-
 	return nullptr;
 }
 
@@ -156,6 +159,16 @@ void memory::allocators::FreeList::sanity_check() const {
 
 	if (slow_iter == fast_iter && slow_iter) {
 		panic("FreeList loop detected!");
+	}
+
+
+	size_t length = 0;
+	for (item_type *it = list_; it; it = it->next)
+		length++;
+	if (length != stats.items) {
+		cio::ccrit << "actual = " << length
+			<< " expected = " << stats.items << cio::endl;
+		panic("FreeList stats are invalid!");
 	}
 }
 

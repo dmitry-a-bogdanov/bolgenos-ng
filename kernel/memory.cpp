@@ -78,7 +78,7 @@ MemoryRegion highmem;
 
 
 /// Buddy system that is built on the \ref highmem memory region.
-BuddyAllocator<PageAllocator::buddy_order::value> highmem_buddy_allocator;
+BuddyAllocator highmem_buddy_allocator;
 
 
 /// Page allocator that is built on the \ref highmem_buddy_allocator.
@@ -141,7 +141,7 @@ void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
 			memory::align_up<PAGE_SIZE>(__kernel_obj_end));
 
-	highmem_buddy_allocator.initialize(&highmem);
+	highmem_buddy_allocator.initialize(&highmem, 10);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,
 			last_kernel_page);
 	constexpr size_t chain_memory = 1024*1024; // 1 MB

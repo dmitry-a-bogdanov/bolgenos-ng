@@ -284,10 +284,10 @@ void free_list_test__high_order__odd() {
 
 
 void ost::buddy_allocator_test() {
-	constexpr size_t PAGES = 1023;
+	constexpr size_t PAGES = 800;
 	memory::allocators::pblk_t blk;
 
-	blk.size = PAGES;
+	blk.size = PAGES + 223;
 	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
@@ -296,27 +296,24 @@ void ost::buddy_allocator_test() {
 		panic("FAILED TEST");
 	}
 
-	memory::allocators::BuddyAllocator<3> buddy_system;
+	memory::MemoryRegion region;
+	region.begin(blk.ptr);
+	region.end(blk.ptr + blk.size);
+	memory::allocators::BuddyAllocator buddy_system;
 
+	buddy_system.initialize(&region, 3);
 	buddy_system.put(blk);
 
 	memory::allocators::pblk_t pages[PAGES];
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
 		if (pages[page_idx].ptr == nullptr) {
-			cio::cerr << __func__ << ": failed ["
+			cio::cerr << __func__ << "/" << __LINE__ << ": failed ["
 				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
-			panic("FAILED TEST");
+			panic("Failed Test!");
 		}
 
-	}
-
-	auto last_alloc = buddy_system.get(1);
-	if (last_alloc.ptr != nullptr) {
-		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.ptr << cio::endl;
-		panic("FAILED TEST");
 	}
 
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
@@ -326,19 +323,11 @@ void ost::buddy_allocator_test() {
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
 		if (pages[page_idx].ptr == nullptr) {
-			cio::cerr << __func__ << ": failed ["
+			cio::cerr << __func__ << "/" << __LINE__ << ": failed ["
 				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
-			panic("FAILED TEST");
+			panic("Failed Test!");
 		}
-
-	}
-
-	last_alloc = buddy_system.get(1);
-	if (last_alloc.ptr != nullptr) {
-		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.ptr << cio::endl;
-		panic("FAILED TEST");
 	}
 
 	cio::cinfo << __func__ << ": ok" << cio::endl;
