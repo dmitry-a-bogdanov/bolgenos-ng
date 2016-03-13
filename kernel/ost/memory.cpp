@@ -8,6 +8,7 @@
 
 #include "../free_list.hpp"
 #include "../buddy_allocator.hpp"
+#include "../mallocator.hpp"
 
 #include <config.h>
 #include <ost.h>
@@ -47,7 +48,7 @@ void ost::page_alloc_test() {
 
 void ost::slab_test() {
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
-	if (!test_slab.initialized()) {
+	if (!test_slab.is_initialized()) {
 		cio::cerr	<< __func__
 				<< ": slab initialization failure" << cio::endl;
 		panic("FAILED TEST");
@@ -352,6 +353,30 @@ void ost::free_list_test() {
 	free_list_test__high_order__even();
 	free_list_test__high_order__odd();
 }
+
+
+namespace {
+
+void try_alloc(size_t bytes) {
+	auto mem = memory::kmalloc(bytes);
+	if (!mem) {
+		cio::ccrit << __func__ << ": failed allocation of size "
+			<< bytes << "\n" << cio::endl;
+		panic("FAILED TEST");
+	}
+	memory::kfree(mem);
+}
+
+}
+
+void ost::mallocator_test() {
+	for (size_t chunk_size = 7; chunk_size < PAGE_SIZE*3;
+			chunk_size += 8) {
+		cio::cinfo << __func__ << "[" << chunk_size << "]:";
+		try_alloc(chunk_size);
+		cio::cinfo << cio::endl;
+	}
+}
 #else
 void ost::page_alloc_test() {
 }
@@ -360,5 +385,7 @@ void ost::slab_test() {
 void ost::free_list_test() {
 }
 void ost::buddy_allocator_test() {
+}
+void ost::mallocator_test() {
 }
 #endif

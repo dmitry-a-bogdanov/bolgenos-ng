@@ -14,6 +14,7 @@ void ost::run() {
 	ost::slab_test();
 	ost::buddy_allocator_test();
 	ost::test_bitarray();
+	ost::mallocator_test();
 	cio::cnotice << "OST: finished" << cio::endl;;
 }
 #else

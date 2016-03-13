@@ -29,8 +29,8 @@ public:
 	SlabAllocator(size_t elem_size, size_t nelems);
 
 
-	/// Default constructing is denied.
-	SlabAllocator() = delete;
+	/// Default constructor.
+	SlabAllocator() = default;
 
 
 	/// Copy-constructing is denied.
@@ -39,6 +39,18 @@ public:
 
 	/// Copy-assignment is denied.
 	SlabAllocator& operator =(const SlabAllocator&) = delete;
+
+
+	/// \brief Initialize slab
+	///
+	/// The functions initializes SlabAllocator according to specified
+	/// parameters.
+	///
+	/// \param elem_size Size of one elements in slab.
+	/// \param nelems Number of elements that slab should operate.
+	/// \return Boolean status of allocator. True if initialization was
+	/// successful, false - otherwise.
+	bool initialize(size_t elem_size, size_t nelems);
 
 
 	/**
@@ -68,7 +80,18 @@ public:
 	*
 	* \return true if ok, false if error has occured.
 	*/
-	bool initialized() const;
+	bool is_initialized() const;
+
+
+	/// \brief Check that memory is owned by allocator.
+	///
+	/// The function checks that the specified memory is owned by the
+	/// given allocator.
+	///
+	/// \param Pointer to memory for checking.
+	/// \return true if the specified memory is owned by the allocator;
+	/// false otherwise.
+	bool owns(void *memory) const;
 
 
 	/**
@@ -79,7 +102,7 @@ public:
 	*/
 	~SlabAllocator();
 
-protected:
+private:
 	/**
 	* \brief Get allocation status of memory unit.
 	*
@@ -102,22 +125,20 @@ e	* \return true if unit is free, false otherwise.
 	*/
 	void set_free(size_t index, bool free);
 
-private:
-
 	/// Size of element in size slab.
-	size_t elem_size_;
+	size_t elem_size_ = 0;
 
 
 	/// Number of elements in slab.
-	size_t nelems_;
+	size_t nelems_ = 0;
 
 
 	/// Pointer to memory of slab.
-	void *memory_;
+	void *memory_ = nullptr;
 
 
 	/// Allocated memory area.
-	void *area_;
+	void *area_ = nullptr;
 
 
 	/// Allocation status of elements.
@@ -125,7 +146,7 @@ private:
 
 
 	/// Initialization was successed.
-	bool initialized_;
+	bool initialized_ = false;
 };
 
 

@@ -87,6 +87,8 @@ set(kernel_sources ${kernel_start_file}
 	buddy_allocator.hpp
 	free_list.hpp
 	free_list.cpp
+	mallocator.hpp
+	mallocator.cpp
 	page_allocator.hpp
 	page_allocator.cpp
 	page.cpp

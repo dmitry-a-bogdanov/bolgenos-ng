@@ -170,7 +170,6 @@ public:
 		}
 
 		while (order <= max_order::value) {
-
 			blk.ptr = free_list_[order].get();
 			if (blk.ptr)
 				break;

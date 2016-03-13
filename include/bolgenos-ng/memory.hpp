@@ -4,6 +4,10 @@
 #include <bolgenos-ng/stdtypes.hpp>
 
 
+/// Empty placement new.
+void *operator new(size_t size, void *address);
+
+
 /// \brief Memory namespace
 ///
 /// Namespace contains functionality that is related to high-level memory
@@ -77,6 +81,23 @@ void *alloc_pages(size_t n);
 * \param addr Address of page block.
 */
 void free_pages(void *addr);
+
+
+/// \brief Allocate kernel memory.
+///
+/// The function allocates memory from kernel mallocator.
+///
+/// \param bytes Amount of memory to allocate.
+void *kmalloc(size_t bytes);
+
+
+/// \brief Release memory.
+///
+/// The function returns back to mallocator memory that was previously
+/// allocated.
+///
+/// \param memory Pointer to previously allocated memory.
+void kfree(void *memory);
 
 
 } // namespace memory

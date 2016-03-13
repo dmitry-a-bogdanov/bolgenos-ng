@@ -3,6 +3,7 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 
+#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 #include "config.h"
@@ -10,6 +11,12 @@
 using namespace memory;
 
 memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
+		size_t nelems) {
+	initialize(elem_size, nelems);
+}
+
+
+bool memory::allocators::SlabAllocator::initialize(size_t elem_size,
 		size_t nelems) {
 	elem_size_ = elem_size;
 	nelems_ = nelems;
@@ -20,7 +27,7 @@ memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
 	area_ = alloc_pages(required_pages);
 	if (!area_) {
 		initialized_ = false;
-		return;
+		return initialized_;
 	}
 	// _allocation_map = reinterpret_cast<bool *>(area);
 	allocation_map_.initialize(area_, nelems_);
@@ -31,7 +38,9 @@ memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
 		set_free(elem, true);
 	}
 	initialized_ = true;
+	return initialized_;
 }
+
 
 memory::allocators::SlabAllocator::~SlabAllocator() {
 	free_pages(area_);
@@ -53,7 +62,20 @@ void *memory::allocators::SlabAllocator::allocate() {
 }
 
 
-bool memory::allocators::SlabAllocator::initialized() const {
+bool memory::allocators::SlabAllocator::owns(void *memory) const {
+	if (memory_ == nullptr)
+		panic ("assertion failed");
+	auto *address = reinterpret_cast<char *>(memory);
+	auto *high_limit = reinterpret_cast<char *>(memory_) + nelems_ * elem_size_;
+	if (memory_ <= address && address
+			< high_limit) {
+		return true;
+	}
+	return false;
+}
+
+
+bool memory::allocators::SlabAllocator::is_initialized() const {
 	return initialized_;
 }
 
@@ -61,6 +83,11 @@ bool memory::allocators::SlabAllocator::initialized() const {
 void memory::allocators::SlabAllocator::deallocate(void *addr) {
 	if (!addr) {
 		return;
+	}
+	if (!owns(addr)) {
+		cio::ccrit << __func__ << ": deallocation of foreign memory = "
+				<< addr << cio::endl;
+		panic("Critical error");
 	}
 	size_t chunk = (((size_t) addr) - ((size_t) memory_)) / elem_size_;
 	set_free(chunk, true);
