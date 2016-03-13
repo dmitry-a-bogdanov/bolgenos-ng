@@ -9,7 +9,6 @@ namespace memory {
 namespace allocators {
 
 
-template<size_t MaxOrder>
 class BuddyAllocator; // forward declaration
 class MemoryRegion; // forward declaration
 
@@ -49,8 +48,7 @@ public:
 	///
 	/// \param primary Pointer to the buddy system.
 	/// \param first_free Address of the beginning of free memory.
-	void initialize(BuddyAllocator<buddy_order::value> *primary,
-			page_frame_t *first_free);
+	void initialize(BuddyAllocator *primary, page_frame_t *first_free);
 
 
 	/// \brief Allocate pages.
@@ -71,7 +69,7 @@ public:
 
 private:
 	/// Pointer to the buddy system.
-	BuddyAllocator<buddy_order::value> *primary_ = nullptr;
+	BuddyAllocator *primary_ = nullptr;
 
 
 	/// map for keeping ends of page blocks.

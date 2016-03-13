@@ -85,7 +85,11 @@ set(kernel_sources ${kernel_start_file}
 	ps2_keyboard_sm.cpp
 	
 	buddy_allocator.hpp
+	buddy_allocator.cpp
 	free_list.hpp
+	free_list.cpp
+	mallocator.hpp
+	mallocator.cpp
 	page_allocator.hpp
 	page_allocator.cpp
 	page.cpp

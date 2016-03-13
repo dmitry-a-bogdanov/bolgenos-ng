@@ -18,8 +18,7 @@ void *zero_size_page = reinterpret_cast<void *>(0x10);
 } // namespace
 
 
-void memory::allocators::PageAllocator::initialize(
-		BuddyAllocator<buddy_order::value> *primary,
+void memory::allocators::PageAllocator::initialize(BuddyAllocator *primary,
 		page_frame_t *first_free) {
 	primary_ = primary;
 	auto region = primary_->region();

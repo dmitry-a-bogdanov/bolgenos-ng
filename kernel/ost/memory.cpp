@@ -8,6 +8,7 @@
 
 #include "../free_list.hpp"
 #include "../buddy_allocator.hpp"
+#include "../mallocator.hpp"
 
 #include <config.h>
 #include <ost.h>
@@ -46,8 +47,8 @@ void ost::page_alloc_test() {
 }
 
 void ost::slab_test() {
-	struct slab_area test_slab(sizeof(long), 10);
-	if (!test_slab.initialized()) {
+	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
+	if (!test_slab.is_initialized()) {
 		cio::cerr	<< __func__
 				<< ": slab initialization failure" << cio::endl;
 		panic("FAILED TEST");
@@ -98,7 +99,7 @@ void free_list_test__small_order__even() {
 	memory::page_frame_t *third_address =
 		second_address + 1;
 
-	memory::allocators::FreeList<5> fl;
+	memory::allocators::FreeList fl;
 	if (!fl.initialize(0)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
@@ -147,7 +148,7 @@ void free_list_test__small_order__odd() {
 	memory::page_frame_t *third_address =
 		second_address + 1;
 
-	memory::allocators::FreeList<5> fl;
+	memory::allocators::FreeList fl;
 	if (!fl.initialize(0)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
@@ -196,8 +197,8 @@ void free_list_test__high_order__even() {
 	memory::page_frame_t *third_address =
 		second_address + 8;
 
-	memory::allocators::FreeList<3> fl;
-	if (!fl.initialize(3)) {
+	memory::allocators::FreeList fl;
+	if (!fl.initialize(3, true)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -247,8 +248,8 @@ void free_list_test__high_order__odd() {
 	memory::page_frame_t *third_address =
 		second_address + 8;
 
-	memory::allocators::FreeList<5> fl;
-	if (!fl.initialize(0)) {
+	memory::allocators::FreeList fl;
+	if (!fl.initialize(3, true)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -283,10 +284,10 @@ void free_list_test__high_order__odd() {
 
 
 void ost::buddy_allocator_test() {
-	constexpr size_t PAGES = 1023;
+	constexpr size_t PAGES = 800;
 	memory::allocators::pblk_t blk;
 
-	blk.size = PAGES;
+	blk.size = PAGES + 223;
 	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
@@ -295,27 +296,24 @@ void ost::buddy_allocator_test() {
 		panic("FAILED TEST");
 	}
 
-	memory::allocators::BuddyAllocator<3> buddy_system;
+	memory::MemoryRegion region;
+	region.begin(blk.ptr);
+	region.end(blk.ptr + blk.size);
+	memory::allocators::BuddyAllocator buddy_system;
 
+	buddy_system.initialize(&region, 3);
 	buddy_system.put(blk);
 
 	memory::allocators::pblk_t pages[PAGES];
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
 		if (pages[page_idx].ptr == nullptr) {
-			cio::cerr << __func__ << ": failed ["
+			cio::cerr << __func__ << "/" << __LINE__ << ": failed ["
 				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
-			panic("FAILED TEST");
+			panic("Failed Test!");
 		}
 
-	}
-
-	auto last_alloc = buddy_system.get(1);
-	if (last_alloc.ptr != nullptr) {
-		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.ptr << cio::endl;
-		panic("FAILED TEST");
 	}
 
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
@@ -325,19 +323,11 @@ void ost::buddy_allocator_test() {
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
 		if (pages[page_idx].ptr == nullptr) {
-			cio::cerr << __func__ << ": failed ["
+			cio::cerr << __func__ << "/" << __LINE__ << ": failed ["
 				<< page_idx << "] = " << pages[page_idx].ptr
 				<< cio::endl;
-			panic("FAILED TEST");
+			panic("Failed Test!");
 		}
-
-	}
-
-	last_alloc = buddy_system.get(1);
-	if (last_alloc.ptr != nullptr) {
-		cio::cerr << __func__ << ": failed [last] = "
-			<< last_alloc.ptr << cio::endl;
-		panic("FAILED TEST");
 	}
 
 	cio::cinfo << __func__ << ": ok" << cio::endl;
@@ -352,6 +342,30 @@ void ost::free_list_test() {
 	free_list_test__high_order__even();
 	free_list_test__high_order__odd();
 }
+
+
+namespace {
+
+void try_alloc(size_t bytes) {
+	auto mem = memory::kmalloc(bytes);
+	if (!mem) {
+		cio::ccrit << __func__ << ": failed allocation of size "
+			<< bytes << "\n" << cio::endl;
+		panic("FAILED TEST");
+	}
+	memory::kfree(mem);
+}
+
+}
+
+void ost::mallocator_test() {
+	for (size_t chunk_size = 7; chunk_size < PAGE_SIZE*3;
+			chunk_size += 8) {
+		cio::cinfo << __func__ << "[" << chunk_size << "]:";
+		try_alloc(chunk_size);
+		cio::cinfo << cio::endl;
+	}
+}
 #else
 void ost::page_alloc_test() {
 }
@@ -360,5 +374,7 @@ void ost::slab_test() {
 void ost::free_list_test() {
 }
 void ost::buddy_allocator_test() {
+}
+void ost::mallocator_test() {
 }
 #endif

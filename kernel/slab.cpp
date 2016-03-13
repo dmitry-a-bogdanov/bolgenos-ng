@@ -3,43 +3,56 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 
+#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 #include "config.h"
 
 using namespace memory;
 
-slab_area::slab_area(size_t elem_size, size_t nelems) {
-	_elem_size = elem_size;
-	_nelems = nelems;
-	size_t required_memory = _elem_size * _nelems + _nelems;
+memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
+		size_t nelems) {
+	initialize(elem_size, nelems);
+}
+
+
+bool memory::allocators::SlabAllocator::initialize(size_t elem_size,
+		size_t nelems) {
+	elem_size_ = elem_size;
+	nelems_ = nelems;
+	size_t required_memory = elem_size_ * nelems_
+			+ util::inplace::BitArray::expected_size(nelems_);
 	size_t required_pages =
 		align_up<PAGE_SIZE>(required_memory) / PAGE_SIZE;
-	void *area = alloc_pages(required_pages);
-	if (!area) {
-		_initialized = false;
-		return;
+	area_ = alloc_pages(required_pages);
+	if (!area_) {
+		initialized_ = false;
+		return initialized_;
 	}
-	_allocation_map = reinterpret_cast<bool *>(area);
-	_memory = reinterpret_cast<uint8_t *>(_allocation_map) + nelems;
+	// _allocation_map = reinterpret_cast<bool *>(area);
+	allocation_map_.initialize(area_, nelems_);
+	memory_ = reinterpret_cast<char *>(area_)
+			+ util::inplace::BitArray::expected_size(nelems_);
 
-	for(size_t elem = 0; elem != _nelems; ++elem) {
+	for(size_t elem = 0; elem != nelems_; ++elem) {
 		set_free(elem, true);
 	}
-	_initialized = true;
+	initialized_ = true;
+	return initialized_;
 }
 
-slab_area::~slab_area() {
-	free_pages(_allocation_map);
-	_memory = nullptr;
+
+memory::allocators::SlabAllocator::~SlabAllocator() {
+	free_pages(area_);
+	memory_ = nullptr;
 }
 
-void *slab_area::allocate() {
+void *memory::allocators::SlabAllocator::allocate() {
 	void *free_mem = nullptr;
-	for (size_t chunk = 0; chunk != this->_nelems; ++chunk) {
+	for (size_t chunk = 0; chunk != nelems_; ++chunk) {
 		if (is_free(chunk)) {
-			size_t offset = chunk * this->_elem_size;
-			free_mem = (void *) (((size_t) (this->_memory)) +
+			size_t offset = chunk * elem_size_;
+			free_mem = (void *) (((size_t) memory_) +
 				offset);
 			set_free(chunk, false);
 			return free_mem;
@@ -49,21 +62,43 @@ void *slab_area::allocate() {
 }
 
 
-void slab_area::deallocate(void *addr) {
+bool memory::allocators::SlabAllocator::owns(void *memory) const {
+	if (memory_ == nullptr)
+		panic ("assertion failed");
+	auto *address = reinterpret_cast<char *>(memory);
+	auto *high_limit = reinterpret_cast<char *>(memory_) + nelems_ * elem_size_;
+	if (memory_ <= address && address
+			< high_limit) {
+		return true;
+	}
+	return false;
+}
+
+
+bool memory::allocators::SlabAllocator::is_initialized() const {
+	return initialized_;
+}
+
+
+void memory::allocators::SlabAllocator::deallocate(void *addr) {
 	if (!addr) {
 		return;
 	}
-	size_t chunk = (((size_t) addr) - ((size_t) this->_memory)) /
-		this->_elem_size;
+	if (!owns(addr)) {
+		cio::ccrit << __func__ << ": deallocation of foreign memory = "
+				<< addr << cio::endl;
+		panic("Critical error");
+	}
+	size_t chunk = (((size_t) addr) - ((size_t) memory_)) / elem_size_;
 	set_free(chunk, true);
 }
 
-bool slab_area::is_free(size_t index) {
-	return _allocation_map[index];
+bool memory::allocators::SlabAllocator::is_free(size_t index) {
+	return allocation_map_.get(index);
 }
 
 
-void slab_area::set_free(size_t index, bool status) {
-	_allocation_map[index] = status;
+void memory::allocators::SlabAllocator::set_free(size_t index, bool status) {
+	allocation_map_.set(index, status);
 }
 
