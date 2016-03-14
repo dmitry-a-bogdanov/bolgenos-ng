@@ -32,6 +32,7 @@ bool memory::allocators::FreeList::initialize(size_t order,
 	list_ = nullptr;
 	order_ = order;
 	disable_squashing_ = disable_squashing;
+	sanity_check();
 	return true;
 }
 

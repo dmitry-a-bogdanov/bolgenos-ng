@@ -9,32 +9,15 @@ memory::allocators::BuddyAllocator::~BuddyAllocator() {
 
 
 void memory::allocators::BuddyAllocator::initialize(
-		memory::MemoryRegion *region, size_t max_order) {
+		const memory::MemoryRegion *region) {
 	region_ = region;
-	max_order_ = max_order;
-	free_list_ = nullptr;
+	for(size_t i = 0; i <= max_order::value; ++i) {
+		free_list_[i].initialize(i, i == max_order::value);
+	}
 }
 
 
 void memory::allocators::BuddyAllocator::put(pblk_t blk) {
-	if (free_list_ == nullptr) {
-		size_t bytes_for_fls = sizeof(FreeList) * max_order_;
-		size_t pages_for_fls = align_up<PAGE_SIZE>(
-				bytes_for_fls) / PAGE_SIZE;
-		if (pages_for_fls > blk.size) {
-			panic("Not enough for BuddyAllocator");
-		}
-
-		free_list_ = reinterpret_cast<FreeList *>(blk.ptr);
-
-		blk.ptr += pages_for_fls;
-		blk.size -= pages_for_fls;
-
-		for(size_t i = 0; i <= max_order_; ++i) {
-			new (&free_list_[i]) FreeList;
-			free_list_[i].initialize(i, i == max_order_);
-		}
-	}
 	if (blk.size == 0) {
 		return;
 	}
@@ -83,11 +66,11 @@ memory::allocators::pblk_t memory::allocators::BuddyAllocator::get(size_t pages)
 		++order;
 	}
 
-	if (order > max_order_) {
+	if (order > max_order::value) {
 		return blk;
 	}
 
-	while (order <= max_order_) {
+	while (order <= max_order::value) {
 		blk.ptr = free_list_[order].get();
 		if (blk.ptr)
 			break;
@@ -111,7 +94,7 @@ memory::allocators::pblk_t memory::allocators::BuddyAllocator::get(size_t pages)
 }
 
 
-memory::MemoryRegion *memory::allocators::BuddyAllocator::region() const {
+const memory::MemoryRegion *memory::allocators::BuddyAllocator::region() const {
 	return region_;
 }
 
@@ -122,7 +105,7 @@ size_t memory::allocators::BuddyAllocator::compute_order(const pblk_t &blk) {
 	auto numeric_address = reinterpret_cast<size_t>(blk.ptr);
 	auto page_number = numeric_address / PAGE_SIZE;
 	while (((page_number & 0x1) == 0x0)
-			&& order < max_order_) {
+			&& order < max_order::value) {
 		++order;
 		page_number >>= 1;
 	}

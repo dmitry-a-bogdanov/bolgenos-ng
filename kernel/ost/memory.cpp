@@ -16,6 +16,7 @@
 
 #ifdef OST_MEMORY
 void ost::page_alloc_test() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
 	void *p[5];
 	p[0] = memory::alloc_pages(1);
 	p[1] = memory::alloc_pages(2);
@@ -47,6 +48,8 @@ void ost::page_alloc_test() {
 }
 
 void ost::slab_test() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
 	if (!test_slab.is_initialized()) {
 		cio::cerr	<< __func__
@@ -83,6 +86,8 @@ void ost::slab_test() {
 namespace {
 
 void free_list_test__small_order__even() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	void *pages = memory::alloc_pages(128);
 
 	if (!pages) {
@@ -100,7 +105,7 @@ void free_list_test__small_order__even() {
 		second_address + 1;
 
 	memory::allocators::FreeList fl;
-	if (!fl.initialize(0)) {
+	if (!fl.initialize(0, false)) {
 		cio::cerr << __func__ << ": initialization failed!" << cio::endl;
 		panic("FAILED TEST");
 	}
@@ -132,6 +137,8 @@ void free_list_test__small_order__even() {
 
 
 void free_list_test__small_order__odd() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	void *pages = memory::alloc_pages(128);
 
 	if (!pages) {
@@ -181,6 +188,8 @@ void free_list_test__small_order__odd() {
 
 
 void free_list_test__high_order__even() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	void *pages = memory::alloc_pages(128);
 
 	if (!pages) {
@@ -232,6 +241,8 @@ void free_list_test__high_order__even() {
 
 
 void free_list_test__high_order__odd() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	void *pages = memory::alloc_pages(128);
 
 	if (!pages) {
@@ -284,6 +295,8 @@ void free_list_test__high_order__odd() {
 
 
 void ost::buddy_allocator_test() {
+	cio::cinfo << __func__ << ": starting" << cio::endl;
+
 	constexpr size_t PAGES = 800;
 	memory::allocators::pblk_t blk;
 
@@ -301,7 +314,7 @@ void ost::buddy_allocator_test() {
 	region.end(blk.ptr + blk.size);
 	memory::allocators::BuddyAllocator buddy_system;
 
-	buddy_system.initialize(&region, 3);
+	buddy_system.initialize(&region);
 	buddy_system.put(blk);
 
 	memory::allocators::pblk_t pages[PAGES];
