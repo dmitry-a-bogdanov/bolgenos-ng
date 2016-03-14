@@ -48,6 +48,11 @@ struct pblk_t {
 
 	/// Size of page block in pages.
 	size_t size = 0;
+
+
+	bool operator ==(const pblk_t &other) {
+		return (size == other.size) && (ptr == other.ptr);
+	}
 };
 
 
