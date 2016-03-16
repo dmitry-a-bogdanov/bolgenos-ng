@@ -1,7 +1,6 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_8259.h>
@@ -9,6 +8,7 @@
 #include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
@@ -26,13 +26,15 @@
 *	and then goes to idle state.
 */
 extern "C" void kernel_main() {
-	interrupts_disable();
+	irq::disable();
 
 	multiboot::init();
 
 	call_global_ctors();
 
 	vga_console::clear_screen();
+
+	memory::init(); // Allow allocation
 
 	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< cio::endl;
@@ -46,11 +48,9 @@ extern "C" void kernel_main() {
 
 	pit::init();
 
-	interrupts_enable();
+	irq::enable();
 
 	cio::cinfo << "CPU is initialized" << cio::endl;
-
-	memory::init();
 
 	ps2::init();
 

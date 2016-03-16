@@ -1,8 +1,9 @@
 #include <bolgenos-ng/pic_8259.h>
 
 #include <bolgenos-ng/asm.h>
-#include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/string.h>
+
+#include <bolgenos-ng/irq.hpp>
 
 static void pic_setup();
 static void pic_end_of_interrupt(irq_t irq);

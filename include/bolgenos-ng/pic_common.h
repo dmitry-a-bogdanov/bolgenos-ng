@@ -1,8 +1,7 @@
 #ifndef __BOLGENOS_NG__PIC_COMMON__
 #define __BOLGENOS_NG__PIC_COMMON__
 
-#include <bolgenos-ng/irq.h>
-
+#include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
 

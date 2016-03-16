@@ -1,18 +1,14 @@
-#ifndef __BOLGENOS_NG__IRQ_H__
-#define __BOLGENOS_NG__IRQ_H__
+#pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "stdtypes.hpp"
 
 /**
 * \brief IRQ line type.
 *
 * Type for holding IRQ lines. Alias to unsigned one-byte type.
 */
-typedef uint8_t irq_t;
+// typedef uint8_t irq_t;
+using irq_t = uint8_t;
 
 
 /**
@@ -21,7 +17,8 @@ typedef uint8_t irq_t;
 * Type for holding IRQ handler routine. Fuction type accepts IRQ line as
 *	parameter and returns nothing.
 */
-typedef void (*irq_handler_t)(irq_t);
+using irq_handler_t = void (*)(irq_t);
+// typedef void (*irq_handler_t)(irq_t);
 
 
 /**
@@ -41,16 +38,16 @@ typedef void (*irq_handler_t)(irq_t);
 */
 #define NUMBER_OF_IRQS (MAX_IRQ_NUMBER + 1)
 
+namespace irq {
 
 /**
 * \brief Enable interrupts.
 *
 * Enable interrupts by setting Interrupt Flag for CPU.
 */
-#define interrupts_enable()						\
-	do {								\
-		asm ("sti\n");						\
-	} while(0)
+inline void enable() {
+	asm volatile ("sti\n");
+}
 
 
 /**
@@ -58,11 +55,11 @@ typedef void (*irq_handler_t)(irq_t);
 *
 * Disable interrupts by clearing Interrupt Flag for CPU.
 */
-#define interrupts_disable()						\
-	do {								\
-		asm ("cli\n");						\
-	} while(0)
+inline void disable() {
+	asm volatile ("cli\n");
+}
 
+} // namespace irq
 
 /**
 * \brief Initialize IRQ subsystem.
@@ -82,9 +79,3 @@ void setup_interrupts();
 * \param routine Fuction to be called when specified IRQ vector happens.
 */
 void register_irq_handler(irq_t vector, irq_handler_t routine);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // __BOLGENOS_NG__IRQ_H__

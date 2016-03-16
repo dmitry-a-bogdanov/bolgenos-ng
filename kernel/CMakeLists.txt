@@ -63,15 +63,15 @@ set(kernel_sources ${kernel_start_file}
 	${ost_h}
 
 	cout.cpp
-	error.c
-	irq.c
+	error.cpp
+	irq.cpp
 	main.cpp
 	memory.cpp
 	mmu.c
 	multiboot_header.c
 	multiboot_info.cpp
-	pic_8259.c
-	pic_common.c
+	pic_8259.cpp
+	pic_common.cpp
 	pit.cpp
 	printk.cpp
 	ps2.cpp

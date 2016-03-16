@@ -1,4 +1,4 @@
-#include <bolgenos-ng/irq.h>
+#include <bolgenos-ng/irq.hpp>
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
@@ -11,20 +11,27 @@
 
 #include <bolgenos-ng/stdtypes.hpp>
 
-
-static irq_handler_t __irq_handlers[NUMBER_OF_IRQS] = { NULL };
-
-static void __irq_dispatcher(irq_t vector);
-static void __handler_not_specified(irq_t vector);
+namespace {
 
 
-typedef uint64_t gate_field_t;
+irq_handler_t irq_handlers[NUMBER_OF_IRQS] = { NULL };
+
+void irq_dispatcher(irq_t vector);
+
+void handler_not_specified(irq_t vector);
+
+
+} // namespace
+
+
+
+using gate_field_t = uint64_t;
 
 #define __reserved(size) gate_field_t macro_concat(__reserved__, __LINE__) : size
 
 // Common gate type that can alias every other gate in strict terms.
 // As the result we must use the same type for all gate fields.
-typedef struct __attribute__((packed)) {
+struct __attribute__((packed)) gate_t {
 	__reserved(16);
 	__reserved(16);
 	__reserved(5);
@@ -35,9 +42,9 @@ typedef struct __attribute__((packed)) {
 	__reserved(2);
 	__reserved(1);
 	__reserved(16);
-} gate_t;
+};
 
-assert_type_size(gate_t, 8);
+static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 
 #define GATE_TASK	(0x5)
 #define GATE_INT	(0x6)
@@ -58,7 +65,7 @@ typedef struct __attribute__((packed)) {
 	__reserved(16);
 } task_gate_t;
 
-assert_type_size(task_gate_t, 8);
+static_assert(sizeof(task_gate_t) == 8, "task_gate_t has wrong size");
 
 // Comment__why_using_get_gate:
 //
@@ -71,37 +78,37 @@ static inline gate_t *task_get_gate(task_gate_t *task) {
 	return __as_gate(task);
 }
 
-typedef struct __attribute__((packed)) {
-	gate_field_t offset_00_15: 16;
-	gate_field_t segment: 16;
+struct __attribute__((packed)) int_gate_t {
+	int_gate_t(gate_field_t offs, gate_field_t seg) {
+		offset_00_15 = bitmask(offs, 0, 0xffff);
+		segment = seg;
+		zeros = 0;
+		gate_type = GATE_INT;
+		flag_32_bit = 1;
+		zero_bit = 0;
+		dpl = 0;
+		present = 1;
+		offset_16_31 = bitmask(offs, 16, 0xffff);
+	}
+	gate_field_t offset_00_15:16;
+	gate_field_t segment:16;
 	__reserved(5);
-	gate_field_t zeros :3;
-	gate_field_t gate_type : 3;
-	gate_field_t flag_32_bit : 1;
-	gate_field_t zero_bit : 1;
-	gate_field_t dpl : 2;
-	gate_field_t present : 1;
-	gate_field_t offset_16_31 : 16;
-} int_gate_t;
+	gate_field_t zeros:3;
+	gate_field_t gate_type:3;
+	gate_field_t flag_32_bit:1;
+	gate_field_t zero_bit:1;
+	gate_field_t dpl:2;
+	gate_field_t present:1;
+	gate_field_t offset_16_31:16;
+};
 
-assert_type_size(int_gate_t, 8);
+static_assert(sizeof(int_gate_t) == 8, "int_gate_t has wrong size");
 
 // see Comment__why_using_get_gate
 static inline gate_t *int_get_gate(int_gate_t *intr) {
 	return __as_gate(intr);
 }
 
-#define __decl_int_gate(offset_, segment_) {				\
-	.offset_00_15 = bitmask(offset_, 0, 0xffff),			\
-	.segment = segment_,						\
-	.zeros = 0x0,							\
-	.gate_type = GATE_INT,						\
-	.flag_32_bit = 1,						\
-	.zero_bit = 0,							\
-	.dpl = 0x0,							\
-	.present = 1,							\
-	.offset_16_31 = bitmask(offset_, 16, 0xffff)			\
-}
 
 typedef struct __attribute__((packed)) {
 	gate_field_t offset_00_15: 16;
@@ -149,11 +156,11 @@ assert_type_size(trap_gate_t, 8);
 			"popal\n"					\
 			"iret\n"					\
 	);								\
-	_asm_linked_ void __isr_stage_asm_ ## num()
+	extern "C" void __isr_stage_asm_ ## num()
 
 
 #define __decl_isr_stage_c(num, generic_isr)				\
-	void __attribute__((used)) __isr_stage_c_ ## num () {		\
+	extern "C" void __attribute__((used)) __isr_stage_c_ ## num () {		\
 		generic_isr(num);					\
 		end_of_irq(num);					\
 	}
@@ -165,8 +172,7 @@ assert_type_size(trap_gate_t, 8);
 
 #define __decl_common_gate(num, table)					\
 	do {								\
-		int_gate_t gate = __decl_int_gate(			\
-			(uint32_t) __isr_stage_asm_ ## num, KERNEL_CS);	\
+		int_gate_t gate((uint32_t) __isr_stage_asm_ ## num, KERNEL_CS);	\
 		table[num] = *int_get_gate(&gate);			\
 	} while(0)
 
@@ -174,54 +180,54 @@ assert_type_size(trap_gate_t, 8);
 //
 // Looks like using __COUNTER__ is unsafe since it may depends on
 // compilation order.
-__decl_isr(0, __irq_dispatcher);
-__decl_isr(1, __irq_dispatcher);
-__decl_isr(2, __irq_dispatcher);
-__decl_isr(3, __irq_dispatcher);
-__decl_isr(4, __irq_dispatcher);
-__decl_isr(5, __irq_dispatcher);
-__decl_isr(6, __irq_dispatcher);
-__decl_isr(7, __irq_dispatcher);
-__decl_isr(8, __irq_dispatcher);
-__decl_isr(9, __irq_dispatcher);
-__decl_isr(10, __irq_dispatcher);
-__decl_isr(11, __irq_dispatcher);
-__decl_isr(12, __irq_dispatcher);
-__decl_isr(13, __irq_dispatcher);
-__decl_isr(14, __irq_dispatcher);
-__decl_isr(15, __irq_dispatcher);
-__decl_isr(16, __irq_dispatcher);
-__decl_isr(17, __irq_dispatcher);
-__decl_isr(18, __irq_dispatcher);
-__decl_isr(19, __irq_dispatcher);
-__decl_isr(20, __irq_dispatcher);
-__decl_isr(21, __irq_dispatcher);
-__decl_isr(22, __irq_dispatcher);
-__decl_isr(23, __irq_dispatcher);
-__decl_isr(24, __irq_dispatcher);
-__decl_isr(25, __irq_dispatcher);
-__decl_isr(26, __irq_dispatcher);
-__decl_isr(27, __irq_dispatcher);
-__decl_isr(28, __irq_dispatcher);
-__decl_isr(29, __irq_dispatcher);
-__decl_isr(30, __irq_dispatcher);
-__decl_isr(31, __irq_dispatcher);
-__decl_isr(32, __irq_dispatcher);
-__decl_isr(33, __irq_dispatcher);
-__decl_isr(34, __irq_dispatcher);
-__decl_isr(35, __irq_dispatcher);
-__decl_isr(36, __irq_dispatcher);
-__decl_isr(37, __irq_dispatcher);
-__decl_isr(38, __irq_dispatcher);
-__decl_isr(39, __irq_dispatcher);
-__decl_isr(40, __irq_dispatcher);
-__decl_isr(41, __irq_dispatcher);
-__decl_isr(42, __irq_dispatcher);
-__decl_isr(43, __irq_dispatcher);
-__decl_isr(44, __irq_dispatcher);
-__decl_isr(45, __irq_dispatcher);
-__decl_isr(46, __irq_dispatcher);
-__decl_isr(47, __irq_dispatcher);
+__decl_isr(0, irq_dispatcher);
+__decl_isr(1, irq_dispatcher);
+__decl_isr(2, irq_dispatcher);
+__decl_isr(3, irq_dispatcher);
+__decl_isr(4, irq_dispatcher);
+__decl_isr(5, irq_dispatcher);
+__decl_isr(6, irq_dispatcher);
+__decl_isr(7, irq_dispatcher);
+__decl_isr(8, irq_dispatcher);
+__decl_isr(9, irq_dispatcher);
+__decl_isr(10, irq_dispatcher);
+__decl_isr(11, irq_dispatcher);
+__decl_isr(12, irq_dispatcher);
+__decl_isr(13, irq_dispatcher);
+__decl_isr(14, irq_dispatcher);
+__decl_isr(15, irq_dispatcher);
+__decl_isr(16, irq_dispatcher);
+__decl_isr(17, irq_dispatcher);
+__decl_isr(18, irq_dispatcher);
+__decl_isr(19, irq_dispatcher);
+__decl_isr(20, irq_dispatcher);
+__decl_isr(21, irq_dispatcher);
+__decl_isr(22, irq_dispatcher);
+__decl_isr(23, irq_dispatcher);
+__decl_isr(24, irq_dispatcher);
+__decl_isr(25, irq_dispatcher);
+__decl_isr(26, irq_dispatcher);
+__decl_isr(27, irq_dispatcher);
+__decl_isr(28, irq_dispatcher);
+__decl_isr(29, irq_dispatcher);
+__decl_isr(30, irq_dispatcher);
+__decl_isr(31, irq_dispatcher);
+__decl_isr(32, irq_dispatcher);
+__decl_isr(33, irq_dispatcher);
+__decl_isr(34, irq_dispatcher);
+__decl_isr(35, irq_dispatcher);
+__decl_isr(36, irq_dispatcher);
+__decl_isr(37, irq_dispatcher);
+__decl_isr(38, irq_dispatcher);
+__decl_isr(39, irq_dispatcher);
+__decl_isr(40, irq_dispatcher);
+__decl_isr(41, irq_dispatcher);
+__decl_isr(42, irq_dispatcher);
+__decl_isr(43, irq_dispatcher);
+__decl_isr(44, irq_dispatcher);
+__decl_isr(45, irq_dispatcher);
+__decl_isr(46, irq_dispatcher);
+__decl_isr(47, irq_dispatcher);
 
 
 static gate_t idt[NUMBER_OF_IRQS] _irq_aligned_;
@@ -283,17 +289,23 @@ void setup_interrupts() {
 	asm volatile("lidt %0"::"m" (idt_pointer));
 }
 
+
 void register_irq_handler(irq_t vector, irq_handler_t routine) {
-	__irq_handlers[vector] = routine;
+	irq_handlers[vector] = routine;
 }
 
-static void __handler_not_specified(irq_t vector) {
+namespace {
+
+
+void handler_not_specified(irq_t vector) {
 	printk("Unhandled IRQ (vector=%lu)\n", (long unsigned) vector);
 }
 
-static void __irq_dispatcher(irq_t vector) {
-	irq_handler_t handler = __irq_handlers[vector];
+void irq_dispatcher(irq_t vector) {
+	irq_handler_t handler = irq_handlers[vector];
 	if (handler == NULL)
-		handler = __handler_not_specified;
+		handler = handler_not_specified;
 	handler(vector);
+}
+
 }
