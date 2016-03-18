@@ -76,21 +76,16 @@ inline gate_t *task_get_gate(task_gate_t *task) {
 }
 
 struct __attribute__((packed)) int_gate_t {
-	int_gate_t(gate_field_t offs, gate_field_t seg) {
-		offset_00_15 = bitmask(offs, 0, 0xffff);
-		segment = seg;
-		__reserved = 0;
-		zeros = 0;
-		gate_type = irq_gate_type::intr;
-		flag_32_bit = 1;
-		zero_bit = 0;
-		dpl = 0;
-		present = 1;
-		offset_16_31 = bitmask(offs, 16, 0xffff);
+	int_gate_t(gate_field_t offs, gate_field_t seg)
+			: offset_00_15(bitmask(offs, 0, 0xffff)),
+			segment(seg), _reserved(0), zeros(0),
+			gate_type(irq_gate_type::intr), flag_32_bit(1),
+			zero_bit(0), dpl(0), present(1),
+			offset_16_31(bitmask(offs, 16, 0xffff)) {
 	}
 	gate_field_t offset_00_15:16;
 	gate_field_t segment:16;
-	gate_field_t __reserved:5;
+	gate_field_t _reserved:5;
 	gate_field_t zeros:3;
 	gate_field_t gate_type:3;
 	gate_field_t flag_32_bit:1;
