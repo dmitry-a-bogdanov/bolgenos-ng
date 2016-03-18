@@ -32,7 +32,7 @@ public:
 
 
 	/// Static of the usage of this free list.
-	stats_type stats;
+	stats_type stats = {};
 
 
 	/// Default constructor.

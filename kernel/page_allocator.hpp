@@ -73,7 +73,7 @@ private:
 
 
 	/// map for keeping ends of page blocks.
-	util::inplace::BitArray map_;
+	util::inplace::BitArray map_ = {};
 };
 
 

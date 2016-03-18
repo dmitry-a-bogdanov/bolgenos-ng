@@ -115,8 +115,7 @@ cio::OutStream& cio::endl(OutStream &stream) {
 
 
 cio::LogStream::LogStream(int level)
-		: OutStream() {
-	log_level(level);
+		: OutStream(), log_level_(level) {
 	set_newline_callback(print_level);
 }
 
