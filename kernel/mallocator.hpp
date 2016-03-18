@@ -18,11 +18,11 @@ public:
 	void *allocate(size_t bytes);
 	void deallocate(void *memory);
 private:
-	size_t chain_length_;
+	size_t chain_length_ = 0;
 	/// Chain of slab allocators.
-	SlabAllocator *chain_;
-	PageAllocator *fallback_;
-	SlabAllocator internal_allocator_;
+	SlabAllocator *chain_ = nullptr;
+	PageAllocator *fallback_ = nullptr;
+	SlabAllocator internal_allocator_ = {};
 };
 
 

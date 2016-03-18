@@ -130,7 +130,7 @@ private:
 
 
 	/// Allocation status of elements.
-	util::inplace::BitArray allocation_map_;
+	util::inplace::BitArray allocation_map_ = {};
 
 
 	/// Initialization was successed.

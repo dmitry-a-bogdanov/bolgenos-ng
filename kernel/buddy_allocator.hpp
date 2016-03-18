@@ -62,11 +62,19 @@ public:
 
 
 	/// Statistic of allocator.
-	stats_type stats;
+	stats_type stats = {};
 
 
 	/// Constructor.
 	BuddyAllocator() = default;
+
+
+	/// Copy-constructing is denied
+	BuddyAllocator(const BuddyAllocator&) = delete;
+
+
+	/// Copy-assignment is denied
+	BuddyAllocator& operator =(const BuddyAllocator&) = delete;
 
 
 	/// \brief Initialize.
