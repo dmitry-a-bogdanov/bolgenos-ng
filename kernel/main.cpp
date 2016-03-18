@@ -40,7 +40,7 @@ extern "C" void kernel_main() {
 		<< cio::endl;
 
 
-	setup_interrupts();
+	irq::init();
 	setup_segments();
 
 	system_pic = &pic_8259;

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "stdtypes.hpp"
+#include "type_traits.hpp"
+
+
+namespace irq {
 
 /**
 * \brief IRQ line type.
@@ -18,7 +22,6 @@ using irq_t = uint8_t;
 *	parameter and returns nothing.
 */
 using irq_handler_t = void (*)(irq_t);
-// typedef void (*irq_handler_t)(irq_t);
 
 
 /**
@@ -27,7 +30,7 @@ using irq_handler_t = void (*)(irq_t);
 * Max IRQ line that is configured and supported. The constant is
 *	inetnded to be used for **PIC configuration.
 */
-#define MAX_IRQ_NUMBER (0x2f)
+using max_irq_number = integral_constant<size_t, 0x2f>;
 
 
 /**
@@ -36,9 +39,8 @@ using irq_handler_t = void (*)(irq_t);
 * Number of interrupts that are configured and supported. The constant is
 *	inetnded to be used for **PIC configuration.
 */
-#define NUMBER_OF_IRQS (MAX_IRQ_NUMBER + 1)
+using number_of_irqs = integral_constant<size_t, max_irq_number::value>;
 
-namespace irq {
 
 /**
 * \brief Enable interrupts.
@@ -59,7 +61,6 @@ inline void disable() {
 	asm volatile ("cli\n");
 }
 
-} // namespace irq
 
 /**
 * \brief Initialize IRQ subsystem.
@@ -67,7 +68,7 @@ inline void disable() {
 * Fuction registers generic Interrupt Service Routine and loads
 *	Interrupt Descriptor Table.
 */
-void setup_interrupts();
+void init();
 
 
 /**
@@ -78,4 +79,7 @@ void setup_interrupts();
 * \param vector IRQ line that will use provided function.
 * \param routine Fuction to be called when specified IRQ vector happens.
 */
-void register_irq_handler(irq_t vector, irq_handler_t routine);
+void register_handler(irq_t vector, irq_handler_t routine);
+
+
+} // namespace irq

@@ -99,7 +99,7 @@ FrequencyDivider freq_divider;
 *
 * The function is a timer interrupt handler.
 */
-static void handle_pit_irq(irq_t vector __attribute__((unused))) {
+static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
 	if (!freq_divider.do_tick()) {
 		return;
 	}
@@ -167,7 +167,7 @@ void pit::init() {
 	if (freq_divider.is_low_frequency())
 		cio::cwarn << "PIT: losing accuracy of timer" << cio::endl;
 
-	register_irq_handler(__TIMER_IRQ, handle_pit_irq);
+	irq::register_handler(__TIMER_IRQ, handle_pit_irq);
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

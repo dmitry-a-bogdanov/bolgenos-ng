@@ -6,7 +6,7 @@
 #include <bolgenos-ng/irq.hpp>
 
 static void pic_setup();
-static void pic_end_of_interrupt(irq_t irq);
+static void pic_end_of_interrupt(irq::irq_t irq);
 
 struct pic_device pic_8259 = {
 	.setup				= pic_setup,

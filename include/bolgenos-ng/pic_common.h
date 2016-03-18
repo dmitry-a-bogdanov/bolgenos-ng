@@ -1,8 +1,7 @@
-#ifndef __BOLGENOS_NG__PIC_COMMON__
-#define __BOLGENOS_NG__PIC_COMMON__
+#pragma once
 
-#include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
+#include "irq.hpp"
+#include "stdtypes.hpp"
 
 
 /**
@@ -14,7 +13,7 @@
 struct pic_device {
 	void (*setup)(); /*!< Function that initilizes PIC device. */
 
-	void (*end_of_interrupt)(irq_t irq); /*!< Function that send
+	void (*end_of_interrupt)(irq::irq_t irq); /*!< Function that send
 *			"End of interrupt" message to generic PIC device for
 *			given IRQ line. */
 
@@ -45,5 +44,3 @@ extern struct pic_device *system_pic;
 * Alias to system_pic->end_of_interrupt
 */
 #define end_of_irq(vec)		system_pic->end_of_interrupt(vec)
-
-#endif // __BOLGENOS_NG__PIC_COMMON__

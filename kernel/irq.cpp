@@ -14,15 +14,11 @@
 namespace {
 
 
-irq_handler_t irq_handlers[NUMBER_OF_IRQS] = { NULL };
+irq::irq_handler_t irq_handlers[irq::number_of_irqs::value] = { nullptr };
 
-void irq_dispatcher(irq_t vector);
+void irq_dispatcher(irq::irq_t vector);
 
-void handler_not_specified(irq_t vector);
-
-
-} // namespace
-
+void handler_not_specified(irq::irq_t vector);
 
 
 using gate_field_t = uint64_t;
@@ -43,16 +39,17 @@ struct __attribute__((packed)) gate_t {
 	__reserved(1);
 	__reserved(16);
 };
-
 static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 
-#define GATE_TASK	(0x5)
-#define GATE_INT	(0x6)
-#define GATE_TRAP	(0x7)
+enum irq_gate_type {
+	task = 0x5,
+	intr = 0x6,
+	trap = 0x7,
+};
 
-#define __as_gate(in) ((gate_t *)(in))
+#define __as_gate(in) reinterpret_cast<gate_t *>((in))
 
-typedef struct __attribute__((packed)) {
+struct __attribute__((packed)) task_gate_t {
 	__reserved(16);
 	gate_field_t tss_segment: 16;
 	__reserved(5);
@@ -63,7 +60,7 @@ typedef struct __attribute__((packed)) {
 	gate_field_t dpl : 2;
 	gate_field_t present : 1;
 	__reserved(16);
-} task_gate_t;
+};
 
 static_assert(sizeof(task_gate_t) == 8, "task_gate_t has wrong size");
 
@@ -74,7 +71,7 @@ static_assert(sizeof(task_gate_t) == 8, "task_gate_t has wrong size");
 // typecasting after getting address. As the result, workaround with
 // casting function is need. However, it doesn't mean that code violates
 // strict alising rules, because types are still compatible.
-static inline gate_t *task_get_gate(task_gate_t *task) {
+inline gate_t *task_get_gate(task_gate_t *task) {
 	return __as_gate(task);
 }
 
@@ -82,8 +79,9 @@ struct __attribute__((packed)) int_gate_t {
 	int_gate_t(gate_field_t offs, gate_field_t seg) {
 		offset_00_15 = bitmask(offs, 0, 0xffff);
 		segment = seg;
+		__reserved = 0;
 		zeros = 0;
-		gate_type = GATE_INT;
+		gate_type = irq_gate_type::intr;
 		flag_32_bit = 1;
 		zero_bit = 0;
 		dpl = 0;
@@ -92,7 +90,7 @@ struct __attribute__((packed)) int_gate_t {
 	}
 	gate_field_t offset_00_15:16;
 	gate_field_t segment:16;
-	__reserved(5);
+	gate_field_t __reserved:5;
 	gate_field_t zeros:3;
 	gate_field_t gate_type:3;
 	gate_field_t flag_32_bit:1;
@@ -105,12 +103,12 @@ struct __attribute__((packed)) int_gate_t {
 static_assert(sizeof(int_gate_t) == 8, "int_gate_t has wrong size");
 
 // see Comment__why_using_get_gate
-static inline gate_t *int_get_gate(int_gate_t *intr) {
+inline gate_t *int_get_gate(int_gate_t *intr) {
 	return __as_gate(intr);
 }
 
 
-typedef struct __attribute__((packed)) {
+struct __attribute__((packed)) trap_gate_t {
 	gate_field_t offset_00_15: 16;
 	gate_field_t segment: 16;
 	__reserved(5);
@@ -121,7 +119,7 @@ typedef struct __attribute__((packed)) {
 	gate_field_t dpl : 2;
 	gate_field_t present : 1;
 	gate_field_t offset_16_31 : 16;
-} trap_gate_t;
+};
 
 #define __decl_trap_gate(offset_, segment_) {				\
 	.offset_00_15 = bitmask(offset_, 0, 0xffff),			\
@@ -136,15 +134,12 @@ typedef struct __attribute__((packed)) {
 }
 
 // See Comment__why_using_get_gate
-static inline gate_t *trap_get_gate(trap_gate_t *trap) {
+inline gate_t *trap_get_gate(trap_gate_t *trap) {
 	return __as_gate(trap);
 }
 
-#define __decl_empty_gate() {						\
-	.present = 0							\
-}
 
-assert_type_size(trap_gate_t, 8);
+static_assert(sizeof(trap_gate_t) == 8, "trap_gate_t has wrong size");
 
 
 #define __decl_isr_stage_asm(num)					\
@@ -230,10 +225,12 @@ __decl_isr(46, irq_dispatcher);
 __decl_isr(47, irq_dispatcher);
 
 
-static gate_t idt[NUMBER_OF_IRQS] _irq_aligned_;
-static struct table_pointer idt_pointer _irq_aligned_;
+gate_t idt[irq::number_of_irqs::value] _irq_aligned_;
+table_pointer idt_pointer _irq_aligned_;
 
-void setup_interrupts() {
+} // namespace
+
+void irq::init() {
 	// See comment__why_not_use_counter
 	__decl_common_gate(0, idt);
 	__decl_common_gate(1, idt);
@@ -290,19 +287,19 @@ void setup_interrupts() {
 }
 
 
-void register_irq_handler(irq_t vector, irq_handler_t routine) {
+void irq::register_handler(irq_t vector, irq_handler_t routine) {
 	irq_handlers[vector] = routine;
 }
 
 namespace {
 
 
-void handler_not_specified(irq_t vector) {
+void handler_not_specified(irq::irq_t vector) {
 	printk("Unhandled IRQ (vector=%lu)\n", (long unsigned) vector);
 }
 
-void irq_dispatcher(irq_t vector) {
-	irq_handler_t handler = irq_handlers[vector];
+void irq_dispatcher(irq::irq_t vector) {
+	irq::irq_handler_t handler = irq_handlers[vector];
 	if (handler == NULL)
 		handler = handler_not_specified;
 	handler(vector);
