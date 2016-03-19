@@ -2,8 +2,9 @@
 
 #include <stdarg.h> // from gcc!
 
-#include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/error.h>
+
+#include <bolgenos-ng/mem_utils.hpp>
 
 static char __to_printable(int chr) {
 	if (chr < 10) {

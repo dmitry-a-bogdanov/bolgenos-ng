@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/bitarray.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
+#include "bitarray.hpp"
+#include "stdtypes.hpp"
 
 
 namespace memory {

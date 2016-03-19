@@ -1,17 +1,17 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/mmu.h>
-#include <bolgenos-ng/pic_8259.hpp>
-#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
+#include <bolgenos-ng/pic_common.hpp>
+#include <bolgenos-ng/pic_8259.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/slab.hpp>
@@ -34,14 +34,13 @@ extern "C" void kernel_main() {
 
 	vga_console::clear_screen();
 
+	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
 
 	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< cio::endl;
 
-
 	irq::init();
-	setup_segments();
 
 	system_pic = &pic_8259;
 	system_pic->setup();

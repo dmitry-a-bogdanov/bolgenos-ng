@@ -68,7 +68,7 @@ set(kernel_sources ${kernel_start_file}
 	irq.cpp
 	main.cpp
 	memory.cpp
-	mmu.c
+	mmu.cpp
 	multiboot_header.c
 	multiboot_info.cpp
 	pic_8259.cpp
@@ -98,8 +98,8 @@ set(kernel_sources ${kernel_start_file}
 	
 	abi/cxxabi.c
 	
-	lib/snprintf.c
-	lib/string.c
+	lib/snprintf.cpp
+	lib/string.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp

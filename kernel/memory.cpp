@@ -2,9 +2,9 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/mem_utils.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>

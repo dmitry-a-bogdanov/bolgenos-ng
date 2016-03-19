@@ -1,9 +1,9 @@
 #include <bolgenos-ng/slab.hpp>
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/mem_utils.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 #include "config.h"
