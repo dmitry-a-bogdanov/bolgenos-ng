@@ -2,6 +2,7 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
+#include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
 #include <bolgenos-ng/pic_common.h>
@@ -11,14 +12,17 @@
 
 #include <bolgenos-ng/stdtypes.hpp>
 
+#include <lib/algorithm.hpp>
+#include <lib/list.hpp>
+
 namespace {
 
 
-irq::irq_handler_t irq_handlers[irq::number_of_irqs::value] = { nullptr };
+using HandlersChain = lib::list<irq::irq_handler_t>;
+
+HandlersChain registered_isrs[irq::number_of_irqs::value];
 
 void irq_dispatcher(irq::irq_t vector);
-
-void handler_not_specified(irq::irq_t vector);
 
 
 using gate_field_t = uint64_t;
@@ -283,21 +287,20 @@ void irq::init() {
 
 
 void irq::register_handler(irq_t vector, irq_handler_t routine) {
-	irq_handlers[vector] = routine;
+	if (!registered_isrs[vector].push_front(routine)) {
+		panic("Failed to register ISR");
+	}
 }
 
 namespace {
 
 
-void handler_not_specified(irq::irq_t vector) {
-	printk("Unhandled IRQ (vector=%lu)\n", (long unsigned) vector);
-}
-
 void irq_dispatcher(irq::irq_t vector) {
-	irq::irq_handler_t handler = irq_handlers[vector];
-	if (handler == NULL)
-		handler = handler_not_specified;
-	handler(vector);
+	HandlersChain &handlers = registered_isrs[vector];
+	lib::for_each(handlers.begin(), handlers.end(),
+		[vector] (const irq::irq_handler_t &handler) -> void {
+			handler(vector);
+	});
 }
 
 }
