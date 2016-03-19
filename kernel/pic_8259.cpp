@@ -1,4 +1,4 @@
-#include <bolgenos-ng/pic_8259.h>
+#include <bolgenos-ng/pic_8259.hpp>
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/string.h>

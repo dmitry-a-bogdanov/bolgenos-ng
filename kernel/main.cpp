@@ -3,8 +3,8 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/mmu.h>
-#include <bolgenos-ng/pic_8259.h>
-#include <bolgenos-ng/pic_common.h>
+#include <bolgenos-ng/pic_8259.hpp>
+#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/cout.hpp>

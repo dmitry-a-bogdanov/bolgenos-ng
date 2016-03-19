@@ -23,10 +23,8 @@ struct pic_device {
 };
 
 
-/**
-* \brief Pointer to PIC device structure that is used on the system.
-*/
-extern struct pic_device *system_pic;
+// \brief Pointer to PIC device structure that is used on the system.
+extern pic_device *system_pic;
 
 
 /**
