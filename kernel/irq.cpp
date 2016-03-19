@@ -20,7 +20,7 @@ namespace {
 
 using HandlersChain = lib::list<irq::irq_handler_t>;
 
-HandlersChain registered_isrs[irq::number_of_irqs::value];
+HandlersChain registered_isrs[irq::lines_number::value];
 
 void irq_dispatcher(irq::irq_t vector);
 
@@ -224,7 +224,7 @@ __decl_isr(46, irq_dispatcher);
 __decl_isr(47, irq_dispatcher);
 
 
-gate_t idt[irq::number_of_irqs::value] _irq_aligned_;
+gate_t idt[irq::lines_number::value] _irq_aligned_;
 table_pointer idt_pointer _irq_aligned_;
 
 } // namespace
