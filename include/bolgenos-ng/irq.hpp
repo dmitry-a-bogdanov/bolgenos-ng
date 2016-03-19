@@ -1,7 +1,8 @@
 #pragma once
 
+#include <lib/type_traits.hpp>
+
 #include "stdtypes.hpp"
-#include "type_traits.hpp"
 
 
 namespace irq {
@@ -23,13 +24,13 @@ using irq_handler_t = void (*)(irq_t);
 /// \brief Last IRQ line.
 ///
 /// Last IRQ line that can be configured configured and supported by xxPIC.
-using last_line = integral_constant<size_t, 0x2f>;
+using last_line = lib::integral_constant<size_t, 0x2f>;
 
 
 /// \brief Total number of IRQ lines.
 ///
 /// Total number of interrupts that are configured and supported by xxPIC.
-using lines_number = integral_constant<size_t, last_line::value + 1>;
+using lines_number = lib::integral_constant<size_t, last_line::value + 1>;
 
 
 /// \brief Enable interrupts.
