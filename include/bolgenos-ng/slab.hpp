@@ -70,7 +70,7 @@ public:
 	///
 	/// The function returns initialization status of \ref SlabAllocator.
 	///
-	/// \return true if ok, false if error has occured.
+	/// \return true if OK, false if error has occurred.
 	bool is_initialized() const;
 
 
@@ -79,7 +79,7 @@ public:
 	/// The function checks that the specified memory is owned by the
 	/// given allocator.
 	///
-	/// \param Pointer to memory for checking.
+	/// \param memory Pointer to memory for checking.
 	/// \return true if the specified memory is owned by the allocator;
 	/// false otherwise.
 	bool owns(void *memory) const;
@@ -133,7 +133,7 @@ private:
 	util::inplace::BitArray allocation_map_ = {};
 
 
-	/// Initialization was successed.
+	/// Initialization was successful.
 	bool initialized_ = false;
 };
 

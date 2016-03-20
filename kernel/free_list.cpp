@@ -1,5 +1,6 @@
 #include "free_list.hpp"
 
+/// Type of list element.
 struct memory::allocators::FreeList::item_type {
 	/// Pointer to the next element.
 	item_type *next;

@@ -20,8 +20,6 @@ namespace allocators {
 /// The structure provides functionality of free list list allocator. Such
 /// allocator keeps one-directional list of blocks of page frames.
 class FreeList {
-	struct item_type; // forward declaration.
-
 public:
 
 	/// Structure that holds statistics of the usage of the free list.
@@ -85,8 +83,7 @@ public:
 
 private:
 
-	/// Type of list element.
-	struct item_type;
+	struct item_type; // forward declaration
 
 
 	/// Find last lesser.
@@ -106,10 +103,15 @@ private:
 	/// Order of the list.
 	size_t order_ = 0;
 
+
+	/// \brief Disable squashing flag.
+	///
+	/// If the disable squashing flag is set \ref put will not check
+	/// items for squashing and will return nullptr on every call.
 	bool disable_squashing_ = false;
 
 
-	/// Output operator for \ref FreeLists
+	/// Output operator for \ref FreeList objects.
 	friend
 	cio::OutStream& memory::allocators::operator<<(cio::OutStream& stream,
 				const FreeList& fl);

@@ -9,6 +9,7 @@ namespace mmu {
 /// Size of segment descriptor.
 using struct_seg_size = lib::integral_constant<int, 8>;
 
+
 /// Index of kernel code segment.
 using kernel_cs_idx = lib::integral_constant<int, 1>;
 

@@ -7,11 +7,19 @@
 
 namespace lib {
 
+
+/// Linked (one-directional) list.
+///
+/// \tparam ValueType type of value to hold in list.
 template<typename ValueType>
 class list {
 	struct list_item_type; // forward declaration
 public:
+	/// Alias for ValueType.
 	using value_type = ValueType;
+
+
+	/// Iterator class.
 	class iterator {
 	public:
 		iterator() = delete;
@@ -54,18 +62,41 @@ public:
 		list_item_type *position_;
 	};
 
+
+	/// Constructor without parameters.
 	list() = default;
 
+
+	/// Copy-constructing is denied.
 	list(const list &) = delete;
+
+
+	/// Copy-assignment is denied.
 	list& operator =(const list &) = delete;
 
-	bool push_front(const value_type &);
-	bool push_front(value_type &&);
 
+	/// Destructor that frees memory allocated for list.
+	~list();
+
+
+	/// \brief Push to the front.
+	///
+	/// Push new element in front of list. Function may fail if allocation
+	/// of new element is failed.
+	///
+	/// \param value value to be pushed in the list
+	/// \return true if element is added successfully;
+	/// false otherwise.
+	bool push_front(const value_type &value);
+
+
+	/// Get iterator that points to the begging of the container.
 	iterator begin() {
 		return iterator(first_);
 	}
 
+
+	/// Get iterator that points to the end of the container.
 	iterator end() {
 		return iterator(nullptr);
 	}
@@ -77,6 +108,16 @@ private:
 
 	list_item_type *first_ = nullptr;
 };
+
+
+template<typename ValueType>
+list<ValueType>::~list() {
+	for(auto it = first_; it != nullptr;) {
+		auto next = it->next_;
+		memory::kfree(it);
+		it = next;
+	}
+}
 
 
 template<typename ValueType>
