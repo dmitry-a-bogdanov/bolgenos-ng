@@ -120,8 +120,8 @@ static uint8_t read_conf_byte();
 static void write_conf_byte(uint8_t conf_byte);
 static void probe_devices();
 static void ps2_irq_handler(ps2::line_t line);
-static void first_line_irq(irq::irq_t);
-static void second_line_irq(irq::irq_t);
+static void first_line_irq(irq::irq_t, irq::stack_pointer_type);
+static void second_line_irq(irq::irq_t, irq::stack_pointer_type);
 static void enable_device(ps2::line_t idx);
 static void disable_device(ps2::line_t idx);
 static int get_ps2_lines(uint8_t conf_byte);
@@ -322,7 +322,7 @@ const char *ps2::strerror(ps2::ioret_t error) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void first_line_irq(irq::irq_t vec __attribute__((unused))) {
+static void first_line_irq(irq::irq_t, irq::stack_pointer_type) {
 	ps2_irq_handler(ps2::line_t::dev_1);
 }
 
@@ -334,7 +334,7 @@ static void first_line_irq(irq::irq_t vec __attribute__((unused))) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void second_line_irq(irq::irq_t vec __attribute__((unused))) {
+static void second_line_irq(irq::irq_t, irq::stack_pointer_type) {
 	ps2_irq_handler(ps2::line_t::dev_2);
 }
 

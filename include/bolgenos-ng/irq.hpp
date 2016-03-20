@@ -14,11 +14,14 @@ namespace irq {
 using irq_t = uint8_t;
 
 
+using stack_pointer_type = void *;
+
+
 /// \brief IRQ handler function type.
 ///
 /// Type for holding IRQ handler routine. Function type accepts IRQ line as
 /// parameter and returns nothing.
-using irq_handler_t = void (*)(irq_t);
+using irq_handler_t = void (*)(irq_t, stack_pointer_type);
 
 
 /// \brief Last IRQ line.

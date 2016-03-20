@@ -146,7 +146,8 @@ public:
 		if (log_level_ > system_log_level_) {
 			return *this;
 		}
-		OutStream::operator<<(val);
+		auto parent = static_cast<OutStream *>(this);
+		(*parent) << val;
 		return *this;
 	}
 

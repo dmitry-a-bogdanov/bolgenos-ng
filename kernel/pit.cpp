@@ -76,7 +76,7 @@ pit::details::FrequencyDivider freq_divider;
 /// \brief Handle timer interrupt.
 ///
 /// The function is a timer interrupt handler.
-static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
+static void handle_pit_irq(irq::irq_t, irq::stack_pointer_type) {
 	if (!freq_divider.do_tick()) {
 		return;
 	}

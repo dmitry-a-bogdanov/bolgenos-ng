@@ -27,11 +27,28 @@ struct __attribute__((packed)) trap_frame_type {
 	uint32_t edx;
 	uint32_t ecx;
 	uint32_t eax;
-	uint32_t e_flags;
-	uint16_t code_segment;
-	uint32_t instruction_pointer;
-	uint32_t errno_code;
+	uint32_t eflags;
+	uint16_t cs;
+	uint32_t eip;
+	uint32_t err_code;
 };
+
+
+cio::OutStream& operator << (cio::OutStream &stream,
+		const trap_frame_type &frame) {
+	stream	<< " EFLAGS = " << frame.eflags
+		<< " CS = " << frame.cs
+		<< " EIP = " << frame.eip
+		<< cio::endl;
+	stream	<< " ESP = " << frame.esp
+		<< " EBP = " << frame.ebp
+		<< cio::endl;
+	stream	<< " EAX = " << frame.eax
+		<< " EBX = " << frame.ebx
+		<< " ECX = " << frame.ecx
+		<< " EDX = " << frame.edx;
+	return stream;
+}
 
 
 using HandlersChain = lib::list<irq::irq_handler_t>;
@@ -39,6 +56,13 @@ using HandlersChain = lib::list<irq::irq_handler_t>;
 HandlersChain registered_isrs[irq::lines_number::value];
 
 void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame);
+
+
+void do_breakpoint(irq::irq_t, irq::stack_pointer_type stack_ptr) {
+	auto trap_frame = reinterpret_cast<trap_frame_type *>(stack_ptr);
+	cio::cnotice << "breakpoint has been caught: " << cio::endl;
+	cio::cnotice << *trap_frame << cio::endl;
+}
 
 
 using gate_field_t = uint32_t;
@@ -269,6 +293,8 @@ void irq::init() {
 	__decl_common_gate(47, idt);
 
 	asm volatile("lidt %0"::"m" (idt_pointer));
+
+	register_handler(3, do_breakpoint);
 }
 
 
@@ -284,33 +310,12 @@ namespace {
 void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame) {
 	HandlersChain &handlers = registered_isrs[vector];
 	lib::for_each(handlers.begin(), handlers.end(),
-		[vector] (const irq::irq_handler_t &handler) -> void {
-			handler(vector);
+		[vector, frame] (const irq::irq_handler_t &handler) -> void {
+			handler(vector, reinterpret_cast<
+					irq::stack_pointer_type>(frame));
 	});
 	if (handlers.begin() == handlers.end()) {
 		cio::cerr << "Unhandled interrupt " << vector << cio::endl;
-		auto ptr = reinterpret_cast<uint32_t *>(frame);
-		cio::cerr << "dumping stack: " << cio::endl;
-		for (int i = -10; i < 11; ++i) {
-			cio::cerr << i << ":" << *(ptr + i) << " ";
-		}
-		cio::cerr << cio::endl;
-
-		cio::cerr << "register info: " << cio::endl;
-		cio::cerr << "cs = " << frame->code_segment
-			<< " err_code = " << frame->errno_code
-			<< " EIP = " << frame->instruction_pointer
-			<< " EFLAGS = " << frame->e_flags
-			<< " eax = " << frame->eax
-			<< " ebx = " << frame->ebx
-			<< " ecx = " << frame->ecx
-			<< " edx = " << frame->edx
-			<< " ebp = " << frame->ebp
-			<< " esp = " << frame->esp
-			<< " edi = " << frame->edi
-			<< " esi = " << frame->esi
-			<< cio::endl;
-
 	}
 }
 
