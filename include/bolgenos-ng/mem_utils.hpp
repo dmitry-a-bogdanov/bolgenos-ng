@@ -21,15 +21,6 @@ typedef void *ptr_t;
 using nullptr_t = decltype(nullptr);
 
 
-/**
-* \brief Get address of argument.
-*
-* Address of lvalue casted to universal pointer.
-*/
-#define address_of(var) ((ptr_t)&var)
-
-
-
 /// \brief Helper for applying bitmasks.
 ///
 /// Overloading for nullptr.

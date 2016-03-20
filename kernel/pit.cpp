@@ -15,21 +15,18 @@
 
 namespace {
 
-/**
-* \brief PIT frequency.
-*
-* Frequency of PIT chip 8253/8254. This frequency will be devided
-* by configured value.
-*/
-const unsigned long PIT_FREQ = 1193182;
+
+/// \brief PIT frequency.
+///
+/// Frequency of PIT chip 8253/8254. This frequency will be divided
+/// by configured value.
+using pit_freq = lib::integral_constant<unsigned long, 1193182>;
 
 
-/**
-* \brief Max devider.
-*
-* Maximal number that can be used as frequency divider.
-*/
-const unsigned long MAX_DIVIDER = 65535;
+/// \brief Max divider.
+///
+/// Maximal number that can be used as frequency divider.
+using max_divider = lib::integral_constant<unsigned long, 65535>;
 
 
 enum pit_port: uint16_t {
@@ -70,6 +67,7 @@ enum pit_channel: uint8_t {
 	back			= 3 << 6,
 };
 
+
 class FrequencyDivider {
 public:
 	FrequencyDivider();
@@ -89,16 +87,12 @@ private:
 };
 
 
-
-
-
 FrequencyDivider freq_divider;
 
-/**
-* \brief Handle timer interrupt.
-*
-* The function is a timer interrupt handler.
-*/
+
+/// \brief Handle timer interrupt.
+///
+/// The function is a timer interrupt handler.
 static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
 	if (!freq_divider.do_tick()) {
 		return;
@@ -109,12 +103,14 @@ static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
 	++jiffies;
 }
 
+
 } // namespace
 
 
 FrequencyDivider::FrequencyDivider()
 		: pit_(0x0), counter_(0), restart_(0) {
 }
+
 
 FrequencyDivider::~FrequencyDivider() {
 }
@@ -142,11 +138,11 @@ bool FrequencyDivider::is_low_frequency() const {
 
 
 void FrequencyDivider::set_frequency(unsigned long hz) {
-	unsigned long full_div = PIT_FREQ / hz;
+	unsigned long full_div = pit_freq::value / hz;
 	if (full_div == 0) {
 		full_div = 1; // PIT interprets 0 as 0xffff
 	}
-	if (full_div > MAX_DIVIDER) {
+	if (full_div > max_divider::value) {
 		pit_ = 100;
 		restart_ = full_div / 100;
 	} else {
@@ -157,17 +153,14 @@ void FrequencyDivider::set_frequency(unsigned long hz) {
 }
 
 
-/**
-* Timer IRQ line.
-*/
-#define __TIMER_IRQ	(min_pic_irq + 0)
-
 void pit::init() {
+	const irq::irq_t timer_irq = pic::min_pic_irq() + 0;
+
 	freq_divider.set_frequency(HZ);
 	if (freq_divider.is_low_frequency())
 		cio::cwarn << "PIT: losing accuracy of timer" << cio::endl;
 
-	irq::register_handler(__TIMER_IRQ, handle_pit_irq);
+	irq::register_handler(timer_irq, handle_pit_irq);
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

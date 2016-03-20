@@ -122,9 +122,9 @@ static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 
 
 #define __decl_isr_stage_c(num, generic_isr)				\
-	extern "C" void __attribute__((used)) __isr_stage_c_ ## num () {		\
+	extern "C" void __attribute__((used)) __isr_stage_c_ ## num () {\
 		generic_isr(num);					\
-		end_of_irq(num);					\
+		pic::end_of_irq(num);					\
 	}
 
 

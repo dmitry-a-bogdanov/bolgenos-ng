@@ -15,13 +15,13 @@
 /**
 * IRQ for the first PS/2 line.
 */
-#define FIRST_LINE_IRQ		(min_pic_irq + 1)
+#define FIRST_LINE_IRQ		(pic::min_pic_irq() + 1)
 
 
 /**
 * IRQ for the second PS/2 line.
 */
-#define SECOND_LINE_IRQ		(min_pic_irq + 12)
+#define SECOND_LINE_IRQ		(pic::min_pic_irq() + 12)
 
 
 /**

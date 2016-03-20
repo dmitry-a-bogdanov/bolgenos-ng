@@ -43,21 +43,20 @@ public:
 extern pic_device *system_pic;
 
 
-/**
-* \brief The first IRQ line number that can be received from the PIC chip.
-*
-* Alias to system_pic->min_irq_vector.
-*
-*/
-#define min_pic_irq	(pic::system_pic->min_irq_vector)
+/// \brief The first IRQ line number that can be received from the PIC chip.
+///
+/// Alias to system_pic->min_irq_vector.
+inline int min_pic_irq() {
+	return pic::system_pic->min_irq_vector;
+}
 
 
-/**
-* \brief Send "End of interrupt" message to system PIC device.
-*
-* Alias to system_pic->end_of_interrupt
-*/
-#define end_of_irq(vec)		pic::system_pic->end_of_interrupt(vec)
+/// \brief Send "End of interrupt" message to system PIC device.
+///
+/// Alias to system_pic->end_of_interrupt
+inline void end_of_irq(irq::irq_t vec) {
+	pic::system_pic->end_of_interrupt(vec);
+}
 
 
 } // namespace pic
