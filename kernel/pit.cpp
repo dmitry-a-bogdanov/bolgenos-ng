@@ -10,6 +10,8 @@
 #include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
+#include "frequency_divider.hpp"
+
 #include "config.h"
 
 
@@ -68,26 +70,7 @@ enum pit_channel: uint8_t {
 };
 
 
-class FrequencyDivider {
-public:
-	FrequencyDivider();
-	FrequencyDivider(const FrequencyDivider&) = delete;
-	FrequencyDivider& operator=(const FrequencyDivider&) = delete;
-
-	~FrequencyDivider();
-
-	void set_frequency(unsigned long hz);
-	uint16_t pit_timeout() const;
-	bool do_tick();
-	bool is_low_frequency() const;
-private:
-	uint16_t pit_;
-	unsigned long counter_;
-	unsigned long restart_;
-};
-
-
-FrequencyDivider freq_divider;
+pit::details::FrequencyDivider freq_divider;
 
 
 /// \brief Handle timer interrupt.
@@ -107,56 +90,12 @@ static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
 } // namespace
 
 
-FrequencyDivider::FrequencyDivider()
-		: pit_(0x0), counter_(0), restart_(0) {
-}
-
-
-FrequencyDivider::~FrequencyDivider() {
-}
-
-
-bool FrequencyDivider::do_tick() {
-	if (counter_ != 0) {
-		--counter_;
-		return false;
-	} else {
-		counter_ = restart_;
-		return true;
-	}
-}
-
-
-uint16_t FrequencyDivider::pit_timeout() const {
-	return pit_;
-}
-
-
-bool FrequencyDivider::is_low_frequency() const {
-	return restart_ != 0;
-}
-
-
-void FrequencyDivider::set_frequency(unsigned long hz) {
-	unsigned long full_div = pit_freq::value / hz;
-	if (full_div == 0) {
-		full_div = 1; // PIT interprets 0 as 0xffff
-	}
-	if (full_div > max_divider::value) {
-		pit_ = 100;
-		restart_ = full_div / 100;
-	} else {
-		pit_ = bitmask(full_div, 0, 0xffff);
-		restart_ = 0;
-	}
-	counter_ = restart_;
-}
 
 
 void pit::init() {
 	const irq::irq_t timer_irq = pic::min_pic_irq() + 0;
 
-	freq_divider.set_frequency(HZ);
+	freq_divider.set_frequency(HZ, pit_freq::value, max_divider::value);
 	if (freq_divider.is_low_frequency())
 		cio::cwarn << "PIT: losing accuracy of timer" << cio::endl;
 
