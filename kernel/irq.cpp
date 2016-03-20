@@ -18,11 +18,27 @@
 namespace {
 
 
+struct __attribute__((packed)) trap_frame_type {
+	uint32_t edi;
+	uint32_t esi;
+	uint32_t ebp;
+	uint32_t esp;
+	uint32_t ebx;
+	uint32_t edx;
+	uint32_t ecx;
+	uint32_t eax;
+	uint32_t e_flags;
+	uint16_t code_segment;
+	uint32_t instruction_pointer;
+	uint32_t errno_code;
+};
+
+
 using HandlersChain = lib::list<irq::irq_handler_t>;
 
 HandlersChain registered_isrs[irq::lines_number::value];
 
-void irq_dispatcher(irq::irq_t vector);
+void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame);
 
 
 using gate_field_t = uint32_t;
@@ -114,7 +130,9 @@ static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 		".align 16\n"						\
 		"__isr_stage_asm_" #num ":\n"				\
 			"pushal\n"					\
+			"push %esp\n"					\
 			"call __isr_stage_c_" #num "\n"			\
+			"pop %esp\n"					\
 			"popal\n"					\
 			"iret\n"					\
 	);								\
@@ -122,8 +140,11 @@ static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 
 
 #define __decl_isr_stage_c(num, generic_isr)				\
-	extern "C" void __attribute__((used)) __isr_stage_c_ ## num () {\
-		generic_isr(num);					\
+	extern "C" __attribute__((used, regparm(0)))			\
+	void __isr_stage_c_ ## num(trap_frame_type *frame) {		\
+		auto shifted = reinterpret_cast<trap_frame_type *>(	\
+			reinterpret_cast<char *>(frame));		\
+		generic_isr(num, shifted);				\
 		pic::end_of_irq(num);					\
 	}
 
@@ -260,12 +281,37 @@ void irq::register_handler(irq_t vector, irq_handler_t routine) {
 namespace {
 
 
-void irq_dispatcher(irq::irq_t vector) {
+void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame) {
 	HandlersChain &handlers = registered_isrs[vector];
 	lib::for_each(handlers.begin(), handlers.end(),
 		[vector] (const irq::irq_handler_t &handler) -> void {
 			handler(vector);
 	});
+	if (handlers.begin() == handlers.end()) {
+		cio::cerr << "Unhandled interrupt " << vector << cio::endl;
+		auto ptr = reinterpret_cast<uint32_t *>(frame);
+		cio::cerr << "dumping stack: " << cio::endl;
+		for (int i = -10; i < 11; ++i) {
+			cio::cerr << i << ":" << *(ptr + i) << " ";
+		}
+		cio::cerr << cio::endl;
+
+		cio::cerr << "register info: " << cio::endl;
+		cio::cerr << "cs = " << frame->code_segment
+			<< " err_code = " << frame->errno_code
+			<< " EIP = " << frame->instruction_pointer
+			<< " EFLAGS = " << frame->e_flags
+			<< " eax = " << frame->eax
+			<< " ebx = " << frame->ebx
+			<< " ecx = " << frame->ecx
+			<< " edx = " << frame->edx
+			<< " ebp = " << frame->ebp
+			<< " esp = " << frame->esp
+			<< " edi = " << frame->edi
+			<< " esi = " << frame->esi
+			<< cio::endl;
+
+	}
 }
 
 
