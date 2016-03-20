@@ -42,8 +42,8 @@ extern "C" void kernel_main() {
 
 	irq::init();
 
-	system_pic = &pic_8259;
-	system_pic->setup();
+	pic::system_pic = &pic::chip_pic_8259;
+	pic::system_pic->setup();
 
 	pit::init();
 

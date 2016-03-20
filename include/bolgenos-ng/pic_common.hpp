@@ -4,22 +4,38 @@
 #include "stdtypes.hpp"
 
 
-/**
-* \brief Generic PIC device.
-*
-* Structure that describes generic PIC device. It can be used for
-*	handling PIC device line PIC 8259, APIC or X2APIC.
-*/
+namespace pic {
+
+
+/// \brief Generic PIC device.
+///
+/// Structure that describes generic PIC device. It can be used for
+/// handling PIC device line PIC 8259, APIC or X2APIC.
 struct pic_device {
-	void (*setup)(); /*!< Function that initilizes PIC device. */
+public:
+	pic_device() = default;
 
-	void (*end_of_interrupt)(irq::irq_t irq); /*!< Function that send
-*			"End of interrupt" message to generic PIC device for
-*			given IRQ line. */
 
-	int min_irq_vector; /*!< The first IRQ line number that can be received
-*			from the PIC chip. */
+	pic_device(const pic_device &) = delete;
 
+
+	pic_device& operator =(const pic_device &) = delete;
+
+
+	/// Function that initializes PIC device.
+	virtual void setup() = 0;
+
+
+	/// Function that send "End of interrupt" message to generic PIC device
+	/// for given IRQ line.
+	virtual void end_of_interrupt(irq::irq_t irq) = 0;
+
+
+	virtual ~pic_device() {}
+
+
+	/// The first IRQ line number that can be received from the PIC chip.
+	int min_irq_vector = 0;
 };
 
 
@@ -33,7 +49,7 @@ extern pic_device *system_pic;
 * Alias to system_pic->min_irq_vector.
 *
 */
-#define min_pic_irq		(system_pic->min_irq_vector)
+#define min_pic_irq	(pic::system_pic->min_irq_vector)
 
 
 /**
@@ -41,4 +57,8 @@ extern pic_device *system_pic;
 *
 * Alias to system_pic->end_of_interrupt
 */
-#define end_of_irq(vec)		system_pic->end_of_interrupt(vec)
+#define end_of_irq(vec)		pic::system_pic->end_of_interrupt(vec)
+
+
+} // namespace pic
+

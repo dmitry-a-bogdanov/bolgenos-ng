@@ -2,4 +2,4 @@
 
 #include <bolgenos-ng/mem_utils.hpp>
 
-pic_device *system_pic = nullptr;
+pic::pic_device *pic::system_pic = nullptr;

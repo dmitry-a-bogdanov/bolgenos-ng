@@ -5,69 +5,89 @@
 
 #include <bolgenos-ng/irq.hpp>
 
-static void pic_setup();
-static void pic_end_of_interrupt(irq::irq_t irq);
 
-struct pic_device pic_8259 = {
-	.setup				= pic_setup,
-	.end_of_interrupt		= pic_end_of_interrupt,
-	.min_irq_vector			= 0x20
+namespace {
+
+
+struct pic_8259: public pic::pic_device {
+	pic_8259(): pic_device() {
+		pic_device::min_irq_vector = 0x20;
+	}
+
+
+	pic_8259(const pic_8259&) = delete;
+
+
+	pic_8259& operator =(const pic_8259&) = delete;
+
+
+	virtual ~pic_8259() {
+	}
+
+	virtual void setup();
+
+
+	virtual void end_of_interrupt(irq::irq_t vector);
 };
 
 
-#define PIC_COMM_OFFSET			(0)
-#define PIC_DATA_OFFSET			(1)
+pic_8259 driver_object;
 
-typedef enum {
-	pic_master		= 0x20,
-	pic_master_comm	= pic_master + PIC_COMM_OFFSET,
-	pic_master_data	= pic_master + PIC_DATA_OFFSET,
-	pic_slave		= 0xa0,
-	pic_slave_comm	= pic_slave + PIC_COMM_OFFSET,
-	pic_slave_data	= pic_slave + PIC_DATA_OFFSET
-} pic_port_t;
 
-void disable_pic_8259() {
-	asm(
-		"mov $0xff, %al\n"
-		"outb %al, $0xa1\n"
-		"outb %al, $0x21\n"
-	);
-}
+using command_offset = lib::integral_constant<int, 0>;
+using data_offset = lib::integral_constant<int, 1>;
 
-typedef enum {
-	pic_icw_1			= 0x11,
-	pic_icw_3_master		= 0x4,
-	pic_icw_3_slave			= 0x2,
-	pic_icw_4_8086			= 0x1,
-	pic_comm_end_of_interrupt	= 0x20
-} pic_comm_t;
 
-void pic_end_of_interrupt(uint8_t irq) {
-	if (irq > 8 + 0x20) {
-		outb(pic_slave_comm, pic_comm_end_of_interrupt);
+enum port_type: uint16_t {
+	master		= 0x20,
+	master_comm	= master + command_offset::value,
+	master_data	= master + data_offset::value,
+	slave		= 0xa0,
+	slave_comm	= slave + command_offset::value,
+	slave_data	= slave + data_offset::value
+};
+
+
+enum command_type: uint8_t {
+	icw_1				= 0x11,
+	icw_3_master			= 0x4,
+	icw_3_slave			= 0x2,
+	icw_4_8086			= 0x1,
+	end_of_interrupt		= 0x20
+};
+
+
+} // namespace
+
+
+pic::pic_device &pic::chip_pic_8259 = driver_object;
+
+
+void pic_8259::end_of_interrupt(irq::irq_t vector) {
+	if (vector > 8 + 0x20) {
+		outb(port_type::slave_comm, command_type::end_of_interrupt);
 	}
 
-	outb(pic_master_comm, pic_comm_end_of_interrupt);
+	outb(port_type::master_comm, command_type::end_of_interrupt);
 }
 
 
-void pic_setup() {
+void pic_8259::setup() {
 	int offset1 = 0x20;
 	int offset2 = 0x28;
 
-	outb(pic_master_comm, pic_icw_1);
-	outb(pic_slave_comm, pic_icw_1);
+	outb(port_type::master_comm, command_type::icw_1);
+	outb(port_type::slave_comm, command_type::icw_1);
 
-	outb(pic_master_data, offset1);
-	outb(pic_slave_data, offset2);
+	outb(port_type::master_data, offset1);
+	outb(port_type::slave_data, offset2);
 
-	outb(pic_master_data, pic_icw_3_master);
-	outb(pic_slave_data, pic_icw_3_slave);
+	outb(port_type::master_data, command_type::icw_3_master);
+	outb(port_type::slave_data, command_type::icw_3_slave);
 
-	outb(pic_master_data, pic_icw_4_8086);
-	outb(pic_slave_data, pic_icw_4_8086);
+	outb(port_type::master_data, command_type::icw_4_8086);
+	outb(port_type::slave_data, command_type::icw_4_8086);
 
-	outb(pic_master_data, 0x00);
+	outb(port_type::master_data, 0x00);
 }
 
