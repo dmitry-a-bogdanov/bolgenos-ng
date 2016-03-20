@@ -5,7 +5,7 @@ set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
 set(dep_flags "-ffreestanding")
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
@@ -65,6 +65,8 @@ set(kernel_sources ${kernel_start_file}
 
 	cout.cpp
 	error.cpp
+	frequency_divider.hpp
+	frequency_divider.cpp
 	irq.cpp
 	main.cpp
 	memory.cpp
