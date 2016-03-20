@@ -15,6 +15,12 @@ namespace memory {
 namespace allocators {
 
 
+class FreeList;
+
+cio::OutStream& operator<<(cio::OutStream& stream,
+		const FreeList& fl);
+
+
 /// \brief Free list allocator.
 ///
 /// The structure provides functionality of free list list allocator. Such
@@ -113,12 +119,11 @@ private:
 
 	/// Output operator for \ref FreeList objects.
 	friend
-	cio::OutStream& memory::allocators::operator<<(cio::OutStream& stream,
+	cio::OutStream& memory::allocators::operator <<(cio::OutStream& stream,
 				const FreeList& fl);
 }; // class FreeList
 
-cio::OutStream& operator<<(cio::OutStream& stream,
-		const FreeList& fl);
+
 
 
 } // namespace allocators

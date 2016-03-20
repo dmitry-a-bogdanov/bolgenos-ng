@@ -74,7 +74,7 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 
 
 memory::allocators::pblk_t memory::allocators::BuddyAllocator::get(size_t pages) {
-	pblk_t blk = {nullptr, blk.size};
+	pblk_t blk = {nullptr, 0};
 	size_t order = 0;
 
 	++stats.allocations;

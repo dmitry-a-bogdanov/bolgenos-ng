@@ -152,7 +152,7 @@ void initilize_highmem_allocators() {
 
 } // namespace
 
-void operator delete(void *) {
+void operator delete(void *) noexcept {
 	// empty declaration
 }
 

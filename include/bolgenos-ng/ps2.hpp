@@ -136,11 +136,11 @@ void init();
 /**
 * \brief Register driver in PS/2 subsystem.
 *
-* Register PS/2 driver descrived by ps2_dev structure in PS/2 subsystem.
+* Register PS/2 driver described by ps2_dev structure in PS/2 subsystem.
 *
 * \warning All PS/2 drivers should be registered in PS/2 subsystem before
 *	calling this function.
 */
-void register_device(struct ps2_dev *dev);
+void register_device(ps2_dev *dev);
 
 } // namespace ps2
