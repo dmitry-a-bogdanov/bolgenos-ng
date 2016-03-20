@@ -2,12 +2,12 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
+#include <bolgenos-ng/pic_common.hpp>
 
 #include "ps2_keyboard.hpp"
 
@@ -15,13 +15,13 @@
 /**
 * IRQ for the first PS/2 line.
 */
-#define FIRST_LINE_IRQ		(min_pic_irq + 1)
+#define FIRST_LINE_IRQ		(pic::min_pic_irq() + 1)
 
 
 /**
 * IRQ for the second PS/2 line.
 */
-#define SECOND_LINE_IRQ		(min_pic_irq + 12)
+#define SECOND_LINE_IRQ		(pic::min_pic_irq() + 12)
 
 
 /**
@@ -120,8 +120,8 @@ static uint8_t read_conf_byte();
 static void write_conf_byte(uint8_t conf_byte);
 static void probe_devices();
 static void ps2_irq_handler(ps2::line_t line);
-static void first_line_irq(irq_t);
-static void second_line_irq(irq_t);
+static void first_line_irq(irq::irq_t);
+static void second_line_irq(irq::irq_t);
 static void enable_device(ps2::line_t idx);
 static void disable_device(ps2::line_t idx);
 static int get_ps2_lines(uint8_t conf_byte);
@@ -199,8 +199,8 @@ void ps2::init() {
 		}
 	});
 
-	register_irq_handler(FIRST_LINE_IRQ, first_line_irq);
-	register_irq_handler(SECOND_LINE_IRQ, second_line_irq);
+	irq::register_handler(FIRST_LINE_IRQ, first_line_irq);
+	irq::register_handler(SECOND_LINE_IRQ, second_line_irq);
 
 
 	enable_device(line_t::dev_1);
@@ -322,7 +322,7 @@ const char *ps2::strerror(ps2::ioret_t error) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void first_line_irq(irq_t vec __attribute__((unused))) {
+static void first_line_irq(irq::irq_t vec __attribute__((unused))) {
 	ps2_irq_handler(ps2::line_t::dev_1);
 }
 
@@ -334,7 +334,7 @@ static void first_line_irq(irq_t vec __attribute__((unused))) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void second_line_irq(irq_t vec __attribute__((unused))) {
+static void second_line_irq(irq::irq_t vec __attribute__((unused))) {
 	ps2_irq_handler(ps2::line_t::dev_2);
 }
 

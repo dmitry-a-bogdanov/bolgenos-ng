@@ -64,15 +64,15 @@ set(kernel_sources ${kernel_start_file}
 	${ost_h}
 
 	cout.cpp
-	error.c
-	irq.c
+	error.cpp
+	irq.cpp
 	main.cpp
 	memory.cpp
-	mmu.c
+	mmu.cpp
 	multiboot_header.c
 	multiboot_info.cpp
-	pic_8259.c
-	pic_common.c
+	pic_8259.cpp
+	pic_common.cpp
 	pit.cpp
 	printk.cpp
 	ps2.cpp
@@ -98,8 +98,8 @@ set(kernel_sources ${kernel_start_file}
 	
 	abi/cxxabi.c
 	
-	lib/snprintf.c
-	lib/string.c
+	lib/snprintf.cpp
+	lib/string.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp

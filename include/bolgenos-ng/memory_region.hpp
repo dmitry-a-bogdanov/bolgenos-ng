@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/page.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
+#include "page.hpp"
+#include "stdtypes.hpp"
 
 
 namespace memory {

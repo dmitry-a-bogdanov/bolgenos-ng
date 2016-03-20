@@ -1,7 +1,6 @@
 #include <bolgenos-ng/vga_console.hpp>
 
-#include <bolgenos-ng/mem_utils.h>
-
+#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
 
@@ -109,7 +108,7 @@ void vga_console::puts_color(const char* string, color_t fg,
 void vga_console::clear_screen() {
 	cell_t empty = cell_t(' ', global_fg, global_bg);
 	memset_16(reinterpret_cast<char *>(iomem),
-		reinterpret_cast<char *>(address_of(empty)),
+		reinterpret_cast<char *>(&empty),
 		screen_height*screen_width);
 }
 

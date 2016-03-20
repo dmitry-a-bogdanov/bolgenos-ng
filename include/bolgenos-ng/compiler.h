@@ -18,12 +18,6 @@
 		__macro_concat(begin, end)
 
 
-#define __assert_ct_ge(first, second) \
-		static char \
-		macro_concat(__a_ct_ge_, __COUNTER__)[(first) - (second)] \
-		__attribute__((unused))
-
-
 /**
 * \def stringify(x)
 * \brief Stringify symbol.
@@ -56,31 +50,6 @@
 */
 #define placeholder(bitsize) \
 	uint64_t _placeholder(bitsize)
-
-
-/**
-* \brief Two numbers equality compile-time assertion.
-*
-* Statement checks that given arguments are equal. If check fails
-* compilation will be aborted.
-* \param first The first value.
-* \param second The second value.
-*/
-#define assert_ct_equal(first, second) \
-		__assert_ct_ge(first, second); \
-		__assert_ct_ge(second, first)
-
-
-/**
-* \brief Size of type compile-time assertion.
-*
-* Statement checks that size of given type equals to specified value.
-* If check is failed compilation will be aborted.
-* \param type Type that should be checked for size.
-* \param size Expected size of given type in bytes.
-*/
-#define assert_type_size(type, size) \
-		assert_ct_equal(sizeof(type), (size))
 
 
 /**

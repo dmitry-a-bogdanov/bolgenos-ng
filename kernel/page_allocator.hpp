@@ -15,7 +15,7 @@ class MemoryRegion; // forward declaration
 
 /// \brief Page allocator.
 ///
-/// The function provied functionality for by-page allocation on top of
+/// The function provides functionality for by-page allocation on top of
 /// the buddy system.
 class PageAllocator {
 public:
@@ -43,7 +43,7 @@ public:
 	/// \brief Initialize page allocator.
 	///
 	/// The functions initializes page allocator on top of the specified
-	/// buddy system with assumtion that part memory is free starting
+	/// buddy system with assumption that part memory is free starting
 	/// with specified address.
 	///
 	/// \param primary Pointer to the buddy system.
@@ -55,16 +55,16 @@ public:
 	///
 	/// The function allocates specified number of pages.
 	///
-	/// \param Number of pages to allocate.
+	/// \param pages Number of pages to allocate.
 	/// \return Pointer to allocated memory.
 	void *allocate(size_t pages);
 
 
 	/// \brief Deallocate pages.
 	///
-	/// The function releases previosly allocated pages.
+	/// The function releases previously allocated pages.
 	///
-	/// \param Pointer to previously allocated memory.
+	/// \param memory Pointer to previously allocated memory.
 	void deallocate(void *memory);
 
 private:
