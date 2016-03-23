@@ -131,8 +131,8 @@ static void probe_devices();
 static void enable_device(ps2::line_t idx);
 static void disable_device(ps2::line_t idx);
 static int get_ps2_lines(uint8_t conf_byte);
-static void enable_ps2_interrupts(uint8_t *conf_byte, int lines);
-static void disable_ps2_interrupts(uint8_t *conf_byte, int lines);
+static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line);
+static void disable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line);
 static void disable_translation(uint8_t *conf_byte);
 static int controller_selftest();
 static int test_line(ps2::line_t line);
@@ -171,7 +171,8 @@ void ps2::init() {
 	cio::cinfo	<< "this system has " << ps2_lines
 			<< " PS/2 port(s)" << cio::endl;
 
-	disable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
+	disable_ps2_interrupts(&conf, line_t::dev_1);
+	disable_ps2_interrupts(&conf, line_t::dev_2);
 	disable_translation(&conf);
 
 	write_conf_byte(conf);
@@ -215,7 +216,8 @@ void ps2::init() {
 	probe_devices();
 
 	conf = read_conf_byte();
-	enable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
+	enable_ps2_interrupts(&conf, line_t::dev_1);
+	enable_ps2_interrupts(&conf, line_t::dev_2);
 	write_conf_byte(conf);
 };
 
@@ -489,12 +491,16 @@ static int get_ps2_lines(uint8_t conf_byte) {
 * \param lines Bitwise OR-ed PS/2 lines devices that should start raise
 * interrupts.
 */
-static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
-	if (lines & ps2::line_t::dev_1) {
+static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
+	switch(line) {
+	case ps2::line_t::dev_1:
 		*conf_byte |= conf_byte_t::int_first;
-	}
-	if (lines & ps2::line_t::dev_2) {
+		break;
+	case ps2::line_t::dev_2:
 		*conf_byte |= conf_byte_t::int_second;
+		break;
+	default:
+		panic(__func__);
 	}
 }
 
@@ -508,12 +514,16 @@ static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
 * \param lines Bitwise OR-ed PS/2 lines devices that should not raise
 * interrupts.
 */
-static void disable_ps2_interrupts(uint8_t *conf_byte, int lines) {
-	if (lines & ps2::line_t::dev_1) {
+static void disable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
+	switch (line) {
+	case ps2::line_t::dev_1:
 		*conf_byte &= ~conf_byte_t::int_first;
-	}
-	if (lines & ps2::line_t::dev_2) {
+		break;
+	case ps2::line_t::dev_2:
 		*conf_byte &= ~conf_byte_t::int_second;
+		break;
+	default:
+		panic(__func__);
 	}
 }
 
