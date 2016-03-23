@@ -10,17 +10,27 @@ namespace lib {
 ///
 /// \tparam ForwardIterator type of iterator that points to the beginning
 /// of container.
-/// \tparam EndIterator type of iterator that points to the end of container.
+/// \tparam Sentinel type of iterator that points to the end of container.
 /// \tparam Function type of function to be called for every element
 /// of container.
 /// \param first iterator that points to the beginning of container.
 /// \param last iterator that points to the end of container.
 /// \param func function to be called for every element of container.
-template<typename ForwardIterator, typename EndIterator,
-		typename Function>
-void for_each(ForwardIterator first, EndIterator last, Function func) {
+template<typename ForwardIterator, typename Sentinel, typename Function>
+void for_each(ForwardIterator first, Sentinel last, Function func) {
 	for(; first != last; ++first)
 		func(*first);
+}
+
+
+template<typename ForwardIterator, typename Sentinel, typename Function>
+ForwardIterator find_if(ForwardIterator first, Sentinel last, Function func) {
+	for (; first != last; ++first) {
+		if (func(*first)) {
+			break;
+		}
+	}
+	return first;
 }
 
 

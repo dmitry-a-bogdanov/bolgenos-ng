@@ -14,11 +14,17 @@ namespace irq {
 using irq_t = uint8_t;
 
 
+enum class isr_return_t {
+	none,
+	handled,
+};
+
+
 /// \brief IRQ handler function type.
 ///
 /// Type for holding IRQ handler routine. Function type accepts IRQ line as
 /// parameter and returns nothing.
-using irq_handler_t = void (*)(irq_t);
+using isr_function_t = isr_return_t (*)(irq_t);
 
 
 /// \brief Last IRQ line.
@@ -63,7 +69,7 @@ void init();
 ///
 /// \param vector IRQ line that will use provided function.
 /// \param routine Function to be called when specified IRQ vector happens.
-void register_handler(irq_t vector, irq_handler_t routine);
+void register_handler(irq_t vector, isr_function_t routine);
 
 
 } // namespace irq

@@ -105,6 +105,15 @@ enum ps2_port_t: uint16_t  {
 };
 
 
+namespace {
+
+irq::isr_return_t first_line_irq(irq::irq_t);
+irq::isr_return_t second_line_irq(irq::irq_t);
+irq::isr_return_t ps2_irq_handler(ps2::line_t line);
+
+
+}
+
 
 // TODO: replace array with list in order to avoid troubles with support
 // of many types of keyboards or mice
@@ -119,9 +128,6 @@ static ps2::ioret_t send_byte_dev(ps2::line_t line, uint8_t byte);
 static uint8_t read_conf_byte();
 static void write_conf_byte(uint8_t conf_byte);
 static void probe_devices();
-static void ps2_irq_handler(ps2::line_t line);
-static void first_line_irq(irq::irq_t);
-static void second_line_irq(irq::irq_t);
 static void enable_device(ps2::line_t idx);
 static void disable_device(ps2::line_t idx);
 static int get_ps2_lines(uint8_t conf_byte);
@@ -315,6 +321,9 @@ const char *ps2::strerror(ps2::ioret_t error) {
 }
 
 
+namespace {
+
+
 /**
 * \brief First PS/2 line interrupt handler.
 *
@@ -322,8 +331,8 @@ const char *ps2::strerror(ps2::ioret_t error) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void first_line_irq(irq::irq_t vec __attribute__((unused))) {
-	ps2_irq_handler(ps2::line_t::dev_1);
+irq::isr_return_t first_line_irq(irq::irq_t vec __attribute__((unused))) {
+	return ps2_irq_handler(ps2::line_t::dev_1);
 }
 
 
@@ -334,8 +343,8 @@ static void first_line_irq(irq::irq_t vec __attribute__((unused))) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-static void second_line_irq(irq::irq_t vec __attribute__((unused))) {
-	ps2_irq_handler(ps2::line_t::dev_2);
+irq::isr_return_t second_line_irq(irq::irq_t vec __attribute__((unused))) {
+	return ps2_irq_handler(ps2::line_t::dev_2);
 }
 
 
@@ -346,11 +355,15 @@ static void second_line_irq(irq::irq_t vec __attribute__((unused))) {
 *
 * \param line PS/2 device that raised interrupt.
 */
-static void ps2_irq_handler(ps2::line_t line) {
+irq::isr_return_t ps2_irq_handler(ps2::line_t line) {
 	if (ps2_active_devices[line]) {
-		ps2_active_devices[line]->handle_irq();
+		return ps2_active_devices[line]->handle_irq();
 	}
+	return irq::isr_return_t::none;
 }
+
+
+} //namespace
 
 
 /**

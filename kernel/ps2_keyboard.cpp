@@ -14,7 +14,7 @@ using namespace ps2;
 class ps2_keyboard: public ps2::ps2_dev {
 public:
 	virtual probe_ret_t probe(ps2::line_t line);
-	virtual void handle_irq();
+	virtual irq::isr_return_t handle_irq();
 	virtual ~ps2_keyboard() {};
 };
 
@@ -77,9 +77,10 @@ ok:
 	return probe_ok;
 }
 
-void ps2_keyboard::handle_irq() {
+irq::isr_return_t ps2_keyboard::handle_irq() {
 	uint8_t byte = ps2::receive_byte();
 	kbd_put_byte(byte);
+	return irq::isr_return_t::handled;
 }
 
 static ps2_keyboard ps2_kbd;
