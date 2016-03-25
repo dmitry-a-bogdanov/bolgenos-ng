@@ -51,17 +51,22 @@ cio::OutStream& operator << (cio::OutStream &stream,
 }
 
 
-using HandlersChain = lib::list<irq::irq_handler_t>;
+/// Type list of Interrupt Service Routines.
+using handlers_list_t = lib::list<irq::irq_handler_t>;
 
-HandlersChain registered_isrs[irq::lines_number::value];
+
+/// Array of lists of Interrupt Service Routines.
+handlers_list_t registered_isrs[irq::lines_number::value];
+
 
 void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame);
 
 
-void do_breakpoint(irq::irq_t, irq::stack_pointer_type stack_ptr) {
+irq::irq_return_t do_breakpoint(irq::irq_t, irq::stack_pointer_type stack_ptr) {
 	auto trap_frame = reinterpret_cast<trap_frame_type *>(stack_ptr);
 	cio::cnotice << "breakpoint has been caught: " << cio::endl;
 	cio::cnotice << *trap_frame << cio::endl;
+	return irq::irq_return_t::handled;
 }
 
 
@@ -307,17 +312,25 @@ void irq::register_handler(irq_t vector, irq_handler_t routine) {
 namespace {
 
 
+void default_isr(irq::irq_t vector) {
+	cio::ccrit << "Unhandled IRQ" << vector << cio::endl;
+	panic("Fatal interrupt");
+}
+
+
 void irq_dispatcher(irq::irq_t vector, trap_frame_type *frame) {
-	HandlersChain &handlers = registered_isrs[vector];
-	lib::for_each(handlers.begin(), handlers.end(),
-		[vector, frame] (const irq::irq_handler_t &handler) -> void {
-			handler(vector, reinterpret_cast<
-					irq::stack_pointer_type>(frame));
+	auto& handlers = registered_isrs[vector];
+	auto used_handler = lib::find_if(handlers.begin(), handlers.end(),
+		[vector, frame] (const irq::irq_handler_t &handler) -> bool {
+			return handler(vector, reinterpret_cast<
+					irq::stack_pointer_type>(frame)) ==
+							irq::irq_return_t::handled;
 	});
-	if (handlers.begin() == handlers.end()) {
-		cio::cerr << "Unhandled interrupt " << vector << cio::endl;
+	if (used_handler == handlers.end()) {
+		default_isr(vector);
 	}
 }
+
 
 
 } // namespace

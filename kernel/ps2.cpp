@@ -105,6 +105,15 @@ enum ps2_port_t: uint16_t  {
 };
 
 
+namespace {
+
+irq::irq_return_t first_line_irq(irq::irq_t, irq::stack_pointer_type);
+irq::irq_return_t second_line_irq(irq::irq_t, irq::stack_pointer_type);
+irq::irq_return_t ps2_irq_handler(ps2::line_t line);
+
+
+}
+
 
 // TODO: replace array with list in order to avoid troubles with support
 // of many types of keyboards or mice
@@ -119,14 +128,11 @@ static ps2::ioret_t send_byte_dev(ps2::line_t line, uint8_t byte);
 static uint8_t read_conf_byte();
 static void write_conf_byte(uint8_t conf_byte);
 static void probe_devices();
-static void ps2_irq_handler(ps2::line_t line);
-static void first_line_irq(irq::irq_t, irq::stack_pointer_type);
-static void second_line_irq(irq::irq_t, irq::stack_pointer_type);
 static void enable_device(ps2::line_t idx);
 static void disable_device(ps2::line_t idx);
 static int get_ps2_lines(uint8_t conf_byte);
-static void enable_ps2_interrupts(uint8_t *conf_byte, int lines);
-static void disable_ps2_interrupts(uint8_t *conf_byte, int lines);
+static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line);
+static void disable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line);
 static void disable_translation(uint8_t *conf_byte);
 static int controller_selftest();
 static int test_line(ps2::line_t line);
@@ -158,14 +164,15 @@ void ps2::init() {
 
 	conf = read_conf_byte();
 
-	cio::cinfo << "PS/2 conf byte=" << conf << cio::endl;
+	cio::cinfo << "PS/2 configuration byte=" << conf << cio::endl;
 
 	int ps2_lines = get_ps2_lines(conf);
 
 	cio::cinfo	<< "this system has " << ps2_lines
 			<< " PS/2 port(s)" << cio::endl;
 
-	disable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
+	disable_ps2_interrupts(&conf, line_t::dev_1);
+	disable_ps2_interrupts(&conf, line_t::dev_2);
 	disable_translation(&conf);
 
 	write_conf_byte(conf);
@@ -178,13 +185,13 @@ void ps2::init() {
 	
 	conf = read_conf_byte();
 	if (conf & (conf_byte_t::clock_second|conf_byte_t::clock_first)) {
-		cio::cinfo << "both PS/2 devs present" << cio::endl;
+		cio::cinfo << "both PS/2 devices are present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_first) {
-		cio::cinfo << "only first PS/2 dev present" << cio::endl;
+		cio::cinfo << "only first PS/2 device is present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_second) {
-		cio::cinfo << "only second PS/2 dev present" << cio::endl;
+		cio::cinfo << "only second PS/2 device is present" << cio::endl;
 	} else {
-		cio::cinfo << "no devs present" << cio::endl;
+		cio::cinfo << "no devices present" << cio::endl;
 	}
 
 	disable_device(line_t::dev_2);
@@ -209,7 +216,8 @@ void ps2::init() {
 	probe_devices();
 
 	conf = read_conf_byte();
-	enable_ps2_interrupts(&conf, line_t::dev_1|line_t::dev_2);
+	enable_ps2_interrupts(&conf, line_t::dev_1);
+	enable_ps2_interrupts(&conf, line_t::dev_2);
 	write_conf_byte(conf);
 };
 
@@ -229,7 +237,7 @@ void send_command(cmd_t cmd) {
 *
 * Function waits until it will be possible to write to PS/2 controller.
 * \param ms Time to wait in milliseconds.
-* \return 1 if writing to PS/2 is possible; 0 otherwice.
+* \return 1 if writing to PS/2 is possible; 0 otherwise.
 */
 int wait_for_output(int ms) {
 	return ! wait_for_flag(status_reg_t::in_buf_status, 0, ms);
@@ -315,27 +323,22 @@ const char *ps2::strerror(ps2::ioret_t error) {
 }
 
 
-/**
-* \brief First PS/2 line interrupt handler.
-*
-* The function call \ref ps2_irq_handler with correct parameter.
-*
-* \param vec Unused parameter that is needed to match types.
-*/
-static void first_line_irq(irq::irq_t, irq::stack_pointer_type) {
-	ps2_irq_handler(ps2::line_t::dev_1);
+namespace {
+
+
+/// \brief First PS/2 line interrupt handler.
+///
+/// The function call \ref ps2_irq_handler with correct parameter.
+irq::irq_return_t first_line_irq(irq::irq_t, irq::stack_pointer_type) {
+	return ps2_irq_handler(ps2::line_t::dev_1);
 }
 
 
-/**
-* \brief Second PS/2 line interrupt handler.
-*
-* The function call \ref ps2_irq_handler with correct parameter.
-*
-* \param vec Unused parameter that is needed to match types.
-*/
-static void second_line_irq(irq::irq_t, irq::stack_pointer_type) {
-	ps2_irq_handler(ps2::line_t::dev_2);
+/// \brief Second PS/2 line interrupt handler.
+///
+/// The function call \ref ps2_irq_handler with correct parameter.
+irq::irq_return_t second_line_irq(irq::irq_t, irq::stack_pointer_type) {
+	return ps2_irq_handler(ps2::line_t::dev_2);
 }
 
 
@@ -346,11 +349,15 @@ static void second_line_irq(irq::irq_t, irq::stack_pointer_type) {
 *
 * \param line PS/2 device that raised interrupt.
 */
-static void ps2_irq_handler(ps2::line_t line) {
+irq::irq_return_t ps2_irq_handler(ps2::line_t line) {
 	if (ps2_active_devices[line]) {
-		ps2_active_devices[line]->handle_irq();
+		return ps2_active_devices[line]->handle_irq();
 	}
+	return irq::irq_return_t::none;
 }
+
+
+} //namespace
 
 
 /**
@@ -467,40 +474,42 @@ static int get_ps2_lines(uint8_t conf_byte) {
 }
 
 
-/**
-* \brief Enable interrupts from devices.
-*
-* The function enable interrupts from specified PS/2 devices.
-*
-* \param conf_byte Pointer to configuration byte variable.
-* \param lines Bitwise OR-ed PS/2 lines devices that should start raise
-* interrupts.
-*/
-static void enable_ps2_interrupts(uint8_t *conf_byte, int lines) {
-	if (lines & ps2::line_t::dev_1) {
+/// \brief Enable interrupts from devices.
+///
+/// The function enable interrupts from specified PS/2 devices.
+///
+/// \param conf_byte Pointer to configuration byte variable.
+/// \param line PS/2 line that should start raise interrupts.
+static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
+	switch(line) {
+	case ps2::line_t::dev_1:
 		*conf_byte |= conf_byte_t::int_first;
-	}
-	if (lines & ps2::line_t::dev_2) {
+		break;
+	case ps2::line_t::dev_2:
 		*conf_byte |= conf_byte_t::int_second;
+		break;
+	default:
+		panic(__func__);
 	}
 }
 
 
-/**
-* \brief Disable interrupts from devices.
-*
-* The function disables interrupts from specified PS/2 devices.
-*
-* \param conf_byte Pointer to configuration byte variable.
-* \param lines Bitwise OR-ed PS/2 lines devices that should not raise
-* interrupts.
-*/
-static void disable_ps2_interrupts(uint8_t *conf_byte, int lines) {
-	if (lines & ps2::line_t::dev_1) {
+/// \brief Disable interrupts from devices.
+///
+/// The function disables interrupts from specified PS/2 devices.
+///
+/// \param conf_byte Pointer to configuration byte variable.
+/// \param line PS/2 line that should not raise interrupts.
+static void disable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
+	switch (line) {
+	case ps2::line_t::dev_1:
 		*conf_byte &= ~conf_byte_t::int_first;
-	}
-	if (lines & ps2::line_t::dev_2) {
+		break;
+	case ps2::line_t::dev_2:
 		*conf_byte &= ~conf_byte_t::int_second;
+		break;
+	default:
+		panic(__func__);
 	}
 }
 
@@ -610,7 +619,7 @@ static int test_line(ps2::line_t line) {
 	send_command(cmd);
 	int can_read = ps2::wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
-		cio::cerr << "no responce to self-test" << cio::endl;
+		cio::cerr << "no response to self-test" << cio::endl;
 		return 0;
 	}
 	uint8_t test_result = ps2::receive_byte();
