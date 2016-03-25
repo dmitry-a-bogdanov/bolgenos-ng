@@ -482,15 +482,12 @@ static int get_ps2_lines(uint8_t conf_byte) {
 }
 
 
-/**
-* \brief Enable interrupts from devices.
-*
-* The function enable interrupts from specified PS/2 devices.
-*
-* \param conf_byte Pointer to configuration byte variable.
-* \param lines Bitwise OR-ed PS/2 lines devices that should start raise
-* interrupts.
-*/
+/// \brief Enable interrupts from devices.
+///
+/// The function enable interrupts from specified PS/2 devices.
+///
+/// \param conf_byte Pointer to configuration byte variable.
+/// \param line PS/2 line that should start raise interrupts.
 static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
 	switch(line) {
 	case ps2::line_t::dev_1:
@@ -505,15 +502,12 @@ static void enable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
 }
 
 
-/**
-* \brief Disable interrupts from devices.
-*
-* The function disables interrupts from specified PS/2 devices.
-*
-* \param conf_byte Pointer to configuration byte variable.
-* \param lines Bitwise OR-ed PS/2 lines devices that should not raise
-* interrupts.
-*/
+/// \brief Disable interrupts from devices.
+///
+/// The function disables interrupts from specified PS/2 devices.
+///
+/// \param conf_byte Pointer to configuration byte variable.
+/// \param line PS/2 line that should not raise interrupts.
 static void disable_ps2_interrupts(uint8_t *conf_byte, ps2::line_t line) {
 	switch (line) {
 	case ps2::line_t::dev_1:

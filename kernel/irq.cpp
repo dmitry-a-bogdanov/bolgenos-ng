@@ -18,8 +18,11 @@
 namespace {
 
 
+/// Type list of Interrupt Service Routines.
 using handlers_list_t = lib::list<irq::irq_handler_t>;
 
+
+/// Array of lists of Interrupt Service Routines.
 handlers_list_t registered_isrs[irq::lines_number::value];
 
 
