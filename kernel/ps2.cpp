@@ -216,8 +216,19 @@ void ps2::init() {
 	probe_devices();
 
 	conf = read_conf_byte();
-	enable_ps2_interrupts(&conf, line_t::dev_1);
-	enable_ps2_interrupts(&conf, line_t::dev_2);
+
+	if (ps2_active_devices[line_t::dev_1]) {
+		enable_ps2_interrupts(&conf, line_t::dev_1);
+	} else {
+		disable_device(line_t::dev_1);
+	}
+
+	if (ps2_active_devices[line_t::dev_2]) {
+		enable_ps2_interrupts(&conf, line_t::dev_2);
+	} else {
+		disable_device(line_t::dev_2);
+	}
+
 	write_conf_byte(conf);
 };
 
