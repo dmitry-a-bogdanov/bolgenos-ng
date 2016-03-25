@@ -14,7 +14,7 @@ using namespace ps2;
 class ps2_keyboard: public ps2::ps2_dev {
 public:
 	virtual probe_ret_t probe(ps2::line_t line);
-	virtual irq::isr_return_t handle_irq();
+	virtual irq::irq_return_t handle_irq();
 	virtual ~ps2_keyboard() {};
 };
 
@@ -46,7 +46,7 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 	ret = send_byte_with_ack(line, ps2_dcmd_identify,
 			ps2_keyboard_ack);
 	if (ret != ioret_t::ok) {
-		cio::cwarn << "failed to identify dev: "
+		cio::cwarn << "failed to identify device: "
 			<< ps2::strerror(ret) << cio::endl;
 		goto fail;
 	}
@@ -77,10 +77,10 @@ ok:
 	return probe_ok;
 }
 
-irq::isr_return_t ps2_keyboard::handle_irq() {
+irq::irq_return_t ps2_keyboard::handle_irq() {
 	uint8_t byte = ps2::receive_byte();
 	kbd_put_byte(byte);
-	return irq::isr_return_t::handled;
+	return irq::irq_return_t::handled;
 }
 
 static ps2_keyboard ps2_kbd;

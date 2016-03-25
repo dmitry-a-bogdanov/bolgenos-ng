@@ -107,9 +107,9 @@ enum ps2_port_t: uint16_t  {
 
 namespace {
 
-irq::isr_return_t first_line_irq(irq::irq_t);
-irq::isr_return_t second_line_irq(irq::irq_t);
-irq::isr_return_t ps2_irq_handler(ps2::line_t line);
+irq::irq_return_t first_line_irq(irq::irq_t);
+irq::irq_return_t second_line_irq(irq::irq_t);
+irq::irq_return_t ps2_irq_handler(ps2::line_t line);
 
 
 }
@@ -164,7 +164,7 @@ void ps2::init() {
 
 	conf = read_conf_byte();
 
-	cio::cinfo << "PS/2 conf byte=" << conf << cio::endl;
+	cio::cinfo << "PS/2 configuration byte=" << conf << cio::endl;
 
 	int ps2_lines = get_ps2_lines(conf);
 
@@ -185,13 +185,13 @@ void ps2::init() {
 	
 	conf = read_conf_byte();
 	if (conf & (conf_byte_t::clock_second|conf_byte_t::clock_first)) {
-		cio::cinfo << "both PS/2 devs present" << cio::endl;
+		cio::cinfo << "both PS/2 devices are present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_first) {
-		cio::cinfo << "only first PS/2 dev present" << cio::endl;
+		cio::cinfo << "only first PS/2 device is present" << cio::endl;
 	} else if (conf & conf_byte_t::clock_second) {
-		cio::cinfo << "only second PS/2 dev present" << cio::endl;
+		cio::cinfo << "only second PS/2 device is present" << cio::endl;
 	} else {
-		cio::cinfo << "no devs present" << cio::endl;
+		cio::cinfo << "no devices present" << cio::endl;
 	}
 
 	disable_device(line_t::dev_2);
@@ -237,7 +237,7 @@ void send_command(cmd_t cmd) {
 *
 * Function waits until it will be possible to write to PS/2 controller.
 * \param ms Time to wait in milliseconds.
-* \return 1 if writing to PS/2 is possible; 0 otherwice.
+* \return 1 if writing to PS/2 is possible; 0 otherwise.
 */
 int wait_for_output(int ms) {
 	return ! wait_for_flag(status_reg_t::in_buf_status, 0, ms);
@@ -333,7 +333,7 @@ namespace {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-irq::isr_return_t first_line_irq(irq::irq_t vec __attribute__((unused))) {
+irq::irq_return_t first_line_irq(irq::irq_t vec __attribute__((unused))) {
 	return ps2_irq_handler(ps2::line_t::dev_1);
 }
 
@@ -345,7 +345,7 @@ irq::isr_return_t first_line_irq(irq::irq_t vec __attribute__((unused))) {
 *
 * \param vec Unused parameter that is needed to match types.
 */
-irq::isr_return_t second_line_irq(irq::irq_t vec __attribute__((unused))) {
+irq::irq_return_t second_line_irq(irq::irq_t vec __attribute__((unused))) {
 	return ps2_irq_handler(ps2::line_t::dev_2);
 }
 
@@ -357,11 +357,11 @@ irq::isr_return_t second_line_irq(irq::irq_t vec __attribute__((unused))) {
 *
 * \param line PS/2 device that raised interrupt.
 */
-irq::isr_return_t ps2_irq_handler(ps2::line_t line) {
+irq::irq_return_t ps2_irq_handler(ps2::line_t line) {
 	if (ps2_active_devices[line]) {
 		return ps2_active_devices[line]->handle_irq();
 	}
-	return irq::isr_return_t::none;
+	return irq::irq_return_t::none;
 }
 
 
@@ -633,7 +633,7 @@ static int test_line(ps2::line_t line) {
 	send_command(cmd);
 	int can_read = ps2::wait_for_input(SELFTEST_TIMEOUT);
 	if (!can_read) {
-		cio::cerr << "no responce to self-test" << cio::endl;
+		cio::cerr << "no response to self-test" << cio::endl;
 		return 0;
 	}
 	uint8_t test_result = ps2::receive_byte();
