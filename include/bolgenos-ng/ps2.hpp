@@ -2,6 +2,7 @@
 
 #include <bolgenos-ng/device.h>
 
+#include "irq.hpp"
 #include "stdtypes.hpp"
 
 namespace ps2 {
@@ -36,9 +37,11 @@ public:
 			* PS/2 device can be handled by the driver that
 			* provides this ps2_dev structure.
 			*/
-	virtual void handle_irq() = 0; /*!< function that will be called when
-			* receiving IRQ from the device managed by this driver.
-			*/
+
+	/// Function that will be called when receiving IRQ from the device
+	/// which is managed by this driver.
+	virtual irq::irq_return_t handle_irq() = 0;
+
 	virtual ~ps2_dev() {}
 };
 

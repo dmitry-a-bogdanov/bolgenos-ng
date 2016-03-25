@@ -76,14 +76,14 @@ pit::details::FrequencyDivider freq_divider;
 /// \brief Handle timer interrupt.
 ///
 /// The function is a timer interrupt handler.
-static void handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
-	if (!freq_divider.do_tick()) {
-		return;
-	}
+static irq::irq_return_t handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
+	if (freq_divider.do_tick()) {
 #if VERBOSE_TIMER_INTERRUPT
-	cio::cout << "jiffy #" << jiffies << cio::endl;
+		cio::cout << "jiffy #" << jiffies << cio::endl;
 #endif
-	++jiffies;
+		++jiffies;
+	}
+	return irq::irq_return_t::handled;
 }
 
 
