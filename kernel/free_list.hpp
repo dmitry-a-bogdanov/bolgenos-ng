@@ -6,8 +6,6 @@
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
-#include "config.h"
-
 
 namespace memory {
 
