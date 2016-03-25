@@ -3,9 +3,6 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/string.h>
-#include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
@@ -154,90 +151,116 @@ private:
 static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 
 
-#define __decl_isr_stage_asm(num)					\
+/// Get name of asm-part of IRQ handler.
+///
+/// \param num number of IRQ.
+#define IRQ_STAGE_ASM(num)						\
+	_irq_stage_asm_ ## num
+
+
+/// Get name of C-part of IRQ handler.
+///
+/// \param num number of IRQ.
+#define IRQ_STAGE_C(num)						\
+	_irq_stage_c_ ## num
+
+
+/// Declare asm-part IRQ handler.
+///
+/// \param num number of IRQ.
+#define DECL_IRQ_HANDLER_ASM(num)					\
 	asm(								\
 		".align 16\n"						\
-		"__isr_stage_asm_" #num ":\n"				\
+			stringify(IRQ_STAGE_ASM(num)) ":\n"		\
 			"pushal\n"					\
 			"push %esp\n"					\
-			"call __isr_stage_c_" #num "\n"			\
+			"call " stringify(IRQ_STAGE_C(num)) "\n"	\
 			"pop %esp\n"					\
 			"popal\n"					\
 			"iret\n"					\
 	);								\
-	extern "C" void __isr_stage_asm_ ## num()
+	extern "C" void IRQ_STAGE_ASM(num)()
 
 
-#define __decl_isr_stage_c(num, generic_isr)				\
+/// Declare C-part of IRQ handler.
+///
+/// \param num number of IRQ.
+/// \param function function to be called on IRQ.
+#define DECL_IRQ_HANDLER_C(num, function)				\
 	extern "C" __attribute__((used, regparm(0)))			\
-	void __isr_stage_c_ ## num(trap_frame_type *frame) {		\
-		auto shifted = reinterpret_cast<trap_frame_type *>(	\
-			reinterpret_cast<char *>(frame));		\
-		generic_isr(num, shifted);				\
+	void IRQ_STAGE_C(num)(trap_frame_type *frame) {			\
+		function(num, frame);					\
 		pic::end_of_irq(num);					\
 	}
 
 
-#define __decl_isr(num, function)					\
-	__decl_isr_stage_asm(num);					\
-	__decl_isr_stage_c(num, function)
+/// Declare two-stage IRQ handler.
+///
+/// \param num number of IRQ.
+/// \param function function to be called on IRQ.
+#define DECL_IRQ_HANDLER(num, function)					\
+	DECL_IRQ_HANDLER_ASM(num);					\
+	DECL_IRQ_HANDLER_C(num, function)
 
 
-#define __decl_common_gate(num, table)					\
+/// Write gate for standard 2-stage IRQ handler to table.
+///
+/// \param num number of IRQ.
+/// \param tbl interrupt descriptor table.
+#define WRITE_GENERIC_GATE(num, tbl)					\
 	do {								\
-		gate_t gate = gate_t::make_int_gate(__isr_stage_asm_ ## num);	\
-		table[num] = gate;			\
+		tbl[num] = gate_t::make_int_gate(IRQ_STAGE_ASM(num));	\
 	} while(0)
 
 
-__decl_isr(0, irq_dispatcher);
-__decl_isr(1, irq_dispatcher);
-__decl_isr(2, irq_dispatcher);
-__decl_isr(3, irq_dispatcher);
-__decl_isr(4, irq_dispatcher);
-__decl_isr(5, irq_dispatcher);
-__decl_isr(6, irq_dispatcher);
-__decl_isr(7, irq_dispatcher);
-__decl_isr(8, irq_dispatcher);
-__decl_isr(9, irq_dispatcher);
-__decl_isr(10, irq_dispatcher);
-__decl_isr(11, irq_dispatcher);
-__decl_isr(12, irq_dispatcher);
-__decl_isr(13, irq_dispatcher);
-__decl_isr(14, irq_dispatcher);
-__decl_isr(15, irq_dispatcher);
-__decl_isr(16, irq_dispatcher);
-__decl_isr(17, irq_dispatcher);
-__decl_isr(18, irq_dispatcher);
-__decl_isr(19, irq_dispatcher);
-__decl_isr(20, irq_dispatcher);
-__decl_isr(21, irq_dispatcher);
-__decl_isr(22, irq_dispatcher);
-__decl_isr(23, irq_dispatcher);
-__decl_isr(24, irq_dispatcher);
-__decl_isr(25, irq_dispatcher);
-__decl_isr(26, irq_dispatcher);
-__decl_isr(27, irq_dispatcher);
-__decl_isr(28, irq_dispatcher);
-__decl_isr(29, irq_dispatcher);
-__decl_isr(30, irq_dispatcher);
-__decl_isr(31, irq_dispatcher);
-__decl_isr(32, irq_dispatcher);
-__decl_isr(33, irq_dispatcher);
-__decl_isr(34, irq_dispatcher);
-__decl_isr(35, irq_dispatcher);
-__decl_isr(36, irq_dispatcher);
-__decl_isr(37, irq_dispatcher);
-__decl_isr(38, irq_dispatcher);
-__decl_isr(39, irq_dispatcher);
-__decl_isr(40, irq_dispatcher);
-__decl_isr(41, irq_dispatcher);
-__decl_isr(42, irq_dispatcher);
-__decl_isr(43, irq_dispatcher);
-__decl_isr(44, irq_dispatcher);
-__decl_isr(45, irq_dispatcher);
-__decl_isr(46, irq_dispatcher);
-__decl_isr(47, irq_dispatcher);
+DECL_IRQ_HANDLER(0, irq_dispatcher);
+DECL_IRQ_HANDLER(1, irq_dispatcher);
+DECL_IRQ_HANDLER(2, irq_dispatcher);
+DECL_IRQ_HANDLER(3, irq_dispatcher);
+DECL_IRQ_HANDLER(4, irq_dispatcher);
+DECL_IRQ_HANDLER(5, irq_dispatcher);
+DECL_IRQ_HANDLER(6, irq_dispatcher);
+DECL_IRQ_HANDLER(7, irq_dispatcher);
+DECL_IRQ_HANDLER(8, irq_dispatcher);
+DECL_IRQ_HANDLER(9, irq_dispatcher);
+DECL_IRQ_HANDLER(10, irq_dispatcher);
+DECL_IRQ_HANDLER(11, irq_dispatcher);
+DECL_IRQ_HANDLER(12, irq_dispatcher);
+DECL_IRQ_HANDLER(13, irq_dispatcher);
+DECL_IRQ_HANDLER(14, irq_dispatcher);
+DECL_IRQ_HANDLER(15, irq_dispatcher);
+DECL_IRQ_HANDLER(16, irq_dispatcher);
+DECL_IRQ_HANDLER(17, irq_dispatcher);
+DECL_IRQ_HANDLER(18, irq_dispatcher);
+DECL_IRQ_HANDLER(19, irq_dispatcher);
+DECL_IRQ_HANDLER(20, irq_dispatcher);
+DECL_IRQ_HANDLER(21, irq_dispatcher);
+DECL_IRQ_HANDLER(22, irq_dispatcher);
+DECL_IRQ_HANDLER(23, irq_dispatcher);
+DECL_IRQ_HANDLER(24, irq_dispatcher);
+DECL_IRQ_HANDLER(25, irq_dispatcher);
+DECL_IRQ_HANDLER(26, irq_dispatcher);
+DECL_IRQ_HANDLER(27, irq_dispatcher);
+DECL_IRQ_HANDLER(28, irq_dispatcher);
+DECL_IRQ_HANDLER(29, irq_dispatcher);
+DECL_IRQ_HANDLER(30, irq_dispatcher);
+DECL_IRQ_HANDLER(31, irq_dispatcher);
+DECL_IRQ_HANDLER(32, irq_dispatcher);
+DECL_IRQ_HANDLER(33, irq_dispatcher);
+DECL_IRQ_HANDLER(34, irq_dispatcher);
+DECL_IRQ_HANDLER(35, irq_dispatcher);
+DECL_IRQ_HANDLER(36, irq_dispatcher);
+DECL_IRQ_HANDLER(37, irq_dispatcher);
+DECL_IRQ_HANDLER(38, irq_dispatcher);
+DECL_IRQ_HANDLER(39, irq_dispatcher);
+DECL_IRQ_HANDLER(40, irq_dispatcher);
+DECL_IRQ_HANDLER(41, irq_dispatcher);
+DECL_IRQ_HANDLER(42, irq_dispatcher);
+DECL_IRQ_HANDLER(43, irq_dispatcher);
+DECL_IRQ_HANDLER(44, irq_dispatcher);
+DECL_IRQ_HANDLER(45, irq_dispatcher);
+DECL_IRQ_HANDLER(46, irq_dispatcher);
+DECL_IRQ_HANDLER(47, irq_dispatcher);
 
 
 gate_t idt[irq::lines_number::value] _irq_aligned_;
@@ -248,54 +271,54 @@ table_pointer idt_pointer _irq_aligned_ = {sizeof(idt) - 1,
 
 void irq::init() {
 	// See comment__why_not_use_counter
-	__decl_common_gate(0, idt);
-	__decl_common_gate(1, idt);
-	__decl_common_gate(2, idt);
-	__decl_common_gate(3, idt);
-	__decl_common_gate(4, idt);
-	__decl_common_gate(5, idt);
-	__decl_common_gate(6, idt);
-	__decl_common_gate(7, idt);
-	__decl_common_gate(8, idt);
-	__decl_common_gate(9, idt);
-	__decl_common_gate(10, idt);
-	__decl_common_gate(11, idt);
-	__decl_common_gate(12, idt);
-	__decl_common_gate(13, idt);
-	__decl_common_gate(14, idt);
-	__decl_common_gate(15, idt);
-	__decl_common_gate(16, idt);
-	__decl_common_gate(17, idt);
-	__decl_common_gate(18, idt);
-	__decl_common_gate(19, idt);
-	__decl_common_gate(20, idt);
-	__decl_common_gate(21, idt);
-	__decl_common_gate(22, idt);
-	__decl_common_gate(23, idt);
-	__decl_common_gate(24, idt);
-	__decl_common_gate(25, idt);
-	__decl_common_gate(26, idt);
-	__decl_common_gate(27, idt);
-	__decl_common_gate(28, idt);
-	__decl_common_gate(29, idt);
-	__decl_common_gate(30, idt);
-	__decl_common_gate(31, idt);
-	__decl_common_gate(32, idt);
-	__decl_common_gate(33, idt);
-	__decl_common_gate(34, idt);
-	__decl_common_gate(35, idt);
-	__decl_common_gate(36, idt);
-	__decl_common_gate(37, idt);
-	__decl_common_gate(38, idt);
-	__decl_common_gate(39, idt);
-	__decl_common_gate(40, idt);
-	__decl_common_gate(41, idt);
-	__decl_common_gate(42, idt);
-	__decl_common_gate(43, idt);
-	__decl_common_gate(44, idt);
-	__decl_common_gate(45, idt);
-	__decl_common_gate(46, idt);
-	__decl_common_gate(47, idt);
+	WRITE_GENERIC_GATE(0, idt);
+	WRITE_GENERIC_GATE(1, idt);
+	WRITE_GENERIC_GATE(2, idt);
+	WRITE_GENERIC_GATE(3, idt);
+	WRITE_GENERIC_GATE(4, idt);
+	WRITE_GENERIC_GATE(5, idt);
+	WRITE_GENERIC_GATE(6, idt);
+	WRITE_GENERIC_GATE(7, idt);
+	WRITE_GENERIC_GATE(8, idt);
+	WRITE_GENERIC_GATE(9, idt);
+	WRITE_GENERIC_GATE(10, idt);
+	WRITE_GENERIC_GATE(11, idt);
+	WRITE_GENERIC_GATE(12, idt);
+	WRITE_GENERIC_GATE(13, idt);
+	WRITE_GENERIC_GATE(14, idt);
+	WRITE_GENERIC_GATE(15, idt);
+	WRITE_GENERIC_GATE(16, idt);
+	WRITE_GENERIC_GATE(17, idt);
+	WRITE_GENERIC_GATE(18, idt);
+	WRITE_GENERIC_GATE(19, idt);
+	WRITE_GENERIC_GATE(20, idt);
+	WRITE_GENERIC_GATE(21, idt);
+	WRITE_GENERIC_GATE(22, idt);
+	WRITE_GENERIC_GATE(23, idt);
+	WRITE_GENERIC_GATE(24, idt);
+	WRITE_GENERIC_GATE(25, idt);
+	WRITE_GENERIC_GATE(26, idt);
+	WRITE_GENERIC_GATE(27, idt);
+	WRITE_GENERIC_GATE(28, idt);
+	WRITE_GENERIC_GATE(29, idt);
+	WRITE_GENERIC_GATE(30, idt);
+	WRITE_GENERIC_GATE(31, idt);
+	WRITE_GENERIC_GATE(32, idt);
+	WRITE_GENERIC_GATE(33, idt);
+	WRITE_GENERIC_GATE(34, idt);
+	WRITE_GENERIC_GATE(35, idt);
+	WRITE_GENERIC_GATE(36, idt);
+	WRITE_GENERIC_GATE(37, idt);
+	WRITE_GENERIC_GATE(38, idt);
+	WRITE_GENERIC_GATE(39, idt);
+	WRITE_GENERIC_GATE(40, idt);
+	WRITE_GENERIC_GATE(41, idt);
+	WRITE_GENERIC_GATE(42, idt);
+	WRITE_GENERIC_GATE(43, idt);
+	WRITE_GENERIC_GATE(44, idt);
+	WRITE_GENERIC_GATE(45, idt);
+	WRITE_GENERIC_GATE(46, idt);
+	WRITE_GENERIC_GATE(47, idt);
 
 	asm volatile("lidt %0"::"m" (idt_pointer));
 
