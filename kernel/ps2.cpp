@@ -107,8 +107,7 @@ enum ps2_port_t: uint16_t  {
 
 namespace {
 
-irq::irq_return_t first_line_irq(irq::irq_t, irq::stack_pointer_type);
-irq::irq_return_t second_line_irq(irq::irq_t, irq::stack_pointer_type);
+irq::irq_return_t irq_handler(irq::irq_t);
 irq::irq_return_t ps2_irq_handler(ps2::line_t line);
 
 
@@ -206,8 +205,8 @@ void ps2::init() {
 		}
 	});
 
-	irq::register_handler(FIRST_LINE_IRQ, first_line_irq);
-	irq::register_handler(SECOND_LINE_IRQ, second_line_irq);
+	irq::register_irq_handler(FIRST_LINE_IRQ, irq_handler);
+	irq::register_irq_handler(SECOND_LINE_IRQ, irq_handler);
 
 
 	enable_device(line_t::dev_1);
@@ -337,19 +336,19 @@ const char *ps2::strerror(ps2::ioret_t error) {
 namespace {
 
 
-/// \brief First PS/2 line interrupt handler.
+/// \brief PS/2 IRQ handler.
 ///
-/// The function call \ref ps2_irq_handler with correct parameter.
-irq::irq_return_t first_line_irq(irq::irq_t, irq::stack_pointer_type) {
-	return ps2_irq_handler(ps2::line_t::dev_1);
-}
-
-
-/// \brief Second PS/2 line interrupt handler.
+/// The function handles IRQ from PS/2 devices with auto choosing PS/2 line.
 ///
-/// The function call \ref ps2_irq_handler with correct parameter.
-irq::irq_return_t second_line_irq(irq::irq_t, irq::stack_pointer_type) {
-	return ps2_irq_handler(ps2::line_t::dev_2);
+/// \param vector number of interrupt
+irq::irq_return_t irq_handler(irq::irq_t vector) {
+	if (vector == FIRST_LINE_IRQ) {
+		return ps2_irq_handler(ps2::line_t::dev_1);
+	} else if (vector == SECOND_LINE_IRQ) {
+		return ps2_irq_handler(ps2::line_t::dev_2);
+	} else {
+		return irq::irq_return_t::none;
+	}
 }
 
 

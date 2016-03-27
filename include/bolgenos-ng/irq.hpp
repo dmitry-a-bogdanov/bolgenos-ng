@@ -2,6 +2,7 @@
 
 #include <lib/type_traits.hpp>
 
+#include "cout.hpp"
 #include "stdtypes.hpp"
 
 
@@ -14,7 +15,13 @@ namespace irq {
 using irq_t = uint8_t;
 
 
-using stack_pointer_type = void *;
+enum exception_t: irq_t {
+	breakpoint = 3,
+	max = 0x20
+};
+
+
+using stack_ptr_t = void *;
 
 
 enum class irq_return_t {
@@ -27,7 +34,7 @@ enum class irq_return_t {
 ///
 /// Type for holding IRQ handler routine. Function type accepts IRQ line as
 /// parameter and returns nothing.
-using irq_handler_t = irq_return_t (*)(irq_t, stack_pointer_type);
+using irq_handler_t = irq_return_t (*)(irq_t);
 
 
 /// \brief Last IRQ line.
@@ -72,7 +79,31 @@ void init();
 ///
 /// \param vector IRQ line that will use provided function.
 /// \param routine Function to be called when specified IRQ vector happens.
-void register_handler(irq_t vector, irq_handler_t routine);
+void register_irq_handler(irq_t vector, irq_handler_t routine);
+
+
+struct __attribute__((packed)) trap_frame_t {
+	uint32_t edi;
+	uint32_t esi;
+	uint32_t ebp;
+	uint32_t esp;
+	uint32_t ebx;
+	uint32_t edx;
+	uint32_t ecx;
+	uint32_t eax;
+	uint32_t eflags;
+	uint16_t cs;
+	uint32_t eip;
+	uint32_t err_code;
+};
+
+cio::OutStream& operator << (cio::OutStream &stream,
+		const trap_frame_t &frame);
+
+
+using exc_handler_t = void (*)(trap_frame_t *frame);
+
+void register_exc_handler(exception_t exception, exc_handler_t handler);
 
 
 } // namespace irq

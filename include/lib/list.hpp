@@ -100,6 +100,11 @@ public:
 	iterator end() {
 		return iterator(nullptr);
 	}
+
+
+	bool empty() {
+		return first_ == nullptr;
+	}
 private:
 	struct list_item_type {
 		list_item_type *next_ = nullptr;

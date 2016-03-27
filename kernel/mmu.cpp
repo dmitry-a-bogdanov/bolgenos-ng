@@ -186,7 +186,7 @@ Segment gdt[] _mmu_aligned_ = {
 			0x0,
 			Segment::tag_type::st_null,
 			seg_sys_flag_type::sys_null,
-			protection_ring_t::dpl_null,
+			protection_ring_t::ring_null,
 			seg_present_type::present_null,
 			seg_long_type::long_null,
 			seg_db_type::db_null,

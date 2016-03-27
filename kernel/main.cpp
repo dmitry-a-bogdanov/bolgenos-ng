@@ -55,6 +55,8 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
+	asm("int $3\n");
+
 	do {
 		asm ("hlt");
 	} while(1);
