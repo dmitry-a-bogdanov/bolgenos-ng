@@ -4,7 +4,7 @@ set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
-set(dep_flags "-ffreestanding")
+set(dep_flags "-ffreestanding") #-nostdinc -nostdlib")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
@@ -99,6 +99,7 @@ set(kernel_sources ${kernel_start_file}
 	slab.cpp
 	
 	abi/cxxabi.c
+	backtrace.cpp
 	
 	lib/snprintf.cpp
 	lib/string.cpp

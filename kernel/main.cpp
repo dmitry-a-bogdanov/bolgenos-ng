@@ -17,7 +17,16 @@
 #include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <bolgenos-ng/execinfo.hpp>
+
 #include "config.h"
+
+void test_backtrace2(int arg);
+
+void test_backtrace(int arg) {
+	cio::cout << __func__ << cio::endl;
+	test_backtrace2(arg);
+}
 
 /**
 * \brief Kernel main function.
@@ -55,7 +64,7 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
-	asm("int $3\n");
+	test_backtrace(10);
 
 	do {
 		asm ("hlt");

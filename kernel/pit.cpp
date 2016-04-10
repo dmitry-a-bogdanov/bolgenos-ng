@@ -14,6 +14,13 @@
 
 #include "config.h"
 
+void test_backtrace3(int arg);
+
+void test_backtrace2(int arg) {
+	cio::cout << __func__ << ":" << reinterpret_cast<void *>(test_backtrace2) << cio::endl;
+	test_backtrace3(arg);
+}
+
 
 namespace {
 
