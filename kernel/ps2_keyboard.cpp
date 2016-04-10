@@ -4,8 +4,9 @@
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/string.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/ps2.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "ps2_keyboard_sm.hpp"
 

@@ -2,9 +2,10 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/slab.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "../free_list.hpp"
 #include "../buddy_allocator.hpp"

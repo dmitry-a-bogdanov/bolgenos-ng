@@ -4,11 +4,12 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "frequency_divider.hpp"
 

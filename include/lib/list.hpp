@@ -2,7 +2,8 @@
 
 
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/cout.hpp>
+
+#include "ostream.hpp"
 
 
 namespace lib {

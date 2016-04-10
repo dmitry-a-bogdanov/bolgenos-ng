@@ -3,11 +3,12 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"

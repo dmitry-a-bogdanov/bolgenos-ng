@@ -63,7 +63,6 @@ set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
-	cout.cpp
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp
@@ -102,6 +101,7 @@ set(kernel_sources ${kernel_start_file}
 	
 	lib/snprintf.cpp
 	lib/string.cpp
+	lib/ostream.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp

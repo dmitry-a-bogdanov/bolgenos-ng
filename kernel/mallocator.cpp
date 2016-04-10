@@ -4,9 +4,7 @@
 
 #include <bolgenos-ng/error.h>
 
-
-
-#include <bolgenos-ng/cout.hpp>
+#include <lib/ostream.hpp>
 
 namespace {
 

@@ -2,9 +2,10 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "config.h"
 

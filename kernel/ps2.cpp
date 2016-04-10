@@ -5,9 +5,10 @@
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "ps2_keyboard.hpp"
 

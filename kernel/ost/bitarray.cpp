@@ -4,7 +4,8 @@
 
 #include <bolgenos-ng/bitarray.hpp>
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/cout.hpp>
+
+#include <lib/ostream.hpp>
 
 void ost::test_bitarray() {
 	void *mem = memory::alloc_pages(1);

@@ -1,4 +1,4 @@
-#include <bolgenos-ng/cout.hpp>
+#include <lib/ostream.hpp>
 
 #include <bolgenos-ng/printk.h>
 
