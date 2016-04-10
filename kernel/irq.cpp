@@ -265,7 +265,7 @@ namespace {
 
 
 void default_isr(irq::irq_t vector) {
-	cio::ccrit << "Unhandled IRQ" << vector << cio::endl;
+	lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
 	panic("Fatal interrupt");
 }
 

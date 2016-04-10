@@ -86,8 +86,8 @@ void memory::allocators::SlabAllocator::deallocate(void *addr) {
 		return;
 	}
 	if (!owns(addr)) {
-		cio::ccrit << __func__ << ": deallocation of foreign memory = "
-				<< addr << cio::endl;
+		lib::ccrit << __func__ << ": deallocation of foreign memory = "
+				<< addr << lib::endl;
 		panic("Critical error");
 	}
 	size_t chunk = (((size_t) addr) - ((size_t) memory_)) / elem_size_;

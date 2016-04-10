@@ -4,7 +4,7 @@
 
 namespace {
 
-void print_level(cio::OutStream &stream);
+void print_level(lib::ostream &stream);
 
 
 enum log_level_t: int {
@@ -34,71 +34,71 @@ const char *level_to_string(log_level_t level) {
 
 } // namespace
 
-cio::OutStream cio::cout;
-cio::LogStream cio::ccrit(static_cast<int>(log_level_t::critical));
-cio::LogStream cio::cerr(static_cast<int>(log_level_t::error));
-cio::LogStream cio::cwarn(static_cast<int>(log_level_t::warning));
-cio::LogStream cio::cinfo(static_cast<int>(log_level_t::info));
-cio::LogStream cio::cnotice(static_cast<int>(log_level_t::notice));
+lib::ostream lib::cout;
+lib::LogStream lib::ccrit(static_cast<int>(log_level_t::critical));
+lib::LogStream lib::cerr(static_cast<int>(log_level_t::error));
+lib::LogStream lib::cwarn(static_cast<int>(log_level_t::warning));
+lib::LogStream lib::cinfo(static_cast<int>(log_level_t::info));
+lib::LogStream lib::cnotice(static_cast<int>(log_level_t::notice));
 
 
-cio::OutStream::OutStream() {
+lib::ostream::ostream() {
 }
 
 
-cio::OutStream::~OutStream() {
+lib::ostream::~ostream() {
 }
 
 
-void cio::OutStream::set_newline_callback(newline_callback_type cb) {
+void lib::ostream::set_newline_callback(newline_callback_type cb) {
 	newline_callback_ = cb;
 }
 
-cio::OutStream& cio::OutStream::operator <<(const char *string) {
+lib::ostream& lib::ostream::operator <<(const char *string) {
 	exec_newline_callback_if_needed();
 	printk("%s", string);
 	return *this;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(void *ptr) {
+lib::ostream& lib::ostream::operator <<(void *ptr) {
 	exec_newline_callback_if_needed();
 	printk("%lu", (long unsigned) ptr);
 	return *this;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(signed long val) {
+lib::ostream& lib::ostream::operator <<(signed long val) {
 	exec_newline_callback_if_needed();
 	printk("%li", val);
 	return *this;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(signed int val) {
+lib::ostream& lib::ostream::operator <<(signed int val) {
 	exec_newline_callback_if_needed();
 	return *this << (signed long) val;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(unsigned long val) {
+lib::ostream& lib::ostream::operator <<(unsigned long val) {
 	exec_newline_callback_if_needed();
 	printk("%lu", val);
 	return *this;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(unsigned int val) {
+lib::ostream& lib::ostream::operator <<(unsigned int val) {
 	exec_newline_callback_if_needed();
 	return *this << (unsigned long) val;
 }
 
 
-cio::OutStream& cio::OutStream::operator <<(format_func_type func) {
+lib::ostream& lib::ostream::operator <<(format_func_type func) {
 	return func(*this);
 }
 
-void cio::OutStream::exec_newline_callback_if_needed() {
+void lib::ostream::exec_newline_callback_if_needed() {
 	if (run_newline_callback_) {
 		// reset flag first in order to avoid recursion!
 		run_newline_callback_ = false;
@@ -107,41 +107,41 @@ void cio::OutStream::exec_newline_callback_if_needed() {
 	}
 }
 
-cio::OutStream& cio::endl(OutStream &stream) {
+lib::ostream& lib::endl(ostream &stream) {
 	stream << "\n";
 	stream.run_newline_callback_ = true;
 	return stream;
 }
 
 
-cio::LogStream::LogStream(int level)
-		: OutStream(), log_level_(level) {
+lib::LogStream::LogStream(int level)
+		: ostream(), log_level_(level) {
 	set_newline_callback(print_level);
 }
 
 
-cio::LogStream::~LogStream() {
+lib::LogStream::~LogStream() {
 }
 
 
-void cio::LogStream::log_level(int level) {
+void lib::LogStream::log_level(int level) {
 	log_level_ = level;
 }
 
 
-int cio::LogStream::log_level() const {
+int lib::LogStream::log_level() const {
 	return log_level_;
 }
 
 
 
-int cio::LogStream::system_log_level_ = static_cast<int>(log_level_t::notice);
+int lib::LogStream::system_log_level_ = static_cast<int>(log_level_t::notice);
 
 
 namespace {
 
-void print_level(cio::OutStream &stream) {
-	cio::LogStream *log_stream = reinterpret_cast<cio::LogStream *>(&stream);
+void print_level(lib::ostream &stream) {
+	lib::LogStream *log_stream = reinterpret_cast<lib::LogStream *>(&stream);
 	const char *level_name = level_to_string(
 			static_cast<log_level_t>(log_stream->log_level())
 		);

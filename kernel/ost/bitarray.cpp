@@ -19,14 +19,14 @@ void ost::test_bitarray() {
 
 	for (size_t idx = 0; idx != array_size; ++idx) {
 		if (ba.get(idx) != idx % 2) {
-			cio::cerr << __func__ << ": bug on idx=" << idx
+			lib::cerr << __func__ << ": bug on idx=" << idx
 				<< " " << ba.get(idx) << " vs. "
-				<< idx % 2 << cio::endl;
+				<< idx % 2 << lib::endl;
 			panic("Failed Test!");
 		}
 	}
 
-	cio::cinfo << __func__ << ": ok" << cio::endl;
+	lib::cinfo << __func__ << ": ok" << lib::endl;
 
 	memory::free_pages(mem);
 }

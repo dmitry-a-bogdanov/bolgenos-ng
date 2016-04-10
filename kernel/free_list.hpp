@@ -18,7 +18,7 @@ namespace allocators {
 
 class FreeList;
 
-cio::OutStream& operator<<(cio::OutStream& stream,
+lib::ostream& operator<<(lib::ostream& stream,
 		const FreeList& fl);
 
 
@@ -120,7 +120,7 @@ private:
 
 	/// Output operator for \ref FreeList objects.
 	friend
-	cio::OutStream& memory::allocators::operator <<(cio::OutStream& stream,
+	lib::ostream& memory::allocators::operator <<(lib::ostream& stream,
 				const FreeList& fl);
 }; // class FreeList
 

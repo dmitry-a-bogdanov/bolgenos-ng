@@ -23,7 +23,7 @@
 /**
 * \brief Kernel main function.
 *
-* The main kernel function. The fuction performs full bootstrap of kernel
+* The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
 extern "C" void kernel_main() {
@@ -38,8 +38,8 @@ extern "C" void kernel_main() {
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
 
-	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
-		<< cio::endl;
+	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< lib::endl;
 
 	irq::init();
 
@@ -50,7 +50,7 @@ extern "C" void kernel_main() {
 
 	irq::enable();
 
-	cio::cinfo << "CPU is initialized" << cio::endl;
+	lib::cinfo << "CPU is initialized" << lib::endl;
 
 	ps2::init();
 

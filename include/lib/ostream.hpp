@@ -1,15 +1,13 @@
 #pragma once
 
-/// \brief Console Input/Output
-///
-/// Namespace provides API for console output.
-namespace cio {
+
+namespace lib {
 
 
 /// \brief Output stream class
 ///
 /// Class that provides base interface to output.
-class OutStream {
+class ostream {
 public:
 	/// \brief Type of formatting function pointer.
 	///
@@ -17,30 +15,30 @@ public:
 	/// like `cout << endl;` or `cout << hex`. When `operator <<` is
 	/// called for object of this type, passed function will be invoked
 	/// for caller OutStream.
-	using format_func_type = OutStream& (OutStream&);
+	using format_func_type = ostream& (ostream&);
 
 
 	/// \brief Type of newline callback.
 	///
 	/// Type of newline callback function. Newline callback is called when
 	/// output is called after putting \ref endl to OutStream.
-	using newline_callback_type = void (OutStream&);
+	using newline_callback_type = void (ostream&);
 
 
 	/// \brief Default constructor.
-	OutStream();
+	ostream();
 
 
 	/// Copying of OutStream is denied.
-	OutStream(const OutStream&) = delete;
+	ostream(const ostream&) = delete;
 
 
 	/// Copying of OutStream is denied.
-	OutStream& operator =(const OutStream&) = delete;
+	ostream& operator =(const ostream&) = delete;
 
 
 	/// \brief Descructor.
-	virtual ~OutStream();
+	virtual ~ostream();
 
 
 	/// \brief Set newline callback.
@@ -51,31 +49,31 @@ public:
 
 
 	/// Print specified string.
-	OutStream& operator<<(const char *string);
+	ostream& operator<<(const char *string);
 
 
 	/// Print specified pointer.
-	OutStream& operator<<(void *ptr);
+	ostream& operator<<(void *ptr);
 
 
 	/// Print specified singed long.
-	OutStream& operator<<(signed long val);
+	ostream& operator<<(signed long val);
 
 
 	/// Print specified unsigned long.
-	OutStream& operator<<(unsigned long val);
+	ostream& operator<<(unsigned long val);
 
 
 	/// Print specified signed int.
-	OutStream& operator<<(signed int val);
+	ostream& operator<<(signed int val);
 
 
 	/// Print specified unsigned int.
-	OutStream& operator<<(unsigned int val);
+	ostream& operator<<(unsigned int val);
 
 
 	/// Apply formatter to OutStream.
-	OutStream& operator<<(format_func_type formatter);
+	ostream& operator<<(format_func_type formatter);
 
 protected:
 	/// Execute newline callback if needed.
@@ -95,7 +93,7 @@ protected:
 
 
 
-	friend OutStream& endl(OutStream&);
+	friend ostream& endl(ostream&);
 };
 
 
@@ -105,7 +103,7 @@ protected:
 /// Instances of this class are to be used for logging objects like
 /// \ref cerr, \ref cinfo etc. Object will produce output if
 /// logging level of object is less or equal than system logging level.
-class LogStream: public OutStream {
+class LogStream: public ostream {
 public:
 	/// Constructor of LogStream object.
 	/// \param log_level Numeric logging level.
@@ -146,7 +144,7 @@ public:
 		if (log_level_ > system_log_level_) {
 			return *this;
 		}
-		OutStream::operator<<(val);
+		ostream::operator<<(val);
 		return *this;
 	}
 
@@ -169,13 +167,13 @@ protected:
 ///
 /// The function prints endline symbol and sets flag for newline callback in
 /// OutStream.
-OutStream& endl(OutStream &stream);
+ostream& endl(ostream &stream);
 
 
 /// \brief Console output object.
 ///
 /// Object of OutStream is to be used for printing to VGA console.
-extern OutStream cout;
+extern ostream cout;
 
 
 /// Output object for critical error messages.
