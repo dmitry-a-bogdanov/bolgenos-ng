@@ -2,6 +2,8 @@
 
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/vga_console.hpp>
+
 namespace {
 
 void print_level(lib::ostream &stream);
@@ -54,6 +56,14 @@ void lib::ostream::set_newline_callback(newline_callback_type cb) {
 	newline_callback_ = cb;
 }
 
+
+lib::ostream& lib::ostream::operator <<(char val) {
+	exec_newline_callback_if_needed();
+	vga_console::putc(val);
+	return *this;
+}
+
+
 lib::ostream& lib::ostream::operator <<(const char *string) {
 	exec_newline_callback_if_needed();
 	printk("%s", string);
@@ -61,23 +71,50 @@ lib::ostream& lib::ostream::operator <<(const char *string) {
 }
 
 
-lib::ostream& lib::ostream::operator <<(void *ptr) {
+lib::ostream& lib::ostream::operator <<(bool value) {
 	exec_newline_callback_if_needed();
-	printk("%lu", (long unsigned) ptr);
+	if (value)
+		*this << "true";
+	else
+		*this << "false";
 	return *this;
 }
 
 
-lib::ostream& lib::ostream::operator <<(signed long val) {
+lib::ostream& lib::ostream::operator <<(unsigned char val) {
+	exec_newline_callback_if_needed();
+	return *this << static_cast<unsigned short>(val);
+}
+
+
+lib::ostream& lib::ostream::operator <<(short val) {
+	exec_newline_callback_if_needed();
+	return *this << static_cast<int>(val);
+}
+
+
+lib::ostream& lib::ostream::operator <<(unsigned short val) {
+	exec_newline_callback_if_needed();
+	return *this << static_cast<unsigned int>(val);
+}
+
+
+lib::ostream& lib::ostream::operator <<(int val) {
+	exec_newline_callback_if_needed();
+	return *this << static_cast<long>(val);
+}
+
+
+lib::ostream& lib::ostream::operator <<(unsigned int val) {
+	exec_newline_callback_if_needed();
+	return *this << static_cast<unsigned long>(val);
+}
+
+
+lib::ostream& lib::ostream::operator <<(long val) {
 	exec_newline_callback_if_needed();
 	printk("%li", val);
 	return *this;
-}
-
-
-lib::ostream& lib::ostream::operator <<(signed int val) {
-	exec_newline_callback_if_needed();
-	return *this << (signed long) val;
 }
 
 
@@ -88,13 +125,14 @@ lib::ostream& lib::ostream::operator <<(unsigned long val) {
 }
 
 
-lib::ostream& lib::ostream::operator <<(unsigned int val) {
+lib::ostream& lib::ostream::operator <<(void *ptr) {
 	exec_newline_callback_if_needed();
-	return *this << (unsigned long) val;
+	printk("%lu", reinterpret_cast<long unsigned>(ptr));
+	return *this;
 }
 
 
-lib::ostream& lib::ostream::operator <<(format_func_type func) {
+lib::ostream& lib::ostream::operator <<(manipulator_type func) {
 	return func(*this);
 }
 

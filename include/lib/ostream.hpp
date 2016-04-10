@@ -15,7 +15,7 @@ public:
 	/// like `cout << endl;` or `cout << hex`. When `operator <<` is
 	/// called for object of this type, passed function will be invoked
 	/// for caller OutStream.
-	using format_func_type = ostream& (ostream&);
+	using manipulator_type = ostream& (ostream&);
 
 
 	/// \brief Type of newline callback.
@@ -48,32 +48,60 @@ public:
 	virtual void set_newline_callback(newline_callback_type cb);
 
 
+	/// Print specified character.
+	ostream& operator<<(char val);
+
+
 	/// Print specified string.
 	ostream& operator<<(const char *string);
 
 
-	/// Print specified pointer.
-	ostream& operator<<(void *ptr);
+	/// Print specified boolean value.
+	ostream& operator<<(bool val);
 
 
-	/// Print specified singed long.
-	ostream& operator<<(signed long val);
+	/// Print specified unsigned char.
+	ostream& operator<<(unsigned char val);
 
 
-	/// Print specified unsigned long.
-	ostream& operator<<(unsigned long val);
+	/// Print specified short.
+	ostream& operator<<(short val);
 
 
-	/// Print specified signed int.
-	ostream& operator<<(signed int val);
+	/// Print specified unsigned short.
+	ostream& operator<<(unsigned short val);
+
+
+	/// Print specified int.
+	ostream& operator<<(int val);
 
 
 	/// Print specified unsigned int.
 	ostream& operator<<(unsigned int val);
 
 
+	/// Print specified long.
+	ostream& operator<<(long val);
+
+
+	/// Print specified unsigned long.
+	ostream& operator<<(unsigned long val);
+
+
+	/// Print specified long long.
+	ostream& operator<<(long long val);
+
+
+	/// Print specified unsigned long long.
+	ostream& operator<<(unsigned long long val);
+
+
+	/// Print specified pointer.
+	ostream& operator<<(void *ptr);
+
+
 	/// Apply formatter to OutStream.
-	ostream& operator<<(format_func_type formatter);
+	ostream& operator<<(manipulator_type formatter);
 
 protected:
 	/// Execute newline callback if needed.
