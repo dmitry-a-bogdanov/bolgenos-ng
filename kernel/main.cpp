@@ -20,6 +20,21 @@
 
 #include "config.h"
 
+
+#define out_n_as_type(type, n) \
+	"(" #type ") " << (type) n << ", "
+
+#define out_n_as_everything(n) \
+	lib::cout << #n " as :" << out_n_as_type(char, n) \
+		<< out_n_as_type(short, n) \
+		<< out_n_as_type(int, n) \
+		<< out_n_as_type(long, n) \
+		<< out_n_as_type(unsigned char, n) \
+		<< out_n_as_type(unsigned short, n) \
+		<< out_n_as_type(unsigned int, n) \
+		<< out_n_as_type(unsigned long, n) \
+		<< lib::endl;
+
 /**
 * \brief Kernel main function.
 *
@@ -55,6 +70,16 @@ extern "C" void kernel_main() {
 	ps2::init();
 
 	ost::run();
+
+	/*
+	out_n_as_everything(0);
+	out_n_as_everything(1);
+	out_n_as_everything(-1);
+	lib::cout	<< "test_min_val " << (char) -128 << ';'
+			<< (short) -32768 << ';'
+			<< (int) -2147483648 << ';'
+			<< lib::endl;
+			*/
 
 	do {
 		asm ("hlt");

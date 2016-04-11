@@ -1,8 +1,10 @@
 #include <lib/ostream.hpp>
 
-#include <bolgenos-ng/printk.h>
+// #include <bolgenos-ng/printk.h>
 
 #include <bolgenos-ng/vga_console.hpp>
+
+#include <lib/type_traits.hpp>
 
 namespace {
 
@@ -98,9 +100,51 @@ lib::ostream& lib::ostream::operator <<(bool value) {
 }
 
 
+using max_dec_length = lib::integral_constant<size_t, 20>;
+
+
+template<typename T>
+typename lib::enable_if<lib::is_unsigned<T>::value>::type
+print_as_dec(lib::ostream& stream, T value) {
+	using value_type = T;
+	char buffer[max_dec_length::value];
+	size_t digits = 0;
+	constexpr value_type base = 10;
+	while (value) {
+		char digit = value % base;
+		buffer[digits++] = '0' + digit;
+		value = value / base;
+	}
+	if (digits) {
+		do {
+			stream.put(buffer[--digits]);
+		} while(digits);
+	} else {
+		stream.put('0');
+	}
+}
+
+
+template<typename T>
+typename lib::enable_if<lib::is_signed<T>::value>::type
+print_as_dec(lib::ostream& stream, T value) {
+	using value_type = T;
+	using unsigned_value_type = typename lib::make_unsigned<value_type>::type;
+	unsigned_value_type unsigned_value = 0;
+	if (value >= 0) {
+		unsigned_value = value;
+	} else {
+		unsigned_value = static_cast<unsigned_value_type>(0) - value;
+		stream.put('-');
+	}
+	print_as_dec<unsigned_value_type>(stream, unsigned_value);
+}
+
+
 lib::ostream& lib::ostream::operator <<(unsigned char val) {
 	exec_newline_callback_if_needed();
-	return *this << static_cast<unsigned short>(val);
+	print_as_dec(*this, val);
+	return *this;
 }
 
 
@@ -112,7 +156,8 @@ lib::ostream& lib::ostream::operator <<(short val) {
 
 lib::ostream& lib::ostream::operator <<(unsigned short val) {
 	exec_newline_callback_if_needed();
-	return *this << static_cast<unsigned int>(val);
+	print_as_dec(*this, val);
+	return *this;
 }
 
 
@@ -124,28 +169,29 @@ lib::ostream& lib::ostream::operator <<(int val) {
 
 lib::ostream& lib::ostream::operator <<(unsigned int val) {
 	exec_newline_callback_if_needed();
-	return *this << static_cast<unsigned long>(val);
+	print_as_dec(*this, val);
+	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(long val) {
 	exec_newline_callback_if_needed();
-	printk("%li", val);
+	print_as_dec(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned long val) {
 	exec_newline_callback_if_needed();
-	printk("%lu", val);
+	print_as_dec(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(void *ptr) {
 	exec_newline_callback_if_needed();
-	printk("%lu", reinterpret_cast<long unsigned>(ptr));
-	return *this;
+	auto integer_value = reinterpret_cast<size_t>(ptr);
+	return *this << integer_value;
 }
 
 

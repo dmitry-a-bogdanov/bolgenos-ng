@@ -99,14 +99,6 @@ public:
 	ostream& operator<<(unsigned long val);
 
 
-	/// Print specified long long.
-	ostream& operator<<(long long val);
-
-
-	/// Print specified unsigned long long.
-	ostream& operator<<(unsigned long long val);
-
-
 	/// Print specified pointer.
 	ostream& operator<<(void *ptr);
 
