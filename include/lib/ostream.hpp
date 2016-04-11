@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <bolgenos-ng/stdtypes.hpp>
+
+
 namespace lib {
 
 
@@ -39,6 +42,14 @@ public:
 
 	/// \brief Descructor.
 	virtual ~ostream();
+
+
+	/// Insert one character to stream,
+	ostream& put(char c);
+
+
+	/// Copy array of characters to stream.
+	ostream& write(const char *str, size_t len);
 
 
 	/// \brief Set newline callback.
@@ -102,7 +113,6 @@ public:
 
 	/// Apply formatter to OutStream.
 	ostream& operator<<(manipulator_type formatter);
-
 protected:
 	/// Execute newline callback if needed.
 	///

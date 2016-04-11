@@ -52,6 +52,20 @@ lib::ostream::~ostream() {
 }
 
 
+lib::ostream& lib::ostream::put(char c) {
+	vga_console::putc(c);
+	return *this;
+}
+
+
+lib::ostream& lib::ostream::write(const char *str, size_t len) {
+	for(size_t idx = 0; idx != len; ++idx) {
+		vga_console::putc(str[idx]);
+	}
+	return *this;
+}
+
+
 void lib::ostream::set_newline_callback(newline_callback_type cb) {
 	newline_callback_ = cb;
 }
@@ -59,14 +73,17 @@ void lib::ostream::set_newline_callback(newline_callback_type cb) {
 
 lib::ostream& lib::ostream::operator <<(char val) {
 	exec_newline_callback_if_needed();
-	vga_console::putc(val);
+	put(val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(const char *string) {
 	exec_newline_callback_if_needed();
-	printk("%s", string);
+	while (*string) {
+		put(*string);
+		++string;
+	}
 	return *this;
 }
 
