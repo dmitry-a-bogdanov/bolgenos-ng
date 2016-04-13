@@ -100,19 +100,34 @@ lib::ostream& lib::ostream::operator <<(bool value) {
 }
 
 
+namespace {
+
+
 using max_dec_length = lib::integral_constant<size_t, 20>;
+
+
+char to_printable(unsigned char digit) {
+	if (digit < 10) {
+		return '0' + digit;
+	} else {
+		return 'a' + digit - 10;
+	}
+}
 
 
 template<typename T>
 typename lib::enable_if<lib::is_unsigned<T>::value>::type
-print_as_dec(lib::ostream& stream, T value) {
+show_numerical_value(lib::ostream& stream, T value) {
 	using value_type = T;
 	char buffer[max_dec_length::value];
 	size_t digits = 0;
-	constexpr value_type base = 10;
+	value_type base = 10;
+	if (stream.flags() & lib::ostream::fmtflags::hex) {
+		base = 16;
+	}
 	while (value) {
-		char digit = value % base;
-		buffer[digits++] = '0' + digit;
+		unsigned char digit = value % base;
+		buffer[digits++] = to_printable(digit);
 		value = value / base;
 	}
 	if (digits) {
@@ -127,63 +142,72 @@ print_as_dec(lib::ostream& stream, T value) {
 
 template<typename T>
 typename lib::enable_if<lib::is_signed<T>::value>::type
-print_as_dec(lib::ostream& stream, T value) {
+show_numerical_value(lib::ostream& stream, T value) {
 	using value_type = T;
 	using unsigned_value_type = typename lib::make_unsigned<value_type>::type;
 	unsigned_value_type unsigned_value = 0;
-	if (value >= 0) {
-		unsigned_value = value;
+	if (stream.flags() & lib::ostream::hex) {
+		unsigned_value = *reinterpret_cast<unsigned_value_type *>(&value);
 	} else {
-		unsigned_value = static_cast<unsigned_value_type>(0) - value;
-		stream.put('-');
+		if (value >= 0) {
+			unsigned_value = value;
+		} else {
+			unsigned_value = static_cast<unsigned_value_type>(0) - value;
+			stream.put('-');
+		}
 	}
-	print_as_dec<unsigned_value_type>(stream, unsigned_value);
+	show_numerical_value<unsigned_value_type>(stream, unsigned_value);
 }
+
+
+} // namespace
 
 
 lib::ostream& lib::ostream::operator <<(unsigned char val) {
 	exec_newline_callback_if_needed();
-	print_as_dec(*this, val);
+	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(short val) {
 	exec_newline_callback_if_needed();
-	return *this << static_cast<int>(val);
+	show_numerical_value(*this, val);
+	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned short val) {
 	exec_newline_callback_if_needed();
-	print_as_dec(*this, val);
+	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(int val) {
 	exec_newline_callback_if_needed();
-	return *this << static_cast<long>(val);
+	show_numerical_value(*this, val);
+	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned int val) {
 	exec_newline_callback_if_needed();
-	print_as_dec(*this, val);
+	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(long val) {
 	exec_newline_callback_if_needed();
-	print_as_dec(*this, val);
+	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned long val) {
 	exec_newline_callback_if_needed();
-	print_as_dec(*this, val);
+	show_numerical_value(*this, val);
 	return *this;
 }
 
@@ -207,6 +231,43 @@ void lib::ostream::exec_newline_callback_if_needed() {
 			newline_callback_(*this);
 	}
 }
+
+
+lib::ostream::fmtflags lib::ostream::setf(fmtflags fl) {
+	fmtflags old_flags = format_;
+
+	format_ = static_cast<fmtflags>(format_ | fl);
+
+	return old_flags;
+}
+
+
+lib::ostream::fmtflags lib::ostream::setf(fmtflags fl, fmtflags mask) {
+	fmtflags former_format = format_;
+
+	format_ = static_cast<fmtflags>(format_ & ~mask);
+	format_ = static_cast<fmtflags>(format_ | fl);
+
+	return former_format;
+}
+
+
+lib::ostream::fmtflags lib::ostream::flags() const {
+	return format_;
+}
+
+
+lib::ostream& lib::dec(ostream &stream) {
+	stream.setf(ostream::fmtflags::dec, ostream::fmtflags::basefield);
+	return stream;
+}
+
+
+lib::ostream& lib::hex(ostream &stream) {
+	stream.setf(ostream::fmtflags::hex, ostream::fmtflags::basefield);
+	return stream;
+}
+
 
 lib::ostream& lib::endl(ostream &stream) {
 	stream << "\n";

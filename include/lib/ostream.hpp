@@ -28,6 +28,13 @@ public:
 	using newline_callback_type = void (ostream&);
 
 
+	enum fmtflags {
+		dec = 1 << 0,
+		hex = 1 << 1,
+		basefield = dec | hex,
+	};
+
+
 	/// \brief Default constructor.
 	ostream();
 
@@ -105,6 +112,15 @@ public:
 
 	/// Apply formatter to OutStream.
 	ostream& operator<<(manipulator_type formatter);
+
+
+	fmtflags setf(fmtflags fl);
+
+
+	fmtflags setf(fmtflags fl, fmtflags mask);
+
+
+	fmtflags flags() const;
 protected:
 	/// Execute newline callback if needed.
 	///
@@ -122,9 +138,25 @@ protected:
 	bool run_newline_callback_ = true;
 
 
+private:
+	fmtflags format_ = fmtflags::dec;
+
 
 	friend ostream& endl(ostream&);
 };
+
+
+/// \brief End of line.
+///
+/// The function prints end of line symbol and sets flag for newline callback in
+/// OutStream.
+ostream& endl(ostream &stream);
+
+
+ostream& dec(ostream &stream);
+
+
+ostream& hex(ostream &stream);
 
 
 /// \brief Extension of OutStream with support of debug levels.
@@ -191,13 +223,6 @@ protected:
 	/// Numeric value of system logging level.
 	static int system_log_level_;
 };
-
-
-/// \brief End of line.
-///
-/// The function prints endline symbol and sets flag for newline callback in
-/// OutStream.
-ostream& endl(ostream &stream);
 
 
 /// \brief Console output object.
