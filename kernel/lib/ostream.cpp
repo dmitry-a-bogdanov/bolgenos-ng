@@ -6,47 +6,13 @@
 
 #include <lib/type_traits.hpp>
 
-namespace {
-
-void print_level(lib::ostream &stream);
-
-
-enum log_level_t: int {
-	critical	= 0,
-	error		= 1,
-	warning		= 2,
-	notice		= 3,
-	info		= 4,
-};
-
-const char *level_to_string(log_level_t level) {
-	switch(level) {
-	case log_level_t::critical:
-		return "CRIT";
-	case log_level_t::error:
-		return "ERR";
-	case log_level_t::warning:
-		return "WARNING";
-	case log_level_t::notice:
-		return "NOTICE";
-	case log_level_t::info:
-		return "INFO";
-	default:
-		return "-";
-	}
-}
-
-} // namespace
-
-lib::ostream lib::cout;
-lib::LogStream lib::ccrit(static_cast<int>(log_level_t::critical));
-lib::LogStream lib::cerr(static_cast<int>(log_level_t::error));
-lib::LogStream lib::cwarn(static_cast<int>(log_level_t::warning));
-lib::LogStream lib::cinfo(static_cast<int>(log_level_t::info));
-lib::LogStream lib::cnotice(static_cast<int>(log_level_t::notice));
+#include "streambuf.hpp"
+#include "vga_buf.hpp"
+#include "vga_log_buf.hpp"
 
 
-lib::ostream::ostream() {
+lib::ostream::ostream(streambuf *sb)
+	: streambuf_(sb) {
 }
 
 
@@ -55,33 +21,24 @@ lib::ostream::~ostream() {
 
 
 lib::ostream& lib::ostream::put(char c) {
-	vga_console::putc(c);
+	streambuf_->sputc(c);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::write(const char *str, size_t len) {
-	for(size_t idx = 0; idx != len; ++idx) {
-		vga_console::putc(str[idx]);
-	}
+	streambuf_->sputn(str, len);
 	return *this;
 }
 
 
-void lib::ostream::set_newline_callback(newline_callback_type cb) {
-	newline_callback_ = cb;
-}
-
-
 lib::ostream& lib::ostream::operator <<(char val) {
-	exec_newline_callback_if_needed();
 	put(val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(const char *string) {
-	exec_newline_callback_if_needed();
 	while (*string) {
 		put(*string);
 		++string;
@@ -91,7 +48,6 @@ lib::ostream& lib::ostream::operator <<(const char *string) {
 
 
 lib::ostream& lib::ostream::operator <<(bool value) {
-	exec_newline_callback_if_needed();
 	if (value)
 		*this << "true";
 	else
@@ -145,12 +101,14 @@ typename lib::enable_if<lib::is_signed<T>::value>::type
 show_numerical_value(lib::ostream& stream, T value) {
 	using value_type = T;
 	using unsigned_value_type = typename lib::make_unsigned<value_type>::type;
+
 	unsigned_value_type unsigned_value = 0;
-	if (stream.flags() & lib::ostream::hex) {
-		unsigned_value = *reinterpret_cast<unsigned_value_type *>(&value);
+	auto basefield = stream.flags() & lib::ostream::fmtflags::basefield;
+	if (basefield == lib::ostream::fmtflags::hex) {
+		unsigned_value = static_cast<unsigned_value_type>(value);
 	} else {
 		if (value >= 0) {
-			unsigned_value = value;
+			unsigned_value = static_cast<unsigned_value_type>(value);
 		} else {
 			unsigned_value = static_cast<unsigned_value_type>(0) - value;
 			stream.put('-');
@@ -164,56 +122,48 @@ show_numerical_value(lib::ostream& stream, T value) {
 
 
 lib::ostream& lib::ostream::operator <<(unsigned char val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(short val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned short val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(int val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned int val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(long val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(unsigned long val) {
-	exec_newline_callback_if_needed();
 	show_numerical_value(*this, val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(void *ptr) {
-	exec_newline_callback_if_needed();
 	auto integer_value = reinterpret_cast<size_t>(ptr);
 	return *this << integer_value;
 }
@@ -221,15 +171,6 @@ lib::ostream& lib::ostream::operator <<(void *ptr) {
 
 lib::ostream& lib::ostream::operator <<(manipulator_type func) {
 	return func(*this);
-}
-
-void lib::ostream::exec_newline_callback_if_needed() {
-	if (run_newline_callback_) {
-		// reset flag first in order to avoid recursion!
-		run_newline_callback_ = false;
-		if (newline_callback_)
-			newline_callback_(*this);
-	}
 }
 
 
@@ -271,44 +212,42 @@ lib::ostream& lib::hex(ostream &stream) {
 
 lib::ostream& lib::endl(ostream &stream) {
 	stream << "\n";
-	stream.run_newline_callback_ = true;
 	return stream;
 }
 
 
-lib::LogStream::LogStream(int level)
-		: ostream(), log_level_(level) {
-	set_newline_callback(print_level);
-}
-
-
-lib::LogStream::~LogStream() {
-}
-
-
-void lib::LogStream::log_level(int level) {
-	log_level_ = level;
-}
-
-
-int lib::LogStream::log_level() const {
-	return log_level_;
-}
-
-
-
-int lib::LogStream::system_log_level_ = static_cast<int>(log_level_t::notice);
 
 
 namespace {
 
-void print_level(lib::ostream &stream) {
-	lib::LogStream *log_stream = reinterpret_cast<lib::LogStream *>(&stream);
-	const char *level_name = level_to_string(
-			static_cast<log_level_t>(log_stream->log_level())
-		);
-	stream << "[" << level_name << "] ";
-}
+
+lib::_impl::vga_buf plain_vga_buf;
+lib::_impl::vga_log_buf crit_buf(lib::log_level_type::critical, "[CRIT] ");
+lib::_impl::vga_log_buf err_buf(lib::log_level_type::error, "[ERR] ");
+lib::_impl::vga_log_buf warn_buf(lib::log_level_type::warning, "[WARN] ");
+lib::_impl::vga_log_buf notice_buf(lib::log_level_type::notice, "[NOTE] ");
+lib::_impl::vga_log_buf info_buf(lib::log_level_type::info, "[info] ");
 
 
 } // namespace
+
+
+
+
+lib::ostream lib::cout(&plain_vga_buf);
+lib::ostream lib::ccrit(&crit_buf);
+lib::ostream lib::cerr(&err_buf);
+lib::ostream lib::cwarn(&warn_buf);
+lib::ostream lib::cnotice(&notice_buf);
+lib::ostream lib::cinfo(&info_buf);
+
+
+void lib::set_log_level(log_level_type log_level) {
+	lib::_impl::vga_log_buf::set_system_log_level(log_level);
+}
+
+
+lib::log_level_type lib::get_log_level() {
+	return lib::_impl::vga_log_buf::get_system_log_level();
+}
+

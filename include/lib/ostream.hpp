@@ -7,6 +7,9 @@
 namespace lib {
 
 
+class streambuf;
+
+
 /// \brief Output stream class
 ///
 /// Class that provides base interface to output.
@@ -21,13 +24,6 @@ public:
 	using manipulator_type = ostream& (ostream&);
 
 
-	/// \brief Type of newline callback.
-	///
-	/// Type of newline callback function. Newline callback is called when
-	/// output is called after putting \ref endl to OutStream.
-	using newline_callback_type = void (ostream&);
-
-
 	enum fmtflags {
 		dec = 1 << 0,
 		hex = 1 << 1,
@@ -36,7 +32,10 @@ public:
 
 
 	/// \brief Default constructor.
-	ostream();
+	ostream() = delete;
+
+
+	explicit ostream(streambuf *sb);
 
 
 	/// Copying of OutStream is denied.
@@ -57,13 +56,6 @@ public:
 
 	/// Copy array of characters to stream.
 	ostream& write(const char *str, size_t len);
-
-
-	/// \brief Set newline callback.
-	///
-	/// The function sets pointer to newline callback.
-	/// \param cb Pointer to callback function.
-	virtual void set_newline_callback(newline_callback_type cb);
 
 
 	/// Print specified character.
@@ -121,24 +113,10 @@ public:
 
 
 	fmtflags flags() const;
-protected:
-	/// Execute newline callback if needed.
-	///
-	/// The function executes registered newline callback function
-	/// if flag \ref OutStream::run_newline_callback_ is true and sets
-	/// this flag to `false`.
-	void exec_newline_callback_if_needed();
-
-
-	/// Pointer to newline callback function.
-	newline_callback_type *newline_callback_ = nullptr;
-
-
-	/// Run newline callback flag.
-	bool run_newline_callback_ = true;
-
-
 private:
+	streambuf *streambuf_;
+
+
 	fmtflags format_ = fmtflags::dec;
 
 
@@ -158,71 +136,19 @@ ostream& dec(ostream &stream);
 
 ostream& hex(ostream &stream);
 
-
-/// \brief Extension of OutStream with support of debug levels.
-///
-/// Class is inherited from OutStream and adds support of debug levels.
-/// Instances of this class are to be used for logging objects like
-/// \ref cerr, \ref cinfo etc. Object will produce output if
-/// logging level of object is less or equal than system logging level.
-class LogStream: public ostream {
-public:
-	/// Constructor of LogStream object.
-	/// \param log_level Numeric logging level.
-	explicit LogStream(int log_level);
-
-	/// Contructing of LogStream without specifing logging level is denied.
-	LogStream() = delete;
-
-
-	/// Copying of LogStream is denied.
-	LogStream(const LogStream&) = delete;
-
-
-	/// Copying of LogStream is denied.
-	LogStream& operator =(const LogStream&) = delete;
-
-
-	/// Destructor.
-	virtual ~LogStream();
-
-
-	/// Get logging level of the object.
-	int log_level() const;
-
-
-	/// Set logging level of the object.
-	void log_level(int);
-
-
-
-	/// \brief Output operator.
-	///
-	/// Print specified value of variable type if logging level allowes
-	/// printing.
-	/// \param val Value to be printed.
-	template<typename T>
-	LogStream &operator<<(const T &val) {
-		if (log_level_ > system_log_level_) {
-			return *this;
-		}
-		ostream::operator<<(val);
-		return *this;
-	}
-
-
-protected:
-	/// \brief Logging level.
-	///
-	/// Numeric value of logging level.
-	int log_level_;
-
-
-	/// \brief System logging level.
-	///
-	/// Numeric value of system logging level.
-	static int system_log_level_;
+enum log_level_type: int {
+	critical	= 0,
+	error		= 1,
+	warning		= 2,
+	notice		= 3,
+	info		= 4,
 };
+
+
+log_level_type get_log_level();
+
+
+void set_log_level(log_level_type log_level);
 
 
 /// \brief Console output object.
@@ -232,23 +158,24 @@ extern ostream cout;
 
 
 /// Output object for critical error messages.
-extern LogStream ccrit;
+extern ostream ccrit;
 
 
 /// Output object for error messages.
-extern LogStream cerr;
+extern ostream cerr;
 
 
 /// Output object for warning messages.
-extern LogStream cwarn;
+extern ostream cwarn;
 
 
 /// Output object for notice messages.
-extern LogStream cnotice;
+extern ostream cnotice;
 
 
 /// Output object for info messages.
-extern LogStream cinfo;
+extern ostream cinfo;
+
 
 
 } // namespace cio

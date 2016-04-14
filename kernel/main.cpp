@@ -48,6 +48,8 @@ extern "C" void kernel_main() {
 
 	call_global_ctors();
 
+	lib::set_log_level(lib::log_level_type::notice);
+
 	vga_console::clear_screen();
 
 	mmu::init();	// Enables segmentation.
@@ -71,15 +73,21 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
-	/*
+
+	lib::cout << lib::hex;
+
 	out_n_as_everything(0);
 	out_n_as_everything(1);
 	out_n_as_everything(-1);
-	lib::cout	<< "test_min_val " << (char) -128 << ';'
+	lib::cout << sizeof(short) << ", "
+			<< sizeof(unsigned short) << ", "
+			<< sizeof(lib::make_unsigned<short>::type)
+			<< lib::endl;
+	lib::cout	<< lib::dec << "test_min_val " << (char) -128 << ';'
 			<< (short) -32768 << ';'
 			<< (int) -2147483648 << ';'
 			<< lib::endl;
-			*/
+
 
 	do {
 		asm ("hlt");

@@ -100,8 +100,14 @@ set(kernel_sources ${kernel_start_file}
 	abi/cxxabi.c
 	
 	lib/snprintf.cpp
+	lib/streambuf.hpp
+	lib/streambuf.cpp
 	lib/string.cpp
 	lib/ostream.cpp
+	lib/vga_buf.hpp
+	lib/vga_buf.cpp
+	lib/vga_log_buf.hpp
+	lib/vga_log_buf.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp
