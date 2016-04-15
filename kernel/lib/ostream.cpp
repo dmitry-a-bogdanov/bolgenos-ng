@@ -2,13 +2,28 @@
 
 // #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/type_traits.hpp>
+#include <lib/utility.hpp>
 
 #include "streambuf.hpp"
 #include "vga_buf.hpp"
 #include "vga_log_buf.hpp"
+
+
+namespace {
+
+
+template<typename T>
+void show_numerical_value(lib::ostream& stream, T value);
+
+
+void fill_field(lib::ostream& stream, size_t width, size_t already_have);
+
+
+} // namespace
 
 
 lib::ostream::ostream(streambuf *sb)
@@ -33,12 +48,15 @@ lib::ostream& lib::ostream::write(const char *str, size_t len) {
 
 
 lib::ostream& lib::ostream::operator <<(char val) {
+	fill_field(*this, width_, 1);
 	put(val);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::operator <<(const char *string) {
+	size_t len = strlen(string);
+	fill_field(*this, width_, len);
 	while (*string) {
 		put(*string);
 		++string;
@@ -54,71 +72,6 @@ lib::ostream& lib::ostream::operator <<(bool value) {
 		*this << "false";
 	return *this;
 }
-
-
-namespace {
-
-
-using max_dec_length = lib::integral_constant<size_t, 20>;
-
-
-char to_printable(unsigned char digit) {
-	if (digit < 10) {
-		return '0' + digit;
-	} else {
-		return 'a' + digit - 10;
-	}
-}
-
-
-template<typename T>
-typename lib::enable_if<lib::is_unsigned<T>::value>::type
-show_numerical_value(lib::ostream& stream, T value) {
-	using value_type = T;
-	char buffer[max_dec_length::value];
-	size_t digits = 0;
-	value_type base = 10;
-	if (stream.flags() & lib::ostream::fmtflags::hex) {
-		base = 16;
-	}
-	while (value) {
-		unsigned char digit = value % base;
-		buffer[digits++] = to_printable(digit);
-		value = value / base;
-	}
-	if (digits) {
-		do {
-			stream.put(buffer[--digits]);
-		} while(digits);
-	} else {
-		stream.put('0');
-	}
-}
-
-
-template<typename T>
-typename lib::enable_if<lib::is_signed<T>::value>::type
-show_numerical_value(lib::ostream& stream, T value) {
-	using value_type = T;
-	using unsigned_value_type = typename lib::make_unsigned<value_type>::type;
-
-	unsigned_value_type unsigned_value = 0;
-	auto basefield = stream.flags() & lib::ostream::fmtflags::basefield;
-	if (basefield == lib::ostream::fmtflags::hex) {
-		unsigned_value = static_cast<unsigned_value_type>(value);
-	} else {
-		if (value >= 0) {
-			unsigned_value = static_cast<unsigned_value_type>(value);
-		} else {
-			unsigned_value = static_cast<unsigned_value_type>(0) - value;
-			stream.put('-');
-		}
-	}
-	show_numerical_value<unsigned_value_type>(stream, unsigned_value);
-}
-
-
-} // namespace
 
 
 lib::ostream& lib::ostream::operator <<(unsigned char val) {
@@ -198,6 +151,28 @@ lib::ostream::fmtflags lib::ostream::flags() const {
 }
 
 
+size_t lib::ostream::width() const {
+	return width_;
+}
+
+
+size_t lib::ostream::width(size_t wide) {
+	lib::swap(wide, width_);
+	return wide;
+}
+
+
+char lib::ostream::fill() const {
+	return fillch_;
+}
+
+
+char lib::ostream::fill(char fillch) {
+	lib::swap(fillch, fillch_);
+	return fillch;
+}
+
+
 lib::ostream& lib::dec(ostream &stream) {
 	stream.setf(ostream::fmtflags::dec, ostream::fmtflags::basefield);
 	return stream;
@@ -211,8 +186,18 @@ lib::ostream& lib::hex(ostream &stream) {
 
 
 lib::ostream& lib::endl(ostream &stream) {
-	stream << "\n";
+	stream.put('\n');
 	return stream;
+}
+
+
+void lib::set_log_level(log_level_type log_level) {
+	lib::_impl::vga_log_buf::set_system_log_level(log_level);
+}
+
+
+lib::log_level_type lib::get_log_level() {
+	return lib::_impl::vga_log_buf::get_system_log_level();
 }
 
 
@@ -242,12 +227,71 @@ lib::ostream lib::cnotice(&notice_buf);
 lib::ostream lib::cinfo(&info_buf);
 
 
-void lib::set_log_level(log_level_type log_level) {
-	lib::_impl::vga_log_buf::set_system_log_level(log_level);
+namespace {
+
+
+void fill_field(lib::ostream& stream, size_t width, size_t already_have) {
+	char fillch = stream.fill();
+	while (width-- > already_have) {
+		stream.put(fillch);
+	}
 }
 
 
-lib::log_level_type lib::get_log_level() {
-	return lib::_impl::vga_log_buf::get_system_log_level();
+using max_dec_length = lib::integral_constant<size_t, 20 + 1 /* sign */>;
+
+
+char to_printable(unsigned char digit) {
+	if (digit < 10) {
+		return '0' + digit;
+	} else {
+		return 'a' + digit - 10;
+	}
 }
 
+
+template<typename T>
+void show_numerical_value(lib::ostream& stream, T value) {
+	using value_type = T;
+	using unsigned_value_type = typename lib::make_unsigned<value_type>::type;
+
+	unsigned_value_type unsigned_value = 0;
+	unsigned_value_type base = 10;
+	auto basefield = stream.flags() & lib::ostream::fmtflags::basefield;
+	if (basefield == lib::ostream::fmtflags::hex) {
+		unsigned_value = static_cast<unsigned_value_type>(value);
+		base = 16;
+	} else {
+		if (value >= 0) {
+			unsigned_value = static_cast<unsigned_value_type>(value);
+		} else {
+			unsigned_value = static_cast<unsigned_value_type>(0) - value;
+		}
+	}
+
+	char buffer[max_dec_length::value];
+	size_t digits = 0;
+
+	while (unsigned_value) {
+		unsigned char digit = unsigned_value % base;
+		buffer[digits++] = to_printable(digit);
+		unsigned_value /= base;
+	}
+
+	if (digits == 0) {
+		buffer[digits++] = '0';
+	}
+
+	if (basefield == lib::ostream::fmtflags::dec && value < 0) {
+		buffer[digits++] = '-';
+	}
+
+	fill_field(stream, stream.width(), digits);
+
+	do {
+		stream.put(buffer[--digits]);
+	} while(digits);
+}
+
+
+} // namespace

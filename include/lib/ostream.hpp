@@ -113,11 +113,29 @@ public:
 
 
 	fmtflags flags() const;
+
+
+	size_t width() const;
+
+
+	size_t width(size_t wide);
+
+
+	char fill() const;
+
+
+	char fill(char fillch);
 private:
 	streambuf *streambuf_;
 
 
 	fmtflags format_ = fmtflags::dec;
+
+
+	size_t width_ = 0;
+
+
+	char fillch_ = ' ';
 
 
 	friend ostream& endl(ostream&);
@@ -135,6 +153,7 @@ ostream& dec(ostream &stream);
 
 
 ostream& hex(ostream &stream);
+
 
 enum log_level_type: int {
 	critical	= 0,
