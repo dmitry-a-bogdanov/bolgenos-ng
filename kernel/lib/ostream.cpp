@@ -191,6 +191,30 @@ lib::ostream& lib::endl(ostream &stream) {
 }
 
 
+lib::ostream&
+lib::_impl::operator <<(ostream& stream, const _setw_type& setter) {
+	stream.width(setter.width);
+	return stream;
+}
+
+
+lib::ostream&
+lib::_impl::operator <<(ostream& stream, const _setfill_type& setter) {
+	stream.fill(setter.fillch);
+	return stream;
+}
+
+
+lib::_impl::_setw_type lib::setw(size_t n) {
+	return { n };
+}
+
+
+lib::_impl::_setfill_type lib::setfill(char fillch) {
+	return { fillch };
+}
+
+
 void lib::set_log_level(log_level_type log_level) {
 	lib::_impl::vga_log_buf::set_system_log_level(log_level);
 }

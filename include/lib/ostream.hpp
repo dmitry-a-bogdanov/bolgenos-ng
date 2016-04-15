@@ -155,6 +155,34 @@ ostream& dec(ostream &stream);
 ostream& hex(ostream &stream);
 
 
+namespace _impl {
+
+
+struct _setw_type {
+	size_t width;
+};
+
+
+struct _setfill_type {
+	char fillch;
+};
+
+
+ostream& operator <<(ostream& stream, const _setw_type& setter);
+
+
+ostream& operator <<(ostream& stream, const _setfill_type& setter);
+
+
+} // namespace _impl
+
+
+_impl::_setw_type setw(size_t n);
+
+
+_impl::_setfill_type setfill(char fillch);
+
+
 enum log_level_type: int {
 	critical	= 0,
 	error		= 1,
