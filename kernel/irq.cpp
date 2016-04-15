@@ -13,15 +13,15 @@
 #include <lib/list.hpp>
 
 
-cio::OutStream& irq::operator << (cio::OutStream &stream,
+lib::ostream& irq::operator << (lib::ostream &stream,
 		const trap_frame_t &frame) {
 	stream	<< " EFLAGS = " << frame.eflags
 		<< " CS = " << frame.cs
 		<< " EIP = " << frame.eip
-		<< cio::endl;
+		<< lib::endl;
 	stream	<< " ESP = " << frame.esp
 		<< " EBP = " << frame.ebp
-		<< cio::endl;
+		<< lib::endl;
 	stream	<< " EAX = " << frame.eax
 		<< " EBX = " << frame.ebx
 		<< " ECX = " << frame.ecx
@@ -53,8 +53,8 @@ void dispatcher(irq::irq_t vector, irq::trap_frame_t *frame);
 
 
 void do_breakpoint(irq::trap_frame_t *frame) {
-	cio::cnotice << "breakpoint has been caught: " << cio::endl;
-	cio::cnotice << *frame << cio::endl;
+	lib::cnotice << "breakpoint has been caught: " << lib::endl;
+	lib::cnotice << *frame << lib::endl;
 }
 
 
@@ -336,7 +336,7 @@ namespace {
 
 
 void default_handler(irq::irq_t vector) {
-	cio::ccrit << "Unhandled IRQ" << vector << cio::endl;
+	lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
 	panic("Fatal interrupt");
 }
 

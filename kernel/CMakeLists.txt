@@ -63,7 +63,6 @@ set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
-	cout.cpp
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp
@@ -102,7 +101,14 @@ set(kernel_sources ${kernel_start_file}
 	backtrace.cpp
 	
 	lib/snprintf.cpp
+	lib/streambuf.hpp
+	lib/streambuf.cpp
 	lib/string.cpp
+	lib/ostream.cpp
+	lib/vga_buf.hpp
+	lib/vga_buf.cpp
+	lib/vga_log_buf.hpp
+	lib/vga_log_buf.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp

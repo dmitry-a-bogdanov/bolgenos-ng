@@ -4,11 +4,13 @@
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/string.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/ps2.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "ps2_keyboard_sm.hpp"
 
+using namespace lib;
 using namespace ps2;
 
 class ps2_keyboard: public ps2::ps2_dev {
@@ -38,16 +40,16 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 	ret = send_byte_with_ack(line, ps2_dcmd_disable_scan,
 			ps2_keyboard_ack);
 	if (ret != ioret_t::ok) {
-		cio::cwarn << "failed to disable scan: "
-			<< ps2::strerror(ret) << cio::endl;
+		cwarn	<< "failed to disable scan: " << ps2::strerror(ret)
+			<< endl;
 		goto fail;
 	}
 
 	ret = send_byte_with_ack(line, ps2_dcmd_identify,
 			ps2_keyboard_ack);
 	if (ret != ioret_t::ok) {
-		cio::cwarn << "failed to identify device: "
-			<< ps2::strerror(ret) << cio::endl;
+		cwarn	<< "failed to identify device: " << ps2::strerror(ret)
+			<< endl;
 		goto fail;
 	}
 
@@ -55,9 +57,8 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 		uint8_t id_byte;
 		id_byte = ps2::receive_byte();
 		if (id_byte != this_dev_id[id_count]) {
-			cio::cwarn << "got wrong id_byte = "
-				<< id_count << ":" << id_byte
-				<< cio::endl;
+			cwarn	<< "got wrong id_byte = " << id_count << ":"
+				<< id_byte << endl;
 			goto fail;
 		}
 		++id_count;
@@ -65,15 +66,13 @@ probe_ret_t ps2_keyboard::probe(ps2::line_t line) {
 			goto ok;
 	}
 fail:
-	cio::cwarn << "line " << line << ": "
-		<< "probe as ps2_keyboard FAILED" << cio::endl;
+	cwarn << "line " << line << ": probe as ps2_keyboard FAILED" << endl;
 	return probe_next;
 ok:
 	// leave in a SCANNING state!
 	(void) ps2::send_byte_with_ack(line, ps2_dcmd_enable_scan,
 			ps2_keyboard_ack);
-	cio::cnotice << "line " << line << ": "
-		<< "probe as ps2_keyboard PASSED" << cio::endl;
+	cnotice << "line " << line << ": probe as ps2_keyboard PASSED" << endl;
 	return probe_ok;
 }
 

@@ -3,7 +3,8 @@
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
-#include <bolgenos-ng/cout.hpp>
+
+#include <lib/ostream.hpp>
 
 
 namespace memory {
@@ -38,7 +39,7 @@ struct pblk_t {
 
 
 /// Output operator for \ref pblk_t
-inline cio::OutStream& operator <<(cio::OutStream &stream,
+inline lib::ostream& operator <<(lib::ostream &stream,
 		const pblk_t &blk) {
 	return stream << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
 }

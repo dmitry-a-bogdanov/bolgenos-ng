@@ -1,8 +1,8 @@
 #pragma once
 
 #include <lib/type_traits.hpp>
+#include <lib/ostream.hpp>
 
-#include "cout.hpp"
 #include "stdtypes.hpp"
 
 
@@ -97,8 +97,7 @@ struct __attribute__((packed)) trap_frame_t {
 	uint32_t err_code;
 };
 
-cio::OutStream& operator << (cio::OutStream &stream,
-		const trap_frame_t &frame);
+lib::ostream& operator << (lib::ostream &stream, const trap_frame_t &frame);
 
 
 using exc_handler_t = void (*)(trap_frame_t *frame);
