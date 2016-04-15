@@ -136,9 +136,6 @@ private:
 
 
 	char fillch_ = ' ';
-
-
-	friend ostream& endl(ostream&);
 };
 
 
