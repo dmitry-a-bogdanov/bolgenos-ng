@@ -3,7 +3,6 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
@@ -17,12 +16,14 @@
 #include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <lib/ostream.hpp>
+
 #include "config.h"
 
 /**
 * \brief Kernel main function.
 *
-* The main kernel function. The fuction performs full bootstrap of kernel
+* The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
 extern "C" void kernel_main() {
@@ -32,13 +33,15 @@ extern "C" void kernel_main() {
 
 	call_global_ctors();
 
+	lib::set_log_level(lib::log_level_type::notice);
+
 	vga_console::clear_screen();
 
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
 
-	cio::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
-		<< cio::endl;
+	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< lib::endl;
 
 	irq::init();
 
@@ -49,7 +52,7 @@ extern "C" void kernel_main() {
 
 	irq::enable();
 
-	cio::cinfo << "CPU is initialized" << cio::endl;
+	lib::cinfo << "CPU is initialized" << lib::endl;
 
 	ps2::init();
 

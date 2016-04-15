@@ -2,7 +2,8 @@
 
 
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/cout.hpp>
+
+#include "ostream.hpp"
 
 
 namespace lib {
@@ -125,7 +126,7 @@ bool list<ValueType>::push_front(const value_type &value) {
 	list_item_type *new_elem = static_cast<list_item_type *>(
 			memory::kmalloc(sizeof(list_item_type)));
 	if (!new_elem) {
-		cio::cerr << __func__ << ": " << "allocation failed" << cio::endl;
+		cerr << __func__ << ": allocation failed" << endl;
 		return false;
 	}
 	new_elem->next_ = first_;

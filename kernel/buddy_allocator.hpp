@@ -37,7 +37,7 @@ struct pblk_t {
 
 
 /// Output operator for \ref pblk_t
-inline cio::OutStream& operator <<(cio::OutStream &stream,
+inline lib::ostream& operator <<(lib::ostream &stream,
 		const pblk_t &blk) {
 	return stream << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
 }

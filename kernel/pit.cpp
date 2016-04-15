@@ -4,11 +4,12 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "frequency_divider.hpp"
 
@@ -79,7 +80,7 @@ pit::details::FrequencyDivider freq_divider;
 static irq::irq_return_t handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
 	if (freq_divider.do_tick()) {
 #if VERBOSE_TIMER_INTERRUPT
-		cio::cout << "jiffy #" << jiffies << cio::endl;
+		lib::cout << "jiffy #" << jiffies << lib::endl;
 #endif
 		++jiffies;
 	}
@@ -97,7 +98,7 @@ void pit::init() {
 
 	freq_divider.set_frequency(HZ, pit_freq::value, max_divider::value);
 	if (freq_divider.is_low_frequency())
-		cio::cwarn << "PIT: losing accuracy of timer" << cio::endl;
+		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
 	irq::register_handler(timer_irq, handle_pit_irq);
 
