@@ -110,7 +110,7 @@ struct __attribute__((packed)) gate_t {
 			gate_kind(kind),
 			flag_32_bit(bitness_flag_type::bits_32),
 			_zero_bit(0),
-			dpl(protection_ring_t::kernel),
+			dpl(protection_ring_t::ring_kernel),
 			present(presence_type::presence_yes),
 			offset_16_31(bitmask(func, 16, 0xffff)) {
 	}
