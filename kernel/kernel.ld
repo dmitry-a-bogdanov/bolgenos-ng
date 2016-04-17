@@ -2,13 +2,15 @@ ENTRY(_start_kernel)
 
 SECTIONS {
 	. = 0x100000; /* Kernel load address */
-	__kernel_obj_start = .;
+	__object_begin = .;
 
 	. = ALIGN(4);
 	/* multiboot header should be in first 8kb and aligned by 4 */
 	.text : {
 		*(.multiboot_header);
-		*(.text)
+		__text_begin = .;
+		*(.text*)
+		__text_end = .;
 	}
 
 	.ctors : {
@@ -26,5 +28,5 @@ SECTIONS {
 		*(.bss)
 		*(.kernel_stack)
 	}
-	__kernel_obj_end = .;
+	__object_end = .;
 }

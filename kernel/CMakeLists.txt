@@ -67,6 +67,7 @@ set(kernel_sources ${kernel_start_file}
 	frequency_divider.hpp
 	frequency_divider.cpp
 	irq.cpp
+	kernel_object.cpp
 	main.cpp
 	memory.cpp
 	mmu.cpp
