@@ -26,7 +26,9 @@ SECTIONS {
 	.bss :
 	{
 		*(.bss)
+		__stack_begin = .;
 		*(.kernel_stack)
+		__stack_end = .;
 	}
 	__object_end = .;
 }

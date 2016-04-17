@@ -21,6 +21,8 @@ _asm_linked_ char __object_end[0];
 
 _asm_linked_ char __text_begin[0];
 _asm_linked_ char __text_end[0];
+_asm_linked_ char __stack_begin[0];
+_asm_linked_ char __stack_end[0];
 
 
 void * kobj::begin() {
@@ -40,5 +42,14 @@ void * kobj::code_begin() {
 
 void * kobj::code_end() {
 	return static_cast<void *>(__text_end);
+}
+
+
+void * kobj::stack_begin() {
+	return static_cast<void *>(__stack_begin);
+}
+
+void * kobj::stack_end() {
+	return static_cast<void *>(__stack_end);
 }
 

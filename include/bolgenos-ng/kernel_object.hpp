@@ -25,5 +25,8 @@ void * end();
 void * code_begin();
 void * code_end();
 
+void * stack_begin();
+void * stack_end();
+
 
 } // namespace kernel
