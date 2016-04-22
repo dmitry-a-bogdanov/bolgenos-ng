@@ -14,26 +14,6 @@ struct  __attribute__((packed)) c_stack_frame {
 static_assert(sizeof(c_stack_frame) == 8, "Wrong size of structure\n");
 
 
-lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
-	out 	<< "frame[";
-	auto oldwidth = out.width(8);
-	auto oldflags = out.setf(lib::ostream::fmtflags::hex,
-			lib::ostream::fmtflags::basefield);
-	out 	<< const_cast<void *>(static_cast<const void *>(&frame));
-	out 	<< lib::setw(0);
-	out 	<< "]: ebp = ";
-	out 	<< lib::setw(8)
-			<< frame.callers_ebp
-		<< lib::setw(0)
-		<< " ret = "
-		<< lib::setw(8)
-			<< frame.return_address;
-	out.setf(oldflags, lib::ostream::fmtflags::basefield);
-	out.width(oldwidth);
-	return out;
-}
-
-
 bool is_inside_code(void *ptr) {
 	return kobj::code_begin() <= ptr && ptr < kobj::code_end();
 }
@@ -44,32 +24,62 @@ bool is_inside_stack(void *ptr) {
 }
 
 
-} // namespace
-
-
-void test_backtrace3(int arg __attribute__((unused))) {
-	lib::cout << __func__ << ":" << reinterpret_cast<void *>(test_backtrace3) << lib::endl;
-	execinfo::show_backtrace(nullptr);
+lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
+	out 	<< "frame[";
+	auto oldwidth = out.width(8);
+	auto oldflags = out.setf(lib::ostream::fmtflags::hex,
+			lib::ostream::fmtflags::basefield);
+	out 	<< const_cast<void *>(static_cast<const void *>(&frame));
+	out 	<< lib::setw(0);
+	out 	<< "]: ebp = ";
+	out 	<< lib::setw(8);
+	if (is_inside_stack(frame.callers_ebp)) {
+		out	<< frame.callers_ebp;
+	} else {
+		out	<< "invalid";
+	}
+	out	<< lib::setw(0)
+		<< " ret = "
+		<< lib::setw(8);
+	if (is_inside_code(frame.return_address)) {
+		out	<< frame.return_address;
+	} else {
+		out	<< "invalid";
+	}
+	out.setf(oldflags, lib::ostream::fmtflags::basefield);
+	out.width(oldwidth);
+	return out;
 }
 
 
-void execinfo::show_backtrace(void *base_pointer) {
-	if (base_pointer == nullptr) {
+} // namespace
+
+
+void execinfo::show_backtrace(lib::ostream& out,
+		void *ebp, void *eip) {
+	if (ebp == nullptr) {
 		// Get pointer to begging of function's stack.
 		// Caller's ebp and return instruction pointer are located in higher
 		// adresses right after begging of the function's stack.
-		asm ("mov %%ebp, %%eax\n": "=a"(base_pointer):);
+		asm ("mov %%ebp, %%eax\n": "=a"(ebp):);
 	}
-	lib::cout << "dumping from stack from "
-		<< lib::hex << base_pointer << lib::dec << lib::endl;
 
 
-	auto frame = static_cast<c_stack_frame *>(base_pointer);
-	while (is_inside_stack(frame) &&
-			is_inside_code(frame->return_address)) {
-		lib::cout << *frame << lib::endl;
+	c_stack_frame *frame;
+	c_stack_frame tmp_frame;
+	tmp_frame.callers_ebp = ebp;
+	tmp_frame.return_address = eip;
+	if (eip == nullptr) {
+		frame = static_cast<c_stack_frame *>(ebp);
+	} else {
+		frame = &tmp_frame;
+	}
+
+	do {
+		out << *frame << lib::endl;
 		frame = static_cast<decltype(frame)>(frame->callers_ebp);
-	}
+	} while (is_inside_stack(frame) &&
+			is_inside_code(frame->return_address));
 }
 
 namespace {

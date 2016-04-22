@@ -85,7 +85,7 @@ void register_irq_handler(irq_t vector, irq_handler_t routine);
 struct __attribute__((packed)) trap_frame_t {
 	uint32_t edi;
 	uint32_t esi;
-	uint32_t ebp;
+	void* ebp;
 	uint32_t esp;
 	uint32_t ebx;
 	uint32_t edx;
@@ -93,14 +93,16 @@ struct __attribute__((packed)) trap_frame_t {
 	uint32_t eax;
 	uint32_t eflags;
 	uint16_t cs;
-	uint32_t eip;
+	void* eip;
 	uint32_t err_code;
 };
+
 
 lib::ostream& operator << (lib::ostream &stream, const trap_frame_t &frame);
 
 
 using exc_handler_t = void (*)(trap_frame_t *frame);
+
 
 void register_exc_handler(exception_t exception, exc_handler_t handler);
 

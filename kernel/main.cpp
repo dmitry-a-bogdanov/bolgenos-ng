@@ -22,12 +22,6 @@
 
 #include "config.h"
 
-void test_backtrace2(int arg);
-
-void test_backtrace(int arg) {
-	lib::cout << __func__ << lib::endl;
-	test_backtrace2(arg);
-}
 
 /**
 * \brief Kernel main function.
@@ -67,7 +61,6 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
-	test_backtrace(10);
 
 	do {
 		asm ("hlt");

@@ -3,7 +3,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
-
+#include <bolgenos-ng/execinfo.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/pic_common.hpp>
@@ -55,6 +55,8 @@ void dispatcher(irq::irq_t vector, irq::trap_frame_t *frame);
 void do_breakpoint(irq::trap_frame_t *frame) {
 	lib::cnotice << "breakpoint has been caught: " << lib::endl;
 	lib::cnotice << *frame << lib::endl;
+	execinfo::show_backtrace(lib::cwarn,
+			frame->ebp, frame->eip);
 }
 
 
