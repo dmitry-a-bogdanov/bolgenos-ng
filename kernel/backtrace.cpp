@@ -42,7 +42,7 @@ lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
 	}
 
 	out	<< lib::setw(0)
-			<< " ret = "
+		<< " eip = "
 		<< lib::setw(8);
 
 	if (is_inside_code(frame.return_address)) {
@@ -60,6 +60,12 @@ lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
 
 void execinfo::show_backtrace(lib::ostream& out,
 		void *ebp, void *eip) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(50) << lib::setfill('-')
+		<< '\n'
+		<< lib::setfill(' ') << lib::setw(0);
+
 	if (ebp == nullptr) {
 		// Get pointer to begging of function's stack.
 		// Caller's ebp and return instruction pointer are located in higher

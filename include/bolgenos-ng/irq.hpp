@@ -1,9 +1,13 @@
 #pragma once
 
 #include <lib/type_traits.hpp>
-#include <lib/ostream.hpp>
 
 #include "stdtypes.hpp"
+
+
+namespace lib {
+	class ostream;
+}
 
 
 namespace irq {
@@ -82,26 +86,45 @@ void init();
 void register_irq_handler(irq_t vector, irq_handler_t routine);
 
 
-struct __attribute__((packed)) trap_frame_t {
-	uint32_t edi;
-	uint32_t esi;
-	void* ebp;
-	uint32_t esp;
-	uint32_t ebx;
-	uint32_t edx;
-	uint32_t ecx;
-	uint32_t eax;
-	uint32_t eflags;
-	uint16_t cs;
-	void* eip;
-	uint32_t err_code;
+struct __attribute__((packed)) registers_dump_t {
+	uint32_t	edi;
+	uint32_t	esi;
+	void*		ebp;
+	void*		esp;
+	uint32_t	ebx;
+	uint32_t	edx;
+	uint32_t	ecx;
+	uint32_t	eax;
 };
 
 
-lib::ostream& operator << (lib::ostream &stream, const trap_frame_t &frame);
+struct __attribute__((packed)) execution_info_dump_t {
+	void*		eip;
+	uint16_t	cs;
+	uint32_t	eflags;
+};
 
 
-using exc_handler_t = void (*)(trap_frame_t *frame);
+struct __attribute__((packed)) int_frame_error_t {
+	registers_dump_t regs;
+	uint32_t error_code;
+	execution_info_dump_t exe;
+};
+
+
+struct __attribute__((packed)) int_frame_noerror_t {
+	registers_dump_t regs;
+	execution_info_dump_t exe;
+};
+
+
+lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
+lib::ostream& operator <<(lib::ostream&, const execution_info_dump_t&);
+lib::ostream& operator <<(lib::ostream&, const int_frame_error_t&);
+lib::ostream& operator <<(lib::ostream&, const int_frame_noerror_t&);
+
+
+using exc_handler_t = void (*)(void *frame);
 
 
 void register_exc_handler(exception_t exception, exc_handler_t handler);

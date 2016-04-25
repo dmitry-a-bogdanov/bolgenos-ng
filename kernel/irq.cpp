@@ -13,27 +13,23 @@
 #include <lib/list.hpp>
 
 
-lib::ostream& irq::operator << (lib::ostream &stream,
-		const trap_frame_t &frame) {
-	stream	<< " EFLAGS = " << frame.eflags
-		<< " CS = " << frame.cs
-		<< " EIP = " << frame.eip
-		<< lib::endl;
-	stream	<< " ESP = " << frame.esp
-		<< " EBP = " << frame.ebp
-		<< lib::endl;
-	stream	<< " EAX = " << frame.eax
-		<< " EBX = " << frame.ebx
-		<< " ECX = " << frame.ecx
-		<< " EDX = " << frame.edx;
-	return stream;
-}
+// Compile-time guards
+static_assert(sizeof(irq::registers_dump_t) == 8*4,
+	"Wrong size of registers' dump structure");
+
+static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
+	"Wrong size of exectution info structure");
+
+static_assert(sizeof(irq::int_frame_noerror_t) ==
+	sizeof(irq::registers_dump_t) + sizeof(irq::execution_info_dump_t),
+	"Wrong size of interrupt frame (no error code)");
+
+static_assert(sizeof(irq::int_frame_error_t) ==
+	sizeof(irq::int_frame_noerror_t) + 4,
+	"Wrong size of interrupt frame (error code)");
+
 
 namespace {
-
-
-
-
 
 
 using exc_handlers_list_t = lib::list<irq::exc_handler_t>;
@@ -43,20 +39,23 @@ using irq_handlers_list_t = lib::list<irq::irq_handler_t>;
 
 
 /// Array of lists of Interrupt Service Routines.
-irq_handlers_list_t irq_handlers[irq::lines_number::value];\
+irq_handlers_list_t irq_handlers[irq::lines_number::value];
 
 
 exc_handlers_list_t exc_handlers[static_cast<int>(irq::exception_t::max)];
-//exc_handlers_list_t exc_handlers[irq::exception_t::max];
-
-void dispatcher(irq::irq_t vector, irq::trap_frame_t *frame);
 
 
-void do_breakpoint(irq::trap_frame_t *frame) {
+void dispatcher(irq::irq_t vector, void* frame);
+
+
+void do_breakpoint(void* frame_pointer) {
 	lib::cnotice << "breakpoint has been caught: " << lib::endl;
+
+	irq::int_frame_noerror_t* frame
+		= static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 	lib::cnotice << *frame << lib::endl;
-	execinfo::show_backtrace(lib::cwarn,
-			frame->ebp, frame->eip);
+	execinfo::show_backtrace(lib::cnotice, frame->regs.ebp,
+			frame->exe.eip);
 }
 
 
@@ -182,7 +181,7 @@ static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
 /// \param function function to be called on IRQ.
 #define DECL_IRQ_HANDLER_C(num, function)				\
 	extern "C" __attribute__((used, regparm(0)))			\
-	void IRQ_STAGE_C(num)(irq::trap_frame_t *frame) {			\
+	void IRQ_STAGE_C(num)(void* frame) {				\
 		function(num, frame);					\
 		pic::end_of_irq(num);					\
 	}
@@ -343,8 +342,7 @@ void default_handler(irq::irq_t vector) {
 }
 
 
-irq::irq_return_t exception_dispatcher(irq::irq_t exception,
-		irq::trap_frame_t *frame) {
+irq::irq_return_t exception_dispatcher(irq::irq_t exception, void* frame) {
 	auto& handlers = exc_handlers[exception];
 
 	if (handlers.empty()) {
@@ -373,7 +371,7 @@ irq::irq_return_t interrupts_dispatcher(irq::irq_t vector) {
 }
 
 
-void dispatcher(irq::irq_t vector, irq::trap_frame_t *frame) {
+void dispatcher(irq::irq_t vector, void* frame) {
 	irq::irq_return_t status;
 
 	if (vector < irq::exception_t::max) {
@@ -388,5 +386,67 @@ void dispatcher(irq::irq_t vector, irq::trap_frame_t *frame) {
 }
 
 
-
 } // namespace
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::registers_dump_t& regs) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
+	out	<< " eax = "
+			<< lib::setw(8) << lib::setfill('0')
+				<< regs.eax
+			<< lib::setfill(' ') << lib::setw(0)
+		<< ' '
+		<< " ebx = " << lib::setw(8) << regs.ebx << lib::setw(0) << ' '
+		<< " ecx = " << lib::setw(8) << regs.ecx << lib::setw(0) << ' '
+		<< " edx = " << lib::setw(8) << regs.edx << lib::setw(0) << ' '
+		<< lib::endl
+		<< " esi = " << lib::setw(8) << regs.esi << lib::setw(0) << ' '
+		<< " edi = " << lib::setw(8) << regs.edi << lib::setw(0) << ' '
+		<< " ebp = " << lib::setw(8) << regs.ebp << lib::setw(0) << ' '
+		<< " esp = " << lib::setw(8) << regs.esp << lib::setw(0) << ' ';
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::execution_info_dump_t& exe) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex
+		<< "eflg = " << lib::setw(8) << exe.eflags << lib::setw(0) << ' '
+		<< "  cs = " << lib::setw(8) << exe.cs << lib::setw(0) << ' '
+		<< " eip = " << lib::setw(8) << exe.eip << lib::setw(0);
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::int_frame_error_t& frame) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::hex
+		<< lib::setw(0) << " err = "
+		<< lib::setw(8) << frame.error_code
+		<< lib::endl
+		<< frame.exe << lib::endl
+		<< frame.regs;
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::int_frame_noerror_t& frame) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex
+		<< frame.exe << lib::endl
+		<< frame.regs;
+
+	return out;
+}
