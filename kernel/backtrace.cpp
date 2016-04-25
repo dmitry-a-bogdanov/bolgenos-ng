@@ -25,29 +25,32 @@ bool is_inside_stack(void *ptr) {
 
 
 lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
-	out 	<< "frame[";
-	auto oldwidth = out.width(8);
-	auto oldflags = out.setf(lib::ostream::fmtflags::hex,
-			lib::ostream::fmtflags::basefield);
-	out 	<< const_cast<void *>(static_cast<const void *>(&frame));
-	out 	<< lib::setw(0);
-	out 	<< "]: ebp = ";
-	out 	<< lib::setw(8);
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::hex;
+
+	out 	<< "frame["
+			<< const_cast<void *>(static_cast<const void *>(&frame))
+			<< lib::setw(0)
+		<< "]: ebp = "
+		<< lib::setw(8);
+
 	if (is_inside_stack(frame.callers_ebp)) {
 		out	<< frame.callers_ebp;
 	} else {
 		out	<< "invalid";
 	}
+
 	out	<< lib::setw(0)
-		<< " ret = "
+			<< " ret = "
 		<< lib::setw(8);
+
 	if (is_inside_code(frame.return_address)) {
 		out	<< frame.return_address;
 	} else {
 		out	<< "invalid";
 	}
-	out.setf(oldflags, lib::ostream::fmtflags::basefield);
-	out.width(oldwidth);
+
 	return out;
 }
 

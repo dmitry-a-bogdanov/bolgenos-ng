@@ -173,6 +173,14 @@ char lib::ostream::fill(char fillch) {
 }
 
 
+lib::ostream& lib::ostream::copyfmt(lib::ostream& other) {
+	fillch_ = other.fillch_;
+	format_ = other.format_;
+	width_ = other.width_;
+	return *this;
+}
+
+
 lib::ostream& lib::dec(ostream &stream) {
 	stream.setf(ostream::fmtflags::dec, ostream::fmtflags::basefield);
 	return stream;
