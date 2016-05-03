@@ -1,8 +1,10 @@
 project(config)
 
+set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h" PARENT_SCOPE)
 set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h")
 set(config_h_in		"config.h.in")
 
+set(ost_h		"${CMAKE_CURRENT_BINARY_DIR}/ost.h" PARENT_SCOPE)
 set(ost_h		"${CMAKE_CURRENT_BINARY_DIR}/ost.h")
 set(ost_h_in		"ost.h.in")
 
