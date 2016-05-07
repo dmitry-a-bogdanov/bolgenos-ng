@@ -13,6 +13,7 @@ namespace {
 void do_divide_by_zero(void *frame_pointer);	// 0x0, #DE
 void do_debug(void *frame_pointer);		// 0x1, #DB
 void do_breakpoint(void* frame_pointer);	// 0x3, #BP
+void do_overflow(void *frame_pointer);		// 0x4, #OF
 
 
 } // namespace
@@ -25,6 +26,8 @@ void irq::install_traps() {
 			do_debug);
 	register_exc_handler(irq::exception_t::breakpoint,
 			do_breakpoint);
+	register_exc_handler(irq::exception_t::overflow_exception,
+			do_overflow);
 }
 
 
@@ -59,6 +62,17 @@ void do_breakpoint(void* frame_pointer) {
 			<< *frame << lib::endl;
 	execinfo::show_backtrace(lib::cnotice, frame->regs.ebp,
 			frame->exe.eip);
+}
+
+
+void do_overflow(void *frame_pointer) {
+	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
+
+	lib::ccrit << "Overflow exception has been caught!" << lib::endl
+			<< *frame << lib::endl;
+	execinfo::show_backtrace(lib::ccrit, frame->regs.ebp,
+			frame->exe.eip);
+	panic("Forbidden exception in kernel code!");
 }
 
 

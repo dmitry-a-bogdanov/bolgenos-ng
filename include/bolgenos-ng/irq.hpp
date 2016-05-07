@@ -26,6 +26,7 @@ enum exception_t: irq_t {
 	divide_by_zero = 0,
 	debug_exception = 1,
 	breakpoint = 3,
+	overflow_exception = 4,
 	max = 0x20
 };
 
