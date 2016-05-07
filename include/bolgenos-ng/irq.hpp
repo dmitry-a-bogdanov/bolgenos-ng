@@ -23,6 +23,8 @@ using irq_t = uint8_t;
 
 
 enum exception_t: irq_t {
+	divide_by_zero = 0,
+	debug_exception = 1,
 	breakpoint = 3,
 	max = 0x20
 };
