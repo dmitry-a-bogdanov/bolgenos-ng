@@ -14,50 +14,35 @@
 
 #include <m4/idt.hpp>
 
-// Compile-time guards
-static_assert(sizeof(irq::registers_dump_t) == 8*4,
-	"Wrong size of registers' dump structure");
-
-static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
-	"Wrong size of execution info structure");
-
-static_assert(sizeof(irq::int_frame_noerror_t) ==
-	sizeof(irq::registers_dump_t) + sizeof(irq::execution_info_dump_t),
-	"Wrong size of interrupt frame (no error code)");
-
-static_assert(sizeof(irq::int_frame_error_t) ==
-	sizeof(irq::int_frame_noerror_t) + 4,
-	"Wrong size of interrupt frame (error code)");
+#include "traps.hpp"
 
 
 namespace {
 
 
-using exc_handlers_list_t = lib::list<irq::exc_handler_t>;
-
-/// Type list of Interrupt Service Routines.
-using irq_handlers_list_t = lib::list<irq::irq_handler_t>;
-
-
 /// Array of lists of Interrupt Service Routines.
-irq_handlers_list_t irq_handlers[irq::lines_number::value];
+lib::list<irq::irq_handler_t> irq_handlers[irq::lines_number::value];
 
 
-exc_handlers_list_t exc_handlers[static_cast<int>(irq::exception_t::max)];
-
-
-using gate_field_t = uint32_t;
+/// Array of lists of Exception Handlers.
+lib::list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
 
 
 table_pointer idt_pointer _irq_aligned_;
 
+
+void irq_dispatcher(irq::irq_t vector, void* frame);
+
+
 } // namespace
 
+
 void irq::init() {
-	idt_pointer.base = m4::get_idt();
+	idt_pointer.base = m4::get_idt(irq_dispatcher);
 	uint16_t idt_size = irq::lines_number::value*irq::gate_size::value - 1;
 	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));
+	irq::install_traps();
 
 }
 
@@ -69,7 +54,7 @@ void irq::request_irq(irq_t vector, irq_handler_t routine) {
 }
 
 
-void irq::request_exception(exception_t exception, exc_handler_t routine) {
+void irq::request_exception(exception_t exception, exception_handler_t routine) {
 	if (!exc_handlers[static_cast<int>(exception)].push_front(routine)) {
 		panic("failed to register exception handler");
 	}
@@ -94,7 +79,7 @@ irq::irq_return_t exception_dispatcher(irq::irq_t exception,
 	}
 
 	lib::for_each(handlers.begin(), handlers.end(),
-		[frame](const irq::exc_handler_t& handler) -> void {
+		[frame](const irq::exception_handler_t& handler) -> void {
 			handler(frame);
 	});
 
@@ -115,13 +100,10 @@ irq::irq_return_t interrupts_dispatcher(irq::irq_t vector) {
 }
 
 
-} // namespace
-
-
-extern "C" void irq::irq_dispatcher(irq::irq_t vector, void* frame) {
+void irq_dispatcher(irq::irq_t vector, void* frame) {
 	irq::irq_return_t status;
 
-	if (vector < irq::exception_t::max) {
+	if (vector < static_cast<irq::irq_t>(irq::exception_t::max)) {
 		status = exception_dispatcher(vector, frame);
 	} else {
 		status = interrupts_dispatcher(vector);
@@ -133,6 +115,9 @@ extern "C" void irq::irq_dispatcher(irq::irq_t vector, void* frame) {
 
 	pic::end_of_irq(vector);
 }
+
+
+} // namespace
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
@@ -196,3 +181,23 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 	return out;
 }
+
+
+// Compile-time guards
+static_assert(sizeof(irq::registers_dump_t) == 8*4,
+	"Wrong size of registers' dump structure");
+
+
+static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
+	"Wrong size of execution info structure");
+
+
+static_assert(sizeof(irq::int_frame_noerror_t) ==
+	sizeof(irq::registers_dump_t) + sizeof(irq::execution_info_dump_t),
+	"Wrong size of interrupt frame (no error code)");
+
+
+static_assert(sizeof(irq::int_frame_error_t) ==
+	sizeof(irq::int_frame_noerror_t) + 4,
+	"Wrong size of interrupt frame (error code)");
+

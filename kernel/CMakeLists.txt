@@ -4,7 +4,7 @@ set(cstd_flags "-std=gnu99")
 set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
-set(dep_flags "-ffreestanding") #-nostdinc -nostdlib")
+set(dep_flags "-ffreestanding")
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
@@ -102,6 +102,7 @@ set(kernel_sources ${kernel_start_file}
 	printk.cpp
 	ps2.cpp
 	time.c
+	traps.hpp
 	traps.cpp
 	vga_console.cpp
 	
@@ -140,7 +141,6 @@ set(kernel_sources ${kernel_start_file}
 	ost/bitarray.cpp
 	ost/memory.hpp
 	ost/memory.cpp
-
 	)
 
 set_source_files_properties(${m4_generated_files}
@@ -169,14 +169,7 @@ add_custom_target(__relink_kernel
 	DEPENDS ${kernel_linker}
 	COMMENT "Forcing kernel relinking..")
 
-#add_custom_target(GENERATED_FILES
-#	COMMENT "Build generated files...")
-#add_dependencies(GENERATED_FILES ${m4_generated_files})
-
-
-add_dependencies(${kernel_binary}
-	__relink_kernel
-)
+add_dependencies(${kernel_binary} __relink_kernel)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS "-T ${kernel_linker} -nostdlib")

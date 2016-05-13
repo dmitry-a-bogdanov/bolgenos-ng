@@ -103,6 +103,8 @@ public:
 	}
 
 
+	/// Check that list is empty.
+	/// \return true if list is empty.
 	bool empty() {
 		return first_ == nullptr;
 	}

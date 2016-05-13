@@ -6,6 +6,7 @@
 
 namespace {
 
+
 struct  __attribute__((packed)) stack_frame_t {
 	void* callers_ebp;
 	void* return_address;

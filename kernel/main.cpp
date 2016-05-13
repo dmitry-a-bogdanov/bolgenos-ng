@@ -14,7 +14,6 @@
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/slab.hpp>
-#include <bolgenos-ng/traps.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/ostream.hpp>
@@ -45,7 +44,6 @@ extern "C" void kernel_main() {
 		<< lib::endl;
 
 	irq::init();
-	irq::install_traps();
 
 
 	pic::system_pic = &pic::chip_pic_8259;

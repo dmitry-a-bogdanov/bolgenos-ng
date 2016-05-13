@@ -1,4 +1,4 @@
-#include <bolgenos-ng/traps.hpp>
+#include "traps.hpp"
 
 
 #include <bolgenos-ng/error.h>
