@@ -100,7 +100,7 @@ void pit::init() {
 	if (freq_divider.is_low_frequency())
 		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
-	irq::register_irq_handler(timer_irq, handle_pit_irq);
+	irq::request_irq(timer_irq, handle_pit_irq);
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

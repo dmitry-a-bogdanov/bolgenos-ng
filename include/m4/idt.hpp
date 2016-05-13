@@ -7,13 +7,7 @@
 namespace m4 {
 
 
-namespace fill_idt {
-
-
-void fill_idt(irq::gate_t idt[]);
-
-
-} // namespace fill_idt
+void* get_idt();
 
 
 } // namespace m4

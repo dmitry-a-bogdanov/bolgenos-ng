@@ -207,8 +207,8 @@ void ps2::init() {
 		}
 	});
 
-	irq::register_irq_handler(FIRST_LINE_IRQ, irq_handler);
-	irq::register_irq_handler(SECOND_LINE_IRQ, irq_handler);
+	irq::request_irq(FIRST_LINE_IRQ, irq_handler);
+	irq::request_irq(SECOND_LINE_IRQ, irq_handler);
 
 
 	enable_device(line_t::dev_1);

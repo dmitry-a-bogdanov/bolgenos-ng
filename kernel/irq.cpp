@@ -12,8 +12,7 @@
 #include <lib/algorithm.hpp>
 #include <lib/list.hpp>
 
-
-#include <m4/fill_idt.hpp>
+#include <m4/idt.hpp>
 
 // Compile-time guards
 static_assert(sizeof(irq::registers_dump_t) == 8*4,
@@ -50,29 +49,27 @@ exc_handlers_list_t exc_handlers[static_cast<int>(irq::exception_t::max)];
 using gate_field_t = uint32_t;
 
 
-static_assert(sizeof(irq::gate_t) == 8, "gate_t has wrong size");
-
-irq::gate_t idt[irq::lines_number::value] _irq_aligned_;
-table_pointer idt_pointer _irq_aligned_ = {sizeof(idt) - 1,
-		static_cast<void *>(&idt)};
+table_pointer idt_pointer _irq_aligned_;
 
 } // namespace
 
 void irq::init() {
-	m4::fill_idt::fill_idt(idt);
+	idt_pointer.base = m4::get_idt();
+	uint16_t idt_size = irq::lines_number::value*irq::gate_size::value - 1;
+	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));
 
 }
 
 
-void irq::register_irq_handler(irq_t vector, irq_handler_t routine) {
+void irq::request_irq(irq_t vector, irq_handler_t routine) {
 	if (!irq_handlers[vector].push_front(routine)) {
 		panic("failed to register interrupt handler");
 	}
 }
 
 
-void irq::register_exc_handler(exception_t exception, exc_handler_t routine) {
+void irq::request_exception(exception_t exception, exc_handler_t routine) {
 	if (!exc_handlers[static_cast<int>(exception)].push_front(routine)) {
 		panic("failed to register exception handler");
 	}
