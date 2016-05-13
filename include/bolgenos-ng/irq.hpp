@@ -23,11 +23,30 @@ using irq_t = uint8_t;
 
 
 enum exception_t: irq_t {
-	divide_by_zero = 0,
-	debug_exception = 1,
-	breakpoint = 3,
-	overflow_exception = 4,
-	max = 0x20
+	divide_by_zero			= 0,
+	debug_exception			= 1,
+	breakpoint			= 3,
+	overflow_exception		= 4,
+	bound_range_exceeded		= 5,
+	invalid_opcode			= 6,
+	device_not_available		= 7,
+	double_fault,
+	// coprocessor segment overrun
+	invalid_tss			= 10,
+	segment_not_present		= 11,
+	stack_segment_fault		= 12,
+	general_protection_fault	= 13,
+	page_fault			= 14,
+	// reserved
+	x87_fp_exception		= 16,
+	alignment_error			= 17,
+	machine_check_error		= 18,
+	simd_fp_exception		= 19,
+	virtualization_exception	= 20,
+	// reserved 21-29
+	security_exception		= 30,
+	// reserved
+	max = 0x20,
 };
 
 
