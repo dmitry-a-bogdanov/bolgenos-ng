@@ -6,12 +6,12 @@
 
 namespace {
 
-struct  __attribute__((packed)) c_stack_frame {
+struct  __attribute__((packed)) stack_frame_t {
 	void* callers_ebp;
 	void* return_address;
 };
 
-static_assert(sizeof(c_stack_frame) == 8, "Wrong size of structure\n");
+static_assert(sizeof(stack_frame_t) == 8, "Wrong size of structure\n");
 
 
 bool is_inside_code(void *ptr) {
@@ -24,7 +24,7 @@ bool is_inside_stack(void *ptr) {
 }
 
 
-lib::ostream& operator <<(lib::ostream& out, const c_stack_frame& frame) {
+lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
 	lib::scoped_format_guard format_guard(out);
 
 	out	<< lib::hex;
@@ -74,12 +74,12 @@ void execinfo::show_backtrace(lib::ostream& out,
 	}
 
 
-	c_stack_frame *frame;
-	c_stack_frame tmp_frame;
+	stack_frame_t *frame;
+	stack_frame_t tmp_frame;
 	tmp_frame.callers_ebp = ebp;
 	tmp_frame.return_address = eip;
 	if (eip == nullptr) {
-		frame = static_cast<c_stack_frame *>(ebp);
+		frame = static_cast<stack_frame_t *>(ebp);
 	} else {
 		frame = &tmp_frame;
 	}
