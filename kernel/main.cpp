@@ -73,6 +73,8 @@ extern "C" void kernel_main() {
 		"mov $0xd1d1d1d1, %edi\n"
 		"int $3\n");
 
+	lib::cwarn << "Kernel initialization routine has been finished!"
+			<< lib::endl;
 	do {
 		asm ("hlt");
 	} while(1);
