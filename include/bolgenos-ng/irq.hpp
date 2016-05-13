@@ -151,7 +151,7 @@ lib::ostream& operator <<(lib::ostream&, const int_frame_error_t&);
 lib::ostream& operator <<(lib::ostream&, const int_frame_noerror_t&);
 
 
-using exc_handler_t = void (*)(void *frame);
+using exc_handler_t = void (*)(stack_ptr_t frame);
 
 
 void request_exception(exception_t exception, exc_handler_t handler);
@@ -159,7 +159,7 @@ void request_exception(exception_t exception, exc_handler_t handler);
 
 
 
-extern "C" void irq_dispatcher(irq::irq_t vector, void* frame);
+extern "C" void irq_dispatcher(irq::irq_t vector, stack_ptr_t frame);
 
 
 } // namespace irq

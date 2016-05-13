@@ -19,10 +19,7 @@
 
 #include <lib/ostream.hpp>
 
-#include <bolgenos-ng/execinfo.hpp>
-
 #include "config.h"
-
 
 /**
 * \brief Kernel main function.

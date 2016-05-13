@@ -10,24 +10,24 @@
 
 namespace {
 
-void handle_divide_by_zero(void *frame_pointer);	// 0x0,  #DE
-void handle_debug_exception(void *frame_pointer);	// 0x1,  #DB
-void handle_breakpoint(void* frame_pointer);		// 0x3,  #BP
-void handle_overflow(void *frame_pointer);		// 0x4,  #OF
-void handle_bound_range_exception(void *frame_pointer);	// 0x5,  #BR
-void handle_invalid_opcode(void *frame_pointer);	// 0x6,  #UD
-void handle_dev_not_avail(void *frame_pointer);		// 0x7,  #NM
-void handle_invalid_tss(void *frame_pointer);		// 0xA,  #TS
-void handle_segment_not_present(void *frame_pointer);	// 0xB,  #NP
-void handle_stack_segment_fault(void *frame_pointer);	// 0xC,  #SS
-void handle_gpf(void *frame_pointer);			// 0xD,  #GP
-void handle_page_fault(void *frame_pointer);		// 0xE,  #PF
-void handle_x87_fpe(void *frame_pointer);		// 0x10, #MF
-void handle_alignment_error(void *frame_pointer);	// 0x11, #AC
-void handle_mce(void *frame_prointer);			// 0x12, #MC
-void handle_simd_fpe(void *frame_pointer);		// 0x13, #XM/#XF
-void handle_virtualization_error(void *frame_pointer);	// 0x14, #VE
-void handle_security_error(void *frame_pointer);	// 0x1E, #SX
+void handle_divide_by_zero(irq::stack_ptr_t frame_pointer);
+void handle_debug_exception(irq::stack_ptr_t frame_pointer);
+void handle_breakpoint(irq::stack_ptr_t frame_pointer);
+void handle_overflow(irq::stack_ptr_t frame_pointer);
+void handle_bound_range_exception(irq::stack_ptr_t frame_pointer);
+void handle_invalid_opcode(irq::stack_ptr_t frame_pointer);
+void handle_dev_not_avail(irq::stack_ptr_t frame_pointer);
+void handle_invalid_tss(irq::stack_ptr_t frame_pointer);
+void handle_segment_not_present(irq::stack_ptr_t frame_pointer);
+void handle_stack_segment_fault(irq::stack_ptr_t frame_pointer);
+void handle_gpf(irq::stack_ptr_t frame_pointer);
+void handle_page_fault(irq::stack_ptr_t frame_pointer);
+void handle_x87_fpe(irq::stack_ptr_t frame_pointer);
+void handle_alignment_error(irq::stack_ptr_t frame_pointer);
+void handle_mce(irq::stack_ptr_t frame_prointer);
+void handle_simd_fpe(irq::stack_ptr_t frame_pointer);
+void handle_virtualization_error(irq::stack_ptr_t frame_pointer);
+void handle_security_error(irq::stack_ptr_t frame_pointer);
 
 
 } // namespace
@@ -76,7 +76,7 @@ void irq::install_traps() {
 namespace {
 
 
-void handle_divide_by_zero(void *frame_pointer) {
+void handle_divide_by_zero(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Divide-by-zero has been caught!" << lib::endl
@@ -87,7 +87,7 @@ void handle_divide_by_zero(void *frame_pointer) {
 }
 
 
-void handle_debug_exception(void* frame_pointer) {
+void handle_debug_exception(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::cnotice << "debug exception has been caught: " << lib::endl
@@ -97,7 +97,7 @@ void handle_debug_exception(void* frame_pointer) {
 }
 
 
-void handle_breakpoint(void* frame_pointer) {
+void handle_breakpoint(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::cnotice << "breakpoint has been caught: " << lib::endl
@@ -107,7 +107,7 @@ void handle_breakpoint(void* frame_pointer) {
 }
 
 
-void handle_overflow(void *frame_pointer) {
+void handle_overflow(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Overflow exception has been caught!" << lib::endl
@@ -118,7 +118,7 @@ void handle_overflow(void *frame_pointer) {
 }
 
 
-void handle_bound_range_exception(void *frame_pointer) {
+void handle_bound_range_exception(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Bound range exceeded exception has been caught!"
@@ -129,7 +129,7 @@ void handle_bound_range_exception(void *frame_pointer) {
 }
 
 
-void handle_invalid_opcode(void *frame_pointer) {
+void handle_invalid_opcode(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Invalid opcode exception has been caught!" << lib::endl
@@ -140,7 +140,7 @@ void handle_invalid_opcode(void *frame_pointer) {
 }
 
 
-void handle_dev_not_avail(void *frame_pointer) {
+void handle_dev_not_avail(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Device not available exception has been caught!"
@@ -151,7 +151,7 @@ void handle_dev_not_avail(void *frame_pointer) {
 }
 
 
-void handle_invalid_tss(void *frame_pointer) {
+void handle_invalid_tss(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Invalid TSS exception has been caught!" << lib::endl
@@ -164,7 +164,7 @@ void handle_invalid_tss(void *frame_pointer) {
 }
 
 
-void handle_segment_not_present(void *frame_pointer) {
+void handle_segment_not_present(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Segment not present exception has been caught!"
@@ -177,7 +177,7 @@ void handle_segment_not_present(void *frame_pointer) {
 }
 
 
-void handle_stack_segment_fault(void *frame_pointer) {
+void handle_stack_segment_fault(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Stack segment fault exception has been caught!"
@@ -190,7 +190,7 @@ void handle_stack_segment_fault(void *frame_pointer) {
 }
 
 
-void handle_gpf(void *frame_pointer) {
+void handle_gpf(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "General protection fault exception has been caught!"
@@ -203,7 +203,7 @@ void handle_gpf(void *frame_pointer) {
 }
 
 
-void handle_page_fault(void *frame_pointer) {
+void handle_page_fault(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Page fault exception has been caught!" << lib::endl
@@ -216,7 +216,7 @@ void handle_page_fault(void *frame_pointer) {
 }
 
 
-void handle_x87_fpe(void *frame_pointer) {
+void handle_x87_fpe(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "x87 floating pointer exception has been caught!"
@@ -227,7 +227,7 @@ void handle_x87_fpe(void *frame_pointer) {
 }
 
 
-void handle_alignment_error(void *frame_pointer) {
+void handle_alignment_error(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Page fault exception has been caught!" << lib::endl
@@ -240,7 +240,7 @@ void handle_alignment_error(void *frame_pointer) {
 }
 
 
-void handle_mce(void *frame_pointer) {
+void handle_mce(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Machine check error has been caught!" << lib::endl
@@ -251,7 +251,7 @@ void handle_mce(void *frame_pointer) {
 }
 
 
-void handle_simd_fpe(void *frame_pointer) {
+void handle_simd_fpe(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "SIMD floating pointer exception has been caught!"
@@ -262,7 +262,7 @@ void handle_simd_fpe(void *frame_pointer) {
 }
 
 
-void handle_virtualization_error(void *frame_pointer) {
+void handle_virtualization_error(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_noerror_t *>(frame_pointer);
 
 	lib::ccrit << "Virtualization error has been caught!" << lib::endl
@@ -273,7 +273,7 @@ void handle_virtualization_error(void *frame_pointer) {
 }
 
 
-void handle_security_error(void *frame_pointer) {
+void handle_security_error(irq::stack_ptr_t frame_pointer) {
 	auto* frame = static_cast<irq::int_frame_error_t *>(frame_pointer);
 
 	lib::ccrit << "Page fault exception has been caught!" << lib::endl

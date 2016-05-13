@@ -85,7 +85,8 @@ void default_handler(irq::irq_t vector) {
 }
 
 
-irq::irq_return_t exception_dispatcher(irq::irq_t exception, void* frame) {
+irq::irq_return_t exception_dispatcher(irq::irq_t exception,
+		irq::stack_ptr_t frame) {
 	auto& handlers = exc_handlers[exception];
 
 	if (handlers.empty()) {
