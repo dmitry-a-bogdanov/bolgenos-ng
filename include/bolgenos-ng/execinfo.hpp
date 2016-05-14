@@ -14,7 +14,7 @@ namespace execinfo {
 ///
 /// \param out Stream for printing backtrace.
 /// \param ebp Base pointer for backtracing.
-/// \pram eip Instruction pointer for backtracing.
+/// \param eip Instruction pointer for backtracing.
 void show_backtrace(lib::ostream& out, void *ebp = nullptr,
 		void *eip = nullptr);
 

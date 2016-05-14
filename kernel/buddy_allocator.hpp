@@ -104,8 +104,6 @@ public:
 	///
 	/// Initialize buddy allocator for specified memory region.
 	/// \param region Memory region to be used in buddy system.
-	/// \param max_order Max order of the free list allocator in
-	/// the buddy system.
 	void initialize(const memory::MemoryRegion *region);
 
 
