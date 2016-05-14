@@ -3,6 +3,8 @@
 
 #include <bolgenos-ng/memory.hpp>
 
+#include "free_list.hpp"
+
 
 memory::allocators::BuddyAllocator::~BuddyAllocator() {
 }
@@ -40,7 +42,8 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 	}
 
 	if (reinterpret_cast<size_t>(blk.ptr) & ((1 << 12) - 1)) {
-		cio::cout << __func__ << ": bad page address: " << blk.ptr << cio::endl;
+		lib::cout	<< __func__ << ": bad page address: " << blk.ptr
+				<< lib::endl;
 		panic(__func__);
 	}
 
@@ -74,7 +77,7 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 
 
 memory::allocators::pblk_t memory::allocators::BuddyAllocator::get(size_t pages) {
-	pblk_t blk = {nullptr, blk.size};
+	pblk_t blk = {nullptr, 0};
 	size_t order = 0;
 
 	++stats.allocations;

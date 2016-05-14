@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bolgenos-ng/memory_region.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
+#include "memory_region.hpp"
+#include "stdtypes.hpp"
 
 
 /// Empty placement new.

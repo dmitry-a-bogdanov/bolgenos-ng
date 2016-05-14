@@ -2,34 +2,34 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/irq.h>
-#include <bolgenos-ng/mem_utils.h>
-#include <bolgenos-ng/pic_common.h>
 #include <bolgenos-ng/time.h>
 
-#include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
+#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+
+#include <lib/ostream.hpp>
+
+#include "frequency_divider.hpp"
 
 #include "config.h"
 
 
 namespace {
 
-/**
-* \brief PIT frequency.
-*
-* Frequency of PIT chip 8253/8254. This frequency will be devided
-* by configured value.
-*/
-const unsigned long PIT_FREQ = 1193182;
+
+/// \brief PIT frequency.
+///
+/// Frequency of PIT chip 8253/8254. This frequency will be divided
+/// by configured value.
+using pit_freq = lib::integral_constant<unsigned long, 1193182>;
 
 
-/**
-* \brief Max devider.
-*
-* Maximal number that can be used as frequency divider.
-*/
-const unsigned long MAX_DIVIDER = 65535;
+/// \brief Max divider.
+///
+/// Maximal number that can be used as frequency divider.
+using max_divider = lib::integral_constant<unsigned long, 65535>;
 
 
 enum pit_port: uint16_t {
@@ -70,104 +70,37 @@ enum pit_channel: uint8_t {
 	back			= 3 << 6,
 };
 
-class FrequencyDivider {
-public:
-	FrequencyDivider();
-	FrequencyDivider(const FrequencyDivider&) = delete;
-	FrequencyDivider& operator=(const FrequencyDivider&) = delete;
 
-	~FrequencyDivider();
-
-	void set_frequency(unsigned long hz);
-	uint16_t pit_timeout() const;
-	bool do_tick();
-	bool is_low_frequency() const;
-private:
-	uint16_t pit_;
-	unsigned long counter_;
-	unsigned long restart_;
-};
+pit::details::FrequencyDivider freq_divider;
 
 
-
-
-
-FrequencyDivider freq_divider;
-
-/**
-* \brief Handle timer interrupt.
-*
-* The function is a timer interrupt handler.
-*/
-static void handle_pit_irq(irq_t vector __attribute__((unused))) {
-	if (!freq_divider.do_tick()) {
-		return;
-	}
+/// \brief Handle timer interrupt.
+///
+/// The function is a timer interrupt handler.
+static irq::irq_return_t handle_pit_irq(irq::irq_t) {
+	if (freq_divider.do_tick()) {
 #if VERBOSE_TIMER_INTERRUPT
-	cio::cout << "jiffy #" << jiffies << cio::endl;
+		lib::cout << "jiffy #" << jiffies << lib::endl;
 #endif
-	++jiffies;
+		++jiffies;
+	}
+	return irq::irq_return_t::handled;
 }
+
 
 } // namespace
 
 
-FrequencyDivider::FrequencyDivider()
-		: pit_(0x0), counter_(0), restart_(0) {
-}
 
-FrequencyDivider::~FrequencyDivider() {
-}
-
-
-bool FrequencyDivider::do_tick() {
-	if (counter_ != 0) {
-		--counter_;
-		return false;
-	} else {
-		counter_ = restart_;
-		return true;
-	}
-}
-
-
-uint16_t FrequencyDivider::pit_timeout() const {
-	return pit_;
-}
-
-
-bool FrequencyDivider::is_low_frequency() const {
-	return restart_ != 0;
-}
-
-
-void FrequencyDivider::set_frequency(unsigned long hz) {
-	unsigned long full_div = PIT_FREQ / hz;
-	if (full_div == 0) {
-		full_div = 1; // PIT interprets 0 as 0xffff
-	}
-	if (full_div > MAX_DIVIDER) {
-		pit_ = 100;
-		restart_ = full_div / 100;
-	} else {
-		pit_ = bitmask(full_div, 0, 0xffff);
-		restart_ = 0;
-	}
-	counter_ = restart_;
-}
-
-
-/**
-* Timer IRQ line.
-*/
-#define __TIMER_IRQ	(min_pic_irq + 0)
 
 void pit::init() {
-	freq_divider.set_frequency(HZ);
-	if (freq_divider.is_low_frequency())
-		cio::cwarn << "PIT: losing accuracy of timer" << cio::endl;
+	const irq::irq_t timer_irq = pic::min_pic_irq() + 0;
 
-	register_irq_handler(__TIMER_IRQ, handle_pit_irq);
+	freq_divider.set_frequency(HZ, pit_freq::value, max_divider::value);
+	if (freq_divider.is_low_frequency())
+		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
+
+	irq::request_irq(timer_irq, handle_pit_irq);
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

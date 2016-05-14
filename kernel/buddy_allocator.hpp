@@ -4,7 +4,7 @@
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
 
-#include "free_list.hpp"
+#include <lib/ostream.hpp>
 
 
 namespace memory {
@@ -13,6 +13,8 @@ namespace memory {
 /// Allocator classes and functions.
 namespace allocators {
 
+
+class FreeList; // forward declaration
 
 /// \brief Page block.
 ///
@@ -42,7 +44,7 @@ struct pblk_t {
 
 
 /// Output operator for \ref pblk_t
-inline cio::OutStream& operator <<(cio::OutStream &stream,
+inline lib::ostream& operator <<(lib::ostream &stream,
 		const pblk_t &blk) {
 	return stream << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
 }
@@ -67,11 +69,19 @@ public:
 
 
 	/// Statistic of allocator.
-	stats_type stats;
+	stats_type stats = {};
 
 
 	/// Constructor.
 	BuddyAllocator() = default;
+
+
+	/// Copy-constructing is denied
+	BuddyAllocator(const BuddyAllocator&) = delete;
+
+
+	/// Copy-assignment is denied
+	BuddyAllocator& operator =(const BuddyAllocator&) = delete;
 
 
 	/// \brief Initialize.

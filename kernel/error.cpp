@@ -1,11 +1,12 @@
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.h>
-#include <bolgenos-ng/irq.h>
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/irq.hpp>
+
 void panic(const char *msg) {
-	interrupts_disable();
+	irq::disable();
 	printk("Kernel Panic:\n");
 	printk(msg);
 	while(1) {

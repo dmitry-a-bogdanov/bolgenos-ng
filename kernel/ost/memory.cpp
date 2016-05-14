@@ -2,10 +2,11 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/slab.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "../free_list.hpp"
 #include "../buddy_allocator.hpp"
@@ -14,6 +15,7 @@
 #include <config.h>
 #include <ost.h>
 
+using namespace lib;
 
 #ifdef OST_MEMORY
 void ost::page_alloc_test() {
@@ -40,7 +42,7 @@ void ost::page_alloc_test() {
 	for (size_t i = 0; i != 5; ++i)
 		OST_ASSERT(p[i] == q[i], i, ": ", p[i], " vs ", q[i]);
 
-	cio::cinfo << __func__ << ": OK" << cio::endl;
+	cinfo << __func__ << ": OK" << endl;
 }
 
 void ost::slab_test() {
@@ -82,7 +84,7 @@ void free_list_test__small_order__even() {
 	OST_ASSERT(fl.get() == third_address);
 	OST_ASSERT(fl.get() == nullptr);
 
-	cio::cinfo << __func__ << ": OK" << cio::endl;
+	cinfo << __func__ << ": OK" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__small_order__even
@@ -104,7 +106,7 @@ void free_list_test__small_order__odd() {
 	OST_ASSERT(fl.put(third_address) == second_address);
 	OST_ASSERT(fl.get() == first_address);
 
-	cio::cinfo << __func__ << ": OK" << cio::endl;
+	cinfo << __func__ << ": OK" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__small_order__odd
@@ -125,12 +127,12 @@ void free_list_test__high_order__even() {
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == nullptr);
 	OST_ASSERT(fl.put(third_address) == nullptr);
-	OST_ASSERT(fl.get() == first_address);
-	OST_ASSERT(fl.get() == second_address);
-	OST_ASSERT(fl.get() == third_address);
-	OST_ASSERT(fl.get() == nullptr);
 
-	cio::cinfo << __func__ << ": OK" << cio::endl;
+	size_t got_addr = reinterpret_cast<size_t>(fl.get()) / PAGE_SIZE;
+	OST_ASSERT(got_addr
+		== reinterpret_cast<size_t>(first_address) / PAGE_SIZE);
+
+	cinfo << __func__ << ": ok" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__high_order__even
@@ -156,7 +158,7 @@ void free_list_test__high_order__odd() {
 	OST_ASSERT(fl.get() == third_address);
 	OST_ASSERT(fl.get() == nullptr);
 
-	cio::cinfo << __func__ << ": ok" << cio::endl;
+	cinfo << __func__ << ": ok" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__high_order__odd
@@ -197,7 +199,7 @@ void ost::buddy_allocator_test() {
 		OST_ASSERT(pages[page_idx] == buddy_system.get(1));
 	}
 
-	cio::cinfo << __func__ << ": ok" << cio::endl;
+	cinfo << __func__ << ": ok" << endl;
 
 	memory::free_pages(blk.ptr);
 } // buddy_allocator_test

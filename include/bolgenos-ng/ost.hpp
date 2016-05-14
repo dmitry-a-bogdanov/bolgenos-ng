@@ -3,7 +3,7 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
+#include <lib/ostream.hpp>
 
 
 namespace ost {
@@ -13,13 +13,13 @@ void run();
 
 
 inline void __show() {
-	cio::ccrit << cio::endl;
+	lib::ccrit << lib::endl;
 }
 
 
 template<typename HeadType, typename ...TailTypes>
 void __show(const HeadType &head, TailTypes ...tail) {
-	cio::ccrit << head;
+	lib::ccrit << head;
 	__show(tail...);
 }
 
