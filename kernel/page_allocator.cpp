@@ -56,7 +56,7 @@ void memory::allocators::PageAllocator::deallocate(void *memory) {
 		return;
 	}
 
-	auto frame = reinterpret_cast<memory::page_frame_t *>(memory);
+	auto frame = static_cast<memory::page_frame_t *>(memory);
 	auto page_index = primary_->region()->index_of(frame);
 
 	pblk_t blk = {frame, 0};

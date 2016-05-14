@@ -4,7 +4,25 @@
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
 
+#include <lib/type_traits.hpp>
 #include <lib/ostream.hpp>
+
+#include "free_list.hpp"
+
+
+namespace config {
+
+
+namespace memory {
+
+
+using buddy_alloc_max_order = lib::integral_constant<size_t, 10>;
+
+
+} // namespace config::memory
+
+
+} // namespace config
 
 
 namespace memory {
@@ -13,8 +31,6 @@ namespace memory {
 /// Allocator classes and functions.
 namespace allocators {
 
-
-class FreeList; // forward declaration
 
 /// \brief Page block.
 ///
@@ -90,7 +106,7 @@ public:
 	/// \param region Memory region to be used in buddy system.
 	/// \param max_order Max order of the free list allocator in
 	/// the buddy system.
-	void initialize(memory::MemoryRegion *region, size_t max_order);
+	void initialize(const memory::MemoryRegion *region);
 
 
 	/// Destructor.
@@ -116,10 +132,12 @@ public:
 
 
 	/// Get memory region that is used for the buddy system.
-	memory::MemoryRegion *region() const;
+	const memory::MemoryRegion *region() const;
 
 
 private:
+	/// Max order of freelist in buddy system.
+	using max_order = config::memory::buddy_alloc_max_order;
 
 	/// \brief Compute order of free list for page block.
 	///
@@ -131,15 +149,11 @@ private:
 	size_t compute_order(const pblk_t &blk);
 
 	/// Set of free list allocators.
-	FreeList *free_list_  = nullptr;
+	FreeList free_list_[max_order::value + 1];
 
 
 	/// Region of memory that are covered by this buddy system.
-	memory::MemoryRegion *region_ = nullptr;
-
-
-	/// Max order of freelist in buddy system.
-	size_t max_order_ = 0;
+	const memory::MemoryRegion *region_ = nullptr;
 }; // class BuddyAllocator
 
 

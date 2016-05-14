@@ -13,6 +13,10 @@ namespace allocators {
 
 class Mallocator {
 public:
+	Mallocator() = default;
+	Mallocator(const Mallocator &) = delete;
+	Mallocator& operator =(const Mallocator &) = delete;
+	~Mallocator() = default;
 	void initialize(PageAllocator *fallback,
 			size_t chain_memory, size_t chain_length);
 	void *allocate(size_t bytes);

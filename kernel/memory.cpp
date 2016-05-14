@@ -126,7 +126,7 @@ void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
 			memory::align_up<PAGE_SIZE>(kobj::end()));
 
-	highmem_buddy_allocator.initialize(&highmem, 10);
+	highmem_buddy_allocator.initialize(&highmem);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,
 			last_kernel_page);
 	constexpr size_t chain_memory = 1024*1024; // 1 MB

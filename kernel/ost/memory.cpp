@@ -19,6 +19,8 @@ using namespace lib;
 
 #ifdef OST_MEMORY
 void ost::page_alloc_test() {
+	cinfo << __func__ << ": starting" << endl;
+
 	void *p[5];
 	p[0] = memory::alloc_pages(1);
 	p[1] = memory::alloc_pages(2);
@@ -46,16 +48,18 @@ void ost::page_alloc_test() {
 }
 
 void ost::slab_test() {
+	cinfo << __func__ << ": starting" << endl;
+
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
 	OST_ASSERT(test_slab.is_initialized(), "slab initialization failure");
 
 	long *p[5];
-	p[0] = reinterpret_cast<long *>(test_slab.allocate());
-	p[1] = reinterpret_cast<long *>(test_slab.allocate());
-	p[2] = reinterpret_cast<long *>(test_slab.allocate());
-	p[3] = reinterpret_cast<long *>(test_slab.allocate());
+	p[0] = static_cast<long *>(test_slab.allocate());
+	p[1] = static_cast<long *>(test_slab.allocate());
+	p[2] = static_cast<long *>(test_slab.allocate());
+	p[3] = static_cast<long *>(test_slab.allocate());
 	test_slab.deallocate(p[2]);
-	p[4] = reinterpret_cast<long *>(test_slab.allocate());
+	p[4] = static_cast<long *>(test_slab.allocate());
 
 	OST_ASSERT(p[1] == p[0] + 1);
 	OST_ASSERT(p[2] == p[1] + 1);
@@ -67,7 +71,9 @@ void ost::slab_test() {
 namespace {
 
 void free_list_test__small_order__even() {
-	auto *pages = reinterpret_cast<memory::page_frame_t *>(
+	cinfo << __func__ << ": starting" << endl;
+
+	auto *pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
@@ -76,7 +82,8 @@ void free_list_test__small_order__even() {
 	auto *third_address = second_address + 1;
 
 	memory::allocators::FreeList fl;
-	OST_ASSERT(fl.initialize(0),"initialization failed");
+
+	OST_ASSERT(fl.initialize(0, false), "initialization failed");
 
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == first_address);
@@ -91,7 +98,10 @@ void free_list_test__small_order__even() {
 
 
 void free_list_test__small_order__odd() {
-	auto *pages = reinterpret_cast<memory::page_frame_t *>(memory::alloc_pages(128));
+	cinfo << __func__ << ": starting" << endl;
+
+	auto *pages = static_cast<memory::page_frame_t *>(
+		memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
 	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages) + 1;
@@ -113,7 +123,9 @@ void free_list_test__small_order__odd() {
 
 
 void free_list_test__high_order__even() {
-	auto pages = reinterpret_cast<memory::page_frame_t *>(
+	cinfo << __func__ << ": starting" << endl;
+
+	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
@@ -139,8 +151,11 @@ void free_list_test__high_order__even() {
 
 
 void free_list_test__high_order__odd() {
-	auto pages = reinterpret_cast<memory::page_frame_t *>(
+	cinfo << __func__ << ": starting" << endl;
+
+	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
+
 	OST_ASSERT(pages, "allocation failed");
 
 	auto *first_address = memory::align_up<PAGE_SIZE*16>(pages) + 8;
@@ -168,11 +183,13 @@ void free_list_test__high_order__odd() {
 
 
 void ost::buddy_allocator_test() {
+	cinfo << __func__ << ": starting" << endl;
+
 	constexpr size_t PAGES = 800;
 	memory::allocators::pblk_t blk;
 
 	blk.size = PAGES + 223;
-	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
+	blk.ptr = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
 	OST_ASSERT(blk.ptr, "allocation failed");
@@ -182,7 +199,7 @@ void ost::buddy_allocator_test() {
 	region.end(blk.ptr + blk.size);
 	memory::allocators::BuddyAllocator buddy_system;
 
-	buddy_system.initialize(&region, 3);
+	buddy_system.initialize(&region);
 	buddy_system.put(blk);
 
 	memory::allocators::pblk_t pages[PAGES];

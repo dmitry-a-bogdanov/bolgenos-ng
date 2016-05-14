@@ -30,9 +30,9 @@ bool memory::allocators::SlabAllocator::initialize(size_t elem_size,
 		initialized_ = false;
 		return initialized_;
 	}
-	// _allocation_map = reinterpret_cast<bool *>(area);
+
 	allocation_map_.initialize(area_, nelems_);
-	memory_ = reinterpret_cast<char *>(area_)
+	memory_ = static_cast<char *>(area_)
 			+ util::inplace::BitArray::expected_size(nelems_);
 
 	for(size_t elem = 0; elem != nelems_; ++elem) {
@@ -66,8 +66,8 @@ void *memory::allocators::SlabAllocator::allocate() {
 bool memory::allocators::SlabAllocator::owns(void *memory) const {
 	if (memory_ == nullptr)
 		panic ("assertion failed");
-	auto *address = reinterpret_cast<char *>(memory);
-	auto *high_limit = reinterpret_cast<char *>(memory_) + nelems_ * elem_size_;
+	auto *address = static_cast<char *>(memory);
+	auto *high_limit = static_cast<char *>(memory_) + nelems_ * elem_size_;
 	if (memory_ <= address && address
 			< high_limit) {
 		return true;

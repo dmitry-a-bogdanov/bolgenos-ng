@@ -17,12 +17,13 @@ namespace {
 
 
 /// Check that frames are consequent.
-bool are_consequent(const memory::page_frame_t *first,
+constexpr bool are_consequent(const memory::page_frame_t *first,
 		const memory::page_frame_t *second, size_t order);
 
 
 /// The function is the first in the pair of squashed pages.
-bool is_the_first_in_buddy(const memory::page_frame_t *frame, size_t order);
+constexpr bool is_the_first_in_buddy(const memory::page_frame_t *frame,
+		size_t order);
 
 } // namespace
 
@@ -32,6 +33,7 @@ bool memory::allocators::FreeList::initialize(size_t order,
 	list_ = nullptr;
 	order_ = order;
 	disable_squashing_ = disable_squashing;
+	sanity_check();
 	return true;
 }
 
@@ -190,18 +192,16 @@ lib::ostream& memory::allocators::operator<<(lib::ostream& stream,
 namespace {
 
 
-bool are_consequent(const memory::page_frame_t *first,
-		const memory::page_frame_t *second, size_t order)
-{
-	const auto diff_frames = 1 << order;
-	return second - first == diff_frames;
+constexpr bool are_consequent(const memory::page_frame_t *first,
+		const memory::page_frame_t *second, size_t order) {
+	return (second - first) == (1 << order);
 }
 
 
-bool is_the_first_in_buddy(const memory::page_frame_t *frame, size_t order) {
-	auto numeric = reinterpret_cast<size_t>(frame);
-	auto divided = numeric / (PAGE_SIZE*(1 << order));
-	return divided % 2 == 0;
+constexpr bool is_the_first_in_buddy(const memory::page_frame_t *frame,
+		size_t order) {
+	return ! ((frame - reinterpret_cast<memory::page_frame_t *>(0))
+			& (1 << order));
 }
 
 } // namespace
