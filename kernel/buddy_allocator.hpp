@@ -3,9 +3,12 @@
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
-#include <bolgenos-ng/type_traits.hpp>
+
+#include <lib/type_traits.hpp>
+#include <lib/ostream.hpp>
 
 #include "free_list.hpp"
+
 
 namespace config {
 
@@ -13,7 +16,7 @@ namespace config {
 namespace memory {
 
 
-struct buddy_alloc_max_order: integral_constant<size_t, 10> {};
+using buddy_alloc_max_order = lib::integral_constant<size_t, 10>;
 
 
 } // namespace config::memory
@@ -57,7 +60,7 @@ struct pblk_t {
 
 
 /// Output operator for \ref pblk_t
-inline cio::OutStream& operator <<(cio::OutStream &stream,
+inline lib::ostream& operator <<(lib::ostream &stream,
 		const pblk_t &blk) {
 	return stream << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
 }
@@ -82,11 +85,19 @@ public:
 
 
 	/// Statistic of allocator.
-	stats_type stats;
+	stats_type stats = {};
 
 
 	/// Constructor.
 	BuddyAllocator() = default;
+
+
+	/// Copy-constructing is denied
+	BuddyAllocator(const BuddyAllocator&) = delete;
+
+
+	/// Copy-assignment is denied
+	BuddyAllocator& operator =(const BuddyAllocator&) = delete;
 
 
 	/// \brief Initialize.

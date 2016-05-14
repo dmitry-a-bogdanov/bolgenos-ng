@@ -5,7 +5,8 @@ set(cxxstd_flags "-std=gnu++11")
 
 set(output_format_flags "-m32 -march=i686")
 set(dep_flags "-ffreestanding")
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
+set(warn_flags_cxx "-Weffc++")
 set(cxx_features_flags "-fno-rtti -fno-exceptions")
 
 
@@ -44,7 +45,7 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
 set(CMAKE_C_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags} ${cstd_flags}")
-set(CMAKE_CXX_FLAGS "${warn_flags} ${output_format_flags} ${dep_flags} ${cxxstd_flags} ${cxx_features_flags}")
+set(CMAKE_CXX_FLAGS "${warn_flags} ${warn_flags_cxx} ${output_format_flags} ${dep_flags} ${cxxstd_flags} ${cxx_features_flags}")
 set(CMAKE_ASM-ATT_COMPILER "${CMAKE_C_COMPILER}")
 set(CMAKE_ASM-ATT_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
@@ -58,24 +59,51 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
+set(m4_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/m4")
+file(GLOB_RECURSE m4_input_files "${m4_input_dir}/*.cpp.m4")
+
+set(m4_output_dir "${CMAKE_CURRENT_BINARY_DIR}/m4_generated")
+file(MAKE_DIRECTORY ${m4_output_dir})
+
+
+set(m4_generated_files "")
+
+foreach(m4_file ${m4_input_files})
+	get_filename_component(in_basename ${m4_file} NAME)
+	string(REGEX REPLACE ".m4" "" out_basename ${in_basename})
+	set(out_file "${m4_output_dir}/${out_basename}")
+	set(m4_generated_files "${out_file}" ${m4_generated_file})
+	message("adding target ${out_file}")
+	add_custom_command(OUTPUT "${out_file}"
+		COMMAND m4 -P "${m4_file}" > "${out_file}"
+		COMMENT m4 -P "${m4_file}" > "${out_file}"
+		WORKING_DIRECTORY "${m4_input_dir}"
+		DEPENDS "${m4_file}")
+endforeach(m4_file)
+
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
-	cout.cpp
-	error.c
-	irq.c
+	${m4_generated_files}
+	error.cpp
+	frequency_divider.hpp
+	frequency_divider.cpp
+	irq.cpp
+	kernel_object.cpp
 	main.cpp
 	memory.cpp
-	mmu.c
+	mmu.cpp
 	multiboot_header.c
 	multiboot_info.cpp
-	pic_8259.c
-	pic_common.c
+	pic_8259.cpp
+	pic_common.cpp
 	pit.cpp
 	printk.cpp
 	ps2.cpp
 	time.c
+	traps.hpp
+	traps.cpp
 	vga_console.cpp
 	
 	keyboard.cpp
@@ -96,9 +124,17 @@ set(kernel_sources ${kernel_start_file}
 	slab.cpp
 	
 	abi/cxxabi.c
+	backtrace.cpp
 	
-	lib/snprintf.c
-	lib/string.c
+	lib/snprintf.cpp
+	lib/streambuf.hpp
+	lib/streambuf.cpp
+	lib/string.cpp
+	lib/ostream.cpp
+	lib/vga_buf.hpp
+	lib/vga_buf.cpp
+	lib/vga_log_buf.hpp
+	lib/vga_log_buf.cpp
 	
 	ost/ost.cpp
 	ost/bitarray.hpp
@@ -107,12 +143,25 @@ set(kernel_sources ${kernel_start_file}
 	ost/memory.cpp
 	)
 
+set_source_files_properties(${m4_generated_files}
+	PROPERTIES GENERATED TRUE)
+
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
 set_source_files_properties(${kernel_start_file} PROPERTIES
 	LANGUAGE "ASM-ATT")
 
-add_executable(${kernel_binary} ${kernel_sources} ${kernel_headers})
+
+message("gen_files = ${m4_generated_files}")
+message("config_h = ${config_h}")
+
+
+
+message("kernel_sources = ${kernel_sources}")
+add_executable(${kernel_binary}
+	${kernel_headers}
+	${kernel_sources}
+)
 
 # custom target is always out-of-date
 add_custom_target(__relink_kernel

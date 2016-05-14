@@ -2,8 +2,9 @@
 
 #include <stdarg.h> // from gcc!
 
-#include <bolgenos-ng/mem_utils.h>
 #include <bolgenos-ng/error.h>
+
+#include <bolgenos-ng/mem_utils.hpp>
 
 static char __to_printable(int chr) {
 	if (chr < 10) {
@@ -16,7 +17,7 @@ static char __to_printable(int chr) {
 }
 
 const uint32_t		__uint32_max_divisor = 1000000000; // max = 4294967296
-const int32_t		__int32_max_divisor = 1000000000;
+// const int32_t		__int32_max_divisor = 1000000000;
 
 static int __snprintf_int32(char *str, size_t size, int32_t value);	// %li
 static int __snprintf_uint32(char *str, size_t size, uint32_t value);	// %lu

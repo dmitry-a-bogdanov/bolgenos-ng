@@ -2,12 +2,14 @@
 
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/mem_utils.h>
 
-#include <bolgenos-ng/cout.hpp>
+#include <bolgenos-ng/kernel_object.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
+
+#include <lib/ostream.hpp>
 
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"
@@ -24,23 +26,6 @@ void memset(void *mem, char val, size_t size) {
 		write_8(((char *)mem) + pos, &val);
 	}
 }
-
-
-/**
-* \brief Start of kernel object.
-*
-* Pointer to start of memory where kernel ELF is loaded.
-*
-*/
-_asm_linked_ char __kernel_obj_start[0];
-
-
-/**
-* \brief End of kernel object.
-*
-* Pointer to end of memory where kernel ELF is loaded.
-*/
-_asm_linked_ char __kernel_obj_end[0];
 
 
 namespace {
@@ -120,12 +105,12 @@ namespace {
 
 void detect_memory_regions() {
 	if (multiboot::boot_info->is_meminfo_valid()) {
-		cio::cnotice << "Detected memory: "
+		lib::cnotice << "Detected memory: "
 			<< "low = "
 			<< multiboot::boot_info->low_memory() << " kB, "
 			<< "high = "
 			<< multiboot::boot_info->high_memory() << " kB"
-			<< cio::endl;
+			<< lib::endl;
 	} else {
 		panic("Bootloader didn't provide memory info!\n");
 	}
@@ -139,7 +124,7 @@ void detect_memory_regions() {
 
 void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE>(__kernel_obj_end));
+			memory::align_up<PAGE_SIZE>(kobj::end()));
 
 	highmem_buddy_allocator.initialize(&highmem);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,
@@ -152,7 +137,7 @@ void initilize_highmem_allocators() {
 
 } // namespace
 
-void operator delete(void *) {
+void operator delete(void *) noexcept {
 	// empty declaration
 }
 

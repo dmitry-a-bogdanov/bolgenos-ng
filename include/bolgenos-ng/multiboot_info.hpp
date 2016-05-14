@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include "stdtypes.hpp"
 
 
 /// \brief Multiboot

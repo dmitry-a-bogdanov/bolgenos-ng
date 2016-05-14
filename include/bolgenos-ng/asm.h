@@ -3,17 +3,27 @@
 
 #include <bolgenos-ng/compiler.h>
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include "stdtypes.hpp"
 
 
-/**
-* \brief Pointer to descriptor table.
-*
-* Structure for keeping pointer to IDT and GDT.
-*/
+/// \brief Pointer to descriptor table.
+///
+/// Structure for keeping pointer to IDT and GDT.
 struct _packed_ table_pointer {
 	uint16_t limit:16;	/*!< Size of table minus one */
 	void *base;		/*!< 32-bit address of table in memory */
+};
+
+
+/// \brief Privilege level.
+///
+/// Enum holds values of privilege level as index of protection level.
+enum protection_ring_t {
+	ring_null = 0x0,
+	ring_kernel = 0x0,
+	ring_1 = 0x1,
+	ring_2 = 0x2,
+	ring_user = 0x3
 };
 
 

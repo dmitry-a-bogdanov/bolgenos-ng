@@ -1,5 +1,6 @@
 #include "free_list.hpp"
 
+/// Type of list element.
 struct memory::allocators::FreeList::item_type {
 	/// Pointer to the next element.
 	item_type *next;
@@ -168,15 +169,15 @@ void memory::allocators::FreeList::sanity_check() const {
 	for (item_type *it = list_; it; it = it->next)
 		length++;
 	if (length != stats.items) {
-		cio::ccrit << "actual = " << length
-			<< " expected = " << stats.items << cio::endl;
+		lib::ccrit << "actual = " << length
+			<< " expected = " << stats.items << lib::endl;
 		panic("FreeList stats are invalid!");
 	}
 }
 
 
 
-cio::OutStream& memory::allocators::operator<<(cio::OutStream& stream,
+lib::ostream& memory::allocators::operator<<(lib::ostream& stream,
 			const FreeList& fl) {
 	stream << "[FreeList(" << fl.order_ << ", " << fl.disable_squashing_
 		<< "):";

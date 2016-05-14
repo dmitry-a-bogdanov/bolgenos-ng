@@ -2,9 +2,11 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/cout.hpp>
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+
+
+#include <lib/ostream.hpp>
 
 #include "config.h"
 
@@ -15,13 +17,17 @@ namespace memory {
 namespace allocators {
 
 
+class FreeList;
+
+lib::ostream& operator<<(lib::ostream& stream,
+		const FreeList& fl);
+
+
 /// \brief Free list allocator.
 ///
 /// The structure provides functionality of free list list allocator. Such
 /// allocator keeps one-directional list of blocks of page frames.
 class FreeList {
-	struct item_type; // forward declaration.
-
 public:
 
 	/// Structure that holds statistics of the usage of the free list.
@@ -32,7 +38,7 @@ public:
 
 
 	/// Static of the usage of this free list.
-	stats_type stats;
+	stats_type stats = {};
 
 
 	/// Default constructor.
@@ -85,8 +91,7 @@ public:
 
 private:
 
-	/// Type of list element.
-	struct item_type;
+	struct item_type; // forward declaration
 
 
 	/// Find last lesser.
@@ -106,17 +111,21 @@ private:
 	/// Order of the list.
 	size_t order_ = 0;
 
+
+	/// \brief Disable squashing flag.
+	///
+	/// If the disable squashing flag is set \ref put will not check
+	/// items for squashing and will return nullptr on every call.
 	bool disable_squashing_ = false;
 
 
-	/// Output operator for \ref FreeLists
+	/// Output operator for \ref FreeList objects.
 	friend
-	cio::OutStream& memory::allocators::operator<<(cio::OutStream& stream,
+	lib::ostream& memory::allocators::operator <<(lib::ostream& stream,
 				const FreeList& fl);
 }; // class FreeList
 
-cio::OutStream& operator<<(cio::OutStream& stream,
-		const FreeList& fl);
+
 
 
 } // namespace allocators

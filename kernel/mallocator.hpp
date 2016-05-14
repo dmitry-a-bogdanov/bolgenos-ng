@@ -26,7 +26,7 @@ private:
 	/// Chain of slab allocators.
 	SlabAllocator *chain_ = nullptr;
 	PageAllocator *fallback_ = nullptr;
-	SlabAllocator internal_allocator_;
+	SlabAllocator internal_allocator_ = {};
 };
 
 
