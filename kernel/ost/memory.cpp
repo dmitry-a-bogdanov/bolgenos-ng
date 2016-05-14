@@ -54,12 +54,12 @@ void ost::slab_test() {
 	OST_ASSERT(test_slab.is_initialized(), "slab initialization failure");
 
 	long *p[5];
-	p[0] = reinterpret_cast<long *>(test_slab.allocate());
-	p[1] = reinterpret_cast<long *>(test_slab.allocate());
-	p[2] = reinterpret_cast<long *>(test_slab.allocate());
-	p[3] = reinterpret_cast<long *>(test_slab.allocate());
+	p[0] = static_cast<long *>(test_slab.allocate());
+	p[1] = static_cast<long *>(test_slab.allocate());
+	p[2] = static_cast<long *>(test_slab.allocate());
+	p[3] = static_cast<long *>(test_slab.allocate());
 	test_slab.deallocate(p[2]);
-	p[4] = reinterpret_cast<long *>(test_slab.allocate());
+	p[4] = static_cast<long *>(test_slab.allocate());
 
 	OST_ASSERT(p[1] == p[0] + 1);
 	OST_ASSERT(p[2] == p[1] + 1);
@@ -73,7 +73,7 @@ namespace {
 void free_list_test__small_order__even() {
 	cinfo << __func__ << ": starting" << endl;
 
-	auto *pages = reinterpret_cast<memory::page_frame_t *>(
+	auto *pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
@@ -125,7 +125,7 @@ void free_list_test__small_order__odd() {
 void free_list_test__high_order__even() {
 	cinfo << __func__ << ": starting" << endl;
 
-	auto pages = reinterpret_cast<memory::page_frame_t *>(
+	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
@@ -153,7 +153,7 @@ void free_list_test__high_order__even() {
 void free_list_test__high_order__odd() {
 	cinfo << __func__ << ": starting" << endl;
 
-	auto pages = reinterpret_cast<memory::page_frame_t *>(
+	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 
 	OST_ASSERT(pages, "allocation failed");
@@ -189,7 +189,7 @@ void ost::buddy_allocator_test() {
 	memory::allocators::pblk_t blk;
 
 	blk.size = PAGES + 223;
-	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
+	blk.ptr = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
 	OST_ASSERT(blk.ptr, "allocation failed");

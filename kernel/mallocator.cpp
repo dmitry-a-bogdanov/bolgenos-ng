@@ -26,10 +26,10 @@ void memory::allocators::Mallocator::initialize(
 		panic("Initializing of internal allocator failed!");
 	}
 
-	chain_ = reinterpret_cast<SlabAllocator *>(
+	chain_ = static_cast<SlabAllocator *>(
 			internal_allocator_.allocate());
 	for(size_t slab_idx = 0; slab_idx != chain_length_; ++slab_idx) {
-		new (reinterpret_cast<void *>(&chain_[slab_idx]))
+		new (static_cast<void *>(&chain_[slab_idx]))
 				SlabAllocator;
 		const size_t elem_size = chain_unit_size(slab_idx);
 		if (!chain_[slab_idx].initialize(elem_size,
