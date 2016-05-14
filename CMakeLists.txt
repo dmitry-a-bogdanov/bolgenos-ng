@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 cmake_policy(SET CMP0048 NEW)
 project(bolgenos-ng
-	VERSION 0.0.3)
+	VERSION 0.0.4)
 
 set(kernel_headers_dir "include/")
 include_directories(${kernel_headers_dir})
