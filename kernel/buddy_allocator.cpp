@@ -3,6 +3,8 @@
 
 #include <bolgenos-ng/memory.hpp>
 
+#include "free_list.hpp"
+
 
 memory::allocators::BuddyAllocator::~BuddyAllocator() {
 }

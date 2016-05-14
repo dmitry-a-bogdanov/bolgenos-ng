@@ -59,14 +59,38 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
+set(m4_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/m4")
+file(GLOB_RECURSE m4_input_files "${m4_input_dir}/*.cpp.m4")
+
+set(m4_output_dir "${CMAKE_CURRENT_BINARY_DIR}/m4_generated")
+file(MAKE_DIRECTORY ${m4_output_dir})
+
+
+set(m4_generated_files "")
+
+foreach(m4_file ${m4_input_files})
+	get_filename_component(in_basename ${m4_file} NAME)
+	string(REGEX REPLACE ".m4" "" out_basename ${in_basename})
+	set(out_file "${m4_output_dir}/${out_basename}")
+	set(m4_generated_files "${out_file}" ${m4_generated_file})
+	message("adding target ${out_file}")
+	add_custom_command(OUTPUT "${out_file}"
+		COMMAND m4 -P "${m4_file}" > "${out_file}"
+		COMMENT m4 -P "${m4_file}" > "${out_file}"
+		WORKING_DIRECTORY "${m4_input_dir}"
+		DEPENDS "${m4_file}")
+endforeach(m4_file)
+
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
+	${m4_generated_files}
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp
 	irq.cpp
+	kernel_object.cpp
 	main.cpp
 	memory.cpp
 	mmu.cpp
@@ -78,6 +102,8 @@ set(kernel_sources ${kernel_start_file}
 	printk.cpp
 	ps2.cpp
 	time.c
+	traps.hpp
+	traps.cpp
 	vga_console.cpp
 	
 	keyboard.cpp
@@ -98,6 +124,7 @@ set(kernel_sources ${kernel_start_file}
 	slab.cpp
 	
 	abi/cxxabi.c
+	backtrace.cpp
 	
 	lib/snprintf.cpp
 	lib/streambuf.hpp
@@ -116,12 +143,25 @@ set(kernel_sources ${kernel_start_file}
 	ost/memory.cpp
 	)
 
+set_source_files_properties(${m4_generated_files}
+	PROPERTIES GENERATED TRUE)
+
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
 set_source_files_properties(${kernel_start_file} PROPERTIES
 	LANGUAGE "ASM-ATT")
 
-add_executable(${kernel_binary} ${kernel_sources} ${kernel_headers})
+
+message("gen_files = ${m4_generated_files}")
+message("config_h = ${config_h}")
+
+
+
+message("kernel_sources = ${kernel_sources}")
+add_executable(${kernel_binary}
+	${kernel_headers}
+	${kernel_sources}
+)
 
 # custom target is always out-of-date
 add_custom_target(__relink_kernel

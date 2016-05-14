@@ -101,6 +101,13 @@ public:
 	iterator end() {
 		return iterator(nullptr);
 	}
+
+
+	/// Check that list is empty.
+	/// \return true if list is empty.
+	bool empty() {
+		return first_ == nullptr;
+	}
 private:
 	struct list_item_type {
 		list_item_type *next_ = nullptr;

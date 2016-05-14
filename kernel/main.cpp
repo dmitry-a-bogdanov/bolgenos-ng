@@ -58,6 +58,8 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
+	lib::cwarn << "Kernel initialization routine has been finished!"
+			<< lib::endl;
 	do {
 		asm ("hlt");
 	} while(1);

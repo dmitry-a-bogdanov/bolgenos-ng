@@ -4,7 +4,7 @@
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
 
-#include "free_list.hpp"
+#include <lib/ostream.hpp>
 
 
 namespace memory {
@@ -13,6 +13,8 @@ namespace memory {
 /// Allocator classes and functions.
 namespace allocators {
 
+
+class FreeList; // forward declaration
 
 /// \brief Page block.
 ///

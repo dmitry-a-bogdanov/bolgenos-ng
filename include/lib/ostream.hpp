@@ -181,6 +181,15 @@ public:
 	char fill(char fillch);
 
 
+	/// \brief Copy formatting information.
+	///
+	/// Copies the values of all the internal members of \p other related
+	/// to formatting to the corresponding members of *this.
+	///
+	/// \return *this
+	ostream& copyfmt(ostream& other);
+
+
 private:
 	/// Pointer to underlying streambuf.
 	streambuf *streambuf_;
@@ -317,6 +326,24 @@ extern ostream cnotice;
 
 /// Output object for info messages.
 extern ostream cinfo;
+
+
+class scoped_format_guard {
+public:
+	scoped_format_guard() = delete;
+	scoped_format_guard(const scoped_format_guard&) = delete;
+	scoped_format_guard(ostream& guarded_stream)
+		: guarded_stream_(guarded_stream),
+		  backup_(nullptr) {
+		backup_.copyfmt(guarded_stream_);
+	}
+	~scoped_format_guard() {
+		guarded_stream_.copyfmt(backup_);
+	}
+public:
+	ostream& guarded_stream_;
+	ostream backup_;
+};
 
 
 } // namespace lib

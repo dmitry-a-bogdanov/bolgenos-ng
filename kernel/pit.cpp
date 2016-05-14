@@ -77,7 +77,7 @@ pit::details::FrequencyDivider freq_divider;
 /// \brief Handle timer interrupt.
 ///
 /// The function is a timer interrupt handler.
-static irq::irq_return_t handle_pit_irq(irq::irq_t vector __attribute__((unused))) {
+static irq::irq_return_t handle_pit_irq(irq::irq_t) {
 	if (freq_divider.do_tick()) {
 #if VERBOSE_TIMER_INTERRUPT
 		lib::cout << "jiffy #" << jiffies << lib::endl;
@@ -100,7 +100,7 @@ void pit::init() {
 	if (freq_divider.is_low_frequency())
 		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
-	irq::register_handler(timer_irq, handle_pit_irq);
+	irq::request_irq(timer_irq, handle_pit_irq);
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

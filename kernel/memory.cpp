@@ -3,6 +3,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 
+#include <bolgenos-ng/kernel_object.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
@@ -25,23 +26,6 @@ void memset(void *mem, char val, size_t size) {
 		write_8(((char *)mem) + pos, &val);
 	}
 }
-
-
-/**
-* \brief Start of kernel object.
-*
-* Pointer to start of memory where kernel ELF is loaded.
-*
-*/
-_asm_linked_ char __kernel_obj_start[0];
-
-
-/**
-* \brief End of kernel object.
-*
-* Pointer to end of memory where kernel ELF is loaded.
-*/
-_asm_linked_ char __kernel_obj_end[0];
 
 
 namespace {
@@ -140,7 +124,7 @@ void detect_memory_regions() {
 
 void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE>(__kernel_obj_end));
+			memory::align_up<PAGE_SIZE>(kobj::end()));
 
 	highmem_buddy_allocator.initialize(&highmem, 10);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,

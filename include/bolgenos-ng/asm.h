@@ -19,11 +19,11 @@ struct _packed_ table_pointer {
 ///
 /// Enum holds values of privilege level as index of protection level.
 enum protection_ring_t {
-	dpl_null = 0x0,
-	kernel = 0x0,
+	ring_null = 0x0,
+	ring_kernel = 0x0,
 	ring_1 = 0x1,
 	ring_2 = 0x2,
-	user = 0x3
+	ring_user = 0x3
 };
 
 

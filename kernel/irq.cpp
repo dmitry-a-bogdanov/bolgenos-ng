@@ -3,10 +3,7 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/printk.h>
-#include <bolgenos-ng/string.h>
-#include <bolgenos-ng/time.h>
-
+#include <bolgenos-ng/execinfo.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/pic_common.hpp>
@@ -15,272 +12,192 @@
 #include <lib/algorithm.hpp>
 #include <lib/list.hpp>
 
+#include <m4/idt.hpp>
+
+#include "traps.hpp"
+
+
 namespace {
-
-
-/// Type list of Interrupt Service Routines.
-using handlers_list_t = lib::list<irq::irq_handler_t>;
 
 
 /// Array of lists of Interrupt Service Routines.
-handlers_list_t registered_isrs[irq::lines_number::value];
+lib::list<irq::irq_handler_t> irq_handlers[irq::lines_number::value];
 
 
-void irq_dispatcher(irq::irq_t vector);
+/// Array of lists of Exception Handlers.
+lib::list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
 
 
-using gate_field_t = uint32_t;
+table_pointer idt_pointer _irq_aligned_;
 
 
-struct __attribute__((packed)) gate_t {
-	using asm_function_type = void (*)();
-	using asm_function_ptr_type = uint32_t;
-	using segment_id_t = uint16_t;
-	using reserved_type = uint32_t;
+void irq_dispatcher(irq::irq_t vector, void* frame);
 
-
-	enum irq_gate_type {
-		task = 0x5,
-		intr = 0x6,
-		trap = 0x7,
-	};
-
-
-	enum flag_32_bit_type {
-		bits_32 = 1,
-		bits_16 = 0,
-	};
-
-
-	enum zero_flag_type {
-		just_zero = 0x0
-	};
-
-
-	enum present_type {
-		present_unknown = 0x0,
-		not_present = 0x0,
-		present = 0x1,
-	};
-
-
-	constexpr gate_t()
-			: offset_00_15_(bitmask<asm_function_ptr_type>(nullptr)),
-			segment_(mmu::kernel_cs_ptr::value),
-			_reserved(0),
-			zeros(0),
-			gate_type(irq_gate_type::intr),
-			flag_32_bit(flag_32_bit_type::bits_32),
-			zero_bit_(zero_flag_type::just_zero),
-			dpl_(protection_ring_t::dpl_null),
-			present_(present_type::present),
-			offset_16_31_(bitmask<asm_function_ptr_type>(nullptr)) {
-	}
-
-	explicit constexpr gate_t(asm_function_ptr_type offs)
-			: offset_00_15_(bitmask(offs, 0, 0xffff)),
-			segment_(mmu::kernel_cs_ptr::value),
-			_reserved(0),
-			zeros(0),
-			gate_type(irq_gate_type::intr),
-			flag_32_bit(flag_32_bit_type::bits_32),
-			zero_bit_(zero_flag_type::just_zero),
-			dpl_(protection_ring_t::kernel),
-			present_(present_type::present),
-			offset_16_31_(bitmask(offs, 16, 0xffff)) {
-	}
-
-	static gate_t make_int_gate(asm_function_type _f) {
-		auto f = reinterpret_cast<asm_function_ptr_type>(_f);
-		gate_t gate;
-		gate.offset_00_15_ = bitmask(f, 0, 0xffff);
-		gate.offset_16_31_ = bitmask(f, 16, 0xffff);
-		gate.segment_ = mmu::kernel_cs_ptr::value;
-		return gate;
-	}
-private:
-	asm_function_ptr_type offset_00_15_:16;
-	segment_id_t segment_;
-	reserved_type _reserved:5;
-	gate_field_t zeros:3;
-	irq_gate_type gate_type:3;
-	flag_32_bit_type flag_32_bit:1;
-	zero_flag_type zero_bit_:1;
-	protection_ring_t dpl_:2;
-	present_type present_:1;
-	asm_function_ptr_type offset_16_31_:16;
-};
-static_assert(sizeof(gate_t) == 8, "gate_t has wrong size");
-
-
-#define __decl_isr_stage_asm(num)					\
-	asm(								\
-		".align 16\n"						\
-		"__isr_stage_asm_" #num ":\n"				\
-			"pushal\n"					\
-			"call __isr_stage_c_" #num "\n"			\
-			"popal\n"					\
-			"iret\n"					\
-	);								\
-	extern "C" void __isr_stage_asm_ ## num()
-
-
-#define __decl_isr_stage_c(num, generic_isr)				\
-	extern "C" void __attribute__((used)) __isr_stage_c_ ## num () {\
-		generic_isr(num);					\
-		pic::end_of_irq(num);					\
-	}
-
-
-#define __decl_isr(num, function)					\
-	__decl_isr_stage_asm(num);					\
-	__decl_isr_stage_c(num, function)
-
-
-#define __decl_common_gate(num, table)					\
-	do {								\
-		gate_t gate = gate_t::make_int_gate(__isr_stage_asm_ ## num);	\
-		table[num] = gate;			\
-	} while(0)
-
-
-__decl_isr(0, irq_dispatcher);
-__decl_isr(1, irq_dispatcher);
-__decl_isr(2, irq_dispatcher);
-__decl_isr(3, irq_dispatcher);
-__decl_isr(4, irq_dispatcher);
-__decl_isr(5, irq_dispatcher);
-__decl_isr(6, irq_dispatcher);
-__decl_isr(7, irq_dispatcher);
-__decl_isr(8, irq_dispatcher);
-__decl_isr(9, irq_dispatcher);
-__decl_isr(10, irq_dispatcher);
-__decl_isr(11, irq_dispatcher);
-__decl_isr(12, irq_dispatcher);
-__decl_isr(13, irq_dispatcher);
-__decl_isr(14, irq_dispatcher);
-__decl_isr(15, irq_dispatcher);
-__decl_isr(16, irq_dispatcher);
-__decl_isr(17, irq_dispatcher);
-__decl_isr(18, irq_dispatcher);
-__decl_isr(19, irq_dispatcher);
-__decl_isr(20, irq_dispatcher);
-__decl_isr(21, irq_dispatcher);
-__decl_isr(22, irq_dispatcher);
-__decl_isr(23, irq_dispatcher);
-__decl_isr(24, irq_dispatcher);
-__decl_isr(25, irq_dispatcher);
-__decl_isr(26, irq_dispatcher);
-__decl_isr(27, irq_dispatcher);
-__decl_isr(28, irq_dispatcher);
-__decl_isr(29, irq_dispatcher);
-__decl_isr(30, irq_dispatcher);
-__decl_isr(31, irq_dispatcher);
-__decl_isr(32, irq_dispatcher);
-__decl_isr(33, irq_dispatcher);
-__decl_isr(34, irq_dispatcher);
-__decl_isr(35, irq_dispatcher);
-__decl_isr(36, irq_dispatcher);
-__decl_isr(37, irq_dispatcher);
-__decl_isr(38, irq_dispatcher);
-__decl_isr(39, irq_dispatcher);
-__decl_isr(40, irq_dispatcher);
-__decl_isr(41, irq_dispatcher);
-__decl_isr(42, irq_dispatcher);
-__decl_isr(43, irq_dispatcher);
-__decl_isr(44, irq_dispatcher);
-__decl_isr(45, irq_dispatcher);
-__decl_isr(46, irq_dispatcher);
-__decl_isr(47, irq_dispatcher);
-
-
-gate_t idt[irq::lines_number::value] _irq_aligned_;
-table_pointer idt_pointer _irq_aligned_ = {sizeof(idt) - 1,
-		static_cast<void *>(&idt)};
 
 } // namespace
 
-void irq::init() {
-	// See comment__why_not_use_counter
-	__decl_common_gate(0, idt);
-	__decl_common_gate(1, idt);
-	__decl_common_gate(2, idt);
-	__decl_common_gate(3, idt);
-	__decl_common_gate(4, idt);
-	__decl_common_gate(5, idt);
-	__decl_common_gate(6, idt);
-	__decl_common_gate(7, idt);
-	__decl_common_gate(8, idt);
-	__decl_common_gate(9, idt);
-	__decl_common_gate(10, idt);
-	__decl_common_gate(11, idt);
-	__decl_common_gate(12, idt);
-	__decl_common_gate(13, idt);
-	__decl_common_gate(14, idt);
-	__decl_common_gate(15, idt);
-	__decl_common_gate(16, idt);
-	__decl_common_gate(17, idt);
-	__decl_common_gate(18, idt);
-	__decl_common_gate(19, idt);
-	__decl_common_gate(20, idt);
-	__decl_common_gate(21, idt);
-	__decl_common_gate(22, idt);
-	__decl_common_gate(23, idt);
-	__decl_common_gate(24, idt);
-	__decl_common_gate(25, idt);
-	__decl_common_gate(26, idt);
-	__decl_common_gate(27, idt);
-	__decl_common_gate(28, idt);
-	__decl_common_gate(29, idt);
-	__decl_common_gate(30, idt);
-	__decl_common_gate(31, idt);
-	__decl_common_gate(32, idt);
-	__decl_common_gate(33, idt);
-	__decl_common_gate(34, idt);
-	__decl_common_gate(35, idt);
-	__decl_common_gate(36, idt);
-	__decl_common_gate(37, idt);
-	__decl_common_gate(38, idt);
-	__decl_common_gate(39, idt);
-	__decl_common_gate(40, idt);
-	__decl_common_gate(41, idt);
-	__decl_common_gate(42, idt);
-	__decl_common_gate(43, idt);
-	__decl_common_gate(44, idt);
-	__decl_common_gate(45, idt);
-	__decl_common_gate(46, idt);
-	__decl_common_gate(47, idt);
 
+void irq::init() {
+	idt_pointer.base = m4::get_idt(irq_dispatcher);
+	uint16_t idt_size = irq::lines_number::value*irq::gate_size::value - 1;
+	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));
+	irq::install_traps();
+
 }
 
 
-void irq::register_handler(irq_t vector, irq_handler_t routine) {
-	if (!registered_isrs[vector].push_front(routine)) {
-		panic("Failed to register ISR");
+void irq::request_irq(irq_t vector, irq_handler_t routine) {
+	if (!irq_handlers[vector].push_front(routine)) {
+		panic("failed to register interrupt handler");
 	}
 }
+
+
+void irq::request_exception(exception_t exception, exception_handler_t routine) {
+	if (!exc_handlers[static_cast<int>(exception)].push_front(routine)) {
+		panic("failed to register exception handler");
+	}
+}
+
 
 namespace {
 
 
-void default_isr(irq::irq_t vector) {
+void default_handler(irq::irq_t vector) {
 	lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
 	panic("Fatal interrupt");
 }
 
 
-void irq_dispatcher(irq::irq_t vector) {
-	handlers_list_t &handlers = registered_isrs[vector];
+irq::irq_return_t exception_dispatcher(irq::irq_t exception,
+		irq::stack_ptr_t frame) {
+	auto& handlers = exc_handlers[exception];
+
+	if (handlers.empty()) {
+		return irq::irq_return_t::none;
+	}
+
+	lib::for_each(handlers.begin(), handlers.end(),
+		[frame](const irq::exception_handler_t& handler) -> void {
+			handler(frame);
+	});
+
+	return irq::irq_return_t::handled;
+}
+
+
+irq::irq_return_t interrupts_dispatcher(irq::irq_t vector) {
+	auto& handlers = irq_handlers[vector];
 	auto used_handler = lib::find_if(handlers.begin(), handlers.end(),
 		[vector] (const irq::irq_handler_t &handler) -> bool {
-			return handler(vector) ==
-					irq::irq_return_t::handled;
+			return handler(vector) == irq::irq_return_t::handled;
 	});
 	if (used_handler == handlers.end()) {
-		default_isr(vector);
+		return irq::irq_return_t::none;
 	}
+	return irq::irq_return_t::handled;
+}
+
+
+void irq_dispatcher(irq::irq_t vector, void* frame) {
+	irq::irq_return_t status;
+
+	if (vector < static_cast<irq::irq_t>(irq::exception_t::max)) {
+		status = exception_dispatcher(vector, frame);
+	} else {
+		status = interrupts_dispatcher(vector);
+	}
+
+	if (status != irq::irq_return_t::handled) {
+		default_handler(vector);
+	}
+
+	pic::end_of_irq(vector);
 }
 
 
 } // namespace
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::registers_dump_t& regs) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
+	out	<< " eax = "
+			<< lib::setw(8) << lib::setfill('0')
+				<< regs.eax
+			<< lib::setfill(' ') << lib::setw(0)
+		<< ' '
+		<< " ebx = " << lib::setw(8) << regs.ebx << lib::setw(0) << ' '
+		<< " ecx = " << lib::setw(8) << regs.ecx << lib::setw(0) << ' '
+		<< " edx = " << lib::setw(8) << regs.edx << lib::setw(0) << ' '
+		<< lib::endl
+		<< " esi = " << lib::setw(8) << regs.esi << lib::setw(0) << ' '
+		<< " edi = " << lib::setw(8) << regs.edi << lib::setw(0) << ' '
+		<< " ebp = " << lib::setw(8) << regs.ebp << lib::setw(0) << ' '
+		<< " esp = " << lib::setw(8) << regs.esp << lib::setw(0) << ' ';
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::execution_info_dump_t& exe) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex
+		<< "eflg = " << lib::setw(8) << exe.eflags << lib::setw(0) << ' '
+		<< "  cs = " << lib::setw(8) << exe.cs << lib::setw(0) << ' '
+		<< " eip = " << lib::setw(8) << exe.eip << lib::setw(0);
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::int_frame_error_t& frame) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::hex
+		<< lib::setw(0) << " err = "
+		<< lib::setw(8) << frame.error_code
+		<< lib::endl
+		<< frame.exe << lib::endl
+		<< frame.regs;
+
+	return out;
+}
+
+
+lib::ostream& irq::operator <<(lib::ostream& out,
+		const irq::int_frame_noerror_t& frame) {
+	lib::scoped_format_guard format_guard(out);
+
+	out	<< lib::setw(0) << lib::hex
+		<< frame.exe << lib::endl
+		<< frame.regs;
+
+	return out;
+}
+
+
+// Compile-time guards
+static_assert(sizeof(irq::registers_dump_t) == 8*4,
+	"Wrong size of registers' dump structure");
+
+
+static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
+	"Wrong size of execution info structure");
+
+
+static_assert(sizeof(irq::int_frame_noerror_t) ==
+	sizeof(irq::registers_dump_t) + sizeof(irq::execution_info_dump_t),
+	"Wrong size of interrupt frame (no error code)");
+
+
+static_assert(sizeof(irq::int_frame_error_t) ==
+	sizeof(irq::int_frame_noerror_t) + 4,
+	"Wrong size of interrupt frame (error code)");
+

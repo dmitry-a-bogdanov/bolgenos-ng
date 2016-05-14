@@ -5,6 +5,7 @@
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
+
 #include <lib/ostream.hpp>
 
 #include "config.h"
