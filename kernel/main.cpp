@@ -45,7 +45,6 @@ extern "C" void kernel_main() {
 
 	irq::init();
 
-
 	pic::system_pic = &pic::chip_pic_8259;
 	pic::system_pic->setup();
 
@@ -58,15 +57,6 @@ extern "C" void kernel_main() {
 	ps2::init();
 
 	ost::run();
-
-	asm (
-		"mov $0xdead000a, %eax\n"
-		"mov $0xbeef000b, %ebx\n"
-		"mov $0xb00b000c, %ecx\n"
-		"mov $0xc0ffee0d, %edx\n"
-		"mov $0x51515151, %esi\n"
-		"mov $0xd1d1d1d1, %edi\n"
-		"int $3\n");
 
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
