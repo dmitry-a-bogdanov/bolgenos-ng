@@ -3,6 +3,7 @@
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/slab.hpp>
 
 #include <lib/ostream.hpp>
@@ -38,194 +39,98 @@ void ost::page_alloc_test() {
 	memory::free_pages(q[1]);
 	q[4] = memory::alloc_pages(2);
 
-	for (size_t i = 0; i != 5; ++i) {
-		if (p[i] != q[i]) {
-			cout << i << ": " << p[i] << " vs " << q[i] << endl;
-			panic("Failed test!");
-		}
-	}
+	for (size_t i = 0; i != 5; ++i)
+		OST_ASSERT(p[i] == q[i], i, ": ", p[i], " vs ", q[i]);
 
-	cinfo << __func__ << ": ok" << endl;
+	cinfo << __func__ << ": OK" << endl;
 }
 
 void ost::slab_test() {
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
-	if (!test_slab.is_initialized()) {
-		cerr	<< __func__
-				<< ": slab initialization failure" << endl;
-		panic("FAILED TEST");
-	}
-	void *p[5];
-	p[0] = test_slab.allocate();
-	p[1] = test_slab.allocate();
-	p[2] = test_slab.allocate();
-	p[3] = test_slab.allocate();
+	OST_ASSERT(test_slab.is_initialized(), "slab initialization failure");
+
+	long *p[5];
+	p[0] = reinterpret_cast<long *>(test_slab.allocate());
+	p[1] = reinterpret_cast<long *>(test_slab.allocate());
+	p[2] = reinterpret_cast<long *>(test_slab.allocate());
+	p[3] = reinterpret_cast<long *>(test_slab.allocate());
 	test_slab.deallocate(p[2]);
-	p[4] = test_slab.allocate();
-	if (reinterpret_cast<char *>(p[1])
-			== reinterpret_cast<char *>(p[0]) + sizeof(long) &&
-		reinterpret_cast<char *>(p[2])
-			== reinterpret_cast<char *>(p[1]) + sizeof(long) &&
-		reinterpret_cast<char *>(p[3])
-			== reinterpret_cast<char *>(p[2]) + sizeof(long) &&
-		reinterpret_cast<char *>(p[4])
-			== reinterpret_cast<char *>(p[2])) {
-		cinfo << __func__ << ": ok" << endl;
-	} else {
-		cerr << __func__ << ": fail" << endl;
-		for (int i = 0; i < 5; ++i) {
-			cerr << "p[" << i << "]=" << p[i];
-		}
-		cerr << endl;
-		panic("FAILED TEST");
-	}
+	p[4] = reinterpret_cast<long *>(test_slab.allocate());
+
+	OST_ASSERT(p[1] == p[0] + 1);
+	OST_ASSERT(p[2] == p[1] + 1);
+	OST_ASSERT(p[3] == p[2] + 1);
+	OST_ASSERT(p[4] == p[2]);
 }
 
 
 namespace {
 
 void free_list_test__small_order__even() {
-	void *pages = memory::alloc_pages(128);
+	auto *pages = reinterpret_cast<memory::page_frame_t *>(
+			memory::alloc_pages(128));
+	OST_ASSERT(pages, "allocation failed");
 
-	if (!pages) {
-		cerr << __func__ << ": allocation failed!" << endl;
-		panic("FAILED TEST");
-	}
-
-	memory::page_frame_t *first_address =
-		reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE*2>(pages));
-	memory::page_frame_t *second_address =
-		first_address + 1;
-
-	memory::page_frame_t *third_address =
-		second_address + 1;
+	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages);
+	auto *second_address = first_address + 1;
+	auto *third_address = second_address + 1;
 
 	memory::allocators::FreeList fl;
-	if (!fl.initialize(0)) {
-		cerr << __func__ << ": initialization failed!" << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.initialize(0),"initialization failed");
 
-	if (fl.put(first_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.put(first_address) == nullptr);
+	OST_ASSERT(fl.put(second_address) == first_address);
+	OST_ASSERT(fl.put(third_address) == nullptr);
+	OST_ASSERT(fl.get() == third_address);
+	OST_ASSERT(fl.get() == nullptr);
 
-	if (fl.put(second_address) != first_address) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(third_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.get() != third_address) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	cinfo << __func__ << ": ok" << endl;
+	cinfo << __func__ << ": OK" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__small_order__even
 
 
 void free_list_test__small_order__odd() {
-	void *pages = memory::alloc_pages(128);
+	auto *pages = reinterpret_cast<memory::page_frame_t *>(memory::alloc_pages(128));
+	OST_ASSERT(pages, "allocation failed");
 
-	if (!pages) {
-		cerr << __func__ << ": allocation failed!" << endl;
-		panic("FAILED TEST");
-	}
-
-	memory::page_frame_t *first_address =
-		reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE*2>(pages)) + 1;
-	memory::page_frame_t *second_address =
-		first_address + 1;
-
-	memory::page_frame_t *third_address =
-		second_address + 1;
+	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages) + 1;
+	auto *second_address = first_address + 1;
+	auto *third_address = second_address + 1;
 
 	memory::allocators::FreeList fl;
-	if (!fl.initialize(0)) {
-		cerr << __func__ << ": initialization failed!" << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.initialize(0), "initialization failed");
 
-	if (fl.put(first_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.put(first_address) == nullptr);
+	OST_ASSERT(fl.put(second_address) == nullptr);
+	OST_ASSERT(fl.put(third_address) == second_address);
+	OST_ASSERT(fl.get() == first_address);
 
-	if (fl.put(second_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(third_address) != second_address) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.get() != first_address) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	cinfo << __func__ << ": ok" << endl;
+	cinfo << __func__ << ": OK" << endl;
 
 	memory::free_pages(pages);
 } // free_list_test__small_order__odd
 
 
 void free_list_test__high_order__even() {
-	void *pages = memory::alloc_pages(128);
+	auto pages = reinterpret_cast<memory::page_frame_t *>(
+			memory::alloc_pages(128));
+	OST_ASSERT(pages, "allocation failed");
 
-	if (!pages) {
-		cerr << __func__ << ": allocation failed!" << endl;
-		panic("FAILED TEST");
-	}
-
-	memory::page_frame_t *first_address =
-		reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE*16>(pages));
-	memory::page_frame_t *second_address =
-		first_address + 8;
-
-	memory::page_frame_t *third_address =
-		second_address + 8;
+	auto first_address = memory::align_up<PAGE_SIZE*16>(pages);
+	auto *second_address = first_address + 8;
+	auto *third_address = second_address + 8;
 
 	memory::allocators::FreeList fl;
-	if (!fl.initialize(3, true)) {
-		cerr << __func__ << ": initialization failed!" << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.initialize(3, true), "initialization failed");
 
-	if (fl.put(first_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(second_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(third_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.put(first_address) == nullptr);
+	OST_ASSERT(fl.put(second_address) == nullptr);
+	OST_ASSERT(fl.put(third_address) == nullptr);
 
 	size_t got_addr = reinterpret_cast<size_t>(fl.get()) / PAGE_SIZE;
-	if (got_addr != reinterpret_cast<size_t>(first_address) / PAGE_SIZE) {
-		cerr << __func__ << ": bug on (got_addr=" << got_addr
-			<< ") " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(got_addr
+		== reinterpret_cast<size_t>(first_address) / PAGE_SIZE);
 
 	cinfo << __func__ << ": ok" << endl;
 
@@ -234,47 +139,24 @@ void free_list_test__high_order__even() {
 
 
 void free_list_test__high_order__odd() {
-	void *pages = memory::alloc_pages(128);
+	auto pages = reinterpret_cast<memory::page_frame_t *>(
+			memory::alloc_pages(128));
+	OST_ASSERT(pages, "allocation failed");
 
-	if (!pages) {
-		cerr << __func__ << ": allocation failed!" << endl;
-		panic("FAILED TEST");
-	}
-
-	memory::page_frame_t *first_address =
-		reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE*16>(pages)) + 8;
-	memory::page_frame_t *second_address =
-		first_address + 8;
-
-	memory::page_frame_t *third_address =
-		second_address + 8;
+	auto *first_address = memory::align_up<PAGE_SIZE*16>(pages) + 8;
+	auto *second_address = first_address + 8;
+	auto *third_address = second_address + 8;
 
 	memory::allocators::FreeList fl;
-	if (!fl.initialize(3, true)) {
-		cerr << __func__ << ": initialization failed!" << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.initialize(3, true), "initialization failed");
 
-	if (fl.put(first_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(second_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.put(third_address) != nullptr) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
-
-	if (fl.get() != first_address) {
-		cerr << __func__ << ": bug on " << __LINE__ << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(fl.put(first_address) == nullptr);
+	OST_ASSERT(fl.put(second_address) == nullptr);
+	OST_ASSERT(fl.put(third_address) == nullptr);
+	OST_ASSERT(fl.get() == first_address);
+	OST_ASSERT(fl.get() == second_address);
+	OST_ASSERT(fl.get() == third_address);
+	OST_ASSERT(fl.get() == nullptr);
 
 	cinfo << __func__ << ": ok" << endl;
 
@@ -293,10 +175,7 @@ void ost::buddy_allocator_test() {
 	blk.ptr = reinterpret_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
-	if (!blk.ptr) {
-		cerr << __func__ << ": allocation failed!" << endl;
-		panic("FAILED TEST");
-	}
+	OST_ASSERT(blk.ptr, "allocation failed");
 
 	memory::MemoryRegion region;
 	region.begin(blk.ptr);
@@ -309,13 +188,7 @@ void ost::buddy_allocator_test() {
 	memory::allocators::pblk_t pages[PAGES];
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
 		pages[page_idx] = buddy_system.get(1);
-		if (pages[page_idx].ptr == nullptr) {
-			cerr << __func__ << "/" << __LINE__ << ": failed ["
-				<< page_idx << "] = " << pages[page_idx].ptr
-				<< endl;
-			panic("Failed Test!");
-		}
-
+		OST_ASSERT(pages[page_idx].ptr);
 	}
 
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
@@ -323,13 +196,7 @@ void ost::buddy_allocator_test() {
 	}
 
 	for (size_t page_idx = 0; page_idx != PAGES; ++page_idx) {
-		pages[page_idx] = buddy_system.get(1);
-		if (pages[page_idx].ptr == nullptr) {
-			cerr << __func__ << "/" << __LINE__ << ": failed ["
-				<< page_idx << "] = " << pages[page_idx].ptr
-				<< endl;
-			panic("Failed Test!");
-		}
+		OST_ASSERT(pages[page_idx] == buddy_system.get(1));
 	}
 
 	cinfo << __func__ << ": ok" << endl;
@@ -346,28 +213,16 @@ void ost::free_list_test() {
 }
 
 
-namespace {
-
-void try_alloc(size_t bytes) {
-	auto mem = memory::kmalloc(bytes);
-	if (!mem) {
-		ccrit << __func__ << ": failed allocation of size "
-			<< bytes << "\n" << endl;
-		panic("FAILED TEST");
-	}
-	memory::kfree(mem);
-}
-
-}
-
 void ost::mallocator_test() {
 	for (size_t chunk_size = 7; chunk_size < PAGE_SIZE*3;
 			chunk_size += 8) {
-		cinfo << __func__ << "[" << chunk_size << "]:";
-		try_alloc(chunk_size);
-		cinfo << endl;
+		auto mem = memory::kmalloc(chunk_size);
+		OST_ASSERT(mem, "chunk_size = ", chunk_size);
+		memory::kfree(mem);
 	}
 }
+
+
 #else
 void ost::page_alloc_test() {
 }
