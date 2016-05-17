@@ -122,29 +122,6 @@ void irq_dispatcher(irq::irq_t vector, void* frame) {
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
-		const irq::registers_dump_t& regs) {
-	lib::scoped_format_guard format_guard(out);
-
-	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
-	out	<< " eax = "
-			<< lib::setw(8) << lib::setfill('0')
-				<< regs.eax
-			<< lib::setfill(' ') << lib::setw(0)
-		<< ' '
-		<< " ebx = " << lib::setw(8) << regs.ebx << lib::setw(0) << ' '
-		<< " ecx = " << lib::setw(8) << regs.ecx << lib::setw(0) << ' '
-		<< " edx = " << lib::setw(8) << regs.edx << lib::setw(0) << ' '
-		<< lib::endl
-		<< " esi = " << lib::setw(8) << regs.esi << lib::setw(0) << ' '
-		<< " edi = " << lib::setw(8) << regs.edi << lib::setw(0) << ' '
-		<< " ebp = " << lib::setw(8) << regs.ebp << lib::setw(0) << ' '
-		<< " esp = " << lib::setw(8) << regs.esp << lib::setw(0) << ' ';
-
-	return out;
-}
-
-
-lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::execution_info_dump_t& exe) {
 	lib::scoped_format_guard format_guard(out);
 
@@ -185,7 +162,7 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 
 // Compile-time guards
-static_assert(sizeof(irq::registers_dump_t) == 8*4,
+static_assert(sizeof(x86::registers_dump_t) == 8*4,
 	"Wrong size of registers' dump structure");
 
 
@@ -194,7 +171,7 @@ static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
 
 
 static_assert(sizeof(irq::int_frame_noerror_t) ==
-	sizeof(irq::registers_dump_t) + sizeof(irq::execution_info_dump_t),
+	sizeof(x86::registers_dump_t) + sizeof(irq::execution_info_dump_t),
 	"Wrong size of interrupt frame (no error code)");
 
 

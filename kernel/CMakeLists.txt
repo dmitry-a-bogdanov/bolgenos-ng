@@ -86,6 +86,7 @@ set(kernel_sources ${kernel_start_file}
 	${ost_h}
 
 	${m4_generated_files}
+	asm.cpp
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp

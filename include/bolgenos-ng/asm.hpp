@@ -4,6 +4,8 @@
 
 #include "stdtypes.hpp"
 
+#include <lib/ostream.hpp>
+
 
 namespace x86 {
 
@@ -25,6 +27,30 @@ enum protection_ring_t {
 	ring_1 = 0x1,
 	ring_2 = 0x2,
 	ring_user = 0x3
+};
+
+
+/// \brief Registers dump on stack.
+///
+/// The structure aliases stack state after calling `pushal`
+/// assembler instruction.
+struct __attribute__((packed)) registers_dump_t {
+	/// Content of EDI register.
+	uint32_t	edi;
+	/// Content of ESI register.
+	uint32_t	esi;
+	/// Content of EBP register.
+	void*		ebp;
+	/// Content of ESP register.
+	void*		esp;
+	/// Content of EBX register.
+	uint32_t	ebx;
+	/// Content of EDX register.
+	uint32_t	edx;
+	/// Content of ECX register.
+	uint32_t	ecx;
+	/// Content of EAX register.
+	uint32_t	eax;
 };
 
 
@@ -116,6 +142,9 @@ static inline void read_msr(msr_t msr, uint32_t *low, uint32_t *high) {
 static inline void write_msr(msr_t msr, uint32_t low, uint32_t high) {
 	asm volatile("wrmsr":: "a"(low), "d"(high), "c"(msr));
 }
+
+
+lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
 
 
 } // namespace x86

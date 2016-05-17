@@ -137,30 +137,6 @@ void request_irq(irq_t vector, irq_handler_t routine);
 void request_exception(exception_t exception, exception_handler_t handler);
 
 
-/// \brief Registers dump on stack.
-///
-/// The structure aliases stack state after calling `pushal`
-/// assembler instruction.
-struct __attribute__((packed)) registers_dump_t {
-	/// Content of EDI register.
-	uint32_t	edi;
-	/// Content of ESI register.
-	uint32_t	esi;
-	/// Content of EBP register.
-	void*		ebp;
-	/// Content of ESP register.
-	void*		esp;
-	/// Content of EBX register.
-	uint32_t	ebx;
-	/// Content of EDX register.
-	uint32_t	edx;
-	/// Content of ECX register.
-	uint32_t	ecx;
-	/// Content of EAX register.
-	uint32_t	eax;
-};
-
-
 /// \brief Execution info.
 ///
 /// The structure aliases data that is stored by CPU when doing context switch
@@ -181,7 +157,7 @@ struct __attribute__((packed)) execution_info_dump_t {
 /// error code on stack.
 struct __attribute__((packed)) int_frame_error_t {
 	/// Dump of registers.
-	registers_dump_t regs;
+	x86::registers_dump_t regs;
 	/// Error code.
 	uint32_t error_code;
 	/// Execution info.
@@ -195,14 +171,13 @@ struct __attribute__((packed)) int_frame_error_t {
 /// store error code on stack.
 struct __attribute__((packed)) int_frame_noerror_t {
 	/// Dump of registers.
-	registers_dump_t regs;
+	x86::registers_dump_t regs;
 	/// Execution info.
 	execution_info_dump_t exe;
 };
 
 
 // output functions
-lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
 lib::ostream& operator <<(lib::ostream&, const execution_info_dump_t&);
 lib::ostream& operator <<(lib::ostream&, const int_frame_error_t&);
 lib::ostream& operator <<(lib::ostream&, const int_frame_noerror_t&);
