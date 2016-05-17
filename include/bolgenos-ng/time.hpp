@@ -1,12 +1,9 @@
-#ifndef __BOLGENOS_NG__TIME_H__
-#define __BOLGENOS_NG__TIME_H__
+#pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include "stdtypes.hpp"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace time {
 
 /**
 * \brief Current ticks number.
@@ -43,8 +40,5 @@ void sleep_ms(uint32_t ms);
 */
 uint32_t ms_to_ticks(uint32_t ms);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif // __BOLGENOS_NG__TIME_H__
+} // namespace time

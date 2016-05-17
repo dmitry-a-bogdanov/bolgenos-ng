@@ -1,8 +1,8 @@
 #include <bolgenos-ng/pic_8259.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/string.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 
 
@@ -65,10 +65,11 @@ pic::pic_device &pic::chip_pic_8259 = driver_object;
 
 void pic_8259::end_of_interrupt(irq::irq_t vector) {
 	if (vector > 8 + 0x20) {
-		outb(port_type::slave_comm, command_type::end_of_interrupt);
+		x86::outb(port_type::slave_comm,
+				command_type::end_of_interrupt);
 	}
 
-	outb(port_type::master_comm, command_type::end_of_interrupt);
+	x86::outb(port_type::master_comm, command_type::end_of_interrupt);
 }
 
 
@@ -76,18 +77,18 @@ void pic_8259::setup() {
 	int offset1 = 0x20;
 	int offset2 = 0x28;
 
-	outb(port_type::master_comm, command_type::icw_1);
-	outb(port_type::slave_comm, command_type::icw_1);
+	x86::outb(port_type::master_comm, command_type::icw_1);
+	x86::outb(port_type::slave_comm, command_type::icw_1);
 
-	outb(port_type::master_data, offset1);
-	outb(port_type::slave_data, offset2);
+	x86::outb(port_type::master_data, offset1);
+	x86::outb(port_type::slave_data, offset2);
 
-	outb(port_type::master_data, command_type::icw_3_master);
-	outb(port_type::slave_data, command_type::icw_3_slave);
+	x86::outb(port_type::master_data, command_type::icw_3_master);
+	x86::outb(port_type::slave_data, command_type::icw_3_slave);
 
-	outb(port_type::master_data, command_type::icw_4_8086);
-	outb(port_type::slave_data, command_type::icw_4_8086);
+	x86::outb(port_type::master_data, command_type::icw_4_8086);
+	x86::outb(port_type::slave_data, command_type::icw_4_8086);
 
-	outb(port_type::master_data, 0x00);
+	x86::outb(port_type::master_data, 0x00);
 }
 

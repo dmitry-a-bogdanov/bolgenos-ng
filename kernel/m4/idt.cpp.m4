@@ -91,7 +91,7 @@ struct __attribute__((packed)) gate_t {
 			gate_kind_(gate_kind_type::interrupt),
 			flag_32_bit_(bitness_flag_type::bits_32),
 			zero_bit_(0),
-			dpl_(protection_ring_t::ring_null),
+			dpl_(x86::protection_ring_t::ring_null),
 			present_(presence_type::presence_yes),
 			offset_16_31_(0x0) {
 	}
@@ -106,7 +106,7 @@ struct __attribute__((packed)) gate_t {
 			gate_kind_(kind),
 			flag_32_bit_(bitness_flag_type::bits_32),
 			zero_bit_(0),
-			dpl_(protection_ring_t::ring_kernel),
+			dpl_(x86::protection_ring_t::ring_kernel),
 			present_(presence_type::presence_yes),
 			offset_16_31_(bitmask(func, 16, 0xffff)) {
 	}
@@ -132,7 +132,7 @@ private:
 	gate_kind_type		gate_kind_	:3;
 	bitness_flag_type 	flag_32_bit_	:1;
 	nothing_type		zero_bit_	:1;
-	protection_ring_t	dpl_		:2;
+	x86::protection_ring_t	dpl_		:2;
 	presence_type		present_	:1;
 	func_addr_type		offset_16_31_	:16;
 };

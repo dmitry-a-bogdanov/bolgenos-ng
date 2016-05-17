@@ -1,10 +1,11 @@
-#ifndef __BOLGENOS_NG__ASM_H__
-#define __BOLGENOS_NG__ASM_H__
+#pragma once
 
-#include <bolgenos-ng/compiler.h>
+#include "compiler.h"
 
 #include "stdtypes.hpp"
 
+
+namespace x86 {
 
 /// \brief Pointer to descriptor table.
 ///
@@ -116,4 +117,5 @@ static inline void write_msr(msr_t msr, uint32_t low, uint32_t high) {
 	asm volatile("wrmsr":: "a"(low), "d"(high), "c"(msr));
 }
 
-#endif // __BOLGENOS_NG__ASM_H__
+
+} // namespace x86

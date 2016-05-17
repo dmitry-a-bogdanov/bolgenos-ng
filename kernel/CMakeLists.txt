@@ -101,7 +101,7 @@ set(kernel_sources ${kernel_start_file}
 	pit.cpp
 	printk.cpp
 	ps2.cpp
-	time.c
+	time.cpp
 	traps.hpp
 	traps.cpp
 	vga_console.cpp

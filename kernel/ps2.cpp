@@ -1,12 +1,12 @@
 #include <bolgenos-ng/ps2.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/time.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
+#include <bolgenos-ng/time.hpp>
 
 #include <lib/ostream.hpp>
 
@@ -235,12 +235,12 @@ void ps2::init() {
 
 
 uint8_t ps2::receive_byte() {
-	return inb(ps2_port_t::data);
+	return x86::inb(ps2_port_t::data);
 }
 
 
 void send_command(cmd_t cmd) {
-	outb(ps2_port_t::command, cmd);
+	x86::outb(ps2_port_t::command, cmd);
 }
 
 
@@ -566,7 +566,7 @@ static int controller_selftest() {
 * \param byte Byte to be sent.
 */
 static void send_byte(uint8_t byte) {
-	outb(ps2_port_t::data, byte);
+	x86::outb(ps2_port_t::data, byte);
 }
 
 
@@ -578,7 +578,7 @@ static void send_byte(uint8_t byte) {
 * \return PS/2 status register.
 */
 static uint8_t read_status() {
-	return inb(ps2_port_t::status);
+	return x86::inb(ps2_port_t::status);
 }
 
 
@@ -599,13 +599,13 @@ static int wait_for_flag(status_reg_t flag, int val, int ms) {
 		while (!((status = read_status()) & flag)
 				&& wait < ms) {
 			++wait;
-			sleep_ms(1 /* ms */);
+			time::sleep_ms(1);
 		}
 	} else {
 		while (((status = read_status()) & flag)
 				&& wait < ms) {
 			++wait;
-			sleep_ms(1 /* ms */);
+			time::sleep_ms(1);
 		}
 	}
 	return status & flag;

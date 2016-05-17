@@ -1,9 +1,9 @@
 #include <bolgenos-ng/mmu.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
@@ -133,7 +133,7 @@ public:
 			uint32_t limit,
 			tag_type tag,
 			seg_sys_flag_type ssf,
-			protection_ring_t dpl,
+			x86::protection_ring_t dpl,
 			seg_present_type present,
 			seg_long_type lng,
 			seg_db_type db,
@@ -161,7 +161,7 @@ private:
 	uint8_t				base_16_23_		 :8;
 	tag_type			tag_			 :4;
 	seg_sys_flag_type		system_flag_		 :1;
-	protection_ring_t		dpl_			 :2;
+	x86::protection_ring_t		dpl_			 :2;
 	seg_present_type		present_		 :1;
 	uint8_t				limit_16_19_		 :4;
 	seg_avl_type			avl_			 :1;
@@ -186,7 +186,7 @@ Segment gdt[] _mmu_aligned_ = {
 			0x0,
 			Segment::tag_type::st_null,
 			seg_sys_flag_type::sys_null,
-			protection_ring_t::ring_null,
+			x86::protection_ring_t::ring_null,
 			seg_present_type::present_null,
 			seg_long_type::long_null,
 			seg_db_type::db_null,
@@ -199,7 +199,7 @@ Segment gdt[] _mmu_aligned_ = {
 					Segment::tag_type::code |
 					Segment::tag_type::code_read),
 			seg_sys_flag_type::code_or_data,
-			protection_ring_t::ring_kernel,
+			x86::protection_ring_t::ring_kernel,
 			seg_present_type::present,
 			seg_long_type::other,
 			seg_db_type::db32_bit,
@@ -210,7 +210,7 @@ Segment gdt[] _mmu_aligned_ = {
 			0xfffff,
 			static_cast<Segment::tag_type>(Segment::tag_type::data|Segment::tag_type::data_write),
 			seg_sys_flag_type::code_or_data,
-			protection_ring_t::ring_kernel,
+			x86::protection_ring_t::ring_kernel,
 			seg_present_type::present,
 			seg_long_type::other,
 			seg_db_type::db32_bit,
@@ -224,7 +224,7 @@ Segment gdt[] _mmu_aligned_ = {
 *
 * Pointer to Global Descriptor Table that is used by x86 CPU to load GTD.
 */
-static struct table_pointer gdtp _mmu_aligned_;
+static struct x86::table_pointer gdtp _mmu_aligned_;
 
 /**
 *

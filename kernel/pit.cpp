@@ -1,13 +1,13 @@
 #include <bolgenos-ng/pit.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/time.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
+#include <bolgenos-ng/time.hpp>
 
 #include <lib/ostream.hpp>
 
@@ -80,9 +80,9 @@ pit::details::FrequencyDivider freq_divider;
 static irq::irq_return_t handle_pit_irq(irq::irq_t) {
 	if (freq_divider.do_tick()) {
 #if VERBOSE_TIMER_INTERRUPT
-		lib::cout << "jiffy #" << jiffies << lib::endl;
+		lib::cout << "jiffy #" << time::jiffies << lib::endl;
 #endif
-		++jiffies;
+		++time::jiffies;
 	}
 	return irq::irq_return_t::handled;
 }
@@ -104,8 +104,8 @@ void pit::init() {
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
-	outb(pit_port::cmd, cmd);
-	outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
-	outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
+	x86::outb(pit_port::cmd, cmd);
+	x86::outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
+	x86::outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
 }
 

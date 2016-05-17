@@ -1,8 +1,9 @@
 #include <bolgenos-ng/irq.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
+
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/execinfo.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
@@ -28,7 +29,7 @@ lib::list<irq::irq_handler_t> irq_handlers[irq::lines_number::value];
 lib::list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
 
 
-table_pointer idt_pointer _irq_aligned_;
+x86::table_pointer idt_pointer _irq_aligned_;
 
 
 void irq_dispatcher(irq::irq_t vector, void* frame);
