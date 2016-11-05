@@ -1,4 +1,5 @@
-project(doc)
+project(doc
+	LANGUAGES NONE)
 
 find_package(Doxygen)
 
