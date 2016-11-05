@@ -1,10 +1,4 @@
 project(testing
-	CXX)
+	NONE)
 
-
-message(STATUS "Toolchain information:")
-foreach(compiler CMAKE_C_COMPILER CMAKE_C_COMPILER CMAKE_ASM-ATT_COMPILER)
-	message(STATUS "${compiler} = ${${compiler}}")
-endforeach()
-
-add_executable(testing testing_main.cpp)
+add_subdirectory(generic-lists)
