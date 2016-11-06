@@ -92,32 +92,6 @@ static inline void write_16(char *dest, char *src) {
 
 
 /**
-* \brief Analog for POSIX memset.
-*
-* The fuction does the same as memset POSIX with small difference. This
-*	implementation returns nothing.
-* \param mem Memory to be set.
-* \param val Value that will be used for setting memory. Only least significant
-*	byte will be used.
-* \param size Size of memory to be set in bytes.
-*/
-void memset(void *mem, char val, size_t size);
-
-/**
-* \brief Memset that uses 16-bit chunk for setting memory.
-*
-* \param mem Memory to be set.
-* \param chunk Address of 16-bit chunk that will be used for setting memory.
-* \param size Size of memory to be set in 2-byte units.
-*/
-static inline void memset_16(char* mem, char* chunk, size_t size) {
-	for(size_t pos = 0; pos != size; ++pos, mem += 2) {
-		write_16(mem, chunk);
-	}
-}
-
-
-/**
 * \brief Analog for POSIX memcpy.
 *
 * The fuction does the same as memcpy POSIX with small difference. This

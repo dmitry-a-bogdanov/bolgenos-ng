@@ -3,6 +3,7 @@
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
+#include <lib/algorithm.hpp>
 
 namespace {
 
@@ -107,9 +108,7 @@ void vga_console::puts_color(const char* string, color_t fg,
 
 void vga_console::clear_screen() {
 	cell_t empty = cell_t(' ', global_fg, global_bg);
-	memset_16(reinterpret_cast<char *>(iomem),
-		reinterpret_cast<char *>(&empty),
-		screen_height*screen_width);
+	lib::fill_n(iomem, screen_height*screen_width, empty);
 }
 
 
@@ -155,9 +154,9 @@ void scroll() {
 			(char *)(iomem + (i + 1) * screen_width),
 			(screen_width * sizeof(cell_t)));
 	}
-	uint16_t zero = 0;
-	memset_16((char *)(iomem + (screen_height - 1) * screen_width),
-		(char *) &zero, screen_width);
+	cell_t empty = cell_t(' ', global_fg, global_bg);
+	lib::fill_n(iomem + (screen_height - 1) * screen_width, screen_width,
+		empty);
 }
 
 
