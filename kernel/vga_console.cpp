@@ -150,9 +150,8 @@ void line_break() {
 */
 void scroll() {
 	for (int i = 0; i < screen_height - 1; ++i) {
-		memcpy((char *)(iomem + i * screen_width),
-			(char *)(iomem + (i + 1) * screen_width),
-			(screen_width * sizeof(cell_t)));
+		lib::copy_n(iomem + (i+1) * screen_width, screen_width,
+			iomem + i * screen_width);
 	}
 	cell_t empty = cell_t(' ', global_fg, global_bg);
 	lib::fill_n(iomem + (screen_height - 1) * screen_width, screen_width,

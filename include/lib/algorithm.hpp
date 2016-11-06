@@ -6,6 +6,57 @@
 namespace lib {
 
 
+/// \brief Copy range of elements.
+///
+/// Copy elements in the range [first, last) into the range starting from
+/// result.
+///
+/// \tparam InputIterator type of iterator that points to the beggning
+/// of the range.
+/// \tparam Sentinel type of iterator that points to the end of range.
+/// \tparam OutputIterator type of interator pointing to the destination range.
+/// \param first iterator pointing to the begging of the range.
+/// \param last iterator pointing to the end of the range.
+/// \param result iterator pointing to the beginning the destination range.
+/// \return iterator pointing to the end of destination range.
+template<class InputIterator, class Sentinel, class OutputIterator>
+OutputIterator copy(InputIterator first, Sentinel last, OutputIterator result)
+{
+	while(first != last) {
+		*result = *first;
+		++first;
+		++result;
+	}
+	return result;
+}
+
+
+/// \brief Copy elements.
+///
+/// Copy n elements in the range beginning at first into the range starting
+/// from result.
+///
+/// \tparam InputIterator type of iterator that points to the beggning
+/// of the range.
+/// \tparam Size type of n value.
+/// \tparam OutputIterator type of interator pointing to the destination range.
+/// \param first iterator pointing to the begging of the range.
+/// \param n number of elements to be copied
+/// \param result iterator pointing to the beginning the destination range.
+/// \return iterator pointing to the end of destination range.
+template<class InputIterator, class Size, class OutputIterator>
+OutputIterator copy_n(InputIterator first, Size n, OutputIterator result)
+{
+	while(n > 0) {
+		*result = *first;
+		--n;
+		++first; ++result;
+	}
+	return result;
+}
+
+
+
 /// \brief Iterate through range
 ///
 /// Iterate through specified range and all specified function on every

@@ -90,20 +90,3 @@ static inline void write_16(char *dest, char *src) {
 	write_8(dest + 1, src + 1);
 }
 
-
-/**
-* \brief Analog for POSIX memcpy.
-*
-* The fuction does the same as memcpy POSIX with small difference. This
-*	implementation returns nothing.
-* \param dest Destinatination address for memory copying.
-* \param src Source address for memory copying.
-* \param size Size of memory to be copied in bytes.
-*/
-static inline void memcpy(void *dest, const void *src, size_t size) {
-	char *__dest = (char *) dest;
-	char *__src = (char* ) src;
-	for (size_t pos = 0; pos != size; ++pos) {
-		__dest[pos] = __src[pos];
-	}
-}
