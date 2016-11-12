@@ -3,10 +3,9 @@
 #include <forward_list>
 #include <iostream>
 
-//#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
-
-int main()
+TEST(acts_like_std, add_and_remove_10)
 {
 	std::forward_list<int> s;
 	testing::forward_list<int> t;
@@ -43,7 +42,4 @@ int main()
 			<< " t.empty() == " << t.empty();
 	}
 
-	std::clog << "test finished" << std::endl;
-
-	return 0;
 }
