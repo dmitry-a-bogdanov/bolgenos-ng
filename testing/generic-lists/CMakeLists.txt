@@ -3,5 +3,12 @@ project(testing
 
 add_definitions(-std=c++11)
 
-add_executable(test_generic_list test_generic_list.cpp)
-target_link_libraries(test_generic_list gtest_main)
+function(create_test name)
+	add_executable(${name} ${name}.cpp)
+	target_link_libraries(${name} gtest_main)
+	add_test(NAME ${name}
+		COMMAND ${name})
+endfunction(create_test)
+
+create_test(test_forward_list)
+

@@ -1,4 +1,4 @@
-#include "generic_list.hpp"
+#include "forward_list.hpp"
 
 #include <forward_list>
 #include <iostream>
@@ -26,3 +26,4 @@ TEST(acts_like_std, add_and_remove_10)
 
 	ASSERT_EQ(s.empty(), t.empty()) << " after loop";
 }
+
