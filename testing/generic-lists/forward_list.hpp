@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
 #include "memory.hpp"
 
 namespace testing {
