@@ -29,6 +29,10 @@ struct integral_constant {
 	constexpr operator value_type() const noexcept { return value; }
 };
 
+template<class ValueType, ValueType Value>
+constexpr typename integral_constant<ValueType, Value>::value_type
+integral_constant<ValueType, Value>::value;
+
 
 using true_type = lib::integral_constant<bool, true>;
 
