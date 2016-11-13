@@ -1,7 +1,6 @@
 #include "forward_list.hpp"
 
 #include <forward_list>
-#include <iostream>
 
 #include <gtest/gtest.h>
 

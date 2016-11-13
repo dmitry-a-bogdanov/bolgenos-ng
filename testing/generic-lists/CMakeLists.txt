@@ -11,4 +11,5 @@ function(create_test name)
 endfunction(create_test)
 
 create_test(test_forward_list)
+create_test(test_forward_list_iterators)
 
