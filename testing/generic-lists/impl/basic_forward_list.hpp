@@ -7,27 +7,6 @@
 namespace testing {
 
 
-namespace ____impl {
-
-template<class N>
-struct has_member_next
-{
-private:
-	template<typename T>
-	static lib::true_type test(decltype(T::next)*) {}
-
-	template<typename>
-	static lib::false_type test(...) {}
-
-public:
-	static constexpr bool value = decltype(test<N>(nullptr))::value;
-};
-
-template<class N>
-constexpr bool has_member_next<N>::value;
-
-
-};
 
 
 namespace _impl {
@@ -39,7 +18,6 @@ struct basic_forward_list_node
 };
 
 
-} // namesapce _impl
 
 template<class Node>
 struct basic_forward_list {
@@ -83,6 +61,9 @@ struct basic_forward_list {
 
 	node_type* before_begin_;
 }; // class basic_forward_list
+
+
+} // namesapce _impl
 
 
 } // namespace testing

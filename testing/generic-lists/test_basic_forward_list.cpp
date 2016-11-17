@@ -1,4 +1,4 @@
-#include "basic_forward_list.hpp"
+#include "impl/basic_forward_list.hpp"
 
 
 template<typename T>
@@ -12,10 +12,10 @@ struct simple_node:
 
 template<class T>
 class simple_list:
-	private testing::basic_forward_list<simple_node<T>>
+	private testing::_impl::basic_forward_list<simple_node<T>>
 {
 	using node_type = simple_node<T>;
-	using base_list = testing::basic_forward_list<node_type>;
+	using base_list = testing::_impl::basic_forward_list<node_type>;
 public:
 	using value_type = T;
 
@@ -70,11 +70,11 @@ TEST(basic_forward_list, push_and_pop_10)
 
 
 class simple_free_list:
-	public testing::basic_forward_list<
+	public testing::_impl::basic_forward_list<
 		testing::_impl::basic_forward_list_node>
 {
 	using node_type = testing::_impl::basic_forward_list_node;
-	using base_list = testing::basic_forward_list<node_type>;
+	using base_list = testing::_impl::basic_forward_list<node_type>;
 public:
 	simple_free_list()
 		: base_list(&before_begin_)
