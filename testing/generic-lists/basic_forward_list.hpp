@@ -29,15 +29,60 @@ constexpr bool has_member_next<N>::value;
 
 };
 
-/*
+
+namespace _impl {
+
+
+struct basic_forward_list_node
+{
+	basic_forward_list_node* next = nullptr;
+};
+
+
+} // namesapce _impl
+
 template<class Node>
-class basic_forward_list {
-public:
+struct basic_forward_list {
+	// TODO: add compile-time checking of inheritance Node
+	// from basic_forward_list_node
+
 	using node_type = Node;
 
-	static_assert(____impl::has_member_next<node_type>::value,
-		"Node type argument must have public member named 'next'");
+
+	basic_forward_list() = delete;
+	basic_forward_list(const basic_forward_list&)  = delete;
+	basic_forward_list(node_type* before_begin)
+		: before_begin_(before_begin)
+	{
+	}
+
+	// adds node
+	inline
+	void push_front(node_type *new_node)
+	{
+		new_node->next = before_begin_->next;
+		before_begin_->next = new_node;
+	}
+
+
+	// removes node and returns removed node
+	inline
+	node_type* pop_front()
+	{
+		auto removed = before_begin_->next;
+		before_begin_->next = removed->next;
+		return static_cast<node_type*>(removed);
+	}
+
+
+	inline
+	node_type* front()
+	{
+		return static_cast<node_type*>(before_begin_->next);
+	}
+
+	node_type* before_begin_;
 }; // class basic_forward_list
-*/
+
 
 } // namespace testing
