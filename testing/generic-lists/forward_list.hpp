@@ -1,28 +1,55 @@
 #pragma once
 
 #include "memory.hpp"
+#include "impl/basic_forward_list.hpp"
 
 namespace testing {
 
 
-template<class T, class Alloc = default_allocator<T>>
-class forward_list
+namespace _impl {
+
+
+template<class T>
+struct fwd_list_node:
+	public basic_fwd_list_node
 {
-	template<class,class>
-	class
-	_fwd_list_iterator;
+	T value_;
+	virtual ~fwd_list_node() {}
+};
+
+
+} // namespace _impl
+
+
+template<class T, class Alloc = default_allocator<T>>
+class forward_list:
+	private testing::_impl::basic_forward_list<
+		testing::_impl::fwd_list_node<T>>
+{
+	using node_type = testing::_impl::fwd_list_node<T>;
+	using base_list = testing::_impl::basic_forward_list<node_type>;
+	//template<class,class>
+	//class
+	//_fwd_list_iterator;
 public:
 	using value_type = T;
 	using allocator_type = Alloc;
 	using reference = value_type&;
 	using const_reference = const value_type&;
 	using error_type = bool;
+	/*
 	using iterator = _fwd_list_iterator<value_type,
 		reference>;
 	using const_iterator = _fwd_list_iterator<const value_type,
 		const_reference>;
+	*/
 
-	forward_list() = default;
+	forward_list():
+		base_list(&before_begin_)
+	{
+	}
+
+
 	forward_list(const forward_list&) = delete;
 	forward_list& operator=(const forward_list&) = delete;
 	~forward_list();
@@ -31,14 +58,14 @@ public:
 	inline
 	reference front()
 	{
-		return first_->value_;
+		return base_list::front()->value_;
 	}
 
 
 	inline
 	const_reference front() const
 	{
-		return first_->value_;
+		return base_list::front()->value_;
 	}
 
 
@@ -49,14 +76,15 @@ public:
 	inline
 	bool empty() const
 	{
-		return first_ == nullptr;
+		return base_list::front() == nullptr;
 	}
 
+#if 0
 
 	inline
 	iterator before_begin()
 	{
-		return iterator(&before_begin_);
+		return iterator(base_list::front());
 	}
 
 
@@ -70,20 +98,20 @@ public:
 	inline
 	const_iterator cbefore_begin() const
 	{
-		return const_iterator(&before_begin_);
+		return const_iterator(&base_list::before_begin());
 	}
 
 	inline
 	iterator begin()
 	{
-		return iterator(first_);
+		return iterator(base_list::first());
 	}
 
 
 	inline
 	const_iterator begin() const
 	{
-		return const_iterator(first_);
+		return const_iterator(base_list::first);
 	}
 
 
@@ -114,17 +142,16 @@ public:
 		return const_iterator(nullptr);
 	}
 
+#endif
 
 private:
 
-	struct list_item_type;
-	list_item_type before_begin_;
-	list_item_type*& first_ = before_begin_.next_;
+	node_type before_begin_ = {};
 	typename allocator_type::template
-		rebind<list_item_type>::other alloc_= {};
+		rebind<node_type>::other alloc_= {};
 
 
-
+/*
 	template<class ValueType, class Reference = ValueType&>
 	class _fwd_list_iterator
 	{
@@ -194,25 +221,16 @@ private:
 
 		friend class testing::forward_list<T, Alloc>;
 	};
-
+*/
 }; // class forward_list
-
-
-template<class T, class Alloc>
-struct forward_list<T, Alloc>::list_item_type
-{
-	T value_;
-	list_item_type* next_ = nullptr;
-};
 
 
 template<class T, class Alloc>
 forward_list<T, Alloc>::~forward_list()
 {
-	for (auto it = first_; it != nullptr;) {
-		auto next = it->next_;
-		alloc_.deallocate(it, 1);
-		it = next;
+	while (!empty()) {
+		auto removed = base_list::pop_front();
+		alloc_.deallocate(removed, 1);
 	}
 }
 
@@ -220,22 +238,20 @@ forward_list<T, Alloc>::~forward_list()
 template<class T, class Alloc>
 void forward_list<T, Alloc>::pop_front()
 {
-	auto removed_elem = first_;
-	first_ = first_->next_;
-	alloc_.deallocate(first_, 1);
+	auto removed = base_list::pop_front();
+	alloc_.deallocate(removed, 1);
 }
 
 
 template<class T, class Alloc>
 bool forward_list<T, Alloc>::push_front(const value_type& value)
 {
-	list_item_type *elem = alloc_.allocate(1);
-	if (!elem) {
+	node_type *node = alloc_.allocate(1);
+	node->value_ = value;
+	if (!node) {
 		return false;
 	}
-	elem->next_ = first_;
-	elem->value_ = value;
-	first_ = elem;
+	base_list::push_front(node);
 	return true;
 }
 

@@ -1,28 +1,27 @@
 #include <forward_list.hpp>
 
-#include <forward_list>
 
 #include <gtest/gtest.h>
 
-TEST(acts_like_std, add_and_remove_10)
+TEST(basic_functionality, add_and_remove_10)
 {
-	std::forward_list<int> s;
 	testing::forward_list<int> t;
 
-	ASSERT_EQ(s.empty(), t.empty()) << " before loop";
+	EXPECT_TRUE(t.empty());
 
 	for (int i = 0; i < 10; ++i) {
-		s.push_front(i); t.push_front(i);
-		ASSERT_EQ(s.front(), t.front()) << " when i = " << i;
+		t.push_front(i);
+		EXPECT_EQ(i, t.front());
+		EXPECT_FALSE(t.empty());
 	}
 
-	for(int i = 0; i < 10; ++i) {
-		ASSERT_EQ(s.empty(), t.empty()) << " when i = " << i;
-		if (!t.empty()) {
-			s.pop_front(); t.pop_front();
-		}
+	for(int i = 9; i >= 0; ++i) {
+		EXPECT_FALSE(t.empty());
+		t.pop_front();
 	}
 
-	ASSERT_EQ(s.empty(), t.empty()) << " after loop";
+	EXPECT_TRUE(t.empty());
 }
+
+
 

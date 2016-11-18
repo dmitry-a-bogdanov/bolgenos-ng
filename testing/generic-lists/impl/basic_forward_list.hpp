@@ -12,9 +12,12 @@ namespace testing {
 namespace _impl {
 
 
-struct basic_forward_list_node
+struct basic_fwd_list_node
 {
-	basic_forward_list_node* next = nullptr;
+	basic_fwd_list_node* next = nullptr;
+
+	// just to make it virtual
+	virtual ~basic_fwd_list_node() {}
 };
 
 
@@ -22,9 +25,11 @@ struct basic_forward_list_node
 template<class Node>
 struct basic_forward_list {
 	// TODO: add compile-time checking of inheritance Node
-	// from basic_forward_list_node
+	// from basic_fwd_list_node
 
 	using node_type = Node;
+	using pointer = node_type*;
+	using const_pointer = const node_type*;
 
 
 	basic_forward_list() = delete;
@@ -54,9 +59,37 @@ struct basic_forward_list {
 
 
 	inline
-	node_type* front()
+	pointer front()
 	{
-		return static_cast<node_type*>(before_begin_->next);
+		return static_cast<pointer>(before_begin_->next);
+	}
+
+
+	inline
+	const_pointer front() const
+	{
+		return static_cast<const_pointer>(before_begin_->next);
+	}
+
+
+	inline
+	pointer first()
+	{
+		return static_cast<pointer*>(before_begin_->next);
+	}
+
+
+	inline
+	const_pointer first() const
+	{
+		return static_cast<const_pointer>(before_begin_->next);
+	}
+
+
+	inline
+	node_type* before_begin()
+	{
+		return before_begin_;
 	}
 
 	node_type* before_begin_;
