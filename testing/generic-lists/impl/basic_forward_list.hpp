@@ -74,7 +74,7 @@ struct basic_forward_list {
 	inline
 	pointer first()
 	{
-		return static_cast<pointer*>(before_begin_->next);
+		return static_cast<pointer>(before_begin_->next);
 	}
 
 

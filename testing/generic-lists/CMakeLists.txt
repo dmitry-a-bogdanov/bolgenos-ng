@@ -2,6 +2,7 @@ project(testing
 	CXX)
 
 add_definitions(-std=c++11)
+add_definitions(-Wall -Wextra -Werror)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -15,5 +16,4 @@ endfunction(create_test)
 create_test(basic_forward_list)
 create_test(forward_list)
 create_test(free_list)
-create_test(forward_list_iterators)
 

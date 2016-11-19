@@ -28,19 +28,14 @@ class forward_list:
 {
 	using node_type = bolgenos_testing::_impl::fwd_list_node<T>;
 	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
-	//template<class,class>
-	//class
-	//_fwd_list_iterator;
 public:
 	using value_type = T;
 	using allocator_type = Alloc;
 	using reference = value_type&;
 	using const_reference = const value_type&;
 	using error_type = bool;
-	/*
-	using iterator = _fwd_list_iterator<value_type,
-		reference>;
-	*/
+
+	struct iterator;
 	struct const_iterator;
 
 	forward_list():
@@ -78,15 +73,13 @@ public:
 		return base_list::front() == nullptr;
 	}
 
-#if 0
 
 	inline
 	iterator before_begin()
 	{
-		return iterator(base_list::front());
+		return iterator(base_list::before_begin());
 	}
 
-#endif
 
 	inline
 	const_iterator before_begin() const
@@ -101,7 +94,6 @@ public:
 		return const_iterator(base_list::before_begin());
 	}
 
-#if 0
 
 	inline
 	iterator begin()
@@ -109,7 +101,6 @@ public:
 		return iterator(base_list::first());
 	}
 
-#endif
 
 	inline
 	const_iterator begin() const
@@ -124,7 +115,6 @@ public:
 		return begin();
 	}
 
-#if 0
 
 	inline
 	iterator end()
@@ -132,7 +122,6 @@ public:
 		return iterator(nullptr);
 	}
 
-#endif
 
 	inline
 	const_iterator end() const
@@ -154,78 +143,6 @@ private:
 	typename allocator_type::template
 		rebind<node_type>::other alloc_= {};
 
-
-/*
-	template<class ValueType, class Reference = ValueType&>
-	class _fwd_list_iterator
-	{
-	public:
-		using value_type = ValueType;
-		using reference = Reference;
-
-		_fwd_list_iterator() = default;
-
-		_fwd_list_iterator(const _fwd_list_iterator& other)
-			: current_(other.current_)
-		{
-		}
-
-
-		inline
-		_fwd_list_iterator& operator=(const _fwd_list_iterator& other)
-		{
-			current_ = other.current_;
-			return *this;
-		}
-
-
-		~_fwd_list_iterator()
-		{
-			current_ = nullptr;
-		}
-
-
-		inline
-		_fwd_list_iterator& operator++()
-		{
-			current_ = current_->next_;
-		}
-
-
-		inline
-		_fwd_list_iterator& operator++(int)
-		{
-			iterator tmp(*this);
-			++(*this);
-			return tmp;
-		}
-
-
-		inline
-		reference operator*()
-		{
-			return const_cast<reference>(current_->value_);
-		}
-
-
-		inline
-		bool operator==(const _fwd_list_iterator& other) const
-		{
-			return current_ == other.current_;
-		}
-
-
-	private:
-		explicit _fwd_list_iterator(const list_item_type* node)
-		{
-			current_ = node;
-		}
-
-		const list_item_type *current_ = nullptr;
-
-		friend class bolgenos_testing::forward_list<T, Alloc>;
-	};
-*/
 }; // class forward_list
 
 
@@ -250,25 +167,117 @@ struct forward_list<T, Alloc>::const_iterator
 		return *this;
 	}
 
-	const_iterator& operator++(int)
+	const_iterator operator++(int)
 	{
 		const_iterator tmp(*this);
-		current_ = current_->next;
+		current_ = static_cast<const node_type*>(current_->next);
 		return tmp;
+	}
+
+
+	inline
+	bool operator==(const const_iterator& other) const
+	{
+		return current_ == other.current_;
+	}
+
+
+	inline
+	bool operator==(const iterator& other) const
+	{
+		return current_ == other.current_;
+	}
+
+
+	inline
+	bool operator!=(const const_iterator& other) const
+	{
+		return current_ != other.current_;
+	}
+
+
+	inline
+	bool operator!=(const iterator& other) const
+	{
+		return current_ != other.current_;
 	}
 
 private:
 	const node_type* current_ = nullptr;
 
 	friend
-	bool operator==(const const_iterator& lhs,
-		const const_iterator& rhs)
-	{
-		return lhs.current_ == rhs.current_;
-	}
+	class iterator;
+
 };
 
 
+template<class T, class Alloc>
+struct forward_list<T, Alloc>::iterator
+{
+	iterator() = default;
+
+	iterator(node_type* node) :
+		current_(node)
+	{
+	}
+
+
+	inline
+	reference operator*()
+	{
+		return current_->value_;
+	}
+
+
+	inline
+	iterator& operator++()
+	{
+		current_ = static_cast<node_type*>(current_->next);
+		return *this;
+	}
+
+
+	inline
+	iterator operator++(int)
+	{
+		iterator tmp(*this);
+		current_ = static_cast<node_type *>(current_->next);
+		return tmp;
+	}
+
+	inline
+	bool operator==(const iterator& other) const
+	{
+		return current_ == other.current_;
+	}
+
+	inline
+	bool operator==(const const_iterator& other) const
+	{
+		return current_ == other.current_;
+	}
+
+
+	inline
+	bool operator!=(const iterator& other) const
+	{
+		return current_ != other.current_;
+	}
+
+
+	inline
+	bool operator!=(const const_iterator& other) const
+	{
+		return current_ != other.current_;
+	}
+
+private:
+	node_type* current_ = nullptr;
+
+	friend
+	class const_iterator;
+
+};
 
 
 template<class T, class Alloc>
