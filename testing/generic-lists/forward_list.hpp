@@ -3,7 +3,7 @@
 #include "memory.hpp"
 #include "impl/basic_forward_list.hpp"
 
-namespace testing {
+namespace bolgenos_testing {
 
 
 namespace _impl {
@@ -23,11 +23,11 @@ struct fwd_list_node:
 
 template<class T, class Alloc = default_allocator<T>>
 class forward_list:
-	private testing::_impl::basic_forward_list<
-		testing::_impl::fwd_list_node<T>>
+	private bolgenos_testing::_impl::basic_forward_list<
+		bolgenos_testing::_impl::fwd_list_node<T>>
 {
-	using node_type = testing::_impl::fwd_list_node<T>;
-	using base_list = testing::_impl::basic_forward_list<node_type>;
+	using node_type = bolgenos_testing::_impl::fwd_list_node<T>;
+	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
 	//template<class,class>
 	//class
 	//_fwd_list_iterator;
@@ -40,9 +40,8 @@ public:
 	/*
 	using iterator = _fwd_list_iterator<value_type,
 		reference>;
-	using const_iterator = _fwd_list_iterator<const value_type,
-		const_reference>;
 	*/
+	struct const_iterator;
 
 	forward_list():
 		base_list(&before_begin_)
@@ -87,6 +86,7 @@ public:
 		return iterator(base_list::front());
 	}
 
+#endif
 
 	inline
 	const_iterator before_begin() const
@@ -98,8 +98,10 @@ public:
 	inline
 	const_iterator cbefore_begin() const
 	{
-		return const_iterator(&base_list::before_begin());
+		return const_iterator(base_list::before_begin());
 	}
+
+#if 0
 
 	inline
 	iterator begin()
@@ -107,11 +109,12 @@ public:
 		return iterator(base_list::first());
 	}
 
+#endif
 
 	inline
 	const_iterator begin() const
 	{
-		return const_iterator(base_list::first);
+		return const_iterator(base_list::first());
 	}
 
 
@@ -121,6 +124,7 @@ public:
 		return begin();
 	}
 
+#if 0
 
 	inline
 	iterator end()
@@ -128,6 +132,7 @@ public:
 		return iterator(nullptr);
 	}
 
+#endif
 
 	inline
 	const_iterator end() const
@@ -142,7 +147,6 @@ public:
 		return const_iterator(nullptr);
 	}
 
-#endif
 
 private:
 
@@ -219,10 +223,52 @@ private:
 
 		const list_item_type *current_ = nullptr;
 
-		friend class testing::forward_list<T, Alloc>;
+		friend class bolgenos_testing::forward_list<T, Alloc>;
 	};
 */
 }; // class forward_list
+
+
+template<class T, class Alloc>
+struct forward_list<T, Alloc>::const_iterator
+{
+	const_iterator() = default;
+
+	const_iterator(const node_type* node) :
+		current_(node)
+	{
+	}
+
+	const_reference operator*()
+	{
+		return current_->value_;
+	}
+
+	const_iterator& operator++()
+	{
+		current_ = static_cast<const node_type*>(current_->next);
+		return *this;
+	}
+
+	const_iterator& operator++(int)
+	{
+		const_iterator tmp(*this);
+		current_ = current_->next;
+		return tmp;
+	}
+
+private:
+	const node_type* current_ = nullptr;
+
+	friend
+	bool operator==(const const_iterator& lhs,
+		const const_iterator& rhs)
+	{
+		return lhs.current_ == rhs.current_;
+	}
+};
+
+
 
 
 template<class T, class Alloc>
@@ -256,4 +302,4 @@ bool forward_list<T, Alloc>::push_front(const value_type& value)
 }
 
 
-} // namespace testing
+} // namespace bolgenos_testing

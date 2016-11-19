@@ -5,7 +5,7 @@
 
 TEST(basic_functionality, add_and_remove_10)
 {
-	testing::forward_list<int> t;
+	bolgenos_testing::forward_list<int> t;
 
 	EXPECT_TRUE(t.empty());
 
@@ -15,7 +15,7 @@ TEST(basic_functionality, add_and_remove_10)
 		EXPECT_FALSE(t.empty());
 	}
 
-	for(int i = 9; i >= 0; ++i) {
+	for(int i = 9; i >= 0; --i) {
 		EXPECT_FALSE(t.empty());
 		t.pop_front();
 	}

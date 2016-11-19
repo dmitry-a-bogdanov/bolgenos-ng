@@ -4,15 +4,15 @@
 
 
 
-namespace testing {
+namespace bolgenos_testing {
 
 
 class simple_free_list:
-	public testing::_impl::basic_forward_list<
-		testing::_impl::basic_fwd_list_node>
+	public bolgenos_testing::_impl::basic_forward_list<
+		bolgenos_testing::_impl::basic_fwd_list_node>
 {
-	using node_type = testing::_impl::basic_fwd_list_node;
-	using base_list = testing::_impl::basic_forward_list<node_type>;
+	using node_type = bolgenos_testing::_impl::basic_fwd_list_node;
+	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
 public:
 	simple_free_list()
 		: base_list(&before_begin_)
@@ -47,4 +47,4 @@ public:
 
 
 
-} // namespace testing
+} // namespace bolgenos_testing

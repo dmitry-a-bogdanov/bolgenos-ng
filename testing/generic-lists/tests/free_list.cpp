@@ -5,7 +5,7 @@ TEST(simple_free_list, push_and_pop_10)
 {
 	const int test_size = 10;
 
-	testing::simple_free_list l;
+	bolgenos_testing::simple_free_list l;
 
 	char* allocated[test_size];
 

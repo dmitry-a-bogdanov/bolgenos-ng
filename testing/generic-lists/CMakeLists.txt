@@ -15,5 +15,5 @@ endfunction(create_test)
 create_test(basic_forward_list)
 create_test(forward_list)
 create_test(free_list)
-# create_test(forward_list_iterators)
+create_test(forward_list_iterators)
 

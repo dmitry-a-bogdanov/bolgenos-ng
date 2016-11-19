@@ -4,7 +4,7 @@
 
 #include <lib/type_traits.hpp>
 
-namespace testing {
+namespace bolgenos_testing {
 
 
 
@@ -19,7 +19,6 @@ struct basic_fwd_list_node
 	// just to make it virtual
 	virtual ~basic_fwd_list_node() {}
 };
-
 
 
 template<class Node>
@@ -87,10 +86,17 @@ struct basic_forward_list {
 
 
 	inline
-	node_type* before_begin()
+	pointer before_begin()
 	{
 		return before_begin_;
 	}
+
+	inline
+	const_pointer before_begin() const
+	{
+		return before_begin_;
+	}
+
 
 	node_type* before_begin_;
 }; // class basic_forward_list
@@ -99,4 +105,4 @@ struct basic_forward_list {
 } // namesapce _impl
 
 
-} // namespace testing
+} // namespace bolgenos_testing
