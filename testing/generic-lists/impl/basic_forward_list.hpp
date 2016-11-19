@@ -47,6 +47,14 @@ struct basic_forward_list {
 	}
 
 
+	inline
+	pointer push_after(node_type* after, node_type* node)
+	{
+		node->next = after->next;
+		after->next = node->next;
+	}
+
+
 	// removes node and returns removed node
 	inline
 	node_type* pop_front()
@@ -90,6 +98,21 @@ struct basic_forward_list {
 	{
 		return before_begin_;
 	}
+
+
+	inline
+	pointer end()
+	{
+		return nullptr;
+	}
+
+
+	inline
+	const_pointer end() const
+	{
+		return nullptr;
+	}
+
 
 	inline
 	const_pointer before_begin() const

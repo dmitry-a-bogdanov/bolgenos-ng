@@ -119,21 +119,21 @@ public:
 	inline
 	iterator end()
 	{
-		return iterator(nullptr);
+		return iterator(base_list::end());
 	}
 
 
 	inline
 	const_iterator end() const
 	{
-		return const_iterator(nullptr);
+		return const_iterator(base_list::end());
 	}
 
 
 	inline
 	const_iterator cend() const
 	{
-		return const_iterator(nullptr);
+		return const_iterator(base_list::end());
 	}
 
 
