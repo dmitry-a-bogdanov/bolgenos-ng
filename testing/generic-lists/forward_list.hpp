@@ -6,7 +6,9 @@
 namespace bolgenos_testing {
 
 
+
 namespace _impl {
+
 
 
 template<class T>
@@ -18,7 +20,9 @@ struct fwd_list_node:
 };
 
 
+
 } // namespace _impl
+
 
 
 template<class T, class Alloc = default_allocator<T>>
@@ -46,7 +50,14 @@ public:
 
 	forward_list(const forward_list&) = delete;
 	forward_list& operator=(const forward_list&) = delete;
-	~forward_list();
+
+	~forward_list()
+	{
+		while (!empty()) {
+			auto removed = base_list::pop_front();
+			alloc_.deallocate(removed, 1);
+		}
+	}
 
 
 	inline
@@ -63,8 +74,37 @@ public:
 	}
 
 
-	void pop_front();
-	error_type push_front(const value_type&);
+	inline
+	void pop_front()
+	{
+		auto removed = base_list::pop_front();
+		alloc_.deallocate(removed, 1);
+	}
+
+
+	inline
+	iterator push_front(const value_type& value)
+	{
+		return push_after(before_begin(), value);
+	}
+
+
+	inline
+	iterator push_after(const_iterator position,
+		const value_type& value)
+	{
+		node_type *node = alloc_.allocate(1);
+		if (!node) {
+			return end();
+		}
+
+		node->value_ = value;
+
+		auto after = const_cast<node_type *>(position.current_);
+		iterator pointer_to_inserted =
+			base_list::push_after(after, node);
+		return pointer_to_inserted;
+	}
 
 
 	inline
@@ -140,6 +180,7 @@ public:
 private:
 
 	node_type before_begin_ = {};
+
 	typename allocator_type::template
 		rebind<node_type>::other alloc_= {};
 
@@ -151,26 +192,32 @@ struct forward_list<T, Alloc>::const_iterator
 {
 	const_iterator() = default;
 
-	const_iterator(const node_type* node) :
-		current_(node)
+	const_iterator(const iterator& other) :
+		current_(other.current_)
 	{
 	}
 
+
+	inline
 	const_reference operator*()
 	{
 		return current_->value_;
 	}
 
+
+	inline
 	const_iterator& operator++()
 	{
-		current_ = static_cast<const node_type*>(current_->next);
+		current_ = static_cast<decltype(current_)>(current_->next);
 		return *this;
 	}
 
+
+	inline
 	const_iterator operator++(int)
 	{
 		const_iterator tmp(*this);
-		current_ = static_cast<const node_type*>(current_->next);
+		current_ = static_cast<decltype(current_)>(current_->next);
 		return tmp;
 	}
 
@@ -203,11 +250,21 @@ struct forward_list<T, Alloc>::const_iterator
 	}
 
 private:
+	const_iterator(const node_type* node) :
+		current_(node)
+	{
+	}
+
+
 	const node_type* current_ = nullptr;
+
 
 	friend
 	class iterator;
 
+
+	friend
+	class forward_list;
 };
 
 
@@ -215,12 +272,6 @@ template<class T, class Alloc>
 struct forward_list<T, Alloc>::iterator
 {
 	iterator() = default;
-
-	iterator(node_type* node) :
-		current_(node)
-	{
-	}
-
 
 	inline
 	reference operator*()
@@ -232,7 +283,7 @@ struct forward_list<T, Alloc>::iterator
 	inline
 	iterator& operator++()
 	{
-		current_ = static_cast<node_type*>(current_->next);
+		current_ = static_cast<decltype(current_)>(current_->next);
 		return *this;
 	}
 
@@ -241,7 +292,7 @@ struct forward_list<T, Alloc>::iterator
 	iterator operator++(int)
 	{
 		iterator tmp(*this);
-		current_ = static_cast<node_type *>(current_->next);
+		current_ = static_cast<decltype(current_)>(current_->next);
 		return tmp;
 	}
 
@@ -272,43 +323,22 @@ struct forward_list<T, Alloc>::iterator
 	}
 
 private:
+	iterator(node_type* node) :
+		current_(node)
+	{
+	}
+
+
 	node_type* current_ = nullptr;
+
 
 	friend
 	class const_iterator;
 
+	friend
+	class forward_list;
 };
 
-
-template<class T, class Alloc>
-forward_list<T, Alloc>::~forward_list()
-{
-	while (!empty()) {
-		auto removed = base_list::pop_front();
-		alloc_.deallocate(removed, 1);
-	}
-}
-
-
-template<class T, class Alloc>
-void forward_list<T, Alloc>::pop_front()
-{
-	auto removed = base_list::pop_front();
-	alloc_.deallocate(removed, 1);
-}
-
-
-template<class T, class Alloc>
-bool forward_list<T, Alloc>::push_front(const value_type& value)
-{
-	node_type *node = alloc_.allocate(1);
-	node->value_ = value;
-	if (!node) {
-		return false;
-	}
-	base_list::push_front(node);
-	return true;
-}
 
 
 } // namespace bolgenos_testing

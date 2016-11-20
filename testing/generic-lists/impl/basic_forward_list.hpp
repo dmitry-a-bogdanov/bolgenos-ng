@@ -38,20 +38,13 @@ struct basic_forward_list {
 	{
 	}
 
-	// adds node
-	inline
-	void push_front(node_type *new_node)
-	{
-		new_node->next = before_begin_->next;
-		before_begin_->next = new_node;
-	}
-
 
 	inline
 	pointer push_after(node_type* after, node_type* node)
 	{
 		node->next = after->next;
-		after->next = node->next;
+		after->next = node;
+		return node;
 	}
 
 

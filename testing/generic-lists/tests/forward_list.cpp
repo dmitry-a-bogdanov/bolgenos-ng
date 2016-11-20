@@ -271,3 +271,48 @@ TEST(iterator_write, rewrite_first)
 
 	EXPECT_TRUE(l.empty());
 }
+
+
+TEST(push_after, before_begin)
+{
+	bolgenos_testing::forward_list<unsigned int> l;
+
+	const unsigned int test_value = 0xdeadbeef;
+
+	l.push_after(l.cbefore_begin(), test_value);
+	EXPECT_FALSE(l.empty());
+	EXPECT_EQ(test_value, l.front());
+	auto it = l.before_begin();
+	it++;
+	EXPECT_EQ(test_value, *it);
+	it++;
+	EXPECT_EQ(l.cend(), it);
+}
+
+
+TEST(push_after, middle)
+{
+	bolgenos_testing::forward_list<std::string> l;
+
+	l.push_front("third");
+	EXPECT_FALSE(l.empty());
+
+	l.push_front("first");
+	EXPECT_FALSE(l.empty());
+
+	l.push_after(l.cbegin(), "second");
+	EXPECT_FALSE(l.empty());
+
+
+	auto it = l.begin();
+	EXPECT_EQ("first", *it);
+
+	++it;
+	EXPECT_EQ("second", *it);
+
+	++it;
+	EXPECT_EQ("third", *it);
+
+	++it;
+	EXPECT_EQ(l.end(), it);
+}

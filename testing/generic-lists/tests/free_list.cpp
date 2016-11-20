@@ -1,11 +1,11 @@
 #include <free_list.hpp>
 
 
-TEST(simple_free_list, push_and_pop_10)
+TEST(basic, push_and_pop_10)
 {
 	const int test_size = 10;
 
-	bolgenos_testing::simple_free_list l;
+	bolgenos_testing::free_list l;
 
 	char* allocated[test_size];
 

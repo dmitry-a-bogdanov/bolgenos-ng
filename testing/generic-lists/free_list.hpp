@@ -7,14 +7,14 @@
 namespace bolgenos_testing {
 
 
-class simple_free_list:
+class free_list:
 	public bolgenos_testing::_impl::basic_forward_list<
 		bolgenos_testing::_impl::basic_fwd_list_node>
 {
 	using node_type = bolgenos_testing::_impl::basic_fwd_list_node;
 	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
 public:
-	simple_free_list()
+	free_list()
 		: base_list(&before_begin_)
 	{
 	}
@@ -23,7 +23,7 @@ public:
 	void push_front(void *page)
 	{
 		auto new_node = static_cast<node_type *>(page);
-		base_list::push_front(new_node);
+		base_list::push_after(&before_begin_, new_node);
 	}
 
 
@@ -36,10 +36,12 @@ public:
 	}
 
 
-	void *front()
+	void* front()
 	{
 		return static_cast<void *>(base_list::front());
 	}
+
+private:
 
 	node_type before_begin_;
 };
