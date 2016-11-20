@@ -54,8 +54,7 @@ public:
 	~forward_list()
 	{
 		while (!empty()) {
-			auto removed = base_list::pop_front();
-			alloc_.deallocate(removed, 1);
+			pop_front();
 		}
 	}
 

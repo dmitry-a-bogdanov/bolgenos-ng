@@ -29,7 +29,7 @@ public:
 
 	void pop_front()
 	{
-		auto removed = base_list::pop_front();
+		auto removed = base_list::erase_after(&before_begin_);
 		// FIXME: the following assignment will most probably be
 		// ignored by compiler. Secure erase is required.
 		removed->next = nullptr;

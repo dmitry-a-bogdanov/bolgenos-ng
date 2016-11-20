@@ -57,16 +57,6 @@ struct basic_forward_list {
 	}
 
 
-	// removes node and returns removed node
-	inline
-	node_type* pop_front()
-	{
-		auto removed = before_begin_->next;
-		before_begin_->next = removed->next;
-		return static_cast<node_type*>(removed);
-	}
-
-
 	inline
 	pointer front()
 	{
