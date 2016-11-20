@@ -29,11 +29,6 @@ TEST(basic, add_and_remove_10)
 }
 
 
-//        end cend
-// l
-// cref_l
-
-
 #include <iostream>
 
 #if !defined(declare_true_eq)
@@ -290,6 +285,28 @@ TEST(push_after, before_begin)
 }
 
 
+TEST(erase_after, before_begin)
+{
+	bolgenos_testing::forward_list<int> l;
+
+	const int first_value = 42;
+	const int second_value = 127;
+
+	l.push_front(first_value);
+	l.push_front(second_value);
+
+	EXPECT_EQ(second_value, l.front());
+
+	l.erase_after(l.before_begin());
+
+	EXPECT_EQ(first_value, l.front());
+
+	l.erase_after(l.cbefore_begin());
+
+	EXPECT_TRUE(l.empty());
+}
+
+
 TEST(push_after, middle)
 {
 	bolgenos_testing::forward_list<std::string> l;
@@ -315,4 +332,38 @@ TEST(push_after, middle)
 
 	++it;
 	EXPECT_EQ(l.end(), it);
+}
+
+
+TEST(erase_after, middle)
+{
+	bolgenos_testing::forward_list<std::string> l;
+
+	l.push_front("first");
+	l.push_front("second");
+	l.push_front("third");
+
+
+	// remove "first"
+	auto ptr = l.begin();
+	++ptr;
+	l.erase_after(ptr);
+
+	{
+		auto it = l.begin();
+		EXPECT_EQ(*(it++), "third");
+		EXPECT_EQ(*(it++), "second");
+		EXPECT_EQ(it, l.end());
+	}
+
+	ptr = l.begin();
+
+	// remove "second"
+	l.erase_after(ptr);
+
+	{
+		auto it = l.begin();
+		EXPECT_EQ(*(it++), "third");
+		EXPECT_EQ(it, l.end());
+	}
 }

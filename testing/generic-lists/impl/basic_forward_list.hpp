@@ -48,6 +48,15 @@ struct basic_forward_list {
 	}
 
 
+	inline
+	pointer erase_after(node_type* after)
+	{
+		auto erased = after->next;
+		after->next = erased->next;
+		return static_cast<pointer>(erased);
+	}
+
+
 	// removes node and returns removed node
 	inline
 	node_type* pop_front()

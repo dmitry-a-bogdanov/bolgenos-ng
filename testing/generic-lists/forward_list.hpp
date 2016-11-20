@@ -75,19 +75,19 @@ public:
 
 
 	inline
-	void pop_front()
+	void erase_after(const_iterator position)
 	{
-		auto removed = base_list::pop_front();
-		alloc_.deallocate(removed, 1);
+		auto after = const_cast<node_type *>(position.current_);
+		auto erased = base_list::erase_after(after);
+		alloc_.deallocate(erased, 1);
 	}
 
 
 	inline
-	iterator push_front(const value_type& value)
+	void pop_front()
 	{
-		return push_after(before_begin(), value);
+		erase_after(before_begin());
 	}
-
 
 	inline
 	iterator push_after(const_iterator position,
@@ -104,6 +104,13 @@ public:
 		iterator pointer_to_inserted =
 			base_list::push_after(after, node);
 		return pointer_to_inserted;
+	}
+
+
+	inline
+	iterator push_front(const value_type& value)
+	{
+		return push_after(before_begin(), value);
 	}
 
 
