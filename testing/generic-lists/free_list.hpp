@@ -20,6 +20,7 @@ public:
 	}
 
 
+	inline
 	void push_front(void *page)
 	{
 		auto new_node = static_cast<node_type *>(page);
@@ -27,6 +28,7 @@ public:
 	}
 
 
+	inline
 	void pop_front()
 	{
 		auto removed = base_list::erase_after(&before_begin_);
@@ -36,6 +38,7 @@ public:
 	}
 
 
+	inline
 	void* front()
 	{
 		return static_cast<void *>(base_list::front());
