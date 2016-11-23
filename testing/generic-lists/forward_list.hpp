@@ -39,16 +39,14 @@ public:
 	using const_reference = const value_type&;
 	using error_type = bool;
 
-	struct iterator;
-	struct const_iterator;
+	class iterator;
+	class const_iterator;
 
-	forward_list():
-		base_list(&before_begin_)
-	{
-	}
+	forward_list() = default;
 
 
 	forward_list(const forward_list&) = delete;
+	forward_list(forward_list&&) = delete;
 	forward_list& operator=(const forward_list&) = delete;
 
 	~forward_list()
@@ -62,14 +60,14 @@ public:
 	inline
 	reference front()
 	{
-		return base_list::front()->value_;
+		return base_list::begin()->value_;
 	}
 
 
 	inline
 	const_reference front() const
 	{
-		return base_list::front()->value_;
+		return base_list::begin()->value_;
 	}
 
 
@@ -116,7 +114,7 @@ public:
 	inline
 	bool empty() const
 	{
-		return base_list::front() == nullptr;
+		return base_list::begin() == base_list::end();
 	}
 
 
@@ -144,14 +142,14 @@ public:
 	inline
 	iterator begin()
 	{
-		return iterator(base_list::first());
+		return iterator(base_list::begin());
 	}
 
 
 	inline
 	const_iterator begin() const
 	{
-		return const_iterator(base_list::first());
+		return const_iterator(base_list::begin());
 	}
 
 
@@ -185,8 +183,6 @@ public:
 
 private:
 
-	node_type before_begin_ = {};
-
 	typename allocator_type::template
 		rebind<node_type>::other alloc_= {};
 
@@ -194,8 +190,9 @@ private:
 
 
 template<class T, class Alloc>
-struct forward_list<T, Alloc>::const_iterator
+class forward_list<T, Alloc>::const_iterator
 {
+public:
 	const_iterator() = default;
 
 	const_iterator(const iterator& other) :
@@ -262,7 +259,7 @@ private:
 	}
 
 
-	const node_type* current_ = nullptr;
+	const node_type* current_ = base_list::end();
 
 
 	friend
@@ -275,8 +272,9 @@ private:
 
 
 template<class T, class Alloc>
-struct forward_list<T, Alloc>::iterator
+class forward_list<T, Alloc>::iterator
 {
+public:
 	iterator() = default;
 
 	inline
@@ -302,11 +300,13 @@ struct forward_list<T, Alloc>::iterator
 		return tmp;
 	}
 
+
 	inline
 	bool operator==(const iterator& other) const
 	{
 		return current_ == other.current_;
 	}
+
 
 	inline
 	bool operator==(const const_iterator& other) const
@@ -340,6 +340,7 @@ private:
 
 	friend
 	class const_iterator;
+
 
 	friend
 	class forward_list;

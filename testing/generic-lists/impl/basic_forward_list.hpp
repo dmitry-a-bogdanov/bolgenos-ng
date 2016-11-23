@@ -31,12 +31,9 @@ struct basic_forward_list {
 	using const_pointer = const node_type*;
 
 
-	basic_forward_list() = delete;
+	basic_forward_list() = default;
 	basic_forward_list(const basic_forward_list&)  = delete;
-	basic_forward_list(node_type* before_begin)
-		: before_begin_(before_begin)
-	{
-	}
+	basic_forward_list(basic_forward_list&&) = delete;
 
 
 	inline
@@ -58,37 +55,30 @@ struct basic_forward_list {
 
 
 	inline
-	pointer front()
+	pointer begin()
 	{
-		return static_cast<pointer>(before_begin_->next);
+		return static_cast<pointer>(before_begin()->next);
 	}
 
 
 	inline
-	const_pointer front() const
+	const_pointer begin() const
 	{
-		return static_cast<const_pointer>(before_begin_->next);
-	}
-
-
-	inline
-	pointer first()
-	{
-		return static_cast<pointer>(before_begin_->next);
-	}
-
-
-	inline
-	const_pointer first() const
-	{
-		return static_cast<const_pointer>(before_begin_->next);
+		return static_cast<const_pointer>(before_begin()->next);
 	}
 
 
 	inline
 	pointer before_begin()
 	{
-		return before_begin_;
+		return &before_begin_;
+	}
+
+
+	inline
+	const_pointer before_begin() const
+	{
+		return &before_begin_;
 	}
 
 
@@ -106,14 +96,8 @@ struct basic_forward_list {
 	}
 
 
-	inline
-	const_pointer before_begin() const
-	{
-		return before_begin_;
-	}
-
-
-	node_type* before_begin_;
+private:
+	node_type before_begin_;
 }; // class basic_forward_list
 
 
