@@ -1,8 +1,8 @@
 #include <bolgenos-ng/pit.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>

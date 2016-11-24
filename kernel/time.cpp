@@ -1,6 +1,6 @@
 #include <bolgenos-ng/time.hpp>
 
-#include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/asm.hpp>
 
 #include "config.h"
 

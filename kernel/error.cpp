@@ -1,8 +1,8 @@
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 
 void panic(const char *msg) {
