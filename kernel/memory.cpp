@@ -21,12 +21,6 @@ void *operator new(size_t, void *address) {
 	return address;
 }
 
-void memset(void *mem, char val, size_t size) {
-	for(size_t pos = 0; pos != size; ++pos) {
-		write_8(((char *)mem) + pos, &val);
-	}
-}
-
 
 namespace {
 
