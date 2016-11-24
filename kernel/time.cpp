@@ -1,4 +1,4 @@
-#include <bolgenos-ng/time.h>
+#include <bolgenos-ng/time.hpp>
 
 #include <bolgenos-ng/asm.h>
 

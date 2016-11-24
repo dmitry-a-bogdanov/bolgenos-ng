@@ -1,7 +1,6 @@
 #include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/time.h>
 
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
@@ -14,6 +13,7 @@
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2.hpp>
 #include <bolgenos-ng/slab.hpp>
+#include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/ostream.hpp>
