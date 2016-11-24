@@ -1,6 +1,6 @@
 #include <bolgenos-ng/kernel_object.hpp>
 
-#include <bolgenos-ng/asm.h>
+#include <bolgenos-ng/asm.hpp>
 
 
 /// \brief Start of kernel object.

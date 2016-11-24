@@ -1,8 +1,8 @@
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 
 void panic(const char *msg) {
@@ -10,7 +10,7 @@ void panic(const char *msg) {
 	printk("Kernel Panic:\n");
 	printk(msg);
 	while(1) {
-		halt_cpu();
+		x86::halt_cpu();
 	}
 }
 

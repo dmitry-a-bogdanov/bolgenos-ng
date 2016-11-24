@@ -1,4 +1,5 @@
-project(config)
+project(config
+	LANGUAGES NONE)
 
 set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h" PARENT_SCOPE)
 set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h")

@@ -1,9 +1,9 @@
 #include <bolgenos-ng/mmu.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
