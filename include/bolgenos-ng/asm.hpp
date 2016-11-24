@@ -114,9 +114,18 @@ namespace x86 {
 //
 // Function puts CPU into halt state. In such state CPU does nothing until
 //	any kind of interrupt occurs.
-static inline void halt_cpu() {
+inline
+static void halt_cpu() {
 	asm volatile("hlt");
 }
 
+
+inline
+static uint32_t lzcnt(uint32_t value)
+{
+	uint32_t retval;
+	asm("lzcntl %1, %0": "=a"(retval) : "b"(value));
+	return retval;
+};
 
 } // namespace asm
