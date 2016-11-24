@@ -1,8 +1,9 @@
 #include <bolgenos-ng/irq.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
+
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/execinfo.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>

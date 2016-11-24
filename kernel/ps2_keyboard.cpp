@@ -1,9 +1,9 @@
 #include "ps2_keyboard.hpp"
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/string.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/ps2.hpp>
 
 #include <lib/ostream.hpp>

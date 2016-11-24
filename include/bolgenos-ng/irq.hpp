@@ -2,7 +2,7 @@
 
 #include <lib/type_traits.hpp>
 
-#include "asm.h"
+#include "asm.hpp"
 #include "mmu.hpp"
 #include "mem_utils.hpp"
 #include "stdtypes.hpp"

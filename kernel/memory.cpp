@@ -1,8 +1,8 @@
 #include <bolgenos-ng/memory.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/kernel_object.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>

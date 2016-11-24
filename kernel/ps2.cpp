@@ -1,12 +1,12 @@
 #include <bolgenos-ng/ps2.hpp>
 
-#include <bolgenos-ng/asm.h>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/time.h>
 
+#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/pic_common.hpp>
+#include <bolgenos-ng/time.hpp>
 
 #include <lib/ostream.hpp>
 

@@ -1,5 +1,4 @@
-#ifndef __BOLGENOS_NG__ASM_H__
-#define __BOLGENOS_NG__ASM_H__
+#pragma once
 
 #include <bolgenos-ng/compiler.h>
 
@@ -66,15 +65,6 @@ static inline void iowait() {
 }
 
 
-/**
-* \brief Put CPU into halt state.
-*
-* Function puts CPU into halt state. In such state CPU does nothing until
-*	any kind of interrupt occurs.
-*/
-static inline void halt_cpu() {
-	asm volatile("hlt");
-}
 
 
 /**
@@ -116,4 +106,26 @@ static inline void write_msr(msr_t msr, uint32_t low, uint32_t high) {
 	asm volatile("wrmsr":: "a"(low), "d"(high), "c"(msr));
 }
 
-#endif // __BOLGENOS_NG__ASM_H__
+
+namespace x86 {
+
+
+// \brief Put CPU into halt state.
+//
+// Function puts CPU into halt state. In such state CPU does nothing until
+//	any kind of interrupt occurs.
+inline
+static void halt_cpu() {
+	asm volatile("hlt");
+}
+
+
+inline
+static uint32_t lzcnt(uint32_t value)
+{
+	uint32_t retval;
+	asm("lzcntl %1, %0": "=a"(retval) : "b"(value));
+	return retval;
+};
+
+} // namespace asm
