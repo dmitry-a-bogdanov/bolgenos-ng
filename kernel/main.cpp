@@ -61,7 +61,7 @@ extern "C" void kernel_main() {
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
 	do {
-		asm ("hlt");
+		x86::halt_cpu();
 	} while(1);
 }
 

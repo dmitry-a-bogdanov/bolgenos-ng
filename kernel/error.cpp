@@ -10,7 +10,7 @@ void panic(const char *msg) {
 	printk("Kernel Panic:\n");
 	printk(msg);
 	while(1) {
-		halt_cpu();
+		x86::halt_cpu();
 	}
 }
 

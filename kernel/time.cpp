@@ -10,7 +10,7 @@ volatile uint32_t jiffies = 0;
 void __sleep(uint32_t ticks_timeout) {
 	uint32_t end_of_sleep = jiffies + ticks_timeout;
 	while (jiffies < end_of_sleep) {
-		halt_cpu();
+		x86::halt_cpu();
 	}
 }
 
