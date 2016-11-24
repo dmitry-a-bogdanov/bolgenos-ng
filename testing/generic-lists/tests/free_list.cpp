@@ -4,20 +4,24 @@
 TEST(basic, push_and_pop_10)
 {
 	const int test_size = 10;
+	const size_t alloc_size = 16;
 
 	bolgenos_testing::free_list l;
 
 	char* allocated[test_size];
 
+	ASSERT_GE(alloc_size, bolgenos_testing::free_list::min_size::value);
+	ASSERT_LE(sizeof(void *), bolgenos_testing::free_list::min_size::value);
+
 	for (int i = 0; i < test_size - 2; ++i) {
-		allocated[i] = new char[64];
+		allocated[i] = new char[alloc_size];
 		l.push_front(allocated[i]);
 		EXPECT_EQ(allocated[i], l.front()) << "i = " << i;
 	}
 
 
-	allocated[test_size - 2] = new char[64];
-	allocated[test_size - 1] = new char[64];
+	allocated[test_size - 2] = new char[alloc_size];
+	allocated[test_size - 1] = new char[alloc_size];
 	l.push_after(l.before_begin(), allocated[test_size - 1]);
 	l.push_after(l.begin(), allocated[test_size - 2]);
 

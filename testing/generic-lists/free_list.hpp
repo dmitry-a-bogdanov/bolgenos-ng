@@ -1,6 +1,7 @@
 #pragma once
 
 #include "impl/basic_forward_list.hpp"
+#include <lib/type_traits.hpp>
 
 
 
@@ -14,6 +15,7 @@ class free_list:
 	using node_type = bolgenos_testing::_impl::basic_fwd_list_node;
 	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
 public:
+	using min_size = lib::integral_constant<size_t, sizeof(node_type)>;
 	free_list() = default;
 
 
@@ -221,6 +223,7 @@ public:
 		base_list::push_after(after, node);
 	}
 
+
 	inline
 	void erase_after(const_iterator position)
 	{
@@ -256,7 +259,6 @@ private:
 	friend
 	class iterator;
 };
-
 
 
 } // namespace bolgenos_testing
