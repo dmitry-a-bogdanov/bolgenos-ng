@@ -48,10 +48,24 @@ public:
 	atomic operator++(int)
 	{
 		atomic tmp(*this);
-		asm("lock incl %0\n"::"m"(value_));
+		++(*this);
 		return tmp;
 	}
 
+
+	atomic& operator--()
+	{
+		asm("lock decl %0\n"::"m"(value_));
+		return *this;
+	}
+
+
+	atomic operator--(int)
+	{
+		atomic tmp(*this);
+		--(*this);
+		return tmp;
+	}
 
 private:
 	T value_;
