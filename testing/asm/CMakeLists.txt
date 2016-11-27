@@ -14,3 +14,4 @@ function(create_test name)
 endfunction(create_test)
 
 create_test(asm)
+create_test(atomic)
