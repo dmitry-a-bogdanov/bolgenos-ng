@@ -57,7 +57,7 @@ struct __atomic_base<T, typename lib::enable_if<(sizeof(T) == 4)>::type> :
 
 
 	inline
-	T fetch_and_add(T increment)
+	T fetch_add(T increment)
 	{
 		asm("lock; xaddl %k0, %1"
 			: "+r"(increment), "+m"(base_type::value_)
@@ -98,7 +98,7 @@ struct __atomic_base<T, typename lib::enable_if<(sizeof(T) == 2)>::type> :
 
 
 	inline
-	T fetch_and_add(T increment)
+	T fetch_add(T increment)
 	{
 		asm("lock; xaddw %w0, %1"
 			: "+r"(increment), "+m"(base_type::value_)
@@ -139,7 +139,7 @@ struct __atomic_base<T, typename lib::enable_if<(sizeof(T) == 1)>::type> :
 
 
 	inline
-	T fetch_and_add(T increment)
+	T fetch_add(T increment)
 	{
 		asm("lock; xaddb %b0, %1"
 			: "+r"(increment), "+m"(base_type::value_)
@@ -164,9 +164,9 @@ struct atomic_base :
 
 
 	inline
-	T fetch_and_sub(T decrement)
+	T fetch_sub(T decrement)
 	{
-		return specific_base::fetch_and_add(-decrement);
+		return specific_base::fetch_add(-decrement);
 	}
 
 };
@@ -213,9 +213,23 @@ public:
 
 
 	inline
+	T fetch_add(T value)
+	{
+		return base_type::fetch_add(value);
+	}
+
+
+	inline
+	T fetch_sub(T value)
+	{
+		return base_type::fetch_sub(value);
+	}
+
+
+	inline
 	T operator++()
 	{
-		T value = base_type::fetch_and_add(static_cast<T>(1));
+		T value = base_type::fetch_add(static_cast<T>(1));
 		++value;
 		return value;
 	}
@@ -224,7 +238,7 @@ public:
 	inline
 	T operator++(int)
 	{
-		T tmp = base_type::fetch_and_add(static_cast<T>(1));
+		T tmp = base_type::fetch_add(static_cast<T>(1));
 		return tmp;
 	}
 
@@ -232,7 +246,7 @@ public:
 	inline
 	T operator--()
 	{
-		T value = base_type::fetch_and_sub(static_cast<T>(1));
+		T value = base_type::fetch_sub(static_cast<T>(1));
 		--value;
 		return value;
 	}
@@ -241,7 +255,7 @@ public:
 	inline
 	T operator--(int)
 	{
-		T tmp = base_type::fetch_and_sub(static_cast<T>(1));
+		T tmp = base_type::fetch_sub(static_cast<T>(1));
 		return tmp;
 	}
 };
