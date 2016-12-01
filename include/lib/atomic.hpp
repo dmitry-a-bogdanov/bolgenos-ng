@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/type_traits.hpp>
+#include "type_traits.hpp"
 
 
 namespace atomic {

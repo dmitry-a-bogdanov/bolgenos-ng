@@ -1,4 +1,4 @@
-#include <bolgenos-ng/atomic.hpp>
+#include <lib/atomic.hpp>
 
 #include <gtest/gtest.h>
 #include <limits>
