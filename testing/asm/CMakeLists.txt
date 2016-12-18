@@ -2,7 +2,8 @@ project(testing
 	CXX)
 
 add_definitions(-std=c++11)
-add_definitions(-Wall -Wextra -Werror)
+add_definitions(-Wall -Wextra -Werror -Wstrict-aliasing)
+add_definitions(-O3)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -14,3 +15,4 @@ function(create_test name)
 endfunction(create_test)
 
 create_test(asm)
+create_test(atomic)
