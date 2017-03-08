@@ -4,7 +4,7 @@ project(kernel
 message(STATUS "Compiling BOLGENOS-NG using toolchain: "
 	"${CMAKE_TOOLCHAIN_FILE}")
 
-set(target_binary_format "elf")
+set(target_binary_format "Generic")
 set(target_processor "i686")
 
 if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "${target_binary_format}"))
@@ -20,8 +20,8 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 endif()
 
 
-set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++11")
+set(cstd_flags "-std=gnu99 -fno-exceptions")
+set(cxxstd_flags "-std=gnu++11 -fno-exceptions")
 
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
