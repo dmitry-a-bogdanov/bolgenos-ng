@@ -80,19 +80,19 @@ using exception_handler_t = void (*)(stack_ptr_t frame);
 /// \brief Last IRQ line.
 ///
 /// Last IRQ line that can be configured configured and supported by xxPIC.
-using last_line = lib::integral_constant<size_t, 0xff>;
+constexpr size_t LAST_LINE = 0xff;
 
 
 /// \brief Size of IRQ gate.
 ///
 /// IRQ gate must be 8 bytes on x86 arch.
-using gate_size = lib::integral_constant<size_t, 8>;
+constexpr size_t GATE_SIZE = 8;
 
 
 /// \brief Total number of IRQ lines.
 ///
 /// Total number of interrupts that are configured and supported by xxPIC.
-using lines_number = lib::integral_constant<size_t, last_line::value + 1>;
+constexpr size_t NUMBER_OF_LINES = LAST_LINE + 1;
 
 
 /// \brief Enable interrupts.
