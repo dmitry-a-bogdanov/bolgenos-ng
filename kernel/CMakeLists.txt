@@ -91,17 +91,19 @@ set(kernel_sources ${kernel_start_file}
 	pic_common.cpp
 	pit.cpp
 	printk.cpp
-	ps2.cpp
 	time.cpp
 	traps.hpp
 	traps.cpp
 	vga_console.cpp
 	
+	ps2/common.cpp
+	ps2/ps2_controller.cpp
+	ps2/ps2_line.cpp
 	keyboard.cpp
-	ps2_keyboard.hpp
-	ps2_keyboard.cpp
-	ps2_keyboard_sm.hpp
-	ps2_keyboard_sm.cpp
+	ps2/ps2_keyboard.hpp
+	ps2/ps2_keyboard.cpp
+	ps2/ps2_keyboard_sm.hpp
+	ps2/ps2_keyboard_sm.cpp
 	
 	buddy_allocator.hpp
 	buddy_allocator.cpp

@@ -11,7 +11,7 @@
 #include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/pic_8259.hpp>
 #include <bolgenos-ng/pit.hpp>
-#include <bolgenos-ng/ps2.hpp>
+#include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/vga_console.hpp>
@@ -54,7 +54,7 @@ extern "C" void kernel_main() {
 
 	lib::cinfo << "CPU is initialized" << lib::endl;
 
-	ps2::init();
+	ps2::PS2Controller::instance()->initialize_controller();
 
 	ost::run();
 
