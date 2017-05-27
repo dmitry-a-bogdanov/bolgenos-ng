@@ -1,11 +1,16 @@
 #pragma once
 
-/** \brief Keyboard's key.
-*
-* Enum holds key on keyboard and additional internal value to make coding
-*	easier.
-*/
-typedef enum {
+
+namespace ps2 {
+
+namespace keyboard {
+
+
+/// \brief Keyboard's key.
+///
+/// Enum holds key on keyboard and additional internal value to make coding
+///	easier.
+enum kb_key {
 	__kb_key_none		= 0x00, /*!< Invalid key */
 
 	kb_key_f1,
@@ -152,7 +157,7 @@ typedef enum {
 	kb_key_pause,
 
 	__kb_key_max /*!< Number of values in this enum */
-} kb_key;
+};
 
 
 /// \brief Increment operator for kb_key.
@@ -161,36 +166,10 @@ typedef enum {
 /// contain gapes; therefore incement operation should be implemented manually.
 kb_key& operator++(kb_key& key);
 
+char apply_lshift(char sym);
 
-/**
-* \brief Key released flag.
-*
-* Flag for kb_keys_pressed used to mark key is not pressed or released.
-*/
-#define KEY_RELEASED			0x0
+char to_printable_key(kb_key key);
 
+} // namespace keyboard
 
-/**
-* \brief Key pressed flag.
-*
-* Flag for kb_keys_pressed used to mark key as pressed.
-*/
-#define KEY_PRESSED			0x1
-
-
-/**
-* \brief Key status array
-*
-* Array shows which keys are pressed and released. For differentiating these
-*	statuses KEY_PRESSED and KEY_RELEASED constants are used.
-*/
-extern char kb_keys_pressed[__kb_key_max];
-
-
-/**
-* \brief React to pressed keys with VGA display
-*
-* Function prints to VGA display data that is got from keyboard.
-*/
-void kb_print_to_vga();
-
+} // namespace ps2

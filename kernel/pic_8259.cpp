@@ -34,17 +34,17 @@ struct pic_8259: public pic::pic_device {
 pic_8259 driver_object;
 
 
-using command_offset = lib::integral_constant<int, 0>;
-using data_offset = lib::integral_constant<int, 1>;
+constexpr int COMMAND_OFFSET = 0;
+constexpr int DATA_OFFSET = 1;
 
 
 enum port_type: uint16_t {
 	master		= 0x20,
-	master_comm	= master + command_offset::value,
-	master_data	= master + data_offset::value,
+	master_comm	= master + COMMAND_OFFSET,
+	master_data	= master + DATA_OFFSET,
 	slave		= 0xa0,
-	slave_comm	= slave + command_offset::value,
-	slave_data	= slave + data_offset::value
+	slave_comm	= slave + COMMAND_OFFSET,
+	slave_data	= slave + DATA_OFFSET
 };
 
 

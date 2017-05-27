@@ -3,6 +3,8 @@
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
 
+#include <lib/algorithm.hpp>
+
 static_assert(sizeof(multiboot::boot_info_t) == 88,
 	"Multiboot Information header has wrong size");
 
@@ -44,7 +46,7 @@ const multiboot::boot_info_t *multiboot::boot_info = &boot_info_struct;
 
 
 void multiboot::init() {
-	memcpy(&boot_info_struct, temp_boot_info, sizeof(boot_info_t));
+	boot_info_struct = *temp_boot_info;
 }
 
 

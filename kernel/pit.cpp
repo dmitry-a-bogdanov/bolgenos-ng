@@ -23,13 +23,13 @@ namespace {
 ///
 /// Frequency of PIT chip 8253/8254. This frequency will be divided
 /// by configured value.
-using pit_freq = lib::integral_constant<unsigned long, 1193182>;
+constexpr unsigned long PIT_FREQUENCY = 1193182;
 
 
 /// \brief Max divider.
 ///
 /// Maximal number that can be used as frequency divider.
-using max_divider = lib::integral_constant<unsigned long, 65535>;
+constexpr unsigned long MAX_DIVIDER = 65535;
 
 
 enum pit_port: uint16_t {
@@ -96,7 +96,7 @@ static irq::irq_return_t handle_pit_irq(irq::irq_t) {
 void pit::init() {
 	const irq::irq_t timer_irq = pic::min_pic_irq() + 0;
 
-	freq_divider.set_frequency(HZ, pit_freq::value, max_divider::value);
+	freq_divider.set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
 	if (freq_divider.is_low_frequency())
 		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 

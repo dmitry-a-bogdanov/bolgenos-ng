@@ -28,6 +28,23 @@ int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso) {
 	return 0;
 }
 
+typedef char __guard;
+
+int __cxa_guard_acquire (__guard *g)
+{
+	return !(*g);
+}
+
+void __cxa_guard_release (__guard *g)
+{
+	*g = 1;
+}
+
+void __cxa_guard_abort (__guard *g __attribute__((unused)))
+{
+
+}
+
 void *__dso_handle = (void *)(0x0);
 
 

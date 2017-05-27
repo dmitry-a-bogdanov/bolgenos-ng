@@ -13,8 +13,8 @@ memory::allocators::BuddyAllocator::~BuddyAllocator() {
 void memory::allocators::BuddyAllocator::initialize(
 		const memory::MemoryRegion *region) {
 	region_ = region;
-	for(size_t i = 0; i <= max_order::value; ++i) {
-		free_list_[i].initialize(i, i == max_order::value);
+	for(size_t i = 0; i <= MAX_ORDER; ++i) {
+		free_list_[i].initialize(i, i == MAX_ORDER);
 	}
 }
 
@@ -69,11 +69,11 @@ memory::allocators::pblk_t memory::allocators::BuddyAllocator::get(size_t pages)
 		++order;
 	}
 
-	if (order > max_order::value) {
+	if (order > MAX_ORDER) {
 		return blk;
 	}
 
-	while (order <= max_order::value) {
+	while (order <= MAX_ORDER) {
 		blk.ptr = free_list_[order].get();
 		if (blk.ptr)
 			break;
@@ -107,8 +107,7 @@ size_t memory::allocators::BuddyAllocator::compute_order(const pblk_t &blk) {
 
 	auto numeric_address = reinterpret_cast<size_t>(blk.ptr);
 	auto page_number = numeric_address / PAGE_SIZE;
-	while (((page_number & 0x1) == 0x0)
-			&& order < max_order::value) {
+	while (((page_number & 0x1) == 0x0) && order < MAX_ORDER) {
 		++order;
 		page_number >>= 1;
 	}

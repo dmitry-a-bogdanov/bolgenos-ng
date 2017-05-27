@@ -4,7 +4,6 @@
 
 
 namespace time {
-
 /**
 * \brief Current ticks number.
 *
@@ -39,6 +38,5 @@ void sleep_ms(uint32_t ms);
 * \return Number of ticks.
 */
 uint32_t ms_to_ticks(uint32_t ms);
-
 
 } // namespace time

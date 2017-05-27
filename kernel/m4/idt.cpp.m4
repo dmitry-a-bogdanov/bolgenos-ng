@@ -85,7 +85,7 @@ struct __attribute__((packed)) gate_t {
 
 	constexpr gate_t()
 			: offset_00_15_(0x0),
-			segment_(mmu::kernel_cs_ptr::value),
+			segment_(mmu::KERNEL_CODE_SEGMENT_POINTER),
 			reserved_(0),
 			zeros_(0),
 			gate_kind_(gate_kind_type::interrupt),
@@ -100,7 +100,7 @@ struct __attribute__((packed)) gate_t {
 	explicit constexpr gate_t(func_addr_type func,
 			gate_kind_type kind = gate_kind_type::trap)
 			: offset_00_15_(bitmask(func, 0, 0xffff)),
-			segment_(mmu::kernel_cs_ptr::value),
+			segment_(mmu::KERNEL_CODE_SEGMENT_POINTER),
 			reserved_(0),
 			zeros_(0),
 			gate_kind_(kind),
@@ -137,10 +137,10 @@ private:
 	func_addr_type		offset_16_31_	:16;
 };
 
-static_assert(sizeof(gate_t) == irq::gate_size::value, "gate_t has wrong size");
+static_assert(sizeof(gate_t) == irq::GATE_SIZE, "gate_t has wrong size");
 
 
-gate_t idt[[irq::lines_number::value]] _irq_aligned_;
+gate_t idt[[irq::NUMBER_OF_LINES]] _irq_aligned_;
 
 
 } // namespace
