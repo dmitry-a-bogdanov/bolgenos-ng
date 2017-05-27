@@ -6,17 +6,28 @@
 namespace mmu {
 
 
+/// Index of null segment.
+constexpr int NULL_SEGMENT_INDEX = 0;
+
+
 /// Size of segment descriptor.
-using struct_seg_size = lib::integral_constant<int, 8>;
+constexpr int SEGMENT_STRUCT_SIZE = 8;
 
 
 /// Index of kernel code segment.
-using kernel_cs_idx = lib::integral_constant<int, 1>;
+constexpr int KERNEL_CODE_SEGMENT_INDEX = 1;
 
 
 /// Kernel code segment.
-using kernel_cs_ptr = lib::integral_constant<int,
-		kernel_cs_idx::value * struct_seg_size::value>;
+constexpr int KERNEL_CODE_SEGMENT_POINTER = KERNEL_CODE_SEGMENT_INDEX * SEGMENT_STRUCT_SIZE;
+
+
+/// Index of kernel data segment.
+constexpr int KERNEL_DATA_SEGMENT_INDEX = 2;
+
+
+/// Kernel data segment.
+constexpr int KERNEL_DATA_SEGMENT_POINTER = KERNEL_DATA_SEGMENT_INDEX * SEGMENT_STRUCT_SIZE;
 
 
 /// \brief Setup segmentation support.

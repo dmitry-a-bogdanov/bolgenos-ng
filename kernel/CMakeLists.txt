@@ -4,7 +4,7 @@ project(kernel
 message(STATUS "Compiling BOLGENOS-NG using toolchain: "
 	"${CMAKE_TOOLCHAIN_FILE}")
 
-set(target_binary_format "elf")
+set(target_binary_format "Generic")
 set(target_processor "i686")
 
 if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "${target_binary_format}"))
@@ -20,8 +20,8 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 endif()
 
 
-set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++11")
+set(cstd_flags "-std=gnu99 -fno-exceptions")
+set(cxxstd_flags "-std=gnu++11 -fno-exceptions")
 
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
@@ -91,17 +91,19 @@ set(kernel_sources ${kernel_start_file}
 	pic_common.cpp
 	pit.cpp
 	printk.cpp
-	ps2.cpp
 	time.cpp
 	traps.hpp
 	traps.cpp
 	vga_console.cpp
 	
+	ps2/common.cpp
+	ps2/ps2_controller.cpp
+	ps2/ps2_line.cpp
 	keyboard.cpp
-	ps2_keyboard.hpp
-	ps2_keyboard.cpp
-	ps2_keyboard_sm.hpp
-	ps2_keyboard_sm.cpp
+	ps2/ps2_keyboard.hpp
+	ps2/ps2_keyboard.cpp
+	ps2/ps2_keyboard_sm.hpp
+	ps2/ps2_keyboard_sm.cpp
 	
 	buddy_allocator.hpp
 	buddy_allocator.cpp

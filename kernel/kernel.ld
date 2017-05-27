@@ -19,16 +19,34 @@ SECTIONS {
 		__ctors_end = .;
 	}
 
-	.data : {
-		*(.data)
+	.rodata : {
+		*(.rodata)
+		*(.rodata.*)
 	}
 
-	.bss :
-	{
+	.eh_frame : {
+		*(.eh_frame)
+		*(.eh_frame.*)
+	}
+
+	.data : {
+		*(.data)
+		*(.data*)
+	}
+
+	.bss : {
 		*(.bss)
+	}
+
+	.kernel_stack : {
 		__stack_begin = .;
 		*(.kernel_stack)
 		__stack_end = .;
+		}
+
+	.comment : {
+		*(.comment)
+		*(.comment.*)
 	}
 	__object_end = .;
 }
