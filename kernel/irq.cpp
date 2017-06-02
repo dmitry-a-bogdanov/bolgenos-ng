@@ -5,9 +5,9 @@
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/execinfo.hpp>
+#include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
-#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/algorithm.hpp>
@@ -114,7 +114,7 @@ void irq_dispatcher(irq::irq_t vector, void* frame) {
 		default_handler(vector);
 	}
 
-	pic::end_of_irq(vector);
+	devices::InterruptController::instance()->end_of_interrupt(vector);
 }
 
 
