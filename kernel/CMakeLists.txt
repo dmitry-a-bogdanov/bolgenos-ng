@@ -116,7 +116,7 @@ set(kernel_sources ${kernel_start_file}
 	page.cpp
 	slab.cpp
 	
-	abi/cxxabi.c
+	abi/cxxabi.cpp
 	backtrace.cpp
 	
 	lib/snprintf.cpp
