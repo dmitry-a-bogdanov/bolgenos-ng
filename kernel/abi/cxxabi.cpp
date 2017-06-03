@@ -61,28 +61,24 @@ void *__dso_handle = (void *)(0x0);
 
 void *operator new(size_t size)
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	return memory::kmalloc(size);
 }
 
 
 void *operator new[](size_t size)
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	return memory::kmalloc(size);
 }
 
 
 void operator delete(void *p) noexcept
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	memory::kfree(p);
 }
 
 
 void operator delete[](void *p) noexcept
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	memory::kfree(p);
 }
 

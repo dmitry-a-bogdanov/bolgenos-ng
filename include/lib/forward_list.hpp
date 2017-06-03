@@ -13,7 +13,7 @@ template<class T>
 struct fwd_list_node:
 	public basic_fwd_list_node
 {
-	T value_;
+	T value_{};
 	virtual ~fwd_list_node() {}
 };
 

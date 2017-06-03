@@ -11,7 +11,7 @@
 #include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/algorithm.hpp>
-#include <lib/list.hpp>
+#include <lib/forward_list.hpp>
 
 #include <m4/idt.hpp>
 
@@ -22,11 +22,11 @@ namespace {
 
 
 /// Array of lists of Interrupt Service Routines.
-lib::list<irq::irq_handler_t> irq_handlers[irq::NUMBER_OF_LINES];
+lib::forward_list<irq::irq_handler_t> irq_handlers[irq::NUMBER_OF_LINES];
 
 
 /// Array of lists of Exception Handlers.
-lib::list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
+lib::forward_list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
 
 
 table_pointer idt_pointer _irq_aligned_;
@@ -49,14 +49,16 @@ void irq::init() {
 
 
 void irq::request_irq(irq_t vector, irq_handler_t routine) {
-	if (!irq_handlers[vector].push_front(routine)) {
+	auto& handlers_list = irq_handlers[vector];
+	if (handlers_list.push_front(routine) == handlers_list.end()) {
 		panic("failed to register interrupt handler");
 	}
 }
 
 
 void irq::request_exception(exception_t exception, exception_handler_t routine) {
-	if (!exc_handlers[static_cast<int>(exception)].push_front(routine)) {
+	auto& handlers_list = exc_handlers[static_cast<int>(exception)];
+	if (handlers_list.push_front(routine) == handlers_list.end()) {
 		panic("failed to register exception handler");
 	}
 }
@@ -189,7 +191,7 @@ static_assert(sizeof(irq::registers_dump_t) == 8*4,
 	"Wrong size of registers' dump structure");
 
 
-static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 +4,
+static_assert(sizeof(irq::execution_info_dump_t) == 4 + 2 + 4,
 	"Wrong size of execution info structure");
 
 

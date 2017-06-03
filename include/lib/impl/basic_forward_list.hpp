@@ -93,7 +93,7 @@ struct basic_forward_list {
 
 
 private:
-	node_type before_begin_;
+	node_type before_begin_{};
 }; // class basic_forward_list
 
 
