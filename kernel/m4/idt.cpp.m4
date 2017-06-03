@@ -1,6 +1,5 @@
 #include <m4/idt.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/pic_common.hpp>
 
 namespace {
 

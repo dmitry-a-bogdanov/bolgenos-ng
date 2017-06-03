@@ -1,37 +1,12 @@
-#include <bolgenos-ng/pic_8259.hpp>
+#include "pic_8259.hpp"
 
 #include <bolgenos-ng/string.h>
-
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/error.h>
 
 
 namespace {
-
-
-struct pic_8259: public pic::pic_device {
-	pic_8259(): pic_device() {
-		pic_device::min_irq_vector = 0x20;
-	}
-
-
-	pic_8259(const pic_8259&) = delete;
-
-
-	pic_8259& operator =(const pic_8259&) = delete;
-
-
-	virtual ~pic_8259() {
-	}
-
-	virtual void setup();
-
-
-	virtual void end_of_interrupt(irq::irq_t vector);
-};
-
-
-pic_8259 driver_object;
 
 
 constexpr int COMMAND_OFFSET = 0;
@@ -60,10 +35,14 @@ enum command_type: uint8_t {
 } // namespace
 
 
-pic::pic_device &pic::chip_pic_8259 = driver_object;
+int devices::PIC8259::min_irq_vector() const
+{
+	return 0x20;
+}
 
 
-void pic_8259::end_of_interrupt(irq::irq_t vector) {
+void devices::PIC8259::end_of_interrupt(irq::irq_t vector)
+{
 	if (vector > 8 + 0x20) {
 		x86::outb(port_type::slave_comm,
 				command_type::end_of_interrupt);
@@ -73,7 +52,11 @@ void pic_8259::end_of_interrupt(irq::irq_t vector) {
 }
 
 
-void pic_8259::setup() {
+void devices::PIC8259::initialize_controller()
+{
+	if (_controller_initialized) {
+		panic("Attempt to initialize PIC8259 twice!");
+	}
 	int offset1 = 0x20;
 	int offset2 = 0x28;
 
@@ -90,5 +73,7 @@ void pic_8259::setup() {
 	x86::outb(port_type::slave_data, command_type::icw_4_8086);
 
 	x86::outb(port_type::master_data, 0x00);
+
+	_controller_initialized = true;
 }
 

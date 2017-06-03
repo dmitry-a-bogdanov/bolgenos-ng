@@ -3,9 +3,9 @@
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 #include <bolgenos-ng/time.hpp>
 
@@ -94,7 +94,7 @@ static irq::irq_return_t handle_pit_irq(irq::irq_t) {
 
 
 void pit::init() {
-	const irq::irq_t timer_irq = pic::min_pic_irq() + 0;
+	const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
 	freq_divider.set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
 	if (freq_divider.is_low_frequency())
