@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace bolgenos_testing {
+namespace lib {
 
 template<class T>
 class default_allocator

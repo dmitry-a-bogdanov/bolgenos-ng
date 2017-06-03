@@ -1,12 +1,8 @@
 #pragma once
 
-#include <gtest/gtest.h>
-
 #include <lib/type_traits.hpp>
 
-namespace bolgenos_testing {
-
-
+namespace lib {
 
 
 namespace _impl {

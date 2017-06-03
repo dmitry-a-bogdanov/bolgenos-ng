@@ -3,12 +3,10 @@
 #include "memory.hpp"
 #include "impl/basic_forward_list.hpp"
 
-namespace bolgenos_testing {
-
+namespace lib {
 
 
 namespace _impl {
-
 
 
 template<class T>
@@ -27,11 +25,11 @@ struct fwd_list_node:
 
 template<class T, class Alloc = default_allocator<T>>
 class forward_list:
-	private bolgenos_testing::_impl::basic_forward_list<
-		bolgenos_testing::_impl::fwd_list_node<T>>
+	private lib::_impl::basic_forward_list<
+		lib::_impl::fwd_list_node<T>>
 {
-	using node_type = bolgenos_testing::_impl::fwd_list_node<T>;
-	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
+	using node_type = lib::_impl::fwd_list_node<T>;
+	using base_list = lib::_impl::basic_forward_list<node_type>;
 public:
 	using value_type = T;
 	using allocator_type = Alloc;

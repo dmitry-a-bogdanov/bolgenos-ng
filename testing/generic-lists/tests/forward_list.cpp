@@ -1,4 +1,4 @@
-#include <forward_list.hpp>
+#include <lib/forward_list.hpp>
 
 #include <tuple>
 
@@ -7,7 +7,7 @@
 
 TEST(basic, add_and_remove_10)
 {
-	bolgenos_testing::forward_list<int> l;
+	lib::forward_list<int> l;
 	const auto& cref = l;
 
 	EXPECT_TRUE(l.empty());
@@ -116,7 +116,7 @@ TEST(basic, add_and_remove_10)
 
 TEST(basic, bounds_eqity)
 {
-	bolgenos_testing::forward_list<int> l;
+	lib::forward_list<int> l;
 	const auto& cref_l = l;
 
 	EXPECT_TRUE(l.empty());
@@ -147,7 +147,7 @@ TEST(basic, bounds_eqity)
 
 TEST(basic, deallocation)
 {
-	auto list = new bolgenos_testing::forward_list<double>();
+	auto list = new lib::forward_list<double>();
 
 	list->push_front(1.0);
 	list->push_front(2.0);
@@ -162,10 +162,10 @@ TEST(basic, deallocation)
 TEST(iterator_read, first_element)
 {
 	const int test_value = 10;
-	bolgenos_testing::forward_list<int> l;
+	lib::forward_list<int> l;
 	l.push_front(test_value);
 	EXPECT_EQ(test_value, *l.begin());
-	const bolgenos_testing::forward_list<int>& cref_l = l;
+	const lib::forward_list<int>& cref_l = l;
 	EXPECT_EQ(test_value, *cref_l.begin());
 
 	EXPECT_EQ(l.cbegin(), cref_l.cbegin());
@@ -175,7 +175,7 @@ TEST(iterator_read, first_element)
 
 TEST(iterator_read, sequental_access)
 {
-	using list_type = bolgenos_testing::forward_list<int>;
+	using list_type = lib::forward_list<int>;
 	list_type l;
 	const list_type& cref_l = l;
 
@@ -248,7 +248,7 @@ TEST(iterator_write, rewrite_first)
 {
 	const int first_value = 10;
 	const int second_value = 42;
-	bolgenos_testing::forward_list<int> l;
+	lib::forward_list<int> l;
 	l.push_front(first_value);
 
 	auto begin = l.begin();
@@ -270,7 +270,7 @@ TEST(iterator_write, rewrite_first)
 
 TEST(push_after, before_begin)
 {
-	bolgenos_testing::forward_list<unsigned int> l;
+	lib::forward_list<unsigned int> l;
 
 	const unsigned int test_value = 0xdeadbeef;
 
@@ -287,7 +287,7 @@ TEST(push_after, before_begin)
 
 TEST(erase_after, before_begin)
 {
-	bolgenos_testing::forward_list<int> l;
+	lib::forward_list<int> l;
 
 	const int first_value = 42;
 	const int second_value = 127;
@@ -309,7 +309,7 @@ TEST(erase_after, before_begin)
 
 TEST(push_after, middle)
 {
-	bolgenos_testing::forward_list<std::string> l;
+	lib::forward_list<std::string> l;
 
 	l.push_front("third");
 	EXPECT_FALSE(l.empty());
@@ -337,7 +337,7 @@ TEST(push_after, middle)
 
 TEST(erase_after, middle)
 {
-	bolgenos_testing::forward_list<std::string> l;
+	lib::forward_list<std::string> l;
 
 	l.push_front("first");
 	l.push_front("second");

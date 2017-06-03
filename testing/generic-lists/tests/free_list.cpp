@@ -1,17 +1,18 @@
-#include <free_list.hpp>
+#include <lib/free_list.hpp>
 
+#include <gtest/gtest.h>
 
 TEST(basic, push_and_pop_10)
 {
 	const int test_size = 10;
 	const size_t alloc_size = 16;
 
-	bolgenos_testing::free_list l;
+	lib::free_list l;
 
 	char* allocated[test_size];
 
-	ASSERT_GE(alloc_size, bolgenos_testing::free_list::min_size::value);
-	ASSERT_LE(sizeof(void *), bolgenos_testing::free_list::min_size::value);
+	ASSERT_GE(alloc_size, lib::free_list::min_size::value);
+	ASSERT_LE(sizeof(void *), lib::free_list::min_size::value);
 
 	for (int i = 0; i < test_size - 2; ++i) {
 		allocated[i] = new char[alloc_size];
@@ -30,7 +31,7 @@ TEST(basic, push_and_pop_10)
 
 	{
 		int i = 0;
-		for (bolgenos_testing::free_list::iterator iter = l.begin();
+		for (lib::free_list::iterator iter = l.begin();
 				iter != l.end(); ++iter) {
 			EXPECT_EQ(allocated[test_size - 1 - i], *iter);
 			++i;
@@ -41,7 +42,7 @@ TEST(basic, push_and_pop_10)
 
 	{
 		int i = 0;
-		for (bolgenos_testing::free_list::const_iterator iter
+		for (lib::free_list::const_iterator iter
 				= l.cbegin(); iter != l.cend(); ++iter) {
 			EXPECT_EQ(allocated[test_size - 1 - i], *iter);
 			++i;

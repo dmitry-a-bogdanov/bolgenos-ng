@@ -1,19 +1,21 @@
 #pragma once
 
+#include <bolgenos-ng/stdtypes.hpp>
+
 #include "impl/basic_forward_list.hpp"
 #include <lib/type_traits.hpp>
 
 
 
-namespace bolgenos_testing {
+namespace lib {
 
 
 class free_list:
-	private bolgenos_testing::_impl::basic_forward_list<
-		bolgenos_testing::_impl::basic_fwd_list_node>
+	private lib::_impl::basic_forward_list<
+		lib::_impl::basic_fwd_list_node>
 {
-	using node_type = bolgenos_testing::_impl::basic_fwd_list_node;
-	using base_list = bolgenos_testing::_impl::basic_forward_list<node_type>;
+	using node_type = lib::_impl::basic_fwd_list_node;
+	using base_list = lib::_impl::basic_forward_list<node_type>;
 public:
 	using min_size = lib::integral_constant<size_t, sizeof(node_type)>;
 	free_list() = default;
