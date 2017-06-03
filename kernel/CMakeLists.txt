@@ -87,14 +87,16 @@ set(kernel_sources ${kernel_start_file}
 	mmu.cpp
 	multiboot_header.c
 	multiboot_info.cpp
-	pic_8259.cpp
-	pic_common.cpp
 	pit.cpp
 	printk.cpp
 	time.cpp
 	traps.hpp
 	traps.cpp
 	vga_console.cpp
+	
+	devices/interrupt_controller/interrupt_controller.cpp
+	devices/interrupt_controller/pic_8259.hpp
+	devices/interrupt_controller/pic_8259.cpp
 	
 	ps2/common.cpp
 	ps2/ps2_controller.cpp
@@ -116,7 +118,7 @@ set(kernel_sources ${kernel_start_file}
 	page.cpp
 	slab.cpp
 	
-	abi/cxxabi.c
+	abi/cxxabi.cpp
 	backtrace.cpp
 	
 	lib/snprintf.cpp

@@ -17,7 +17,8 @@
 
 #include "config.h"
 
-void *operator new(size_t, void *address) {
+void *operator new(size_t, void *address)
+{
 	return address;
 }
 
@@ -130,8 +131,4 @@ void initilize_highmem_allocators() {
 }
 
 } // namespace
-
-void operator delete(void *) noexcept {
-	// empty declaration
-}
 

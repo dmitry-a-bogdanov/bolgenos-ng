@@ -2,7 +2,7 @@
 
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/pic_common.hpp>
+#include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/ps2_line.hpp>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.hpp>
@@ -55,14 +55,14 @@ void init_subsystems() {
 /// IRQ for the first PS/2 line.
 inline int FIRST_LINE_IRQ()
 {
-	return pic::min_pic_irq() + 1;
+	return devices::InterruptController::instance()->min_irq_vector() + 1;
 }
 
 
 /// IRQ for the second PS/2 line.
 inline int SECOND_LINE_IRQ()
 {
-	return pic::min_pic_irq() + 12;
+	return devices::InterruptController::instance()->min_irq_vector() + 12;
 }
 
 
