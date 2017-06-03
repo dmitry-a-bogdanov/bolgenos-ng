@@ -8,31 +8,6 @@
 #include <bolgenos-ng/stdtypes.hpp>
 
 
-namespace {
-
-
-/// Index of null segment.
-using null_segment_idx = lib::integral_constant<int, 0>;
-
-
-/// Null segment.
-using null_segment_ptr = lib::integral_constant<int,
-		null_segment_idx::value * mmu::struct_seg_size::value>;
-
-
-/// Index of kernel data segment.
-using kernel_ds_idx = lib::integral_constant<int, 2>;
-
-
-
-/// Kernel data segment.
-using KERNEL_DS = lib::integral_constant<int,
-		kernel_ds_idx::value * mmu::struct_seg_size::value>;
-
-} // namespace
-
-
-
 
 /// \brief Memory segment: system flag
 ///
@@ -171,8 +146,7 @@ private:
 	uint8_t				base_24_31_		 :8;
 };
 
-static_assert(sizeof(Segment) == mmu::struct_seg_size::value,
-		"Segment has wrong size");
+static_assert(sizeof(Segment) == mmu::SEGMENT_STRUCT_SIZE, "Segment has wrong size");
 
 
 /// \brief Global Descriptor Table.
@@ -181,7 +155,7 @@ static_assert(sizeof(Segment) == mmu::struct_seg_size::value,
 /// that it has zero overhead for filling it as structs, this initializers
 /// works during compile-time.
 Segment gdt[] _mmu_aligned_ = {
-	[null_segment_idx::value] = {
+	[mmu::NULL_SEGMENT_INDEX] = {
 			0x0,
 			0x0,
 			Segment::tag_type::st_null,
@@ -192,7 +166,7 @@ Segment gdt[] _mmu_aligned_ = {
 			seg_db_type::db_null,
 			seg_granularity_type::granularity_null
 	},
-	[mmu::kernel_cs_idx::value] = {
+	[mmu::KERNEL_CODE_SEGMENT_INDEX] = {
 			0x0,
 			0xfffff,
 			static_cast<Segment::tag_type>(
@@ -205,7 +179,7 @@ Segment gdt[] _mmu_aligned_ = {
 			seg_db_type::db32_bit,
 			seg_granularity_type::four_k_pages
 	},
-	[kernel_ds_idx::value] = {
+	[mmu::KERNEL_DATA_SEGMENT_INDEX] = {
 			0x0,
 			0xfffff,
 			static_cast<Segment::tag_type>(Segment::tag_type::data|Segment::tag_type::data_write),
@@ -234,12 +208,11 @@ static struct table_pointer gdtp _mmu_aligned_;
 static void reload_segments() {
 
 #define __kern_ds 16
-static_assert(__kern_ds == KERNEL_DS::value, "Wrong kernel data segment");
+static_assert(__kern_ds == mmu::KERNEL_DATA_SEGMENT_POINTER, "Wrong kernel data segment");
 
 
 #define __kern_cs 8
-static_assert(__kern_cs == mmu::kernel_cs_ptr::value,
-		"Wrong kernel code segment");
+static_assert(__kern_cs == mmu::KERNEL_CODE_SEGMENT_POINTER, "Wrong kernel code segment");
 
 
 	asm volatile(

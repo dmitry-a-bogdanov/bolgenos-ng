@@ -5,9 +5,9 @@
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/execinfo.hpp>
+#include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/mmu.hpp>
-#include <bolgenos-ng/pic_common.hpp>
 #include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/algorithm.hpp>
@@ -22,7 +22,7 @@ namespace {
 
 
 /// Array of lists of Interrupt Service Routines.
-lib::list<irq::irq_handler_t> irq_handlers[irq::lines_number::value];
+lib::list<irq::irq_handler_t> irq_handlers[irq::NUMBER_OF_LINES];
 
 
 /// Array of lists of Exception Handlers.
@@ -40,7 +40,7 @@ void irq_dispatcher(irq::irq_t vector, void* frame);
 
 void irq::init() {
 	idt_pointer.base = m4::get_idt(irq_dispatcher);
-	uint16_t idt_size = irq::lines_number::value*irq::gate_size::value - 1;
+	uint16_t idt_size = irq::NUMBER_OF_LINES*irq::GATE_SIZE - 1;
 	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));
 	irq::install_traps();
@@ -114,7 +114,7 @@ void irq_dispatcher(irq::irq_t vector, void* frame) {
 		default_handler(vector);
 	}
 
-	pic::end_of_irq(vector);
+	devices::InterruptController::instance()->end_of_interrupt(vector);
 }
 
 

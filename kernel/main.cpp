@@ -2,16 +2,15 @@
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
-#include <bolgenos-ng/pic_common.hpp>
-#include <bolgenos-ng/pic_8259.hpp>
 #include <bolgenos-ng/pit.hpp>
-#include <bolgenos-ng/ps2.hpp>
+#include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/vga_console.hpp>
@@ -19,6 +18,7 @@
 #include <lib/ostream.hpp>
 
 #include "config.h"
+
 
 /**
 * \brief Kernel main function.
@@ -45,8 +45,8 @@ extern "C" void kernel_main() {
 
 	irq::init();
 
-	pic::system_pic = &pic::chip_pic_8259;
-	pic::system_pic->setup();
+	auto interrupt_controller = devices::InterruptController::instance();
+	interrupt_controller->initialize_controller();
 
 	pit::init();
 
@@ -54,7 +54,7 @@ extern "C" void kernel_main() {
 
 	lib::cinfo << "CPU is initialized" << lib::endl;
 
-	ps2::init();
+	ps2::PS2Controller::instance()->initialize_controller();
 
 	ost::run();
 

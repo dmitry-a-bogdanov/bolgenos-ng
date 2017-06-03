@@ -270,7 +270,7 @@ void fill_field(lib::ostream& stream, size_t width, size_t already_have) {
 }
 
 
-using max_dec_length = lib::integral_constant<size_t, 20 + 1 /* sign */>;
+constexpr size_t MAX_DEC_LENGTH = 20 + 1 /* sign */;
 
 
 char to_printable(unsigned char digit) {
@@ -301,7 +301,7 @@ void show_numerical_value(lib::ostream& stream, T value) {
 		}
 	}
 
-	char buffer[max_dec_length::value];
+	char buffer[MAX_DEC_LENGTH];
 	size_t digits = 0;
 
 	while (unsigned_value) {

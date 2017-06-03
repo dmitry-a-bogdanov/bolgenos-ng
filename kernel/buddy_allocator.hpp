@@ -16,7 +16,7 @@ namespace config {
 namespace memory {
 
 
-using buddy_alloc_max_order = lib::integral_constant<size_t, 10>;
+constexpr size_t BUDDY_ALLOCATOR_MAX_ORDER = 10;
 
 
 } // namespace config::memory
@@ -135,7 +135,7 @@ public:
 
 private:
 	/// Max order of freelist in buddy system.
-	using max_order = config::memory::buddy_alloc_max_order;
+	static constexpr size_t MAX_ORDER = config::memory::BUDDY_ALLOCATOR_MAX_ORDER;
 
 	/// \brief Compute order of free list for page block.
 	///
@@ -147,7 +147,7 @@ private:
 	size_t compute_order(const pblk_t &blk);
 
 	/// Set of free list allocators.
-	FreeList free_list_[max_order::value + 1];
+	FreeList free_list_[MAX_ORDER + 1];
 
 
 	/// Region of memory that are covered by this buddy system.

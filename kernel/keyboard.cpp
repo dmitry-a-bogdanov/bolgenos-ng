@@ -1,24 +1,31 @@
 #include <bolgenos-ng/keyboard.h>
 
-#include <bolgenos-ng/vga_console.hpp>
 
-kb_key& operator++(kb_key &key) {
+namespace {
+
+
+using namespace ps2::keyboard;
+
+int __is_letter(ps2::keyboard::kb_key key) {
+	return (kb_key_a <= key && key <= kb_key_z);
+}
+
+int __is_digit(ps2::keyboard::kb_key key) {
+	return (kb_key_0 <= key && key <= kb_key_9);
+}
+
+
+} // namespace
+
+
+ps2::keyboard::kb_key& ps2::keyboard::operator++(kb_key &key) {
 	int num_val = static_cast<int>(key);
 	key = static_cast<kb_key>(++num_val);
 	return key;
 }
 
-char kb_keys_pressed[__kb_key_max] = { KEY_RELEASED };
 
-static int __is_letter(kb_key key) {
-	return (kb_key_a <= key && key <= kb_key_z);
-}
-
-static int __is_digit(kb_key key) {
-	return (kb_key_0 <= key && key <= kb_key_9);
-}
-
-static char printable_key(kb_key key) {
+char ps2::keyboard::to_printable_key(kb_key key) {
 	if (__is_letter(key)) {
 		return 'a' + (key - kb_key_a);
 	}
@@ -46,7 +53,7 @@ static char printable_key(kb_key key) {
 	}
 }
 
-static char kb_lshift(char sym) {
+char ps2::keyboard::apply_lshift(char sym) {
 	if ('a' <= sym && sym <= 'z') {
 		char offset = sym - 'a';
 		return 'A' + offset;
@@ -77,18 +84,3 @@ static char kb_lshift(char sym) {
 	}
 }
 
-void kb_print_to_vga() {
-	int lshift = (kb_keys_pressed[kb_key_lshift] == KEY_PRESSED);
-	for (kb_key key = __kb_key_none; key < __kb_key_max; ++key) {
-		if (kb_keys_pressed[key] == KEY_PRESSED) {
-			char symbol = printable_key(key);
-			if (symbol) {
-				if (lshift) {
-					symbol = kb_lshift(symbol);
-				}
-				vga_console::putc(symbol);
-				kb_keys_pressed[key] = KEY_RELEASED;
-			}
-		}
-	}
-}
