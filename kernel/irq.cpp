@@ -90,23 +90,6 @@ irq::IRQHandler::status_t irq::InterruptsManager::dispatch_interrupt(irq_t vecto
 }
 
 
-namespace {
-
-
-class DefaultIRQHandler: public irq::IRQHandler {
-public:
-	status_t handle_irq(irq::irq_t vector) override __attribute__((noreturn))
-	{
-		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
-		panic("Fatal interrupt");
-	}
-};
-
-
-
-} // namespace
-
-
 void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 {
 	irq::IRQHandler::status_t status;
@@ -119,8 +102,8 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 	}
 
 	if (status != irq::IRQHandler::status_t::HANDLED) {
-		static auto default_handler = new DefaultIRQHandler();
-		default_handler->handle_irq(vector);
+		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
+		panic("Fatal interrupt");
 	}
 
 	devices::InterruptController::instance()->end_of_interrupt(vector);
