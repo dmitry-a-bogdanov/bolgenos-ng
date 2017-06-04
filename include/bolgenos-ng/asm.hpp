@@ -1,8 +1,9 @@
 #pragma once
 
-#include <bolgenos-ng/compiler.h>
-
+#include "compiler.h"
 #include "stdtypes.hpp"
+
+#include <lib/type_traits.hpp>
 
 
 /// \brief Pointer to descriptor table.
@@ -110,12 +111,114 @@ static inline void write_msr(msr_t msr, uint32_t low, uint32_t high) {
 namespace x86 {
 
 
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
+{
+	asm volatile("movb %1, %b0\n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
+{
+	asm volatile("movw %1, %w0\n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
+{
+	asm volatile("movl %1, %k0\n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
+{
+	asm volatile("movb %b1, %0\n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
+{
+	asm volatile("movw %w1, %0\n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
+{
+	asm volatile("movl %k1, %0\n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddb %b0, %1"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddw %w0, %1"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddl %k0, %1"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
+
+
 // \brief Put CPU into halt state.
 //
 // Function puts CPU into halt state. In such state CPU does nothing until
 //	any kind of interrupt occurs.
 inline
-static void halt_cpu() {
+void halt_cpu() {
 	asm volatile("hlt");
 }
 
