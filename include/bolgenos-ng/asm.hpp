@@ -179,6 +179,42 @@ typename lib::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
+typename lib::enable_if<(sizeof(T) == 1)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgb %b1, %2"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgw %w1, %2"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgl %k1, %2"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
 typename lib::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T increment)
 {
 	asm volatile("lock; xaddb %b0, %1"

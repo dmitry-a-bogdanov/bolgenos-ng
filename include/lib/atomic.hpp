@@ -48,6 +48,13 @@ public:
 
 
 	inline
+	T exchange(T value)
+	{
+		x86::exchange<T>(_value, value);
+		return value;
+	}
+
+	inline
 	T fetch_add(T increment)
 	{
 		return x86::fetch_add<T>(_value, increment);

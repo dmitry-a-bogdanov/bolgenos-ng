@@ -76,6 +76,20 @@ TYPED_TEST_P(atomic_test, inc_dec_bounds)
 }
 
 
+TYPED_TEST_P(atomic_test, exchange)
+{
+	using Num = TypeParam;
+
+	const Num old_val{100};
+	const Num new_val{50};
+
+	lib::atomic<Num> a_v(old_val);
+
+	EXPECT_EQ(old_val, a_v.exchange(new_val));
+	EXPECT_EQ(new_val, a_v.load());
+}
+
+
 using atomic_test_types = ::testing::Types<
 	int8_t, uint8_t, char,
 	int16_t, uint16_t,
@@ -87,7 +101,8 @@ REGISTER_TYPED_TEST_CASE_P(atomic_test,
 	store_and_load,
 	increment,
 	decrement,
-	inc_dec_bounds);
+	inc_dec_bounds,
+	exchange);
 
 INSTANTIATE_TYPED_TEST_CASE_P(, atomic_test, atomic_test_types);
 
