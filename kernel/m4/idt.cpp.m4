@@ -1,5 +1,7 @@
 #include <m4/idt.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/mmu.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 
 namespace {
 

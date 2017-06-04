@@ -23,7 +23,7 @@ public:
 
 	/// Function that will be called when receiving IRQ from the device
 	/// which is managed by this driver.
-	virtual irq::irq_return_t handle_irq() = 0;
+	virtual irq::IRQHandler::status_t handle_irq() = 0;
 
 	virtual ~IPS2Device() {}
 };

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <lib/type_traits.hpp>
-
 #include "asm.hpp"
-#include "mmu.hpp"
-#include "mem_utils.hpp"
 #include "stdtypes.hpp"
+
+#include <lib/forward_list.hpp>
 
 
 namespace lib {
@@ -23,7 +21,7 @@ using irq_t = uint8_t;
 
 
 /// Processor exception type.
-enum class exception_t: irq_t {
+enum exception_t: irq_t {
 	divide_by_zero			= 0,
 	debug_exception			= 1,
 	breakpoint			= 3,
@@ -54,28 +52,32 @@ enum class exception_t: irq_t {
 using stack_ptr_t = void *;
 
 
-/// IRQ handling status.
-enum class irq_return_t {
-	/// IRQ was not handled by the routine.
-	none,
-	/// IRQ was handled by the routine.
-	handled,
+class IRQHandler {
+public:
+	enum class status_t {
+		NONE,
+		HANDLED,
+	};
+
+	virtual ~IRQHandler()
+	{
+	}
+
+
+	virtual status_t handle_irq(irq_t vector) = 0;
 };
 
 
-/// \brief IRQ handler function pointer type.
-///
-/// Type for holding IRQ handler routine. Function type accepts IRQ line as
-/// parameter and returns irq_return_t that tells was this IRQ handled by
-/// this function or not.
-using irq_handler_t = irq_return_t (*)(irq_t);
+class ExceptionHandler {
+public:
+	virtual ~ExceptionHandler()
+	{
+	}
+
+	virtual void handle_exception(stack_ptr_t frame) = 0;
+};
 
 
-/// \brief Type of exception handler function pointer.
-///
-/// Type for holding exception handler routine. Function accepts pointer
-/// to stack frame of exception.
-using exception_handler_t = void (*)(stack_ptr_t frame);
 
 /// \brief Last IRQ line.
 ///
@@ -95,6 +97,31 @@ constexpr size_t GATE_SIZE = 8;
 constexpr size_t NUMBER_OF_LINES = LAST_LINE + 1;
 
 
+
+class InterruptsManager {
+public:
+	void add_handler(irq_t vector, IRQHandler *handler);
+	void add_handler(exception_t exception, ExceptionHandler *handler);
+
+	static InterruptsManager *instance();
+protected:
+	InterruptsManager();
+
+	IRQHandler::status_t dispatch_interrupt(irq_t vector);
+	IRQHandler::status_t dispatch_exception(exception_t exception, stack_ptr_t frame_pointer);
+
+	static void handle_irq(irq_t vector, void *frame);
+	static bool is_exception(irq_t vector);
+private:
+	lib::forward_list<IRQHandler *> _irq_handlers[NUMBER_OF_LINES];
+	lib::forward_list<ExceptionHandler *> _exceptions_handlers[exception_t::max];
+	_irq_aligned_ table_pointer idt_pointer{};
+
+	static InterruptsManager *_instance;
+};
+
+
+
 /// \brief Enable interrupts.
 ///
 /// Enable interrupts by setting Interrupt Flag for CPU.
@@ -110,31 +137,6 @@ inline void enable() {
 inline void disable() {
 	asm volatile ("cli\n");
 }
-
-
-/// \brief Initialize IRQ subsystem.
-///
-/// Function registers generic Interrupt Service Routine and loads
-/// Interrupt Descriptor Table.
-void init();
-
-
-/// \brief Register interrupt handler function.
-///
-/// Register specified function to be called when given IRQ happens.
-///
-/// \param vector IRQ line that will use provided function.
-/// \param routine Function to be called when specified IRQ vector happens.
-void request_irq(irq_t vector, irq_handler_t routine);
-
-
-/// \brief Register exception handler function.
-///
-/// Register specified function to be called when given exception happens.
-///
-/// \param exception Exception number that will use provided function.
-/// \param handler Function to be called when specified exception happens.
-void request_exception(exception_t exception, exception_handler_t handler);
 
 
 /// \brief Registers dump on stack.

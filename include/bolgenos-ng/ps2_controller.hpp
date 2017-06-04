@@ -225,7 +225,7 @@ public:
 	/// The function transfers handling of interrupt to corresponding driver.
 	///
 	/// \param line PS/2 device that raised interrupt.
-	irq::irq_return_t ps2_irq_handler(ps2::line_t line);
+	irq::IRQHandler::status_t ps2_irq_handler(ps2::line_t line);
 
 	void register_driver(IPS2Device *dev);
 private:

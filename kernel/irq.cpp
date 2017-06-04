@@ -15,112 +15,119 @@
 
 #include <m4/idt.hpp>
 
-#include "traps.hpp"
+irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
-
-namespace {
-
-
-/// Array of lists of Interrupt Service Routines.
-lib::forward_list<irq::irq_handler_t> irq_handlers[irq::NUMBER_OF_LINES];
-
-
-/// Array of lists of Exception Handlers.
-lib::forward_list<irq::exception_handler_t> exc_handlers[static_cast<int>(irq::exception_t::max)];
-
-
-table_pointer idt_pointer _irq_aligned_;
-
-
-void irq_dispatcher(irq::irq_t vector, void* frame);
-
-
-} // namespace
-
-
-void irq::init() {
-	idt_pointer.base = m4::get_idt(irq_dispatcher);
+irq::InterruptsManager::InterruptsManager()
+{
+	idt_pointer.base = m4::get_idt(handle_irq);
 	uint16_t idt_size = irq::NUMBER_OF_LINES*irq::GATE_SIZE - 1;
 	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));
-	irq::install_traps();
+}
 
+irq::InterruptsManager *irq::InterruptsManager::instance()
+{
+	if (!_instance) {
+		_instance = new InterruptsManager{};
+	}
+	return _instance;
 }
 
 
-void irq::request_irq(irq_t vector, irq_handler_t routine) {
-	auto& handlers_list = irq_handlers[vector];
-	if (handlers_list.push_front(routine) == handlers_list.end()) {
+void irq::InterruptsManager::add_handler(irq_t vector, IRQHandler *handler)
+{
+	auto& handlers_list = _irq_handlers[vector];
+	if (handlers_list.push_front(handler) == handlers_list.end()) {
 		panic("failed to register interrupt handler");
 	}
 }
 
 
-void irq::request_exception(exception_t exception, exception_handler_t routine) {
-	auto& handlers_list = exc_handlers[static_cast<int>(exception)];
-	if (handlers_list.push_front(routine) == handlers_list.end()) {
+void irq::InterruptsManager::add_handler(exception_t exception, ExceptionHandler *handler)
+{
+	auto& handlers_list = _exceptions_handlers[exception];
+	if (handlers_list.push_front(handler) == handlers_list.end()) {
 		panic("failed to register exception handler");
 	}
+}
+
+
+bool irq::InterruptsManager::is_exception(irq::irq_t vector)
+{
+	return vector < exception_t::max;
+}
+
+
+irq::IRQHandler::status_t irq::InterruptsManager::dispatch_exception(exception_t exception,
+		stack_ptr_t frame_pointer)
+{
+	auto& handlers = _exceptions_handlers[exception];
+
+	if (handlers.empty()) {
+		return irq::IRQHandler::status_t::NONE;
+	}
+
+	lib::for_each(handlers.begin(), handlers.end(),
+		[frame_pointer](irq::ExceptionHandler *handler) -> void {
+			handler->handle_exception(frame_pointer);
+	});
+
+	return irq::IRQHandler::status_t::HANDLED;
+}
+
+
+irq::IRQHandler::status_t irq::InterruptsManager::dispatch_interrupt(irq_t vector)
+{
+	auto& handlers = _irq_handlers[vector];
+	auto used_handler = lib::find_if(handlers.begin(), handlers.end(),
+		[vector] (irq::IRQHandler* handler) -> bool {
+			return handler->handle_irq(vector) == irq::IRQHandler::status_t::HANDLED;
+	});
+	if (used_handler == handlers.end()) {
+		return irq::IRQHandler::status_t::NONE;
+	}
+	return irq::IRQHandler::status_t::HANDLED;
+
 }
 
 
 namespace {
 
 
-void default_handler(irq::irq_t vector) {
-	lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
-	panic("Fatal interrupt");
-}
-
-
-irq::irq_return_t exception_dispatcher(irq::irq_t exception,
-		irq::stack_ptr_t frame) {
-	auto& handlers = exc_handlers[exception];
-
-	if (handlers.empty()) {
-		return irq::irq_return_t::none;
+class DefaultIRQHandler: public irq::IRQHandler {
+public:
+	status_t handle_irq(irq::irq_t vector) override __attribute__((noreturn))
+	{
+		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
+		panic("Fatal interrupt");
 	}
-
-	lib::for_each(handlers.begin(), handlers.end(),
-		[frame](const irq::exception_handler_t& handler) -> void {
-			handler(frame);
-	});
-
-	return irq::irq_return_t::handled;
-}
+};
 
 
-irq::irq_return_t interrupts_dispatcher(irq::irq_t vector) {
-	auto& handlers = irq_handlers[vector];
-	auto used_handler = lib::find_if(handlers.begin(), handlers.end(),
-		[vector] (const irq::irq_handler_t &handler) -> bool {
-			return handler(vector) == irq::irq_return_t::handled;
-	});
-	if (used_handler == handlers.end()) {
-		return irq::irq_return_t::none;
-	}
-	return irq::irq_return_t::handled;
-}
+
+} // namespace
 
 
-void irq_dispatcher(irq::irq_t vector, void* frame) {
-	irq::irq_return_t status;
+void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
+{
+	irq::IRQHandler::status_t status;
 
-	if (vector < static_cast<irq::irq_t>(irq::exception_t::max)) {
-		status = exception_dispatcher(vector, frame);
+	auto manager = irq::InterruptsManager::instance();
+	if (is_exception(vector)) {
+		status = manager->dispatch_exception(static_cast<exception_t>(vector), frame);
 	} else {
-		status = interrupts_dispatcher(vector);
+		status = manager->dispatch_interrupt(vector);
 	}
 
-	if (status != irq::irq_return_t::handled) {
-		default_handler(vector);
+	if (status != irq::IRQHandler::status_t::HANDLED) {
+		static auto default_handler = new DefaultIRQHandler();
+		default_handler->handle_irq(vector);
 	}
 
 	devices::InterruptController::instance()->end_of_interrupt(vector);
 }
 
 
-} // namespace
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
