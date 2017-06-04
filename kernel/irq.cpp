@@ -113,7 +113,8 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
-		const irq::registers_dump_t& regs) {
+		const irq::registers_dump_t& regs)
+{
 	lib::scoped_format_guard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
@@ -136,7 +137,8 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
-		const irq::execution_info_dump_t& exe) {
+		const irq::execution_info_dump_t& exe)
+{
 	lib::scoped_format_guard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex
@@ -149,7 +151,8 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
-		const irq::int_frame_error_t& frame) {
+		const irq::int_frame_error_t& frame)
+{
 	lib::scoped_format_guard format_guard(out);
 
 	out	<< lib::hex
@@ -164,7 +167,8 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
-		const irq::int_frame_noerror_t& frame) {
+		const irq::int_frame_noerror_t& frame)
+{
 	lib::scoped_format_guard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex
