@@ -76,7 +76,26 @@ TYPED_TEST_P(atomic_test, inc_dec_bounds)
 }
 
 
-TYPED_TEST_P(atomic_test, exchange)
+TYPED_TEST_P(atomic_test, exchange_min_max)
+{
+	using Num = TypeParam;
+	using limits = std::numeric_limits<Num>;
+
+	const Num old_val{limits::max()};
+	const Num middle_val{limits::min()};
+	const Num new_val{limits::max()};
+
+	lib::atomic<Num> a_v(old_val);
+
+	EXPECT_EQ(old_val, a_v.load());
+	EXPECT_EQ(old_val, a_v.exchange(middle_val));
+	EXPECT_EQ(middle_val, a_v.load());
+	EXPECT_EQ(middle_val, a_v.exchange(new_val));
+	EXPECT_EQ(new_val, a_v.load());
+}
+
+
+TYPED_TEST_P(atomic_test, exchange_100_50)
 {
 	using Num = TypeParam;
 
@@ -85,6 +104,7 @@ TYPED_TEST_P(atomic_test, exchange)
 
 	lib::atomic<Num> a_v(old_val);
 
+	EXPECT_EQ(old_val, a_v.load());
 	EXPECT_EQ(old_val, a_v.exchange(new_val));
 	EXPECT_EQ(new_val, a_v.load());
 }
@@ -102,7 +122,8 @@ REGISTER_TYPED_TEST_CASE_P(atomic_test,
 	increment,
 	decrement,
 	inc_dec_bounds,
-	exchange);
+	exchange_100_50,
+	exchange_min_max);
 
 INSTANTIATE_TYPED_TEST_CASE_P(, atomic_test, atomic_test_types);
 
