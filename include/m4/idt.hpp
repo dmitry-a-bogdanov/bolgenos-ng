@@ -7,7 +7,7 @@ namespace m4 {
 
 
 /// Type of pointer to IRQ dispatcher function.
-using irq_dispatcher_func_t = void (*)(irq::irq_t vector,
+using irq_dispatcher_func_t =  __attribute__((regparm(0),cdecl))  void (*)(irq::irq_t vector,
 		irq::stack_ptr_t frame);
 
 

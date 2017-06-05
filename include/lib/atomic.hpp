@@ -54,6 +54,14 @@ public:
 		return value;
 	}
 
+
+	inline
+	bool compare_exchange(T expected, T desired)
+	{
+		return __sync_bool_compare_and_swap(&_value, expected, desired);
+	}
+
+
 	inline
 	T fetch_add(T increment)
 	{
@@ -67,36 +75,45 @@ public:
 		return fetch_add(-decrement);
 	}
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 	inline
 	T operator++()
 	{
+#pragma GCC diagnostic pop
+
 		T value = fetch_add(1);
 		++value;
 		return value;
 	}
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 	inline
 	T operator++(int)
 	{
+#pragma GCC diagnostic pop
 		T tmp = fetch_add(1);
 		return tmp;
 	}
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 	inline
 	T operator--()
 	{
+#pragma GCC diagnostic pop
 		T value = fetch_sub(1);
 		--value;
 		return value;
 	}
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 	inline
 	T operator--(int)
 	{
+#pragma GCC diagnostic pop
 		T tmp = fetch_sub(1);
 		return tmp;
 	}

@@ -110,7 +110,7 @@ protected:
 	IRQHandler::status_t dispatch_interrupt(irq_t vector);
 	IRQHandler::status_t dispatch_exception(exception_t exception, stack_ptr_t frame_pointer);
 
-	static void handle_irq(irq_t vector, void *frame);
+	__attribute__((regparm(0),cdecl)) static void handle_irq(irq_t vector, void *frame);
 	static bool is_exception(irq_t vector);
 private:
 	lib::forward_list<IRQHandler *> _irq_handlers[NUMBER_OF_LINES];

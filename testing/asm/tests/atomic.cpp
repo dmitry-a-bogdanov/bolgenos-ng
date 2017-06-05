@@ -1,3 +1,4 @@
+#include <iostream>
 #include <lib/atomic.hpp>
 
 #include <gtest/gtest.h>
@@ -110,6 +111,23 @@ TYPED_TEST_P(atomic_test, exchange_100_50)
 }
 
 
+
+TYPED_TEST_P(atomic_test, compare_exchange)
+{
+	using Num = TypeParam;
+	const Num initial_val{10};
+	const Num next_val{5};
+	const Num not_set_val{8};
+	lib::atomic<Num> atomic{initial_val};
+
+	EXPECT_EQ(initial_val, atomic.load());
+	EXPECT_TRUE(atomic.compare_exchange(initial_val, next_val));
+	EXPECT_EQ(next_val, atomic.load());
+	EXPECT_FALSE(atomic.compare_exchange(initial_val, not_set_val));
+	EXPECT_EQ(next_val, atomic.load());
+	EXPECT_NE(not_set_val, atomic.load());
+}
+
 using atomic_test_types = ::testing::Types<
 	int8_t, uint8_t, char,
 	int16_t, uint16_t,
@@ -123,7 +141,8 @@ REGISTER_TYPED_TEST_CASE_P(atomic_test,
 	decrement,
 	inc_dec_bounds,
 	exchange_100_50,
-	exchange_min_max);
+	exchange_min_max,
+	compare_exchange);
 
 INSTANTIATE_TYPED_TEST_CASE_P(, atomic_test, atomic_test_types);
 
