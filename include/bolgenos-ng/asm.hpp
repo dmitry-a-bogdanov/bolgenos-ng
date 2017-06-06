@@ -5,9 +5,10 @@
 #include "stdtypes.hpp"
 
 #include <lib/ostream.hpp>
-
+#include <lib/type_traits.hpp>
 
 namespace x86 {
+
 
 /// \brief Pointer to descriptor table.
 ///
@@ -63,7 +64,7 @@ struct __attribute__((packed)) registers_dump_t {
 * \param byte One-byte value to be written.
 */
 static inline void outb(uint16_t port, uint8_t byte) {
-	asm volatile ("outb %0, %1":: "a"(byte), "Nd"(port));
+	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(port));
 }
 
 
@@ -77,7 +78,7 @@ static inline void outb(uint16_t port, uint8_t byte) {
 */
 static inline uint8_t inb(uint16_t port) {
 	uint8_t byte;
-	asm volatile("inb %1, %0": "=a"(byte) : "Nd"(port));
+	asm volatile("inb %1, %0 \n": "=a"(byte) : "Nd"(port));
 	return byte;
 }
 
@@ -116,7 +117,7 @@ typedef enum {
 * \param high Address of highest bytes of output value.
 */
 static inline void read_msr(msr_t msr, uint32_t *low, uint32_t *high) {
-	asm volatile("rdmsr": "=a"(*low), "=d"(*high): "c"(msr));
+	asm volatile("rdmsr \n": "=a"(*low), "=d"(*high): "c"(msr));
 }
 
 
@@ -131,11 +132,149 @@ static inline void read_msr(msr_t msr, uint32_t *low, uint32_t *high) {
 * \param high Highest bytes of output value.
 */
 static inline void write_msr(msr_t msr, uint32_t low, uint32_t high) {
-	asm volatile("wrmsr":: "a"(low), "d"(high), "c"(msr));
+	asm volatile("wrmsr \n":: "a"(low), "d"(high), "c"(msr));
 }
 
 
 lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
+{
+	asm volatile("movb %1, %b0 \n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
+{
+	asm volatile("movw %1, %w0 \n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
+{
+	asm volatile("movl %1, %k0 \n"
+			: "=r"(to)
+			: "m"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
+{
+	asm volatile("movb %b1, %0 \n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
+{
+	asm volatile("movw %w1, %0 \n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
+{
+	asm volatile("movl %k1, %0 \n"
+			: "=m"(to)
+			: "r"(from)
+			: "memory");
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgb %b1, %2"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgw %w1, %2 \n"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4)>::type exchange(T& from, T& to)
+{
+	asm volatile("lock; xchgl %k1, %2 \n"
+			: "=a"(to)
+			: "m"(from), "ar"(to)
+			: "memory"
+	);
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddb %b0, %1 \n"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 2), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddw %w0, %1 \n"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
+
+
+template<typename T>
+inline
+typename lib::enable_if<(sizeof(T) == 4), T>::type fetch_add(T& variable, T increment)
+{
+	asm volatile("lock; xaddl %k0, %1 \n"
+		: "+r"(increment), "+m"(variable)
+		:
+		: "memory");
+	return increment;
+}
 
 
 // \brief Put CPU into halt state.
@@ -143,7 +282,7 @@ lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
 // Function puts CPU into halt state. In such state CPU does nothing until
 //	any kind of interrupt occurs.
 inline
-static void halt_cpu() {
+void halt_cpu() {
 	asm volatile("hlt");
 }
 
@@ -152,7 +291,7 @@ inline
 static uint32_t lzcnt(uint32_t value)
 {
 	uint32_t retval;
-	asm("lzcntl %1, %0": "=a"(retval) : "b"(value));
+	asm("lzcntl %1, %0 \n": "=a"(retval) : "b"(value));
 	return retval;
 };
 

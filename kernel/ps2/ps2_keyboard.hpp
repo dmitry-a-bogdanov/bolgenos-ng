@@ -26,7 +26,7 @@ public:
 	}
 
 	probe_ret_t probe(ps2::IPS2Line *line) override;
-	irq::irq_return_t handle_irq() override;
+	irq::IRQHandler::status_t handle_irq() override;
 	virtual ~PS2DefaultKeyboard() {};
 
 

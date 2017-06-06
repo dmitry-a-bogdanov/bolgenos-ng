@@ -71,41 +71,59 @@ enum pit_channel: uint8_t {
 };
 
 
-pit::details::FrequencyDivider freq_divider;
+class PitIRQHandler: public irq::IRQHandler {
+public:
+	PitIRQHandler() = delete;
+	PitIRQHandler(const PitIRQHandler&) = delete;
+	PitIRQHandler(PitIRQHandler&&) = delete;
+	PitIRQHandler& operator =(const PitIRQHandler&) = delete;
+	PitIRQHandler& operator =(PitIRQHandler&&) = delete;
 
 
-/// \brief Handle timer interrupt.
-///
-/// The function is a timer interrupt handler.
-static irq::irq_return_t handle_pit_irq(irq::irq_t) {
-	if (freq_divider.do_tick()) {
-#if VERBOSE_TIMER_INTERRUPT
-		lib::cout << "jiffy #" << time::jiffies << lib::endl;
-#endif
-		++time::jiffies;
+	explicit PitIRQHandler(pit::details::FrequencyDivider *divider)
+			:_divider(divider)
+	{
 	}
-	return irq::irq_return_t::handled;
-}
 
+	virtual ~PitIRQHandler()
+	{
+		delete _divider;
+		_divider = nullptr;
+	}
+
+	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
+	{
+		if (_divider->do_tick()) {
+#if VERBOSE_TIMER_INTERRUPT
+			lib::cout << "jiffy #" << time::jiffies << lib::endl;
+#endif
+			++time::jiffies;
+		}
+		return status_t::HANDLED;
+	}
+
+private:
+	pit::details::FrequencyDivider *_divider;
+};
 
 } // namespace
-
 
 
 
 void pit::init() {
 	const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-	freq_divider.set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
-	if (freq_divider.is_low_frequency())
+	auto freq_divider = new pit::details::FrequencyDivider();
+	freq_divider->set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
+	if (freq_divider->is_low_frequency())
 		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
-	irq::request_irq(timer_irq, handle_pit_irq);
+	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(freq_divider));
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
 	x86::outb(pit_port::cmd, cmd);
-	x86::outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
-	x86::outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
+	x86::outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 0, 0xff));
+	x86::outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 8, 0xff));
 }
 

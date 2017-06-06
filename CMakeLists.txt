@@ -21,6 +21,7 @@ if (${CMAKE_CROSSCOMPILING})
 else()
 	message(STATUS "CMake is being run NOT in crosscompiling mode. "
 		" Only testing project will be built.")
+	enable_testing()
 
 	# Testing project. It should not use toolchain of kernel.
 	add_subdirectory(testing)

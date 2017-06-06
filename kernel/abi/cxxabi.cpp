@@ -4,6 +4,7 @@
 #include <bolgenos-ng/memory.hpp>
 #include <lib/ostream.hpp>
 
+#include <lib/atomic.hpp>
 
 extern "C" {
 
@@ -36,21 +37,24 @@ int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso) {
 	return 0;
 }
 
-typedef char __guard;
+typedef lib::atomic<bool> __guard;
 
 int __cxa_guard_acquire (__guard *g)
 {
-	return !(*g);
+	if (g->compare_exchange(false, true)) {
+		return 1; // just to make sure that true is casted to 1
+	} else {
+		return 0;
+	}
 }
 
-void __cxa_guard_release (__guard *g)
+void __cxa_guard_release (__guard *g __attribute__((unused)))
 {
-	*g = 1;
 }
 
-void __cxa_guard_abort (__guard *g __attribute__((unused)))
+void __cxa_guard_abort (__guard *g)
 {
-
+	g->compare_exchange(true, false);
 }
 
 void *__dso_handle = (void *)(0x0);
@@ -61,28 +65,24 @@ void *__dso_handle = (void *)(0x0);
 
 void *operator new(size_t size)
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	return memory::kmalloc(size);
 }
 
 
 void *operator new[](size_t size)
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	return memory::kmalloc(size);
 }
 
 
 void operator delete(void *p) noexcept
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	memory::kfree(p);
 }
 
 
 void operator delete[](void *p) noexcept
 {
-	lib::cwarn << __PRETTY_FUNCTION__ << lib::endl;
 	memory::kfree(p);
 }
 

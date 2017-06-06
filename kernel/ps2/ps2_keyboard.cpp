@@ -67,10 +67,10 @@ ok:
 	return probe_ok;
 }
 
-irq::irq_return_t ps2::keyboard::PS2DefaultKeyboard::handle_irq() {
+irq::IRQHandler::status_t ps2::keyboard::PS2DefaultKeyboard::handle_irq() {
 	uint8_t byte = ps2::PS2Controller::instance()->receive_byte();
 	_sm.handle_byte(byte);
-	return irq::irq_return_t::handled;
+	return irq::IRQHandler::status_t::HANDLED;
 }
 
 

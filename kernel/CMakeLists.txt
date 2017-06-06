@@ -23,6 +23,8 @@ endif()
 set(cstd_flags "-std=gnu99 -fno-exceptions")
 set(cxxstd_flags "-std=gnu++11 -fno-exceptions")
 
+set(opt_flags "-O3")
+
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 
@@ -32,8 +34,8 @@ unset(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 unset(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 unset(CMAKE_EXE_LINKER_FLAGS)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${warn_flags} ${cstd_flags}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warn_flags} ${warn_flags_cxx} ${cxxstd_flags}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${warn_flags} ${cstd_flags} ${opt_flags}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warn_flags} ${warn_flags_cxx} ${cxxstd_flags} ${opt_flags}")
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
 
 message(STATUS "Toolchain information:")
