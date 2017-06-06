@@ -103,8 +103,7 @@ private:
 } // namespace
 
 
-void irq::install_traps() {
-	auto irq_manager = irq::InterruptsManager::instance();
+void irq::install_traps(irq::InterruptsManager *irq_manager) {
 	irq_manager->add_handler(irq::exception_t::divide_by_zero,
 			new PrintingNoErrcodeHandler("Division by zero"));
 	irq_manager->add_handler(irq::exception_t::debug_exception,

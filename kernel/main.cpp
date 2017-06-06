@@ -42,22 +42,16 @@ extern "C" void kernel_main() {
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
 
-
-
 	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< lib::endl;
 
+
 	// explicitly create instance
 	auto interrupt_manager = irq::InterruptsManager::instance();
-	irq::install_traps();
-	(void) interrupt_manager;
-
-
+	irq::install_traps(interrupt_manager);
 
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();
-
-
 
 	pit::init();
 

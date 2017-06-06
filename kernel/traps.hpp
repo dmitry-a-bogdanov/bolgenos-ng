@@ -3,11 +3,10 @@
 
 namespace irq {
 
+class InterruptsManager;
 
-/// \brief Install traps.
-///
-/// The function register default handlers for exceptions.
-void install_traps();
+/// The function registers default handlers for exceptions in specified InterruptManager.
+void install_traps(InterruptsManager *irq_manager);
 
 
 } // namespace irq
