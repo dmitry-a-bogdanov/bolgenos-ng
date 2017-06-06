@@ -1,5 +1,7 @@
 #include <m4/idt.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/mmu.hpp>
+#include <bolgenos-ng/mem_utils.hpp>
 
 namespace {
 
@@ -20,8 +22,7 @@ m4_define([____asm_definition], [extern "C" void ____asm($1)();
       "push %esp\n"
       "pushl $$1\n"
       "call ____disp\n"
-      "add $[]4, %esp\n"
-      "pop %esp\n"
+      "add $[]8, %esp\n"
       "popal\n"
       "iret\n"
   );
@@ -48,7 +49,7 @@ m4::irq_dispatcher_func_t registered_dispatcher = nullptr;
 
 
 /// C IRQ dispatcher. The function to be called from ASM handlers.
-extern "C" void ____disp(irq::irq_t vector, void* frame) {
+extern "C" void __attribute__((regparm(0), cdecl)) ____disp(irq::irq_t vector, void* frame) {
 	registered_dispatcher(vector, frame);
 }
 

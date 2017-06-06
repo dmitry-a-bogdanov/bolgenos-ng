@@ -15,10 +15,12 @@
 #include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <lib/atomic.hpp>
 #include <lib/ostream.hpp>
 
 #include "config.h"
 
+#include "traps.hpp"
 
 /**
 * \brief Kernel main function.
@@ -40,13 +42,22 @@ extern "C" void kernel_main() {
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
 
+
+
 	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< lib::endl;
 
-	irq::init();
+	// explicitly create instance
+	auto interrupt_manager = irq::InterruptsManager::instance();
+	irq::install_traps();
+	(void) interrupt_manager;
+
+
 
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();
+
+
 
 	pit::init();
 
@@ -60,6 +71,7 @@ extern "C" void kernel_main() {
 
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
+
 	do {
 		x86::halt_cpu();
 	} while(1);

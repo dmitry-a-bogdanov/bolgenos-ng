@@ -1,7 +1,8 @@
 #pragma once
 
+#include <bolgenos-ng/stdtypes.hpp>
 
-namespace testing {
+namespace lib {
 
 template<class T>
 class default_allocator
@@ -29,4 +30,4 @@ public:
 	}
 }; // class default_allocator
 
-} // namespace testing
+} // namespace bolgenos_testing

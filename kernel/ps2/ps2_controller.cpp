@@ -172,28 +172,27 @@ void ps2::PS2Controller::probe_devices() {
 }
 
 
-irq::irq_return_t ps2::PS2Controller::ps2_irq_handler(ps2::line_t line) {
+irq::IRQHandler::status_t ps2::PS2Controller::ps2_irq_handler(ps2::line_t line) {
 	if (ps2_active_devices_[line]) {
 		return ps2_active_devices_[line]->handle_irq();
 	}
-	return irq::irq_return_t::none;
+	return irq::IRQHandler::status_t::NONE;
 }
 
 
-/// \brief PS/2 IRQ handler.
-///
-/// The function handles IRQ from PS/2 devices with auto choosing PS/2 line.
-///
-/// \param vector number of interrupt
-irq::irq_return_t irq_handler(irq::irq_t vector) {
-	if (vector == FIRST_LINE_IRQ()) {
-		return ps2::PS2Controller::instance()->ps2_irq_handler(ps2::line_t::dev_1);
-	} else if (vector == SECOND_LINE_IRQ()) {
-		return ps2::PS2Controller::instance()->ps2_irq_handler(ps2::line_t::dev_2);
-	} else {
-		return irq::irq_return_t::none;
+class PS2IRQHandler: public irq::IRQHandler {
+public:
+	status_t handle_irq(irq::irq_t vector) override
+	{
+		if (vector == FIRST_LINE_IRQ()) {
+			return ps2::PS2Controller::instance()->ps2_irq_handler(ps2::line_t::dev_1);
+		} else if (vector == SECOND_LINE_IRQ()) {
+			return ps2::PS2Controller::instance()->ps2_irq_handler(ps2::line_t::dev_2);
+		} else {
+			return status_t::NONE;
+		}
 	}
-}
+};
 
 
 void ps2::PS2Controller::initialize_controller() {
@@ -242,8 +241,11 @@ void ps2::PS2Controller::initialize_controller() {
 		}
 	});
 
-	irq::request_irq(FIRST_LINE_IRQ(), irq_handler);
-	irq::request_irq(SECOND_LINE_IRQ(), irq_handler);
+
+	auto irq_handler = new PS2IRQHandler();
+	auto irq_manager = irq::InterruptsManager::instance();
+	irq_manager->add_handler(FIRST_LINE_IRQ(), irq_handler);
+	irq_manager->add_handler(SECOND_LINE_IRQ(), irq_handler);
 
 
 	for_each_line([](IPS2Line *line) { line->enable(); });
