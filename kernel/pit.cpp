@@ -1,12 +1,13 @@
 #include <bolgenos-ng/pit.hpp>
 
+#include <cstdint>
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 #include <bolgenos-ng/time.hpp>
 
 #include <lib/ostream.hpp>

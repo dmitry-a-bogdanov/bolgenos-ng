@@ -1,8 +1,9 @@
 #pragma once
 
-#include "memory_region.hpp"
-#include "stdtypes.hpp"
+#include <cstddef>
+#include <cstdint>
 
+#include "memory_region.hpp"
 
 /// Empty placement new.
 void *operator new(size_t size, void *address);

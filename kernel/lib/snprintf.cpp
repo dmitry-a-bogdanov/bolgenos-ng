@@ -1,6 +1,7 @@
 #include <bolgenos-ng/string.h>
 
 #include <stdarg.h> // from gcc!
+#include <cstdint>
 
 #include <bolgenos-ng/error.h>
 

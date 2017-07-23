@@ -1,0 +1,26 @@
+#pragma once
+
+#if 0
+
+namespace std {
+
+template<typename From, typename To>
+struct is_convertible;
+
+template<typename From, typename To, To* guard = declval(From *)>
+struct is_convertible: public true_type {};
+
+template<typename From, typename To>
+struct is_convertible: public false_type {};
+
+
+template<typename From, typename To>
+struct is_convertible;
+
+
+template<typename From, typename To>
+constexpr bool is_convertible_v = is_convertible<From, To>::value;
+
+} // namespace std
+
+#endif

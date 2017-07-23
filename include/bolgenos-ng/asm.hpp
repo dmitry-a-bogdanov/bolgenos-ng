@@ -1,7 +1,8 @@
 #pragma once
 
+#include <cstdint>
+
 #include "compiler.h"
-#include "stdtypes.hpp"
 
 #include <lib/type_traits.hpp>
 

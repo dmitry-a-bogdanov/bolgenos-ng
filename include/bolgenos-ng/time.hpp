@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stdtypes.hpp"
+#include <cstdint>
 
 /**
 * \brief Current ticks number.

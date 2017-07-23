@@ -1,0 +1,88 @@
+#pragma once
+
+#if 0
+#include "cstddef"
+
+namespace std {
+
+
+template<typename T>
+struct default_delete
+{
+public:
+	constexpr default_delete() = default;
+
+	template <typename U>
+	default_delete(const default_delete<U>&) {}
+
+	void operator()(T* ptr)
+	{
+		delete ptr;
+	}
+};
+
+template<typename T>
+struct default_delete<T[]>
+{
+public:
+	constexpr default_delete() = default;
+
+	template <typename U>
+	default_delete(const default_delete<U[]>&) {}
+
+	void operator()(T* ptr)
+	{
+		delete[] ptr;
+	}
+};
+
+template<typename T>
+class shared_ptr {};
+
+
+template<typename T>
+class weak_ptr {};
+
+
+template<typename T, typename Deleter>
+class unique_ptr
+{
+public:
+	using pointer = T;
+	using deleter_type = Deleter;
+
+	constexpr unique_ptr() noexcept = default;
+
+	constexpr unique_ptr(nullptr_t) noexcept
+		: _object{nullptr} {}
+
+	explicit unique_ptr(pointer p) noexcept
+		: _object{p} {}
+	unique_ptr(unique_ptr&& other) noexcept;
+
+	pointer get()
+	{
+		return _object;
+	}
+
+	deleter_type get_deleter()
+	{
+		return _deleter;
+	}
+
+	~unique_ptr()
+	{
+		if (_object)
+		{
+			get_deleter()(get());
+		}
+	}
+private:
+	pointer _object{ nullptr };
+	deleter_type _deleter;
+};
+
+
+} // namespace std
+
+#endif

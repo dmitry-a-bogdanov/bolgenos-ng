@@ -3,8 +3,11 @@
 
 #include <stdarg.h>
 
-#include <bolgenos-ng/stdtypes.hpp>
-
+#if defined(__cplusplus)
+#include <cstddef>
+#else
+#include <stddef.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

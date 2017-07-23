@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstddef>
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/page.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 
 
 #include <lib/ostream.hpp>

@@ -8,6 +8,16 @@ set(kernel_headers_dir "include/")
 include_directories(${kernel_headers_dir})
 file(GLOB_RECURSE kernel_headers include/*.h include/*.hpp)
 
+file(GLOB kernel_std_headers
+	include/cstddef
+	include/cstdint
+	include/memory
+	include/type_traits
+)
+
+set_source_files_properties(${kernel_std_headers} PROPERTIES LANGUAGE CXX)
+set(kernel_headers ${kernel_std_headers} ${kernel_headers})
+
 if (${CMAKE_CROSSCOMPILING})
 	message(STATUS "CMake is being run in crosscompiling mode. "
 		"Kernel targets will be built.")

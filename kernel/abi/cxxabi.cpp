@@ -80,6 +80,16 @@ void operator delete(void *p) noexcept
 	memory::kfree(p);
 }
 
+void operator delete(void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
+
+
+void operator delete[](void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
 
 void operator delete[](void *p) noexcept
 {

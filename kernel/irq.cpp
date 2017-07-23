@@ -6,7 +6,6 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/algorithm.hpp>
 #include <lib/forward_list.hpp>

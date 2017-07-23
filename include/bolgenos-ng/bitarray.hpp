@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+
 #include "memory.hpp"
-#include "stdtypes.hpp"
 
 
 /// \brief Utilities

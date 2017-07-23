@@ -1,7 +1,8 @@
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <cstdint>
+
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/algorithm.hpp>
 
