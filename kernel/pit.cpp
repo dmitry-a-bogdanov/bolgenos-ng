@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <memory>
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
@@ -81,16 +83,12 @@ public:
 	PitIRQHandler& operator =(PitIRQHandler&&) = delete;
 
 
-	explicit PitIRQHandler(pit::details::FrequencyDivider *divider)
-			:_divider(divider)
+	explicit PitIRQHandler(std::unique_ptr<pit::details::FrequencyDivider> divider)
+			:_divider(std::move(divider))
 	{
 	}
 
-	virtual ~PitIRQHandler()
-	{
-		delete _divider;
-		_divider = nullptr;
-	}
+	virtual ~PitIRQHandler() {}
 
 	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
 	{
@@ -104,7 +102,7 @@ public:
 	}
 
 private:
-	pit::details::FrequencyDivider *_divider;
+	std::unique_ptr<pit::details::FrequencyDivider> _divider;
 };
 
 } // namespace
@@ -114,17 +112,17 @@ private:
 void pit::init() {
 	const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-	auto freq_divider = new pit::details::FrequencyDivider();
+	auto freq_divider = std::make_unique<pit::details::FrequencyDivider>();
 	freq_divider->set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
 	if (freq_divider->is_low_frequency())
 		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
-
-	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(freq_divider));
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
 	outb(pit_port::cmd, cmd);
 	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 0, 0xff));
 	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 8, 0xff));
+
+	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(std::move(freq_divider)));
 }
 
