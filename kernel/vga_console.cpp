@@ -1,10 +1,10 @@
 #include <bolgenos-ng/vga_console.hpp>
 
+#include <algorithm>
 #include <cstdint>
 
 #include <bolgenos-ng/mem_utils.hpp>
 
-#include <lib/algorithm.hpp>
 
 namespace {
 
@@ -109,7 +109,7 @@ void vga_console::puts_color(const char* string, color_t fg,
 
 void vga_console::clear_screen() {
 	cell_t empty = cell_t(' ', global_fg, global_bg);
-	lib::fill_n(iomem, screen_height*screen_width, empty);
+	std::fill_n(iomem, screen_height*screen_width, empty);
 }
 
 
@@ -151,11 +151,11 @@ void line_break() {
 */
 void scroll() {
 	for (int i = 0; i < screen_height - 1; ++i) {
-		lib::copy_n(iomem + (i+1) * screen_width, screen_width,
+		std::copy_n(iomem + (i+1) * screen_width, screen_width,
 			iomem + i * screen_width);
 	}
 	cell_t empty = cell_t(' ', global_fg, global_bg);
-	lib::fill_n(iomem + (screen_height - 1) * screen_width, screen_width,
+	std::fill_n(iomem + (screen_height - 1) * screen_width, screen_width,
 		empty);
 }
 

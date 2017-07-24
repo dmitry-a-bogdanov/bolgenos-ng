@@ -1,11 +1,32 @@
 #pragma once
 
+#include <cstddef>
+
+#include "impl/type_traits/integral_constant.hpp"
+#include "impl/type_traits/is_signed.hpp"
+#include "impl/type_traits/is_unsigned.hpp"
+#include "impl/type_traits/enable_if.hpp"
+#include "impl/type_traits/make_signed.hpp"
+#include "impl/type_traits/make_unsigned.hpp"
+
 namespace std {
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// void_t
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<class...>
+using void_t = void;
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // add_const
 //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 struct add_const
 {
@@ -18,9 +39,11 @@ using add_const_t = typename add_const<T>::type;
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // add_lvalue_reference
 //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 struct add_lvalue_reference
 {
@@ -40,9 +63,11 @@ using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // add_rvalue_reference
 //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 struct add_rvalue_reference
 {
@@ -55,56 +80,12 @@ using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
 
 
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // remove_reference
 //
-template<bool Cond, class T, class F>
-struct conditional
-{
-	using type = T;
-};
-
-
-template<class T, class F>
-struct conditional<false, T, F>
-{
-	using type = F;
-};
-
-
-template<bool Cond, class T, class F>
-using conditinal_t = typename conditional<Cond, T, F>::type;
-
-
-/*
-
-//
-// is_constructible
-// FIXME: check correctness
-//
-namespace details {
-
-template<class, class T, class... Args>
-struct _is_constructible:
-	public false_type
-	{};
-
-template<class T, class... Args>
-struct _is_constructible<void_t<decltype(T(std::declval<Args>()...))>, T, Args...>
-	: public true_type
-	{};
-
-} // namespace details
-
-
-template <class T, class... Args>
-using is_constructible = details::_is_constructible<void_t<>, T, Args...>;
-
-*/
-
-//
-// remove_reference
-//
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 struct remove_reference
 {
@@ -130,34 +111,59 @@ template<class T>
 using remove_reference_t = typename remove_reference<T>::type;
 
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// void_t
+// declval
 //
-template<class...>
-using void_t = void;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+typename std::add_rvalue_reference<T>::type declval() noexcept;
 
 
 
-#if 0
-template<typename From, typename To>
-struct is_convertible;
-
-template<typename From, typename To, To* guard = declval(From *)>
-struct is_convertible: public true_type {};
-
-template<typename From, typename To>
-struct is_convertible: public false_type {};
-
-
-template<typename From, typename To>
-struct is_convertible;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// conditional
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<bool Cond, class T, class F>
+struct conditional
+{
+	using type = T;
+};
 
 
-template<typename From, typename To>
-constexpr bool is_convertible_v = is_convertible<From, To>::value;
+template<class T, class F>
+struct conditional<false, T, F>
+{
+	using type = F;
+};
 
-#endif
+
+template<bool Cond, class T, class F>
+using conditinal_t = typename conditional<Cond, T, F>::type;
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// is_same
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T1, class T2>
+struct is_same: public false_type {};
+
+
+template<class T>
+struct is_same<T, T>: public true_type {};
+
+
+template<class T1, class T2>
+constexpr bool is_same_v = is_same<T1, T2>::value;
 
 
 } // namespace std
+
+
 

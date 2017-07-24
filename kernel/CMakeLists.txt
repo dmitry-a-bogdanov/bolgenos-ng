@@ -138,6 +138,7 @@ set(kernel_sources ${kernel_start_file}
 	ost/bitarray.cpp
 	ost/memory.hpp
 	ost/memory.cpp
+	ost/type_traits.cpp
 	)
 
 set_source_files_properties(${m4_generated_files}

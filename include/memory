@@ -81,10 +81,9 @@ public:
 	unique_ptr& operator=(const unique_ptr&) = delete;
 
 
-	unique_ptr& operator=(unique_ptr&& other) noexcept
+	unique_ptr& operator=(unique_ptr&& other)
 	{
 		reset(other.release());
-		// FIXME: move if noexcept
 		_deleter = std::move(other.get_deleter());
 		return *this;
 	}

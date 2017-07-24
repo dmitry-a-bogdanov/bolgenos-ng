@@ -1,9 +1,7 @@
 #pragma once
 
-/// \brief Library namespace.
-///
-/// Namespace that combines STL-like functionality.
-namespace lib {
+
+namespace std {
 
 
 /// \brief Copy range of elements.
@@ -144,4 +142,4 @@ ForwardIterator find_if(ForwardIterator first, Sentinel last, Predicate pred)
 }
 
 
-} // namespace lib
+} // namespace std

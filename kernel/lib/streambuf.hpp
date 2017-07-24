@@ -2,8 +2,6 @@
 
 #include <cstddef>
 
-#include <lib/type_traits.hpp>
-
 
 namespace lib {
 

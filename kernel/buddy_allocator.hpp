@@ -1,10 +1,11 @@
 #pragma once
 
+#include <type_traits>
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
 
-#include <lib/type_traits.hpp>
+
 #include <lib/ostream.hpp>
 
 #include "free_list.hpp"
