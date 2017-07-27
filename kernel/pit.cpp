@@ -93,9 +93,10 @@ public:
 	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
 	{
 		if (_divider->do_tick()) {
-#if VERBOSE_TIMER_INTERRUPT
-			lib::cout << "jiffy #" << jiffies << lib::endl;
-#endif
+			if constexpr(VERBOSE_TIMER_INTERRUPT)
+			{
+				lib::cout << "jiffy #" << jiffies << lib::endl;
+			}
 			++jiffies;
 		}
 		return status_t::HANDLED;

@@ -20,14 +20,13 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 endif()
 
 
-set(cstd_flags "-std=gnu99 -fno-exceptions")
-set(cxxstd_flags "-std=gnu++14 -fno-exceptions")
+set(cstd_flags "-std=gnu99")
+set(cxxstd_flags "-std=c++17 -fno-exceptions")
 
 set(opt_flags "-O3")
 
 set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
-
 
 
 unset(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
@@ -155,6 +154,7 @@ message(STATUS "Build configuration: ${config_h}")
 
 
 message(STATUS "List of kernel source files: ${kernel_sources}")
+message("C = ${CMAKE_C_FLAGS}, CXX = ${CMAKE_CXX_FLAGS}")
 add_executable(${kernel_binary}
 	${kernel_headers}
 	${kernel_sources}
@@ -169,7 +169,7 @@ add_custom_target(__relink_kernel
 add_dependencies(${kernel_binary} __relink_kernel)
 
 set_target_properties(${kernel_binary} PROPERTIES
-	LINK_FLAGS "-T ${kernel_linker} -nostdlib")
+	LINK_FLAGS " -T ${kernel_linker} -nostdlib")
 
 add_custom_target(start_qemu
 	COMMENT "Starting kernel in Qemu..."

@@ -14,4 +14,8 @@ struct enable_if<true, T>
 };
 
 
+template<bool Cond, class T = void>
+using enable_if_t = typename enable_if<Cond, T>::type;
+
+
 } // namespace std

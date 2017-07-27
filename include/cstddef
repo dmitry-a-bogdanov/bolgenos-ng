@@ -4,9 +4,11 @@
 #error This is C++-only header
 #endif
 
+#include "impl/cstddef/byte.hpp"
+
 namespace std {
 
-#include "stddef.h" // libgcc header
+#include <stddef.h> // libgcc header
 
 using nullptr_t = decltype(nullptr);
 
@@ -15,6 +17,3 @@ using nullptr_t = decltype(nullptr);
 using std::nullptr_t;
 using std::ptrdiff_t;
 using std::size_t;
-
-
-

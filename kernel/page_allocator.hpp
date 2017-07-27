@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bolgenos-ng/bitarray.hpp>
+#include <bolgenos-ng/memory_region.hpp>
 
 
 namespace memory {
