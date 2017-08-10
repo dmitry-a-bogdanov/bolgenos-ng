@@ -1,0 +1,88 @@
+#pragma once
+
+#include <string>
+
+namespace std {
+
+
+template<class CharT, class Traits = std::char_traits<CharT>>
+class basic_streambuf
+{
+public:
+	using char_type = CharT;
+	using traits_type = Traits;
+	using int_type = typename traits_type::int_type;
+	using pos_type = typename traits_type::pos_type;
+	using off_type = typename traits_type::off_type;
+
+	virtual ~basic_streambuf() = default;
+
+
+	basic_streambuf* pubsetbuf(char_type *buff, std::streamsize size)
+	{
+		return this->setbuf(buff, size);
+	}
+
+
+	int_type sputc(char_type ch)
+	{
+		return traits_type::to_int_type(ch);
+	}
+
+
+	std::streamsize sputn(const char_type *s, std::streamsize count)
+	{
+		return this->xsputn(s, count);
+	}
+
+
+
+protected:
+	basic_streambuf() {}
+
+
+	basic_streambuf(const basic_streambuf& ) {}
+
+
+	basic_streambuf& operator=(const basic_streambuf& other);
+
+
+	void swap(basic_streambuf& other);
+
+
+	char_type* pbase() const;
+	char_type* pptr() const;
+	char_type* epptr() const;
+
+	char_type* eback() const;
+	char_type* gptr() const;
+	char_type* egptr() const;
+
+
+	virtual int_type overflow(int_type ch = traits_type::eof()) { return ch; }
+
+	virtual basic_streambuf* setbuf(char_type *, std::streamsize)
+	{
+		return this;
+	}
+
+	virtual std::streamsize xsputn(const char_type* s, std::streamsize count)
+	{
+		static_cast<void>(s);
+		return count;
+	}
+private:
+	char_type *_pbase{ nullptr };
+	char_type *_pptr{ nullptr };
+	char_type *_epptr{ nullptr };
+
+	char_type *_eback{ nullptr };
+	char_type *_gptr{ nullptr };
+	char_type *_epgtr{ nullptr };
+};
+
+
+using streambuf = basic_streambuf<char>;
+
+
+} // namespace std

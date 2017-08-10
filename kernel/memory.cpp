@@ -36,9 +36,9 @@ memory::page_frame_t * const highmem_start
 void detect_memory_regions();
 void initilize_highmem_allocators();
 
+bool is_initialized_flag { false };
+
 } // namespace
-
-
 
 
 
@@ -83,10 +83,21 @@ void memory::free_pages(void *address) {
 void memory::init() {
 	detect_memory_regions();
 	initilize_highmem_allocators();
+	is_initialized_flag = true;
+}
+
+
+bool memory::is_initialized()
+{
+    return is_initialized_flag;
 }
 
 
 void *memory::kmalloc(size_t bytes) {
+    if (!memory::is_initialized())
+    {
+        panic("Memory was not initialized yet!");
+    }
 	return highmem_mallocator.allocate(bytes);
 }
 

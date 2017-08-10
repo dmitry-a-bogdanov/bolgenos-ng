@@ -83,7 +83,7 @@ public:
 	PitIRQHandler& operator =(PitIRQHandler&&) = delete;
 
 
-	explicit PitIRQHandler(std::unique_ptr<pit::details::FrequencyDivider> divider)
+	explicit PitIRQHandler(pit::details::FrequencyDivider* divider)
 			:_divider(std::move(divider))
 	{
 	}
@@ -103,27 +103,54 @@ public:
 	}
 
 private:
-	std::unique_ptr<pit::details::FrequencyDivider> _divider;
+	pit::details::FrequencyDivider *_divider;
 };
+
+
+pit::details::FrequencyDivider freq_divider;
+auto empty_deleter = [](PitIRQHandler *) {};
+PitIRQHandler handler(&freq_divider);
+
+/*
+irq::IRQHandler::status_t handler_function(irq::irq_t vec)
+{
+    return handler.handle_irq(vec);
+}
+*/
+
+//irq::GenericExceptionHandler::function_type f(&handler_function);
+
+irq::GenericExceptionHandler gen_handler{};
 
 } // namespace
 
 
 
+
 void pit::init() {
-	const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
+    static bool initialized{ false };
+    if (!initialized)
+    {
+        const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-	auto freq_divider = std::make_unique<pit::details::FrequencyDivider>();
-	freq_divider->set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
-	if (freq_divider->is_low_frequency())
-		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
+        freq_divider.set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
+        if (freq_divider.is_low_frequency())
+            lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
-	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
+        uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
-	outb(pit_port::cmd, cmd);
-	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 0, 0xff));
-	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 8, 0xff));
+        outb(pit_port::cmd, cmd);
+        outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 0, 0xff));
+        outb(pit_port::timer, bitmask(freq_divider.pit_timeout(), 8, 0xff));
 
-	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(std::move(freq_divider)));
+        //irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(std::move(freq_divider)));
+//        irq::InterruptsManager::instance()->add_handler(timer_irq, &handler);
+        gen_handler.set_f([](auto vector)
+                {
+                    return handler.handle_irq(vector);
+                }
+        );
+        irq::InterruptsManager::instance()->add_handler(timer_irq, static_cast<irq::IRQHandler *>(&gen_handler));
+    }
 }
 

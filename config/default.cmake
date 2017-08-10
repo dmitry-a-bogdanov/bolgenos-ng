@@ -5,4 +5,4 @@ set(CONFIG__MULTITASKING		y)
 set(CONFIG__VERBOSE_TIMER_INTERRUPT	OFF)
 
 # For development needs
-set(CONFIG__HZ				1)
+set(CONFIG__HZ				1000)

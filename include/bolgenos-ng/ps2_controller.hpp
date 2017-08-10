@@ -120,7 +120,7 @@ public:
 				(line = get_line(static_cast<ps2::line_t>(line_id))) != nullptr;
 				++line_id)
 			f(line);
-	};
+	}
 
 
 	/// \brief Check that read from PS/2 is possible.

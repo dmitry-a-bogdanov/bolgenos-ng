@@ -123,7 +123,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 		case fmt_s_copy:
 			{
 				size_t print_chars = fmt_entry_length;
-				if ((size_t) print_chars >= size - 1) {
+				if (print_chars >= size - 1) {
 					print_chars = size - 1;
 					// one char is reserved for null byte
 				}
@@ -136,8 +136,8 @@ int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 		case fmt_s_string:
 			{
 				char *string = va_arg(arg, char *);
-				int print_chars = strlen(string);
-				if ((size_t) print_chars >= size - 1) {
+				size_t print_chars = strlen(string);
+				if (print_chars >= size - 1) {
 					print_chars = size - 1;
 				}
 				strncpy(str, string, print_chars);
@@ -191,7 +191,7 @@ static int __snprintf_int32(char *str, size_t size, int32_t value) {
 
 	uint32_t unsigned_value;
 	if (value < 0) {
-		unsigned_value = ((uint32_t) 0) - value;
+		unsigned_value = uint32_t{ 0 } - value;
 	} else {
 		unsigned_value = value;
 	}

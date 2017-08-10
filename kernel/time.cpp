@@ -20,7 +20,7 @@ void sleep_ms(uint32_t ms) {
 }
 
 
-#define MS_IN_SEC ((uint32_t) 1000)
+#define MS_IN_SEC (uint32_t{ 1000 })
 
 
 inline static uint32_t _low_part(uint32_t val) {

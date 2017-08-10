@@ -1,6 +1,6 @@
 #include "vga_buf.hpp"
 
-#include <bolgenos-ng/vga_console.hpp>
+#include <bolgenos-ng/io/vga/text_console.hpp>
 
 
 lib::_impl::vga_buf::vga_buf()
@@ -13,7 +13,7 @@ lib::_impl::vga_buf::~vga_buf() {
 
 
 int lib::_impl::vga_buf::overflow(int c) {
-	vga_console::putc(c);
+	bolgenos::io::vga::TextConsole::instance()->putc(c);
 	return c;
 }
 

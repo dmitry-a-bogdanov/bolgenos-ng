@@ -6,19 +6,19 @@
 /// \brief Start of kernel object.
 ///
 /// Pointer to start of memory where kernel ELF is loaded.
-_asm_linked_ char __object_begin[0];
+_asm_linked_ char __object_begin[];
 
 
 /// \brief End of kernel object.
 ///
 /// Pointer to end of memory where kernel ELF is loaded.
-_asm_linked_ char __object_end[0];
+_asm_linked_ char __object_end[];
 
 
-_asm_linked_ char __text_begin[0];
-_asm_linked_ char __text_end[0];
-_asm_linked_ char __stack_begin[0];
-_asm_linked_ char __stack_end[0];
+_asm_linked_ char __text_begin[];
+_asm_linked_ char __text_end[];
+_asm_linked_ char __stack_begin[];
+_asm_linked_ char __stack_end[];
 
 
 void* kobj::begin() {

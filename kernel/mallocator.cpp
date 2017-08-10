@@ -1,7 +1,8 @@
 #include "mallocator.hpp"
 
-#include <bolgenos-ng/error.h>
+#include <new>
 
+#include <bolgenos-ng/error.h>
 #include <lib/ostream.hpp>
 
 namespace {

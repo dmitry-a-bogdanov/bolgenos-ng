@@ -154,7 +154,7 @@ void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 	if (active_dev_count > 1) {
 		char info[100];
 		snprintf(info, 100, "more than 1 probed devices for "
-			"PS/2 line %li\n", (long) line);
+			"PS/2 line %li\n", line);
 		bug(info);
 	}
 
@@ -209,7 +209,7 @@ void ps2::PS2Controller::initialize_controller() {
 
 	controller->clean_buffer();
 
-	auto conf = Conf(controller->conf());
+	auto conf = controller->conf();
 
 	lib::cinfo << "PS/2: configuration byte = " << conf.get() << lib::endl;
 
@@ -268,7 +268,7 @@ void ps2::PS2Controller::initialize_controller() {
 	}
 
 	controller->conf(conf);
-};
+}
 
 
 

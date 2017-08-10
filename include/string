@@ -1,0 +1,17 @@
+#pragma once
+
+#include <cstddef>
+#include <ios>
+
+#include "impl/ios/char_traits.hpp"
+
+namespace std {
+
+
+template<typename CharT, typename Alloc>
+class basic_string
+{
+};
+
+
+}

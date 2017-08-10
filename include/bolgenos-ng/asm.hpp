@@ -265,6 +265,6 @@ static uint32_t lzcnt(uint32_t value)
 	uint32_t retval;
 	asm("lzcntl %1, %0 \n": "=a"(retval) : "b"(value));
 	return retval;
-};
+}
 
 } // namespace asm

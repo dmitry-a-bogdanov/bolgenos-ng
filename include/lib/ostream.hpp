@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-
+#include <ostream>
 
 namespace lib {
 
@@ -188,6 +188,11 @@ public:
 	/// \return *this
 	ostream& copyfmt(ostream& other);
 
+
+	streambuf* rdbuf() const
+	{
+		return streambuf_;
+	}
 
 private:
 	/// Pointer to underlying streambuf.

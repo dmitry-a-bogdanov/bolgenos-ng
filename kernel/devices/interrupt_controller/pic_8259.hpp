@@ -16,11 +16,11 @@ public:
 	virtual ~PIC8259() = default;
 
 
-	virtual int min_irq_vector() const;
+	virtual int min_irq_vector() const override;
 
-	virtual void initialize_controller();
+	virtual void initialize_controller() override;
 
-	virtual void end_of_interrupt(irq::irq_t vector);
+	virtual void end_of_interrupt(irq::irq_t vector) override;
 
 protected:
 	PIC8259()

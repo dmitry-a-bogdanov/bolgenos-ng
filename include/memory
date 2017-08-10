@@ -4,7 +4,8 @@
 #include "cstddef"
 #include "utility"
 
-namespace std {
+namespace std
+{
 
 
 template<typename T>
@@ -52,21 +53,32 @@ public:
 
 
 	constexpr unique_ptr(nullptr_t) noexcept
-		: _object{nullptr} {}
+		: _object{nullptr}
+	{
+	}
 
 
 	explicit unique_ptr(pointer p) noexcept
-		: _object{p} {}
+		: _object{p}
+	{
+	}
+
+
+	unique_ptr(pointer p, const deleter_type& d) noexcept
+	    : _object{p}, _deleter{d}
+	{
+	}
+
+
+	template<class OtherPointerType, class OtherDeleterType>
+	unique_ptr(unique_ptr<OtherPointerType, OtherDeleterType>&& other)
+	{
+        _object = other.release();
+        _deleter = other.get_deleter();
+	}
 
 
 	unique_ptr(const unique_ptr&) = delete;
-
-
-	unique_ptr(unique_ptr&& other) noexcept
-	{
-		swap(_object, other._object);
-		swap(_deleter, other._deleter);
-	}
 
 
 	~unique_ptr()
@@ -88,6 +100,14 @@ public:
 		return *this;
 	}
 
+
+	template<class OtherPointerType, class OtherPointerDeleter>
+	unique_ptr& operator =(unique_ptr<OtherPointerType, OtherPointerDeleter>&& other)
+	{
+	    reset(other.release());
+	    get_deleter() = std::move(other.get_deleter());
+	    return *this;
+	}
 
 	pointer get() const noexcept
 	{
@@ -138,11 +158,11 @@ private:
 
 
 template<class T, class... Args>
-unique_ptr<T> make_unique(Args&& ...args)
+unique_ptr<T> make_unique(Args&&... args)
 {
 	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
 
-} // namespace std
-
+}
+// namespace std

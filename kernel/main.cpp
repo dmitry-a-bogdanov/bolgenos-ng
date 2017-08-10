@@ -1,6 +1,8 @@
 #include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/error.h>
 
+#include <ostream>
+
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
@@ -13,7 +15,8 @@
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/time.hpp>
-#include <bolgenos-ng/vga_console.hpp>
+
+#include <bolgenos-ng/io/vga/text_console.hpp>
 
 #include <lib/atomic.hpp>
 #include <lib/ostream.hpp>
@@ -22,12 +25,9 @@
 
 #include "traps.hpp"
 
-/**
-* \brief Kernel main function.
-*
-* The main kernel function. The function performs full bootstrap of kernel
-*	and then goes to idle state.
-*/
+
+
+
 extern "C" void kernel_main() {
 	irq::disable();
 
@@ -37,7 +37,8 @@ extern "C" void kernel_main() {
 
 	lib::set_log_level(lib::log_level_type::notice);
 
-	vga_console::clear_screen();
+	bolgenos::io::vga::TextConsole::instance()->clear_screen();
+
 
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
@@ -69,8 +70,20 @@ extern "C" void kernel_main() {
 
 	ost::run();
 
+
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
+
+
+	auto display = bolgenos::io::vga::TextConsole::instance();
+
+	for (int i = 0; i < 80; ++i)
+	{
+		sleep_ms(30);
+		display->putc('1');
+	}
+
+
 
 	do {
 		x86::halt_cpu();

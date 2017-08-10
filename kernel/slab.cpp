@@ -1,5 +1,7 @@
 #include <bolgenos-ng/slab.hpp>
 
+#include <cstddef>
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/mem_utils.hpp>
@@ -50,11 +52,12 @@ memory::allocators::SlabAllocator::~SlabAllocator() {
 
 void *memory::allocators::SlabAllocator::allocate() {
 	void *free_mem = nullptr;
-	for (size_t chunk = 0; chunk != nelems_; ++chunk) {
-		if (is_free(chunk)) {
-			size_t offset = chunk * elem_size_;
-			free_mem = (void *) (((size_t) memory_) +
-				offset);
+	for (std::size_t chunk = 0; chunk != nelems_; ++chunk)
+	{
+		if (is_free(chunk))
+		{
+			std::size_t offset = chunk * elem_size_;
+			free_mem = reinterpret_cast<void *>(reinterpret_cast<std::uintptr_t>(memory_) + offset);
 			set_free(chunk, false);
 			return free_mem;
 		}
@@ -90,7 +93,9 @@ void memory::allocators::SlabAllocator::deallocate(void *addr) {
 				<< addr << lib::endl;
 		panic("Critical error");
 	}
-	size_t chunk = (((size_t) addr) - ((size_t) memory_)) / elem_size_;
+	auto uint_addr = reinterpret_cast<std::uintptr_t>(addr);
+	auto uint_mem = reinterpret_cast<std::uintptr_t>(memory_);
+	std::size_t chunk = (uint_addr - uint_mem) / elem_size_;
 	set_free(chunk, true);
 }
 

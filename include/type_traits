@@ -9,6 +9,7 @@
 #include "impl/type_traits/make_signed.hpp"
 #include "impl/type_traits/make_unsigned.hpp"
 #include "impl/type_traits/remove_cv.hpp"
+#include "impl/type_traits/underlying_type.hpp"
 
 namespace std {
 
@@ -145,6 +146,20 @@ struct conditional<false, T, F>
 
 template<bool Cond, class T, class F>
 using conditinal_t = typename conditional<Cond, T, F>::type;
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// is_lvalue_reference
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+struct is_lvalue_reference: std::false_type {};
+
+
+template<class T>
+struct is_lvalue_reference<T&>: std::true_type {};
 
 
 

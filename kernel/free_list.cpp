@@ -200,7 +200,7 @@ constexpr bool are_consequent(const memory::page_frame_t *first,
 
 constexpr bool is_the_first_in_buddy(const memory::page_frame_t *frame,
 		size_t order) {
-	return ! ((frame - reinterpret_cast<memory::page_frame_t *>(0))
+	return ! ((frame - static_cast<decltype(frame)>(nullptr))
 			& (1 << order));
 }
 

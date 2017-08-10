@@ -1,5 +1,8 @@
 #include "memory.hpp"
 
+#include <cstdint>
+
+#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/memory.hpp>
@@ -42,7 +45,7 @@ void ost::page_alloc_test() {
 	q[4] = memory::alloc_pages(2);
 
 	for (size_t i = 0; i != 5; ++i)
-		OST_ASSERT(p[i] == q[i], i, ": ", p[i], " vs ", q[i]);
+		OST_ASSERT(p[i] == q[i]) << "i = " << i << ": " << p[i] << " vs " << q[i];
 
 	cinfo << __func__ << ": OK" << endl;
 }
@@ -51,7 +54,7 @@ void ost::slab_test() {
 	cinfo << __func__ << ": starting" << endl;
 
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
-	OST_ASSERT(test_slab.is_initialized(), "slab initialization failure");
+	OST_ASSERT(test_slab.is_initialized());
 
 	long *p[5];
 	p[0] = static_cast<long *>(test_slab.allocate());
@@ -75,7 +78,7 @@ void free_list_test__small_order__even() {
 
 	auto *pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
-	OST_ASSERT(pages, "allocation failed");
+	OST_ASSERT(pages);
 
 	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages);
 	auto *second_address = first_address + 1;
@@ -83,7 +86,7 @@ void free_list_test__small_order__even() {
 
 	memory::allocators::FreeList fl;
 
-	OST_ASSERT(fl.initialize(0, false), "initialization failed");
+	OST_ASSERT(fl.initialize(0, false));
 
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == first_address);
@@ -102,14 +105,14 @@ void free_list_test__small_order__odd() {
 
 	auto *pages = static_cast<memory::page_frame_t *>(
 		memory::alloc_pages(128));
-	OST_ASSERT(pages, "allocation failed");
+	OST_ASSERT(pages);
 
 	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages) + 1;
 	auto *second_address = first_address + 1;
 	auto *third_address = second_address + 1;
 
 	memory::allocators::FreeList fl;
-	OST_ASSERT(fl.initialize(0), "initialization failed");
+	OST_ASSERT(fl.initialize(0));
 
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == nullptr);
@@ -127,22 +130,22 @@ void free_list_test__high_order__even() {
 
 	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
-	OST_ASSERT(pages, "allocation failed");
+	OST_ASSERT(pages);
 
 	auto first_address = memory::align_up<PAGE_SIZE*16>(pages);
 	auto *second_address = first_address + 8;
 	auto *third_address = second_address + 8;
 
 	memory::allocators::FreeList fl;
-	OST_ASSERT(fl.initialize(3, true), "initialization failed");
+	OST_ASSERT(fl.initialize(3, true));
 
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == nullptr);
 	OST_ASSERT(fl.put(third_address) == nullptr);
 
-	size_t got_addr = reinterpret_cast<size_t>(fl.get()) / PAGE_SIZE;
+	auto got_addr = reinterpret_cast<uintptr_t>(fl.get()) / PAGE_SIZE;
 	OST_ASSERT(got_addr
-		== reinterpret_cast<size_t>(first_address) / PAGE_SIZE);
+		== reinterpret_cast<std::uintptr_t>(first_address) / PAGE_SIZE);
 
 	cinfo << __func__ << ": ok" << endl;
 
@@ -156,14 +159,14 @@ void free_list_test__high_order__odd() {
 	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 
-	OST_ASSERT(pages, "allocation failed");
+	OST_ASSERT(pages);
 
 	auto *first_address = memory::align_up<PAGE_SIZE*16>(pages) + 8;
 	auto *second_address = first_address + 8;
 	auto *third_address = second_address + 8;
 
 	memory::allocators::FreeList fl;
-	OST_ASSERT(fl.initialize(3, true), "initialization failed");
+	OST_ASSERT(fl.initialize(3, true));
 
 	OST_ASSERT(fl.put(first_address) == nullptr);
 	OST_ASSERT(fl.put(second_address) == nullptr);
@@ -192,7 +195,7 @@ void ost::buddy_allocator_test() {
 	blk.ptr = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
-	OST_ASSERT(blk.ptr, "allocation failed");
+	OST_ASSERT(blk.ptr);
 
 	memory::MemoryRegion region;
 	region.begin(blk.ptr);
@@ -234,7 +237,7 @@ void ost::mallocator_test() {
 	for (size_t chunk_size = 7; chunk_size < PAGE_SIZE*3;
 			chunk_size += 8) {
 		auto mem = memory::kmalloc(chunk_size);
-		OST_ASSERT(mem, "chunk_size = ", chunk_size);
+		OST_ASSERT(mem) << "chunk_size = " << chunk_size;
 		memory::kfree(mem);
 	}
 }

@@ -5,11 +5,10 @@
 #include <type_traits>
 
 
-/// Empty placement new.
-void *operator new(size_t size, void *address);
-
-
 namespace memory {
+
+
+bool is_initialized();
 
 
 template<std::uintmax_t Boundary, typename T>

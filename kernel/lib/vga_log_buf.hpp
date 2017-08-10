@@ -20,7 +20,7 @@ public:
 	static log_level_type get_system_log_level();
 	static void set_system_log_level(log_level_type log_level);
 protected:
-	virtual int overflow(int c);
+	virtual int overflow(int c) override;
 private:
 	log_level_type log_level_;
 	const char *prefix_;

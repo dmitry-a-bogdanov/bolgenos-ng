@@ -1,6 +1,6 @@
 #include "vga_log_buf.hpp"
 
-#include <bolgenos-ng/vga_console.hpp>
+#include <bolgenos-ng/io/vga/text_console.hpp>
 
 lib::log_level_type
 lib::_impl::vga_log_buf::system_log_level = lib::log_level_type::info;
@@ -33,10 +33,10 @@ int lib::_impl::vga_log_buf::overflow(int c) {
 	if (log_level_ > system_log_level)
 		return c;
 	if (show_header_) {
-		vga_console::puts(prefix_);
+		bolgenos::io::vga::TextConsole::instance()->puts(prefix_);
 		show_header_ = false;
 	}
-	vga_console::putc(c);
+	bolgenos::io::vga::TextConsole::instance()->putc(c);
 	if (c == '\n') {
 		show_header_= true;
 	}

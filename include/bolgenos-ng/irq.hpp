@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <utility>
 
 #include "asm.hpp"
 
@@ -79,6 +81,30 @@ public:
 	virtual void handle_exception(stack_ptr_t frame) = 0;
 };
 
+
+class GenericExceptionHandler: public IRQHandler
+{
+public:
+    using function_type = std::function<IRQHandler::status_t (irq_t)>;
+    GenericExceptionHandler() = default;
+    GenericExceptionHandler(function_type f)
+        : IRQHandler(),
+          _routine(std::move(f))
+    {
+    }
+
+    void set_f(function_type f)
+    {
+        _routine = std::move(f);
+    }
+
+    virtual status_t handle_irq(irq_t vec) override
+    {
+        return _routine(vec);
+    }
+private:
+    function_type _routine{};
+};
 
 
 /// \brief Last IRQ line.

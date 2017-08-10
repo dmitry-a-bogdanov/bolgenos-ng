@@ -1,7 +1,6 @@
 #include "ps2_keyboard_sm.hpp"
 
 #include <bolgenos-ng/keyboard.h>
-#include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/ostream.hpp>
 
@@ -148,7 +147,7 @@ handle_status_t PrintState::handle_byte(uint8_t byte __attribute__((unused)))
 				if (lshift) {
 					symbol = apply_lshift(symbol);
 				}
-				vga_console::putc(symbol);
+				lib::cout << symbol;
 				device->key(key) = key_status_t::released;
 			}
 		}

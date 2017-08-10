@@ -18,4 +18,4 @@
 template<typename ValueType, typename OffsetType, typename MaskType>
 constexpr ValueType bitmask(ValueType value, OffsetType offset, MaskType mask) {
 	return (((value) >> (offset)) & (mask));
-};
+}

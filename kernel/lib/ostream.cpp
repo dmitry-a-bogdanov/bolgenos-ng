@@ -3,7 +3,6 @@
 #include <type_traits>
 
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/utility.hpp>
 

@@ -1,11 +1,13 @@
-project(kernel
-	LANGUAGES ASM-ATT C CXX)
+project(kernel LANGUAGES ASM-ATT C CXX)
+
 
 message(STATUS "Compiling BOLGENOS-NG using toolchain: "
 	"${CMAKE_TOOLCHAIN_FILE}")
 
+
 set(target_binary_format "Generic")
 set(target_processor "i686")
+
 
 if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "${target_binary_format}"))
 	message(FATAL_ERROR "BOLGENOS-NG can be compiled only in "
@@ -20,38 +22,25 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 endif()
 
 
-set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=c++17 -fno-exceptions")
-
-set(opt_flags "-O3")
-
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
-set(warn_flags_cxx "-Weffc++")
-
-
 unset(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 unset(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 unset(CMAKE_EXE_LINKER_FLAGS)
+unset(CMAKE_C_FLAGS)
+unset(CMAKE_CXX_FLAGS)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${warn_flags} ${cstd_flags} ${opt_flags}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warn_flags} ${warn_flags_cxx} ${cxxstd_flags} ${opt_flags}")
+
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
+
 
 message(STATUS "Toolchain information:")
 foreach(compiler CMAKE_C_COMPILER CMAKE_C_COMPILER CMAKE_ASM-ATT_COMPILER)
 	message(STATUS "${compiler} = ${${compiler}}")
 endforeach()
 
-message(STATUS "Compiler is configured. Adding targets..")
 
-set(kernel_binary "kernel.bin")
+set(kernel_binary_name "kernel")
 
-include_directories(${CONFIG_INCLUDE_DIRS})
-
-# Variable $kernel_start_file should keep source file that will be included
-# in kernel of any configuration and can be compiled very fast.
-# This file is used for forcing relinking of resulting object.
-set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
+set_property(SOURCE start.sx PROPERTY LANGUAGE "ASM-ATT")
 
 set(m4_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/m4")
 file(GLOB_RECURSE m4_input_files "${m4_input_dir}/*.cpp.m4")
@@ -72,106 +61,145 @@ foreach(m4_file ${m4_input_files})
 		WORKING_DIRECTORY "${m4_input_dir}"
 		DEPENDS "${m4_file}")
 endforeach(m4_file)
-
-set(kernel_sources ${kernel_start_file}
-	${config_h}
-	${ost_h}
-
-	${m4_generated_files}
-	error.cpp
-	frequency_divider.hpp
-	frequency_divider.cpp
-	irq.cpp
-	kernel_object.cpp
-	main.cpp
-	memory.cpp
-	mmu.cpp
-	multiboot_header.c
-	multiboot_info.cpp
-	pit.cpp
-	printk.cpp
-	time.cpp
-	traps.hpp
-	traps.cpp
-	vga_console.cpp
-	
-	devices/interrupt_controller/interrupt_controller.cpp
-	devices/interrupt_controller/pic_8259.hpp
-	devices/interrupt_controller/pic_8259.cpp
-	
-	ps2/common.cpp
-	ps2/ps2_controller.cpp
-	ps2/ps2_line.cpp
-	keyboard.cpp
-	ps2/ps2_keyboard.hpp
-	ps2/ps2_keyboard.cpp
-	ps2/ps2_keyboard_sm.hpp
-	ps2/ps2_keyboard_sm.cpp
-	
-	buddy_allocator.hpp
-	buddy_allocator.cpp
-	free_list.hpp
-	free_list.cpp
-	mallocator.hpp
-	mallocator.cpp
-	page_allocator.hpp
-	page_allocator.cpp
-	page.cpp
-	slab.cpp
-	
-	abi/cxxabi.cpp
-	backtrace.cpp
-	
-	lib/snprintf.cpp
-	lib/streambuf.hpp
-	lib/streambuf.cpp
-	lib/string.cpp
-	lib/ostream.cpp
-	lib/vga_buf.hpp
-	lib/vga_buf.cpp
-	lib/vga_log_buf.hpp
-	lib/vga_log_buf.cpp
-	
-	ost/ost.cpp
-	ost/bitarray.hpp
-	ost/bitarray.cpp
-	ost/memory.hpp
-	ost/memory.cpp
-	ost/type_traits.cpp
-	)
-
 set_source_files_properties(${m4_generated_files}
 	PROPERTIES GENERATED TRUE)
 
-set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
-set_source_files_properties(${kernel_start_file} PROPERTIES
-	LANGUAGE "ASM-ATT")
+file(GLOB_RECURSE bolgenos_HEADERS ${kernel_headers_dir}/*)
+source_group("include" FILES ${bolgenos_HEADERS})
+
+
+file(GLOB_RECURSE libkernelcxx_SOURCES libkernelcxx/*)
+source_group("libkernelcxx" FILES ${libkernelcxx_SOURCES})
+
+
+file(GLOB_RECURSE ps2_SOURCES ps2/*)
+source_group("ps2" FILES ${ps2_SOURCES})
+
+
+file(GLOB_RECURSE lib_SOURCES lib/*)
+source_group("lib" FILES ${lib_SOURCES})
+
+
+file(GLOB_RECURSE ost_SOURCES ost/*)
+source_group("ost" FILES ${ost_SOURCES})
+
+
+file(GLOB_RECURSE abi_SOURCES abi/*)
+source_group("abi" FILES ${abi_SOURCES})
+
+
+file(GLOB devices_SOURCES devices/*)
+source_group("devices" FILES ${devices_SOURCES})
+
+
+file(GLOB_RECURSE dev_pic_SOURCES devices/interrupt_controller/*)
+source_group("devices/PICs" FILES ${dev_pic_SOURCES})
+
+file(GLOB_RECURSE dev_vga_SOURCES devices/vga/*)
+source_group("devices/vga" FILES ${dev_vga_SOURCES})
+
+
+file(GLOB kernel_SOURCES *)
+source_group("kernel" FILES ${kernel_SOURCES})
+
+
+set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
 
 message(STATUS "Build configuration: ${config_h}")
 
 
+add_executable(${kernel_binary_name}
+	${config_h}
+	${ost_h}
 
-message(STATUS "List of kernel source files: ${kernel_sources}")
-message("C = ${CMAKE_C_FLAGS}, CXX = ${CMAKE_CXX_FLAGS}")
-add_executable(${kernel_binary}
-	${kernel_headers}
-	${kernel_sources}
+	${m4_generated_files}
+
+	${lib_SOURCES}
+	${libkernelcxx_SOURCES}
+	${ps2_SOURCES}
+	${ost_SOURCES}
+	${abi_SOURCES}
+	${devices_SOURCES}
+	${dev_pic_SOURCES}
+	${dev_vga_SOURCES}
+	${kernel_SOURCES}
 )
 
-# custom target is always out-of-date
-add_custom_target(__relink_kernel
-	COMMAND touch ${kernel_start_file}
-	DEPENDS ${kernel_linker}
-	COMMENT "Forcing kernel relinking..")
+# Compiler-independent configuration
 
-add_dependencies(${kernel_binary} __relink_kernel)
+# CMake 3.5.0 does not support CXX_STANDARD 17
+set_property(TARGET ${kernel_binary_name} PROPERTY C_STANDARD 99)
+set_property(TARGET ${kernel_binary_name} PROPERTY C_STANDARD_REQUIRED TRUE)
+set_property(TARGET ${kernel_binary_name} PROPERTY C_EXTENSIONS FALSE)
+target_include_directories(${kernel_binary_name} PUBLIC ${CONFIG_INCLUDE_DIRS})
 
-set_target_properties(${kernel_binary} PROPERTIES
-	LINK_FLAGS " -T ${kernel_linker} -nostdlib")
+
+# Compiler-dependent configuration
+
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+	# common options
+	target_compile_options(${kernel_binary_name} PUBLIC
+		-ffreestanding
+		-nostdlib
+		-m32 -march=i686
+	)
+
+	target_compile_options(${kernel_binary_name} PUBLIC
+		-Wall
+		-Werror
+		-Winline
+		-Wextra
+		-Wmissing-include-dirs
+		-Wnull-dereference
+		-Wstrict-aliasing
+		-Wpedantic
+		-Wcast-qual
+		-Wcast-align
+		-Wwrite-strings
+		-Wlogical-op
+		-Wlogical-not-parentheses
+		-Wno-aggressive-loop-optimizations
+		-Winline
+		-Wdisabled-optimization
+		-pedantic
+		-pedantic-errors
+	)
+
+	# CXX options
+	set_property(TARGET ${kernel_binary_name} APPEND PROPERTY CXX_COMPILE_OPTIONS
+		-std=c++17
+		-Weffc++
+		-Wold-style-cast
+		-Wsuggest-final-methods
+		-Wsuggest-override
+		-Wplacement-new=2
+		-Wzero-as-null-pointer-constant
+		-Wuseless-cast
+		-fno-exceptions
+		-fno-rtti
+	)
+
+	target_compile_options(${kernel_binary_name} PUBLIC
+		$<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:${kernel_binary_name},CXX_COMPILE_OPTIONS>>)
+
+	# C options
+
+	# Link flags
+	set_target_properties(${kernel_binary_name} PROPERTIES
+		LINK_FLAGS " -T ${kernel_linker} -nostdlib")
+	set_property(TARGET ${kernel_binary_name} APPEND PROPERTY LINK_DEPENDS ${kernel_linker})
+else (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+	message(ERROR "Only GNU compilers are currently supported")
+endif (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+
+
+
+
+
 
 add_custom_target(start_qemu
 	COMMENT "Starting kernel in Qemu..."
-	COMMAND qemu-system-i386 -kernel ${kernel_binary})
-add_dependencies(start_qemu ${kernel_binary})
+	COMMAND qemu-system-i386 -kernel ${kernel_binary_name})
+add_dependencies(start_qemu ${kernel_binary_name})
