@@ -29,4 +29,8 @@ template<>
 struct is_unsigned<unsigned char>: true_type {};
 
 
+template<class T>
+inline constexpr bool is_unsigned_v = is_unsigned<T>::value;
+
+
 } // namespace std

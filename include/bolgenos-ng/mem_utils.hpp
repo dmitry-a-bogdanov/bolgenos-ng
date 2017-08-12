@@ -1,21 +1,18 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 
 
-/// \brief Helper for applying bit masks.
-///
-/// Macro returns value that is calculated from given value that is shifted
-/// right to given offset bytes and OR-ed with given mask.
-///
-/// \tparam ValueType type of value for function.
-/// \tparam OffsetType type of offset of function.
-/// \tparam MaskType type of mask for function.
-/// \param value Value to be transformed by bit mask.
-/// \param offset Offset for right-shifting of value.
-/// \param mask Bitmask that is to be applied to shifted value.
-/// \return shifted value with applied mask casted to ValueType.
-template<typename ValueType, typename OffsetType, typename MaskType>
-constexpr ValueType bitmask(ValueType value, OffsetType offset, MaskType mask) {
-	return (((value) >> (offset)) & (mask));
+template<typename ValueType, typename MaskType>
+constexpr std::remove_reference_t<ValueType>
+bitmask(const ValueType value,
+		std::size_t offset,
+		const MaskType mask)
+{
+	using value_type = std::remove_reference_t<ValueType>;
+	using mask_type = std::remove_reference_t<MaskType>;
+	static_assert(std::is_unsigned_v<value_type>, "ValueType must be unsigned");
+	static_assert(std::is_unsigned_v<mask_type>, "MaskType must be unsigned");
+	return (value >> offset) & value_type{ mask };
 }

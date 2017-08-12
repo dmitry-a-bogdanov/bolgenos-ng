@@ -42,27 +42,18 @@ set(kernel_binary_name "kernel")
 
 set_property(SOURCE start.sx PROPERTY LANGUAGE "ASM-ATT")
 
-set(m4_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/m4")
-file(GLOB_RECURSE m4_input_files "${m4_input_dir}/*.cpp.m4")
+file(GLOB_RECURSE m4_input_files "m4/*")
+source_group("M4 templates" FILES ${m4_input_files})
 
-set(m4_output_dir "${CMAKE_CURRENT_BINARY_DIR}/m4_generated")
-file(MAKE_DIRECTORY ${m4_output_dir})
-
-
-foreach(m4_file ${m4_input_files})
-	get_filename_component(in_basename ${m4_file} NAME)
-	string(REGEX REPLACE ".m4" "" out_basename ${in_basename})
-	set(out_file "${m4_output_dir}/${out_basename}")
-	set(m4_generated_files "${out_file}" ${m4_generated_file})
-	message(STATUS "Found m4-generated file \"${out_file}\"")
-	add_custom_command(OUTPUT "${out_file}"
-		COMMAND m4 -P "${m4_file}" > "${out_file}"
-		COMMENT m4 -P "${m4_file}" > "${out_file}"
-		WORKING_DIRECTORY "${m4_input_dir}"
-		DEPENDS "${m4_file}")
-endforeach(m4_file)
-set_source_files_properties(${m4_generated_files}
-	PROPERTIES GENERATED TRUE)
+set(m4_idt "${CMAKE_CURRENT_SOURCE_DIR}/m4/idt.cpp.m4")
+set(idt "${CMAKE_CURRENT_BINARY_DIR}/idt.cpp")
+add_custom_command(OUTPUT idt.cpp
+	COMMAND m4 -P ${m4_idt} > ${idt}
+	MAIN_DEPENDENCY ${m4_idt}
+	DEPENDS m4/utils.m4
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/m4
+)
+set_source_files_properties(idt.cpp PROPERTIES GENERATED TRUE)
 
 
 file(GLOB_RECURSE bolgenos_HEADERS ${kernel_headers_dir}/*)
@@ -71,6 +62,9 @@ source_group("include" FILES ${bolgenos_HEADERS})
 
 file(GLOB_RECURSE libkernelcxx_SOURCES libkernelcxx/*)
 source_group("libkernelcxx" FILES ${libkernelcxx_SOURCES})
+
+file(GLOB_RECURSE alloc_SOURCES alloc/*)
+source_group("Allocators" FILES ${alloc_SOURCES})
 
 
 file(GLOB_RECURSE ps2_SOURCES ps2/*)
@@ -115,7 +109,9 @@ add_executable(${kernel_binary_name}
 	${ost_h}
 
 	${m4_generated_files}
+	${idt}
 
+	${alloc_SOURCES}
 	${lib_SOURCES}
 	${libkernelcxx_SOURCES}
 	${ps2_SOURCES}
@@ -193,9 +189,6 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
 else (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
 	message(ERROR "Only GNU compilers are currently supported")
 endif (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
-
-
-
 
 
 

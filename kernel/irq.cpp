@@ -16,9 +16,31 @@
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
+
+namespace
+{
+
+bolgenos::irq::dispatcher_function_t *dispatcher;
+
+}
+
+
+void bolgenos::irq::set_dispatcher(dispatcher_function_t *f)
+{
+	dispatcher = f;
+}
+
+
+bolgenos::irq::dispatcher_function_t* bolgenos::irq::get_dispatcher()
+{
+	return dispatcher;
+}
+
+
 irq::InterruptsManager::InterruptsManager()
 {
-	idt_pointer.base = m4::get_idt(handle_irq);
+	bolgenos::irq::set_dispatcher(handle_irq);
+	idt_pointer.base = bolgenos::irq::idt;
 	uint16_t idt_size = irq::NUMBER_OF_LINES*irq::GATE_SIZE - 1;
 	idt_pointer.limit = idt_size;
 	asm volatile("lidt %0"::"m" (idt_pointer));

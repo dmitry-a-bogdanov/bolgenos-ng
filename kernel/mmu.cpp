@@ -113,19 +113,19 @@ public:
 			seg_db_type db,
 			seg_granularity_type granularity)
 			:
-			limit_00_15_(bitmask(limit, 0, 0xffff)),
-			base_00_15_(bitmask(base, 0, 0xffff)),
-			base_16_23_(bitmask(base, 16, 0xff)),
+			limit_00_15_(bitmask(limit, 0, 0xffffu)),
+			base_00_15_(bitmask(base, 0, 0xffffu)),
+			base_16_23_(bitmask(base, 16, 0xffu)),
 			tag_(tag),
 			system_flag_(ssf),
 			dpl_(dpl),
 			present_(present),
-			limit_16_19_(bitmask(limit, 16, 0xf)),
+			limit_16_19_(bitmask(limit, 16, 0xfu)),
 			avl_(seg_avl_type::avl_null),
 			long_(lng),
 			db_(db),
 			granularity_(granularity),
-			base_24_31_(bitmask(base, 24, 0xff))
+			base_24_31_(bitmask(base, 24, 0xffu))
 		{
 	}
 

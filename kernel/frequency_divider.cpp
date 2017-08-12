@@ -28,7 +28,7 @@ void pit::details::FrequencyDivider::set_frequency(unsigned long hz,
 		pit_ = 100;
 		restart_ = full_div / 100;
 	} else {
-		pit_ = bitmask(full_div, 0, 0xffff);
+		pit_ = bitmask(full_div, 0, 0xffffu);
 		restart_ = 0;
 	}
 	counter_ = restart_;
