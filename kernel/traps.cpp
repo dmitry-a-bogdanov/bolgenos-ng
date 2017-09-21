@@ -120,7 +120,8 @@ void irq::install_traps() {
 	irq_manager->add_handler(irq::exception_t::device_not_available,
 			new PrintingNoErrcodeHandler("Device not available"));
 
-
+	irq_manager->add_handler(irq::exception_t::double_fault,
+			new PrintingErrcodeHandler("Double fault"));
 	irq_manager->add_handler(irq::exception_t::invalid_tss,
 			new PrintingErrcodeHandler("Invalid TSS"));
 	irq_manager->add_handler(irq::exception_t::segment_not_present,

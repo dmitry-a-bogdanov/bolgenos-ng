@@ -15,12 +15,12 @@
 #include "../buddy_allocator.hpp"
 #include "../mallocator.hpp"
 
-#include <config.h>
-#include <ost.h>
+#include <bolgenos_config.hpp>
+
+using config::PAGE_SIZE;
 
 using namespace lib;
 
-#ifdef OST_MEMORY
 void ost::page_alloc_test() {
 	cinfo << __func__ << ": starting" << endl;
 
@@ -185,17 +185,20 @@ void free_list_test__high_order__odd() {
 } // namespace
 
 
-void ost::buddy_allocator_test() {
-	cinfo << __func__ << ": starting" << endl;
 
+void ost::buddy_allocator_test() {
 	constexpr size_t PAGES = 800;
+
+
 	memory::allocators::pblk_t blk;
 
-	blk.size = PAGES + 223;
+	blk.size = PAGES;
+
 	blk.ptr = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(blk.size));
 
 	OST_ASSERT(blk.ptr);
+
 
 	memory::MemoryRegion region;
 	region.begin(blk.ptr);
@@ -243,15 +246,4 @@ void ost::mallocator_test() {
 }
 
 
-#else
-void ost::page_alloc_test() {
-}
-void ost::slab_test() {
-}
-void ost::free_list_test() {
-}
-void ost::buddy_allocator_test() {
-}
-void ost::mallocator_test() {
-}
-#endif
+

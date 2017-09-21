@@ -1,31 +1,20 @@
-#include <bolgenos-ng/cxxabi.h>
-#include <bolgenos-ng/error.h>
-
 #include <ostream>
 
+#include <bolgenos_config.hpp>
+
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/cxxabi.h>
 #include <bolgenos-ng/interrupt_controller.hpp>
+#include <bolgenos-ng/init_queue.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
-#include <bolgenos-ng/ost.hpp>
-#include <bolgenos-ng/pit.hpp>
-#include <bolgenos-ng/ps2_controller.hpp>
-#include <bolgenos-ng/slab.hpp>
-#include <bolgenos-ng/time.hpp>
-
 #include <bolgenos-ng/io/vga/text_console.hpp>
 
-#include <lib/atomic.hpp>
 #include <lib/ostream.hpp>
 
-#include "config.h"
-
 #include "traps.hpp"
-
-
 
 
 extern "C" void kernel_main() {
@@ -39,51 +28,21 @@ extern "C" void kernel_main() {
 
 	bolgenos::io::vga::TextConsole::instance()->clear_screen();
 
+	lib::cnotice << "Starting bolgenos-ng-" << config::BOLGENOS_NG_VERSION << lib::endl;
 
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
-
-
-
-	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
-		<< lib::endl;
-
-	// explicitly create instance
-	auto interrupt_manager = irq::InterruptsManager::instance();
 	irq::install_traps();
-	(void) interrupt_manager;
-
-
 
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();
 
+	lib::cnotice << "CPU is initialized" << lib::endl;
+
+	bolgenos::init::Queue::instance().execute();
 
 
-	pit::init();
-
-	irq::enable();
-
-	lib::cinfo << "CPU is initialized" << lib::endl;
-
-	ps2::PS2Controller::instance()->initialize_controller();
-
-	ost::run();
-
-
-	lib::cwarn << "Kernel initialization routine has been finished!"
-			<< lib::endl;
-
-
-	auto display = bolgenos::io::vga::TextConsole::instance();
-
-	for (int i = 0; i < 80; ++i)
-	{
-		sleep_ms(30);
-		display->putc('1');
-	}
-
-
+	lib::cnotice << "Kernel initialization routine has been finished!" << lib::endl;
 
 	do {
 		x86::halt_cpu();

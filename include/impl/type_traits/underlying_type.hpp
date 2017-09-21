@@ -15,7 +15,7 @@ struct underlying_type
 };
 
 template<class T>
-using undelying_type_t = typename underlying_type<T>::type;
+using underlying_type_t = typename underlying_type<T>::type;
 
 
 }

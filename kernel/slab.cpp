@@ -9,8 +9,9 @@
 
 #include <lib/ostream.hpp>
 
-#include "config.h"
+#include <bolgenos_config.hpp>
 
+using config::PAGE_SIZE;
 using namespace memory;
 
 memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,

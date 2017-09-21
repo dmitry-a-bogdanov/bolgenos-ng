@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstddef>
-
-#include "config.h"
+#include <bolgenos_config.hpp>
 
 
 namespace memory {
@@ -12,7 +11,7 @@ namespace memory {
 ///
 /// Used only for simplifying address arithmetics.
 struct __attribute__((packed)) page_frame_t {
-	std::byte bytes[PAGE_SIZE]; ///< bytes in real page frame
+	std::byte bytes[config::PAGE_SIZE]; ///< bytes in real page frame
 };
 
 

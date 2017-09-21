@@ -1,9 +1,11 @@
 #include "buddy_allocator.hpp"
 
-
+#include <bolgenos_config.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 #include "free_list.hpp"
+
+using config::PAGE_SIZE;
 
 
 memory::allocators::BuddyAllocator::~BuddyAllocator() {

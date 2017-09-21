@@ -1,24 +1,10 @@
-#include "config.h"
 
-# nobits option is required to move kernel stack to BSS section.
-# BSS section is the place for stack since it's collapsed in ELF binaries.
-.bss
-.section .kernel_stack, "aw", @nobits
-__kernel_stack_bottom:
-.fill KERNEL_STACK_SIZE, 1
-.global __kernel_stack_top
-__kernel_stack_top:
-
-.text
 .global _start_kernel
 _start_kernel:
 	movl %ebx, temp_boot_info
-	leal __kernel_stack_top, %ecx
+	leal __stack_end, %ecx
 	movl %ecx, %esp
-
 	call kernel_main
-
-	hlt
 
 _could_not_start:
 	jmp _could_not_start

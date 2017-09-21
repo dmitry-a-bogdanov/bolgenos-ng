@@ -126,10 +126,11 @@ add_executable(${kernel_binary_name}
 # Compiler-independent configuration
 
 # CMake 3.5.0 does not support CXX_STANDARD 17
-set_property(TARGET ${kernel_binary_name} PROPERTY C_STANDARD 99)
+set_property(TARGET ${kernel_binary_name} PROPERTY C_STANDARD 11)
 set_property(TARGET ${kernel_binary_name} PROPERTY C_STANDARD_REQUIRED TRUE)
 set_property(TARGET ${kernel_binary_name} PROPERTY C_EXTENSIONS FALSE)
 target_include_directories(${kernel_binary_name} PUBLIC ${CONFIG_INCLUDE_DIRS})
+target_include_directories(${kernel_binary_name} PUBLIC ${CONFIG_DIR})
 
 
 # Compiler-dependent configuration

@@ -52,11 +52,20 @@ SECTIONS {
 		libgcc.a(.bss)
 	}
 
-	.kernel_stack : {
+	.pre_ks_canary : {
+		*(.pre_ks_canary);
+	}
+
+	.ks : {
 		__stack_begin = .;
-		*(.kernel_stack)
+		__ks = .;
+		*(.ks);
 		__stack_end = .;
-		}
+	}
+
+	.post_ks_canary : {
+		*(.post_ks_canary);
+	}
 
 	.comment : {
 		*(.comment)

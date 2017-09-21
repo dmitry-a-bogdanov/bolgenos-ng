@@ -1,8 +1,11 @@
 #include "page_allocator.hpp"
 
+#include <bolgenos_config.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 
 #include "buddy_allocator.hpp"
+
+using config::PAGE_SIZE;
 
 memory::allocators::PageAllocator pa;
 

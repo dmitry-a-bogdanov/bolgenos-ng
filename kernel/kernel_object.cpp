@@ -1,6 +1,27 @@
 #include <bolgenos-ng/kernel_object.hpp>
 
+#include <cstddef>
+#include <cstdint>
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/page.hpp>
+#include <bolgenos_config.hpp>
+
+
+extern "C"
+{
+
+extern memory::page_frame_t pre_ks[config::STACK_CANARY_PAGES];
+extern unsigned char ks[config::STACK_SIZE];
+extern memory::page_frame_t post_ks[config::STACK_CANARY_PAGES];
+
+
+}
+// extern "C"
+
+memory::page_frame_t pre_ks[config::STACK_CANARY_PAGES]		[[gnu::section(".pre_ks_canary")]];
+unsigned char ks[config::STACK_SIZE]						[[gnu::section(".ks")]];
+memory::page_frame_t post_ks[config::STACK_CANARY_PAGES]	[[gnu::section(".post_ks_canary")]];
+
 
 
 /// \brief Start of kernel object.

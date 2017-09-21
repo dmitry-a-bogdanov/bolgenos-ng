@@ -15,7 +15,9 @@
 #include "page_allocator.hpp"
 #include "mallocator.hpp"
 
-#include "config.h"
+#include <bolgenos_config.hpp>
+
+using config::PAGE_SIZE;
 
 void *operator new(size_t, void *address)
 {

@@ -2,7 +2,9 @@
 
 #include <bolgenos-ng/asm.hpp>
 
-#include "config.h"
+#include <bolgenos_config.hpp>
+
+using config::HZ;
 
 volatile uint32_t jiffies = 0;
 

@@ -1,9 +1,0 @@
-#pragma once
-
-#cmakedefine OST_ENABLE_TESTS
-
-#ifdef OST_ENABLE_TESTS
-
-#cmakedefine OST_MEMORY @OST_MEMORY@
-
-#endif

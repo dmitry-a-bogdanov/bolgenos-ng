@@ -198,7 +198,7 @@ public:
 void ps2::PS2Controller::initialize_controller() {
 	init_subsystems();
 
-	lib::cnotice << "PS/2: initializing controller..." << lib::endl;
+	lib::cinfo << "PS/2: initializing controller..." << lib::endl;
 
 	auto controller = PS2Controller::instance();
 
@@ -213,7 +213,7 @@ void ps2::PS2Controller::initialize_controller() {
 
 	lib::cinfo << "PS/2: configuration byte = " << conf.get() << lib::endl;
 
-	lib::cnotice << "PS/2: this system has " << get_ps2_lines(conf) << " port(s)" << lib::endl;
+	lib::cinfo << "PS/2: this system has " << get_ps2_lines(conf) << " port(s)" << lib::endl;
 
 	for_each_line([&conf](IPS2Line *line) { conf.unset(line->enable_interrupts_mask()); });
 
@@ -383,3 +383,22 @@ bool ps2::PS2Controller::do_selftest()
 	}
 	return test_result == test_reply::self_test_ok;
 }
+
+
+#include <bolgenos-ng/init_queue.hpp>
+
+namespace
+{
+
+using namespace bolgenos::init;
+
+FunctorRegisterer reg(prio_t::normal, "PS/2 Controller",
+		[]() -> bool
+		{
+			ps2::PS2Controller::instance()->initialize_controller();
+			return true;
+		});
+
+}
+
+

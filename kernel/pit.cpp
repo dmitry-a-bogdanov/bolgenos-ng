@@ -4,9 +4,12 @@
 
 #include <memory>
 
+#include <bolgenos_config.hpp>
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/init_queue.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
@@ -15,8 +18,6 @@
 #include <lib/ostream.hpp>
 
 #include "frequency_divider.hpp"
-
-#include "config.h"
 
 
 namespace {
@@ -93,7 +94,7 @@ public:
 	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
 	{
 		if (_divider->do_tick()) {
-			if constexpr(VERBOSE_TIMER_INTERRUPT)
+			if constexpr(config::VERBOSE_TIMER_INTERRUPT)
 			{
 				lib::cout << "jiffy #" << jiffies << lib::endl;
 			}
@@ -116,14 +117,13 @@ PitIRQHandler handler(&freq_divider);
 
 
 
-
 void pit::init() {
 	static bool initialized{ false };
 	if (!initialized)
 	{
 		const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-		freq_divider.set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
+		freq_divider.set_frequency(config::HZ, PIT_FREQUENCY, MAX_DIVIDER);
 		if (freq_divider.is_low_frequency())
 			lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
 
@@ -137,3 +137,18 @@ void pit::init() {
 	}
 }
 
+
+namespace
+{
+
+using namespace bolgenos::init;
+
+
+FunctorRegisterer reg(prio_t::cpu_configuration, "Programmable Interval Timer",
+		[]() -> bool
+		{
+			pit::init();
+			return true;
+		});
+
+}

@@ -34,7 +34,7 @@ enum exception_t: irq_t {
 	bound_range_exceeded		= 5,
 	invalid_opcode			= 6,
 	device_not_available		= 7,
-	double_fault,
+	double_fault			= 8,
 	// coprocessor segment overrun
 	invalid_tss			= 10,
 	segment_not_present		= 11,

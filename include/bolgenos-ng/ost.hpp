@@ -13,9 +13,6 @@ namespace ost
 {
 
 
-void run();
-
-
 class Conf
 {
 public:

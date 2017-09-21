@@ -88,7 +88,7 @@ public:
 	}
 
 	private:
-	using color_type = std::undelying_type_t<color_t>;
+	using color_type = std::underlying_type_t<color_t>;
 
 
 	char _ch{ 0 };

@@ -9,8 +9,6 @@
 
 #include <lib/ostream.hpp>
 
-#include "config.h"
-
 
 namespace memory {
 
