@@ -285,16 +285,12 @@ _impl::_setfill_type setfill(char fillch);
 
 /// Logging level type.
 enum log_level_type: int {
-	/// Critical error
-	critical	= 0,
-	/// Error
-	error		= 1,
-	/// Warning
-	warning		= 2,
-	/// Notice
-	notice		= 3,
-	/// Additional information
-	info		= 4,
+	critical,
+	error,
+	warning,
+	notice,
+	info,
+	debug,
 };
 
 
@@ -310,26 +306,12 @@ void set_log_level(log_level_type log_level);
 ///
 /// Object of \ref ostream is to be used for printing to VGA console.
 extern ostream cout;
-
-
-/// Output object for critical error messages.
 extern ostream ccrit;
-
-
-/// Output object for error messages.
 extern ostream cerr;
-
-
-/// Output object for warning messages.
 extern ostream cwarn;
-
-
-/// Output object for notice messages.
 extern ostream cnotice;
-
-
-/// Output object for info messages.
 extern ostream cinfo;
+extern ostream cdebug;
 
 
 class scoped_format_guard {

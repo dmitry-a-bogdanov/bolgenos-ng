@@ -1,15 +1,15 @@
 #include <bolgenos-ng/ps2_controller.hpp>
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/init_queue.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
+#include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/ps2_line.hpp>
 #include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.hpp>
 
 #include <bolgenos-ng/ps2/device.hpp>
-
-#include <lib/ostream.hpp>
 
 #include "ps2_keyboard.hpp"
 
@@ -158,7 +158,7 @@ void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 		bug(info);
 	}
 
-	lib::cinfo << "PS/2[" << line->id() << "]: active_dev = " << active_dev << lib::endl;
+	LOG_INFO("PS/2[" << line->id() << "]: active_dev = " << active_dev);
 
 	ps2_active_devices_[line->id()] = active_dev;
 }
@@ -198,7 +198,7 @@ public:
 void ps2::PS2Controller::initialize_controller() {
 	init_subsystems();
 
-	lib::cinfo << "PS/2: initializing controller..." << lib::endl;
+	LOG_INFO("PS/2: initializing controller...");
 
 	auto controller = PS2Controller::instance();
 
@@ -211,9 +211,9 @@ void ps2::PS2Controller::initialize_controller() {
 
 	auto conf = controller->conf();
 
-	lib::cinfo << "PS/2: configuration byte = " << conf.get() << lib::endl;
+	LOG_DEBUG("PS/2: configuration byte = " << conf.get());
 
-	lib::cinfo << "PS/2: this system has " << get_ps2_lines(conf) << " port(s)" << lib::endl;
+	LOG_NOTICE("PS/2: this system has " << get_ps2_lines(conf) << " port(s)");
 
 	for_each_line([&conf](IPS2Line *line) { conf.unset(line->enable_interrupts_mask()); });
 
@@ -233,11 +233,9 @@ void ps2::PS2Controller::initialize_controller() {
 
 	for_each_line([](ps2::IPS2Line *line) {
 		if (!line->test()) {
-			lib::cerr << "PS/2: line " << line->id()
-				<< " failed self-test!" << lib::endl;
+			LOG_ERROR("PS/2: line " << line->id() << " failed self-test!");
 		} else {
-			lib::cinfo << "PS/2: line " << line->id()
-				<< " passed self-test" << lib::endl;
+			LOG_INFO("PS/2: line " << line->id() << " passed self-test");
 		}
 	});
 
@@ -384,8 +382,6 @@ bool ps2::PS2Controller::do_selftest()
 	return test_result == test_reply::self_test_ok;
 }
 
-
-#include <bolgenos-ng/init_queue.hpp>
 
 namespace
 {

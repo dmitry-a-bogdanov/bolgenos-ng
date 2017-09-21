@@ -12,7 +12,7 @@
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/io/vga/text_console.hpp>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 #include "traps.hpp"
 
@@ -28,7 +28,7 @@ extern "C" void kernel_main() {
 
 	bolgenos::io::vga::TextConsole::instance()->clear_screen();
 
-	lib::cnotice << "Starting bolgenos-ng-" << config::BOLGENOS_NG_VERSION << lib::endl;
+	LOG_NOTICE("Starting bolgenos-ng-" << config::BOLGENOS_NG_VERSION);
 
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation
@@ -37,12 +37,11 @@ extern "C" void kernel_main() {
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();
 
-	lib::cnotice << "CPU is initialized" << lib::endl;
+	LOG_NOTICE("CPU is initialized");
 
 	bolgenos::init::Queue::instance().execute();
 
-
-	lib::cnotice << "Kernel initialization routine has been finished!" << lib::endl;
+	LOG_NOTICE("Kernel initialization routine has been finished!");
 
 	do {
 		x86::halt_cpu();

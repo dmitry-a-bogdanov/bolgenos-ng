@@ -1,7 +1,6 @@
 #include <bolgenos-ng/ps2_line.hpp>
 
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 /// Timeout for output operation.
 constexpr int OUTPUT_TIMEOUT = 1 /* ms */;
@@ -38,10 +37,10 @@ int ps2::IPS2Line::test() {
 
 	uint8_t reply;
 	if (!controller()->receive(SELFTEST_TIMEOUT, &reply)) {
-		lib::cerr << "no response to self-test" << lib::endl;
+		LOG_ERROR("no response to self-test");
 		return 0;
 	}
-	lib::cinfo << "line test result = " << reply << lib::endl;
+	LOG_DEBUG("line test result = " << reply);
 
 	return (reply == test_reply::port_test_ok);
 }
