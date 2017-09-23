@@ -2,7 +2,9 @@
 
 #include <cstddef>
 
-namespace lib {
+namespace std
+{
+
 
 template<class T>
 class default_allocator
@@ -30,4 +32,5 @@ public:
 	}
 }; // class default_allocator
 
-} // namespace bolgenos_testing
+
+}

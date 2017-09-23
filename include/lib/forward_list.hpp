@@ -1,7 +1,9 @@
 #pragma once
 
-#include "memory.hpp"
+#include <memory>
+
 #include "impl/basic_forward_list.hpp"
+
 
 namespace lib {
 
@@ -23,7 +25,7 @@ struct fwd_list_node:
 
 
 
-template<class T, class Alloc = default_allocator<T>>
+template<class T, class Alloc = std::default_allocator<T>>
 class forward_list:
 	private lib::_impl::basic_forward_list<
 		lib::_impl::fwd_list_node<T>>
