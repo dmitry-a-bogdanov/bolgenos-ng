@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <forward_list>
 
 #include <bolgenos-ng/irq.hpp>
 
@@ -235,17 +236,8 @@ private:
 	void probe_devices();
 
 
-	/// Maximal number of devices that can be registered.
-	static constexpr int MAX_REGISTERED_DEVICES = 10;
-
-
-	int ps2_known_device_count_ = 0;
-
-
 	ps2::IPS2Device *ps2_active_devices_[ps2::line_t::max_devs];
-	// TODO: replace array with list in order to avoid troubles with support
-	// of many types of keyboards or mice
-	ps2::IPS2Device *ps2_known_devices_[MAX_REGISTERED_DEVICES];
+	std::forward_list<ps2::IPS2Device*> _known_devices{};
 }; // class PS2Controller
 
 

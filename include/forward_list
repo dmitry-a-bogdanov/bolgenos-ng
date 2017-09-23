@@ -1,0 +1,7 @@
+#pragma once
+
+#include <lib/forward_list.hpp>
+
+namespace std {
+using lib::forward_list;
+}

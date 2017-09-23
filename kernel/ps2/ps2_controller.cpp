@@ -41,9 +41,7 @@ int get_ps2_lines(ps2::Conf conf) {
 } // namespace
 
 void ps2::PS2Controller::register_driver(ps2::IPS2Device *dev) {
-	if (ps2_known_device_count_ < MAX_REGISTERED_DEVICES) {
-		ps2_known_devices_[ps2_known_device_count_++] = dev;
-	}
+	_known_devices.push_front(dev);
 }
 
 void init_subsystems() {
@@ -142,12 +140,10 @@ enum status_reg_t: uint8_t {
 void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 	ps2::IPS2Device *active_dev = nullptr;
 	int active_dev_count = 0;
-	// for each registered device
-	for (int dev_index = 0; dev_index < ps2_known_device_count_;
-			++dev_index) {
-		auto ret = ps2_known_devices_[dev_index]->probe(line);
+	for (auto dev: _known_devices) {
+		auto ret = dev->probe(line);
 		if (ret == probe_ok) {
-			active_dev = ps2_known_devices_[dev_index];
+			active_dev = dev;
 			active_dev_count++;
 		}
 	}
