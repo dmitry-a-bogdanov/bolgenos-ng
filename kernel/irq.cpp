@@ -1,6 +1,7 @@
 #include <bolgenos-ng/irq.hpp>
 
 #include <algorithm>
+#include <forward_list>
 
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
@@ -9,7 +10,6 @@
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 
-#include <lib/forward_list.hpp>
 #include <lib/ostream.hpp>
 
 #include <m4/idt.hpp>
@@ -57,19 +57,13 @@ irq::InterruptsManager *irq::InterruptsManager::instance()
 
 void irq::InterruptsManager::add_handler(irq_t vector, IRQHandler *handler)
 {
-	auto& handlers_list = _irq_handlers[vector];
-	if (handlers_list.push_front(handler) == handlers_list.end()) {
-		panic("failed to register interrupt handler");
-	}
+	_irq_handlers[vector].push_front(handler);
 }
 
 
 void irq::InterruptsManager::add_handler(exception_t exception, ExceptionHandler *handler)
 {
-	auto& handlers_list = _exceptions_handlers[exception];
-	if (handlers_list.push_front(handler) == handlers_list.end()) {
-		panic("failed to register exception handler");
-	}
+	_exceptions_handlers[exception].push_front(handler);
 }
 
 

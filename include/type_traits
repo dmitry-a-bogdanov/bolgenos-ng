@@ -24,6 +24,21 @@ using void_t = void;
 
 
 
+
+template<std::size_t Length, std::size_t Align>
+struct aligned_storage
+{
+	struct type
+	{
+		alignas(Align) unsigned char data[Length];
+	};
+};
+
+
+template<std::size_t Length, std::size_t Align>
+using aligned_storage_t = typename std::aligned_storage<Length, Align>::type;
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // add_const

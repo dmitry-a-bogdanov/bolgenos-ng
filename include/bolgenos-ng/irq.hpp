@@ -2,14 +2,13 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <forward_list>
 #include <functional>
 #include <utility>
 
 #include "asm.hpp"
 #include "mmu.hpp"
 #include "mem_utils.hpp"
-
-#include <lib/forward_list.hpp>
 
 
 namespace lib {
@@ -118,8 +117,8 @@ protected:
 	__attribute__((regparm(0),cdecl)) static void handle_irq(irq_t vector, void *frame);
 	static bool is_exception(irq_t vector);
 private:
-	lib::forward_list<IRQHandler *> _irq_handlers[NUMBER_OF_LINES];
-	lib::forward_list<ExceptionHandler *> _exceptions_handlers[exception_t::max];
+	std::forward_list<IRQHandler *> _irq_handlers[NUMBER_OF_LINES];
+	std::forward_list<ExceptionHandler *> _exceptions_handlers[exception_t::max];
 	_irq_aligned_ table_pointer idt_pointer{};
 
 	static InterruptsManager *_instance;

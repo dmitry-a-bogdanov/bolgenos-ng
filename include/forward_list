@@ -1,7 +1,194 @@
 #pragma once
 
-#include <lib/forward_list.hpp>
+#include "memory"
+#include "new"
 
 namespace std {
-using lib::forward_list;
+
+
+template<class T>
+class forward_list
+{
+	struct node_type;
+public:
+	using value_type = T;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using pointer = T*;
+	using const_pointer = const T*;
+
+
+	class iterator
+	{
+	public:
+		iterator() = default;
+
+		reference operator *() const
+		{
+			return *reinterpret_cast<value_type *>(&_node->storage);
+		}
+
+		pointer operator ->() const
+		{
+			return reinterpret_cast<value_type *>(&_node->storage);
+		}
+
+		iterator& operator++()
+		{
+			_node = _node->next;
+			return *this;
+		}
+
+		iterator operator++(int)
+		{
+			iterator copy(*this);
+			++(*this);
+			return copy;
+		}
+
+		bool operator ==(const iterator& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool operator !=(const iterator& other) const
+		{
+			return _node != other._node;
+		}
+
+	private:
+		constexpr explicit iterator(node_type * node): _node{ node } {}
+		node_type *_node = nullptr;
+		friend forward_list;
+	};
+
+
+	class const_iterator
+	{
+	public:
+		const_iterator() = default;
+
+		const_reference operator *() const
+		{
+			return *reinterpret_cast<value_type *>(&_node->storage);
+		}
+
+		const_pointer operator ->() const
+		{
+			return reinterpret_cast<value_type *>(&_node->storage);
+		}
+
+		const_iterator& operator++()
+		{
+			_node = _node->next;
+			return *this;
+		}
+
+		const_iterator operator++(int)
+		{
+			iterator copy(*this);
+			++(*this);
+			return copy;
+		}
+
+		bool operator ==(const const_iterator& other) const
+		{
+			return _node == other._node;
+		}
+
+		bool operator !=(const const_iterator& other) const
+		{
+			return _node != other._node;
+		}
+
+	private:
+		constexpr explicit const_iterator(node_type * node): _node{ node } {}
+		const node_type *_node = nullptr;
+	};
+
+
+	forward_list() = default;
+
+
+	~forward_list()
+	{
+		while (!empty())
+		{
+			pop_front();
+		}
+	}
+
+
+	bool empty() const
+	{
+		return _before_begin.next == nullptr;
+	}
+
+
+	void push_front(const value_type& value)
+	{
+		node_type* node = new node_type;
+		new (&node->storage) value_type(value);
+		node->next = _before_begin.next;
+		_before_begin.next = node;
+	}
+
+	void push_front(value_type&& value)
+	{
+		node_type* node = new node_type;
+		new (&node->storage) value_type(std::move(value));
+		node->next = _before_begin.next;
+		_before_begin.next = node;
+	}
+
+
+	void pop_front()
+	{
+		node_type* node = _before_begin.next;
+		_before_begin.next = node->next;
+		delete node;
+	}
+
+
+	iterator begin() noexcept
+	{
+		return iterator(_before_begin.next);
+	}
+
+	const_iterator begin() const noexcept
+	{
+		return const_iterator(_before_begin.next);
+	}
+
+	const_iterator cbegin() const noexcept
+	{
+		return const_iterator(_before_begin.next);
+	}
+
+
+	iterator end() noexcept
+	{
+		return iterator(nullptr);
+	}
+
+	const_iterator end() const noexcept
+	{
+		return const_iterator(nullptr);
+	}
+
+	const_iterator cend() const noexcept
+	{
+		return const_iterator(nullptr);
+	}
+private:
+	struct node_type
+	{
+		aligned_storage_t<sizeof(T), alignof(T)> storage{};
+		node_type* next = nullptr;
+	};
+
+	node_type _before_begin{};
+};
+
+
 }
