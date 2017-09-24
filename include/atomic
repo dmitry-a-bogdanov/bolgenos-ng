@@ -3,7 +3,7 @@
 #include <bolgenos-ng/asm.hpp>
 
 
-namespace lib {
+namespace std {
 
 
 template<class T>
@@ -12,8 +12,8 @@ struct atomic
 public:
 	atomic() = default;
 
+	using value_type = T;
 
-	inline
 	constexpr atomic(T value) :
 		_value(value)
 	{
@@ -23,7 +23,7 @@ public:
 
 
 	inline
-	T load() const
+	T load() const volatile
 	{
 		T local;
 		x86::load<T>(_value, local);
@@ -32,21 +32,21 @@ public:
 
 
 	inline
-	explicit operator T() const
+	operator T() const volatile noexcept
 	{
 		return load();
 	}
 
 
 	inline
-	void store(T value)
+	void store(T value) volatile noexcept
 	{
 		x86::store<T>(value, _value);
 	}
 
 
 	inline
-	T exchange(T value)
+	T exchange(T value) volatile noexcept
 	{
 		x86::exchange<T>(_value, value);
 		return value;
@@ -54,29 +54,27 @@ public:
 
 
 	inline
-	bool compare_exchange(T expected, T desired)
+	bool compare_exchange(T expected, T desired) volatile noexcept
 	{
 		return __sync_bool_compare_and_swap(&_value, expected, desired);
 	}
 
 
-	inline
-	T fetch_add(T increment)
+	T fetch_add(T increment) volatile noexcept
 	{
 		return x86::fetch_add<T>(_value, increment);
 	}
 
 
 	inline
-	T fetch_sub(T decrement)
+	T fetch_sub(T decrement) volatile noexcept
 	{
 		return fetch_add(-decrement);
 	}
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-	inline
-	T operator++()
+	value_type operator++() volatile noexcept
 	{
 #pragma GCC diagnostic pop
 
@@ -87,8 +85,7 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-	inline
-	T operator++(int)
+	value_type operator++(int) volatile noexcept
 	{
 #pragma GCC diagnostic pop
 		T tmp = fetch_add(1);
@@ -97,8 +94,7 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-	inline
-	T operator--()
+	value_type operator--() volatile noexcept
 	{
 #pragma GCC diagnostic pop
 		T value = fetch_sub(1);
@@ -108,8 +104,7 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-	inline
-	T operator--(int)
+	value_type operator--(int) volatile noexcept
 	{
 #pragma GCC diagnostic pop
 		T tmp = fetch_sub(1);
@@ -121,4 +116,7 @@ private:
 };
 
 
-} // namespace atomic
+using atomic_bool = std::atomic<bool>;
+
+
+}

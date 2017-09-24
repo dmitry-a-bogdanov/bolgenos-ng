@@ -1,12 +1,12 @@
 #include <unwind.h>
 
+#include <atomic>
+
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/memory.hpp>
 #include <lib/ostream.hpp>
-
-#include <lib/atomic.hpp>
 
 
 extern "C"
@@ -44,7 +44,7 @@ int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso)
 }
 
 
-typedef lib::atomic<bool> __guard;
+typedef std::atomic_bool __guard;
 
 
 int __cxa_guard_acquire (__guard *g)
