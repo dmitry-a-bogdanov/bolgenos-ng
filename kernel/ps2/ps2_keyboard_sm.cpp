@@ -1,8 +1,10 @@
 #include "ps2_keyboard_sm.hpp"
 
-#include <bolgenos-ng/keyboard.h>
+#include <ostream>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/keyboard.h>
+#include <bolgenos-ng/log.hpp>
+
 
 #include "ps2_keyboard.hpp"
 
@@ -147,7 +149,7 @@ handle_status_t PrintState::handle_byte(uint8_t byte __attribute__((unused)))
 				if (lshift) {
 					symbol = apply_lshift(symbol);
 				}
-				lib::cout << symbol;
+				std::cout << symbol;
 				device->key(key) = key_status_t::released;
 			}
 		}
@@ -160,7 +162,7 @@ handle_status_t PrintState::handle_byte(uint8_t byte __attribute__((unused)))
 
 handle_status_t ErrorState::handle_byte(uint8_t byte)
 {
-	lib::cerr << "PS/2 keyboard: unexpected byte from controller " << int(byte) << lib::endl;
+	LOG_ERROR("PS/2 keyboard: unexpected byte from controller " << int(byte));
 	_machine->set_state(_machine->wait_state());
 	return handle_status_t::done;
 }

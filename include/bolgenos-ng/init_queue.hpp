@@ -1,7 +1,5 @@
 #pragma once
 
-#include <lib/ostream.hpp>
-
 #include <basalt/type_traits.hpp>
 #include <basalt/intrusive_list.hpp>
 

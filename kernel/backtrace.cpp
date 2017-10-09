@@ -1,8 +1,8 @@
 #include <bolgenos-ng/execinfo.hpp>
 
-#include <bolgenos-ng/kernel_object.hpp>
+#include <ostream>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/kernel_object.hpp>
 
 #include <basalt/format_guard.hpp>
 
@@ -27,16 +27,16 @@ bool is_inside_stack(void *ptr) {
 }
 
 
-lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
+std::ostream& operator <<(std::ostream& out, const stack_frame_t& frame) {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::hex;
+	out	<< std::hex;
 
 	out 	<< "frame["
 			<< const_cast<void *>(static_cast<const void *>(&frame))
-			<< lib::setw(0)
+			<< std::setw(0)
 		<< "]: ebp = "
-		<< lib::setw(8);
+		<< std::setw(8);
 
 	if (is_inside_stack(frame.callers_ebp)) {
 		out	<< frame.callers_ebp;
@@ -44,9 +44,9 @@ lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
 		out	<< "invalid";
 	}
 
-	out	<< lib::setw(0)
+	out	<< std::setw(0)
 		<< " eip = "
-		<< lib::setw(8);
+		<< std::setw(8);
 
 	if (is_inside_code(frame.return_address)) {
 		out	<< frame.return_address;
@@ -61,13 +61,13 @@ lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
 } // namespace
 
 
-void execinfo::show_backtrace(lib::ostream& out,
+void execinfo::show_backtrace(std::ostream& out,
 		void *ebp, void *eip) {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::setw(50) << lib::setfill('-')
+	out	<< std::setw(50) << std::setfill('-')
 		<< '\n'
-		<< lib::setfill(' ') << lib::setw(0);
+		<< std::setfill(' ') << std::setw(0);
 
 	if (ebp == nullptr) {
 		// Get pointer to begging of function's stack.
@@ -88,7 +88,7 @@ void execinfo::show_backtrace(lib::ostream& out,
 	}
 
 	do {
-		out << *frame << lib::endl;
+		out << *frame << std::endl;
 		frame = static_cast<decltype(frame)>(frame->callers_ebp);
 	} while (is_inside_stack(frame) &&
 			is_inside_code(frame->return_address));

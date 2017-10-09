@@ -6,7 +6,6 @@
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/memory.hpp>
-#include <lib/ostream.hpp>
 
 
 extern "C"

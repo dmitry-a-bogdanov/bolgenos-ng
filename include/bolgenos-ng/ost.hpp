@@ -1,8 +1,10 @@
 #pragma once
 
+#include <ostream>
+
+#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
 
-#include <lib/ostream.hpp>
 
 // Special rules for OST:
 //
@@ -17,25 +19,25 @@ class Conf
 {
 public:
 
-    static void bad_stream(lib::ostream& out)
+    static void bad_stream(std::ostream& out)
     {
         instance()._bad_stream = &out;
     }
 
 
-    static lib::ostream& bad_stream()
+    static std::ostream& bad_stream()
     {
         return *instance()._bad_stream;
     }
 
 
-    static void good_stream(lib::ostream& out)
+    static void good_stream(std::ostream& out)
     {
         instance()._good_stream = &out;
     }
 
 
-    static lib::ostream& good_stream()
+    static std::ostream& good_stream()
     {
         return *instance()._good_stream;
     }
@@ -52,8 +54,8 @@ protected:
 private:
     Conf() = default;
 
-    lib::ostream* _good_stream { &lib::cinfo };
-    lib::ostream* _bad_stream { &lib::cout };
+    std::ostream* _good_stream { &lib::cinfo };
+    std::ostream* _bad_stream { &std::cout };
 };
 
 class Assert
@@ -63,7 +65,7 @@ public:
     Assert(const Assert&) = delete;
     Assert& operator=(Assert&) = delete;
 
-    explicit Assert(lib::ostream& good_ostream, lib::ostream& bad_ostream, bool cond,
+    explicit Assert(std::ostream& good_ostream, std::ostream& bad_ostream, bool cond,
             const char* expr, const char* file, int line)
             : _good_ostream { good_ostream }, _bad_ostream { bad_ostream }, _cond { cond }, _expr {
                     expr }, _file { file }, _line { line }
@@ -72,7 +74,7 @@ public:
 
 
     template<class T>
-    lib::ostream& operator<<(const T& arg)
+    std::ostream& operator<<(const T& arg)
     {
         _already_printed = true;
         print_preamble();
@@ -85,7 +87,7 @@ public:
         if (!_already_printed)
             print_preamble();
 
-        cond_stream() << lib::endl;
+        cond_stream() << std::endl;
 
         if (!_cond)
             panic("Test failed");
@@ -99,7 +101,7 @@ protected:
     }
 
 
-    lib::ostream& cond_stream()
+    std::ostream& cond_stream()
     {
         if (_cond)
             return _good_ostream;
@@ -114,8 +116,8 @@ protected:
     }
 
 private:
-    lib::ostream& _good_ostream;
-    lib::ostream& _bad_ostream;
+    std::ostream& _good_ostream;
+    std::ostream& _bad_ostream;
     bool _cond;
     const char* _expr;
     const char* _file;

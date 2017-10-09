@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstdint>
-
-// forward declaration
-namespace lib { class ostream; }
+#include <ostream>
 
 
 namespace ps2 {
@@ -19,7 +17,7 @@ enum class ErrorCode {
 	unknown		, /*!< Unknown error. */
 };
 
-lib::ostream& operator<<(lib::ostream& out, const ErrorCode& code);
+std::ostream& operator<<(std::ostream& out, const ErrorCode& code);
 
 
 class Conf {

@@ -2,6 +2,7 @@
 
 #include <bolgenos_config.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/log.hpp>
 
 #include <basalt/format_guard.hpp>
 
@@ -29,8 +30,7 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 	}
 
 	if (reinterpret_cast<size_t>(blk.ptr) & ((1 << 12) - 1)) {
-		lib::cout	<< __func__ << ": bad page address: " << blk.ptr
-				<< lib::endl;
+		LOG_CRITICAL(__func__ << ": bad page address: " << blk.ptr);
 		panic(__func__);
 	}
 
@@ -128,10 +128,10 @@ size_t memory::allocators::BuddyAllocator::compute_order(const pblk_t &blk) {
 namespace memory {
 namespace allocators {
 
-lib::ostream& operator <<(lib::ostream &stream, const pblk_t &blk)
+std::ostream& operator <<(std::ostream &stream, const pblk_t &blk)
 {
 	basalt::scoped_format_guard guard(stream);
-	return stream << lib::hex << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
+	return stream << std::hex << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
 }
 
 }

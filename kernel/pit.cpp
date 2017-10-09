@@ -1,8 +1,8 @@
 #include <bolgenos-ng/pit.hpp>
 
 #include <cstdint>
-
 #include <memory>
+#include <ostream>
 
 #include <bolgenos_config.hpp>
 
@@ -12,10 +12,9 @@
 #include <bolgenos-ng/init_queue.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/time.hpp>
-
-#include <lib/ostream.hpp>
 
 #include "frequency_divider.hpp"
 
@@ -96,7 +95,7 @@ public:
 		if (_divider->do_tick()) {
 			if constexpr(config::VERBOSE_TIMER_INTERRUPT)
 			{
-				lib::cout << "jiffy #" << jiffies << lib::endl;
+				std::cout << "jiffy #" << jiffies << std::endl;
 			}
 			++jiffies;
 		}
@@ -125,7 +124,7 @@ void pit::init() {
 
 		freq_divider.set_frequency(config::HZ, PIT_FREQUENCY, MAX_DIVIDER);
 		if (freq_divider.is_low_frequency())
-			lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
+			LOG_WARNING("PIT: losing accuracy of timer");
 
 		uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

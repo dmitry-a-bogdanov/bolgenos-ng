@@ -1,13 +1,11 @@
 #pragma once
 
 #include <cstddef>
+#include <ostream>
 
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/page.hpp>
-
-
-#include <lib/ostream.hpp>
 
 
 namespace memory {
@@ -18,7 +16,7 @@ namespace allocators {
 
 class FreeList;
 
-lib::ostream& operator<<(lib::ostream& stream,
+std::ostream& operator<<(std::ostream& stream,
 		const FreeList& fl);
 
 
@@ -120,7 +118,7 @@ private:
 
 	/// Output operator for \ref FreeList objects.
 	friend
-	lib::ostream& memory::allocators::operator <<(lib::ostream& stream,
+	std::ostream& memory::allocators::operator <<(std::ostream& stream,
 				const FreeList& fl);
 }; // class FreeList
 

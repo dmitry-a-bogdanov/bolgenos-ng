@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <forward_list>
 #include <functional>
+#include <ostream>
 #include <utility>
 
 #include "asm.hpp"
@@ -208,10 +209,10 @@ struct __attribute__((packed)) int_frame_noerror_t {
 
 
 // output functions
-lib::ostream& operator <<(lib::ostream&, const registers_dump_t&);
-lib::ostream& operator <<(lib::ostream&, const execution_info_dump_t&);
-lib::ostream& operator <<(lib::ostream&, const int_frame_error_t&);
-lib::ostream& operator <<(lib::ostream&, const int_frame_noerror_t&);
+std::ostream& operator <<(std::ostream&, const registers_dump_t&);
+std::ostream& operator <<(std::ostream&, const execution_info_dump_t&);
+std::ostream& operator <<(std::ostream&, const int_frame_error_t&);
+std::ostream& operator <<(std::ostream&, const int_frame_noerror_t&);
 
 
 } // namespace irq

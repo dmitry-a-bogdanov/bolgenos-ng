@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/ostream.hpp>
+#include <ostream>
 #include "vga_buf.hpp"
 
 

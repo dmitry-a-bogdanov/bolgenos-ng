@@ -1,6 +1,7 @@
 #include <bolgenos-ng/init_queue.hpp>
 
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/log.hpp>
 
 using namespace bolgenos::init;
 
@@ -21,7 +22,7 @@ Queue& Queue::instance()
 
 void Queue::execute() const
 {
-	lib::cnotice << "Starting kernel init queues" << lib::endl;
+	LOG_NOTICE("Starting kernel init queues");
 	for(auto& routines_on_level: _routines)
 	{
 		if (routines_on_level.empty())
@@ -30,18 +31,19 @@ void Queue::execute() const
 		}
 
 		auto level = &routines_on_level - _routines;
-		lib::cnotice << "| queue[" << level << "]:" << lib::endl;
+		LOG_NOTICE("| queue[" << level << "]:");
 		for(auto& routine: routines_on_level)
 		{
-			lib::cnotice << "|  -> " << routine->name() << lib::endl;
+			LOG_NOTICE("|  -> " << routine->name());
 			if (!routine->invoke())
 			{
-				lib::cerr << "initialization routine '" << routine->name() << "' failed" << lib::endl;
+				LOG_CRITICAL("initialization routine '"
+					<< routine->name() << "' failed");
 				panic("Failed to start kernel");
 			}
 		}
 	}
-	lib::cnotice << "Finished kernel init queues" << lib::endl;
+	LOG_NOTICE("Finished kernel init queues");
 }
 
 

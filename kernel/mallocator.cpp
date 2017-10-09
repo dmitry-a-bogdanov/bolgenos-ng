@@ -4,7 +4,6 @@
 #include <bolgenos_config.hpp>
 
 #include <bolgenos-ng/error.h>
-#include <lib/ostream.hpp>
 
 using config::PAGE_SIZE;
 

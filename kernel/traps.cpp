@@ -2,10 +2,10 @@
 
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/execinfo.hpp>
+#include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/log.hpp>
 
-#include <lib/ostream.hpp>
 
 
 namespace {
@@ -62,9 +62,9 @@ public:
 
 	void handle(irq::int_frame_error_t *frame_pointer) override
 	{
-		lib::ccrit << _message << lib::endl
-				<< *frame_pointer << lib::endl
-				<< "error code is " << frame_pointer->error_code << lib::endl;
+		LOG_CRITICAL(_message);
+		LOG_CRITICAL(*frame_pointer);
+		LOG_CRITICAL("error code is " << frame_pointer->error_code);
 		execinfo::show_backtrace(lib::ccrit, frame_pointer->regs.ebp,
 				frame_pointer->exe.eip);
 		panic("Forbidden exception in kernel code!");
@@ -90,7 +90,7 @@ public:
 
 	void handle(irq::int_frame_noerror_t *frame_pointer) override
 	{
-		lib::ccrit << _message << lib::endl;
+		LOG_CRITICAL(_message);
 		execinfo::show_backtrace(lib::ccrit, frame_pointer->regs.ebp,
 				frame_pointer->exe.eip);
 		panic("Forbidden exception in kernel mode!");

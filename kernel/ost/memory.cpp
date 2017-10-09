@@ -1,6 +1,7 @@
 #include "memory.hpp"
 
 #include <cstdint>
+#include <ostream>
 
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
@@ -9,7 +10,6 @@
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/slab.hpp>
 
-#include <lib/ostream.hpp>
 
 #include "../free_list.hpp"
 #include "../buddy_allocator.hpp"
@@ -19,6 +19,7 @@
 
 using config::PAGE_SIZE;
 
+using namespace std;
 using namespace lib;
 
 void ost::page_alloc_test() {

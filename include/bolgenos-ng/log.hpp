@@ -1,12 +1,12 @@
 #pragma once
 
-#include <lib/ostream.hpp>
+#include <ostream>
 #include <basalt/format_guard.hpp>
 
 #define _LOG_STREAM(stream, expr) \
 	do { \
 		basalt::scoped_format_guard fguard(stream); \
-		stream << expr << lib::endl; \
+		stream << expr << std::endl; \
 	} while(false)
 
 #define LOG_CRITICAL(expr) _LOG_STREAM(lib::ccrit, expr)

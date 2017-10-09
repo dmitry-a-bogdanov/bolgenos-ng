@@ -8,7 +8,7 @@ namespace lib {
 
 namespace _impl {
 
-class vga_buf: public streambuf {
+class vga_buf: public std::streambuf {
 public:
 	vga_buf();
 	virtual ~vga_buf();

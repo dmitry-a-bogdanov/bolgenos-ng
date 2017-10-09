@@ -1,13 +1,13 @@
 #include <bolgenos-ng/slab.hpp>
 
 #include <cstddef>
+#include <ostream>
 
 #include <bolgenos-ng/error.h>
-
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 
-#include <lib/ostream.hpp>
 
 #include <bolgenos_config.hpp>
 
@@ -90,8 +90,7 @@ void memory::allocators::SlabAllocator::deallocate(void *addr) {
 		return;
 	}
 	if (!owns(addr)) {
-		lib::ccrit << __func__ << ": deallocation of foreign memory = "
-				<< addr << lib::endl;
+		LOG_CRITICAL(__func__ << ": deallocation of foreign memory = " << addr);
 		panic("Critical error");
 	}
 	auto uint_addr = reinterpret_cast<std::uintptr_t>(addr);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/ostream.hpp>
+#include <ostream>
 
 namespace basalt {
 
@@ -9,12 +9,12 @@ public:
 	scoped_format_guard() = delete;
 	scoped_format_guard(const scoped_format_guard&) = delete;
 
-	scoped_format_guard(lib::ostream& guarded_stream);
+	scoped_format_guard(std::ostream& guarded_stream);
 
 	virtual ~scoped_format_guard();
 private:
-	lib::ostream& _guarded_stream;
-	lib::ostream _backup;
+	std::ostream& _guarded_stream;
+	std::ostream _backup;
 };
 
 }

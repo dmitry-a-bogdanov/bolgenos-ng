@@ -8,9 +8,9 @@
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 
-#include <lib/ostream.hpp>
 #include <basalt/format_guard.hpp>
 
 #include <m4/idt.hpp>
@@ -119,7 +119,7 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 	}
 
 	if (status != irq::IRQHandler::status_t::HANDLED) {
-		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
+		LOG_CRITICAL("Unhandled IRQ" << vector);
 		panic("Fatal interrupt");
 	}
 
@@ -129,67 +129,67 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 
 
 
-lib::ostream& irq::operator <<(lib::ostream& out,
+std::ostream& irq::operator <<(std::ostream& out,
 		const irq::registers_dump_t& regs)
 {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
+	out	<< std::setw(0) << std::hex << std::setfill(' ');
 	out	<< " eax = "
-			<< lib::setw(8) << lib::setfill('0')
+			<< std::setw(8) << std::setfill('0')
 				<< regs.eax
-			<< lib::setfill(' ') << lib::setw(0)
+			<< std::setfill(' ') << std::setw(0)
 		<< ' '
-		<< " ebx = " << lib::setw(8) << regs.ebx << lib::setw(0) << ' '
-		<< " ecx = " << lib::setw(8) << regs.ecx << lib::setw(0) << ' '
-		<< " edx = " << lib::setw(8) << regs.edx << lib::setw(0) << ' '
-		<< lib::endl
-		<< " esi = " << lib::setw(8) << regs.esi << lib::setw(0) << ' '
-		<< " edi = " << lib::setw(8) << regs.edi << lib::setw(0) << ' '
-		<< " ebp = " << lib::setw(8) << regs.ebp << lib::setw(0) << ' '
-		<< " esp = " << lib::setw(8) << regs.esp << lib::setw(0) << ' ';
+		<< " ebx = " << std::setw(8) << regs.ebx << std::setw(0) << ' '
+		<< " ecx = " << std::setw(8) << regs.ecx << std::setw(0) << ' '
+		<< " edx = " << std::setw(8) << regs.edx << std::setw(0) << ' '
+		<< std::endl
+		<< " esi = " << std::setw(8) << regs.esi << std::setw(0) << ' '
+		<< " edi = " << std::setw(8) << regs.edi << std::setw(0) << ' '
+		<< " ebp = " << std::setw(8) << regs.ebp << std::setw(0) << ' '
+		<< " esp = " << std::setw(8) << regs.esp << std::setw(0) << ' ';
 
 	return out;
 }
 
 
-lib::ostream& irq::operator <<(lib::ostream& out,
+std::ostream& irq::operator <<(std::ostream& out,
 		const irq::execution_info_dump_t& exe)
 {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::setw(0) << lib::hex
-		<< "eflg = " << lib::setw(8) << exe.eflags << lib::setw(0) << ' '
-		<< "  cs = " << lib::setw(8) << exe.cs << lib::setw(0) << ' '
-		<< " eip = " << lib::setw(8) << exe.eip << lib::setw(0);
+	out	<< std::setw(0) << std::hex
+		<< "eflg = " << std::setw(8) << exe.eflags << std::setw(0) << ' '
+		<< "  cs = " << std::setw(8) << exe.cs << std::setw(0) << ' '
+		<< " eip = " << std::setw(8) << exe.eip << std::setw(0);
 
 	return out;
 }
 
 
-lib::ostream& irq::operator <<(lib::ostream& out,
+std::ostream& irq::operator <<(std::ostream& out,
 		const irq::int_frame_error_t& frame)
 {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::hex
-		<< lib::setw(0) << " err = "
-		<< lib::setw(8) << frame.error_code
-		<< lib::endl
-		<< frame.exe << lib::endl
+	out	<< std::hex
+		<< std::setw(0) << " err = "
+		<< std::setw(8) << frame.error_code
+		<< std::endl
+		<< frame.exe << std::endl
 		<< frame.regs;
 
 	return out;
 }
 
 
-lib::ostream& irq::operator <<(lib::ostream& out,
+std::ostream& irq::operator <<(std::ostream& out,
 		const irq::int_frame_noerror_t& frame)
 {
 	basalt::scoped_format_guard format_guard(out);
 
-	out	<< lib::setw(0) << lib::hex
-		<< frame.exe << lib::endl
+	out	<< std::setw(0) << std::hex
+		<< frame.exe << std::endl
 		<< frame.regs;
 
 	return out;

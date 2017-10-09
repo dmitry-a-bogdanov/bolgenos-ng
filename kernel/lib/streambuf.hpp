@@ -3,7 +3,7 @@
 #include <cstddef>
 
 
-namespace lib {
+namespace std {
 
 class streambuf {
 public:

@@ -1,5 +1,7 @@
 #include "free_list.hpp"
 
+#include <bolgenos-ng/log.hpp>
+
 /// Type of list element.
 struct memory::allocators::FreeList::item_type {
 	/// Pointer to the next element.
@@ -169,15 +171,14 @@ void memory::allocators::FreeList::sanity_check() const {
 	for (item_type *it = list_; it; it = it->next)
 		length++;
 	if (length != stats.items) {
-		lib::ccrit << "actual = " << length
-			<< " expected = " << stats.items << lib::endl;
+		LOG_CRITICAL("actual = " << length << " expected = " << stats.items);
 		panic("FreeList stats are invalid!");
 	}
 }
 
 
 
-lib::ostream& memory::allocators::operator<<(lib::ostream& stream,
+std::ostream& memory::allocators::operator<<(std::ostream& stream,
 			const FreeList& fl) {
 	stream << "[FreeList(" << fl.order_ << ", " << fl.disable_squashing_
 		<< "):";

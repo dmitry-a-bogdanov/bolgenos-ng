@@ -59,7 +59,83 @@ add_custom_command(OUTPUT idt.cpp
 set_source_files_properties(idt.cpp PROPERTIES GENERATED TRUE)
 
 
-file(GLOB_RECURSE bolgenos_HEADERS ${kernel_headers_dir}/*)
+set(bolgenos_HEADERS
+../include/algorithm
+../include/atomic
+../include/basalt/format_guard.hpp
+../include/basalt/intrusive_list.hpp
+../include/basalt/type_traits.hpp
+../include/bolgenos-ng/asm.hpp
+../include/bolgenos-ng/bitarray.hpp
+../include/bolgenos-ng/compiler.h
+../include/bolgenos-ng/cxxabi.h
+../include/bolgenos-ng/device.h
+../include/bolgenos-ng/error.h
+../include/bolgenos-ng/execinfo.hpp
+../include/bolgenos-ng/init_queue.hpp
+../include/bolgenos-ng/interrupt_controller.hpp
+../include/bolgenos-ng/io/vga/streambuf.hpp
+../include/bolgenos-ng/io/vga/text_console.hpp
+../include/bolgenos-ng/io/vga/types.hpp
+../include/bolgenos-ng/io/vga/video_memory.hpp
+../include/bolgenos-ng/irq.hpp
+../include/bolgenos-ng/kernel_object.hpp
+../include/bolgenos-ng/keyboard.h
+../include/bolgenos-ng/log.hpp
+../include/bolgenos-ng/memory.hpp
+../include/bolgenos-ng/memory_region.hpp
+../include/bolgenos-ng/mem_utils.hpp
+../include/bolgenos-ng/mmu.hpp
+../include/bolgenos-ng/multiboot_info.hpp
+../include/bolgenos-ng/ost.hpp
+../include/bolgenos-ng/page.hpp
+../include/bolgenos-ng/pit.hpp
+../include/bolgenos-ng/printk.h
+../include/bolgenos-ng/ps2/common.hpp
+../include/bolgenos-ng/ps2_controller.hpp
+../include/bolgenos-ng/ps2/device.hpp
+../include/bolgenos-ng/ps2_line.hpp
+../include/bolgenos-ng/slab.hpp
+../include/bolgenos-ng/string.h
+../include/bolgenos-ng/time.hpp
+../include/bolgenos-ng/vga_streambuf.hpp
+../include/cstddef
+../include/cstdint
+../include/forward_list
+../include/functional
+../include/impl/cstddef/byte.hpp
+../include/impl/functional/function.hpp
+../include/impl/ios/basic_ios.hpp
+../include/impl/ios/basic_ostream.hpp
+../include/impl/ios/char_traits.hpp
+../include/impl/ios/ios_base.hpp
+../include/impl/ios/types.hpp
+../include/impl/memory/default_allocator.hpp
+../include/impl/memory/default_delete.hpp
+../include/impl/memory/pointer_control_block.hpp
+../include/impl/memory/shared_ptr.hpp
+../include/impl/memory/unique_ptr.hpp
+../include/impl/memory/weak_ptr.hpp
+../include/impl/type_traits/enable_if.hpp
+../include/impl/type_traits/integral_constant.hpp
+../include/impl/type_traits/is_signed.hpp
+../include/impl/type_traits/is_unsigned.hpp
+../include/impl/type_traits/make_signed.hpp
+../include/impl/type_traits/make_unsigned.hpp
+../include/impl/type_traits/remove_cv.hpp
+../include/impl/type_traits/underlying_type.hpp
+../include/ios
+../include/lib/free_list.hpp
+../include/lib/impl/basic_forward_list.hpp
+../include/m4/idt.hpp
+../include/memory
+../include/new
+../include/ostream
+../include/streambuf
+../include/string
+../include/type_traits
+../include/utility
+)
 source_group("include" FILES ${bolgenos_HEADERS})
 
 
@@ -94,7 +170,6 @@ source_group("basalt" FILES ${basalt_SOURCES})
 
 
 set(lib_SOURCES
-	lib/ostream.cpp
 	lib/snprintf.cpp
 	lib/streambuf.cpp
 	lib/streambuf.hpp

@@ -1,12 +1,10 @@
 #pragma once
 
+#include <ostream>
 #include <type_traits>
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>
-
-
-#include <lib/ostream.hpp>
 
 #include "free_list.hpp"
 
@@ -60,7 +58,7 @@ struct pblk_t {
 };
 
 
-lib::ostream& operator <<(lib::ostream &stream, const pblk_t &blk);
+std::ostream& operator <<(std::ostream &stream, const pblk_t &blk);
 
 
 /// \brief Buddy system.

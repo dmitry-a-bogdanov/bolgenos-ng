@@ -1,11 +1,12 @@
 #include "bitarray.hpp"
 
-#include <bolgenos-ng/error.h>
-
 #include <bolgenos-ng/bitarray.hpp>
-#include <bolgenos-ng/memory.hpp>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/error.h>
+#include <bolgenos-ng/log.hpp>
+#include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/ost.hpp>
+
 
 void ost::test_bitarray() {
 	void *mem = memory::alloc_pages(1);
@@ -17,16 +18,12 @@ void ost::test_bitarray() {
 		ba.set(idx, idx % 2);
 	}
 
-	for (size_t idx = 0; idx != array_size; ++idx) {
-		if (ba.get(idx) != idx % 2) {
-			lib::cerr << __func__ << ": bug on idx=" << idx
-				<< " " << ba.get(idx) << " vs. "
-				<< idx % 2 << lib::endl;
-			panic("Failed Test!");
-		}
+	for (size_t idx = 0; idx != array_size; ++idx)
+	{
+		OST_ASSERT(ba.get(idx) == idx % 2);
 	}
 
-	lib::cinfo << __func__ << ": ok" << lib::endl;
+	LOG_INFO(__func__ << ": ok");
 
 	memory::free_pages(mem);
 }

@@ -1,15 +1,15 @@
 #include <bolgenos-ng/memory.hpp>
 
+
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/kernel_object.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
-
-#include <lib/ostream.hpp>
 
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"
@@ -113,12 +113,10 @@ namespace {
 
 void detect_memory_regions() {
 	if (multiboot::boot_info->is_meminfo_valid()) {
-		lib::cnotice << "Detected memory: "
-			<< "low = "
+		LOG_NOTICE("Detected memory: low = "
 			<< multiboot::boot_info->low_memory() << " kB, "
 			<< "high = "
-			<< multiboot::boot_info->high_memory() << " kB"
-			<< lib::endl;
+			<< multiboot::boot_info->high_memory() << " kB");
 	} else {
 		panic("Bootloader didn't provide memory info!\n");
 	}
