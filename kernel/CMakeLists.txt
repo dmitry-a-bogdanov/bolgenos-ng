@@ -42,7 +42,10 @@ set(kernel_binary_name "kernel")
 
 set_property(SOURCE start.sx PROPERTY LANGUAGE "ASM-ATT")
 
-file(GLOB_RECURSE m4_input_files "m4/*")
+set(m4_input_files
+	m4/idt.cpp.m4
+	m4/utils.m4
+)
 source_group("M4 templates" FILES ${m4_input_files})
 
 set(m4_idt "${CMAKE_CURRENT_SOURCE_DIR}/m4/idt.cpp.m4")
@@ -60,41 +63,113 @@ file(GLOB_RECURSE bolgenos_HEADERS ${kernel_headers_dir}/*)
 source_group("include" FILES ${bolgenos_HEADERS})
 
 
-file(GLOB_RECURSE libkernelcxx_SOURCES libkernelcxx/*)
+set(libkernelcxx_SOURCES
+	libkernelcxx/ios_base.cpp
+	libkernelcxx/new.cpp
+	libkernelcxx/ostream.cpp
+)
 source_group("libkernelcxx" FILES ${libkernelcxx_SOURCES})
 
-file(GLOB_RECURSE alloc_SOURCES alloc/*)
-source_group("Allocators" FILES ${alloc_SOURCES})
+
+#file(GLOB_RECURSE alloc_SOURCES alloc/*)
+#source_group("Allocators" FILES ${alloc_SOURCES})
 
 
-file(GLOB_RECURSE ps2_SOURCES ps2/*)
+set(ps2_SOURCES
+	ps2/common.cpp
+	ps2/ps2_controller.cpp
+	ps2/ps2_keyboard.cpp
+	ps2/ps2_keyboard.hpp
+	ps2/ps2_keyboard_sm.cpp
+	ps2/ps2_keyboard_sm.hpp
+	ps2/ps2_line.cpp
+)
 source_group("ps2" FILES ${ps2_SOURCES})
 
 
-file(GLOB_RECURSE lib_SOURCES lib/*)
+set(basalt_SOURCES
+	basalt/scoped_format_guard.cpp
+)
+source_group("basalt" FILES ${basalt_SOURCES})
+
+
+set(lib_SOURCES
+	lib/ostream.cpp
+	lib/snprintf.cpp
+	lib/streambuf.cpp
+	lib/streambuf.hpp
+	lib/string.cpp
+	lib/vga_buf.cpp
+	lib/vga_buf.hpp
+	lib/vga_log_buf.cpp
+	lib/vga_log_buf.hpp
+)
 source_group("lib" FILES ${lib_SOURCES})
 
 
-file(GLOB_RECURSE ost_SOURCES ost/*)
+set(ost_SOURCES
+	ost/bitarray.cpp
+	ost/bitarray.hpp
+	ost/memory.cpp
+	ost/memory.hpp
+	ost/ost.cpp
+	ost/type_traits.cpp
+)
 source_group("ost" FILES ${ost_SOURCES})
 
 
-file(GLOB_RECURSE abi_SOURCES abi/*)
+set(abi_SOURCES
+	abi/cxxabi.cpp
+)
 source_group("abi" FILES ${abi_SOURCES})
 
 
-file(GLOB devices_SOURCES devices/*)
-source_group("devices" FILES ${devices_SOURCES})
-
-
-file(GLOB_RECURSE dev_pic_SOURCES devices/interrupt_controller/*)
+set(dev_pic_SOURCES
+	devices/interrupt_controller/interrupt_controller.cpp
+	devices/interrupt_controller/pic_8259.cpp
+	devices/interrupt_controller/pic_8259.hpp
+)
 source_group("devices/PICs" FILES ${dev_pic_SOURCES})
 
-file(GLOB_RECURSE dev_vga_SOURCES devices/vga/*)
+
+set(dev_vga_SOURCES
+	devices/vga/text_console.cpp
+)
 source_group("devices/vga" FILES ${dev_vga_SOURCES})
 
 
-file(GLOB kernel_SOURCES *)
+set(kernel_SOURCES
+	backtrace.cpp
+	buddy_allocator.cpp
+	buddy_allocator.hpp
+	CMakeLists.txt
+	error.cpp
+	free_list.cpp
+	free_list.hpp
+	frequency_divider.cpp
+	frequency_divider.hpp
+	init_queue.cpp
+	irq.cpp
+	kernel_object.cpp
+	keyboard.cpp
+	main.cpp
+	mallocator.cpp
+	mallocator.hpp
+	memory.cpp
+	mmu.cpp
+	multiboot_header.c
+	multiboot_info.cpp
+	page_allocator.cpp
+	page_allocator.hpp
+	page.cpp
+	pit.cpp
+	printk.cpp
+	slab.cpp
+	start.sx
+	time.cpp
+	traps.cpp
+	traps.hpp
+)
 source_group("kernel" FILES ${kernel_SOURCES})
 
 
@@ -121,6 +196,7 @@ add_executable(${kernel_binary_name}
 	${dev_pic_SOURCES}
 	${dev_vga_SOURCES}
 	${kernel_SOURCES}
+	${basalt_SOURCES}
 )
 
 # Compiler-independent configuration

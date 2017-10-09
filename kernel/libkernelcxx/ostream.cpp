@@ -22,4 +22,4 @@ cvga_streambuf vga_con_buf;
 } // namespace
 
 
-std::ostream std::cout(&vga_con_buf);
+//std::ostream std::cout(&vga_con_buf);

@@ -314,22 +314,6 @@ extern ostream cinfo;
 extern ostream cdebug;
 
 
-class scoped_format_guard {
-public:
-	scoped_format_guard() = delete;
-	scoped_format_guard(const scoped_format_guard&) = delete;
-	scoped_format_guard(ostream& guarded_stream)
-		: guarded_stream_(guarded_stream),
-		  backup_(nullptr) {
-		backup_.copyfmt(guarded_stream_);
-	}
-	~scoped_format_guard() {
-		guarded_stream_.copyfmt(backup_);
-	}
-public:
-	ostream& guarded_stream_;
-	ostream backup_;
-};
 
 
 } // namespace lib

@@ -4,6 +4,8 @@ project(bolgenos-ng
 	VERSION 0.0.4
 	LANGUAGES NONE)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(kernel_headers_dir "include/")
 include_directories(${kernel_headers_dir})
 

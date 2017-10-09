@@ -1,9 +1,11 @@
 #pragma once
 
 #include <lib/ostream.hpp>
+#include <basalt/format_guard.hpp>
 
 #define _LOG_STREAM(stream, expr) \
 	do { \
+		basalt::scoped_format_guard fguard(stream); \
 		stream << expr << lib::endl; \
 	} while(false)
 

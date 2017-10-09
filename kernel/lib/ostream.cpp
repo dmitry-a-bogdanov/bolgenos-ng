@@ -179,13 +179,13 @@ lib::ostream& lib::ostream::copyfmt(lib::ostream& other) {
 
 
 lib::ostream& lib::dec(ostream &stream) {
-	stream.setf(ostream::fmtflags::dec, ostream::fmtflags::basefield);
+	stream.setf(ostream::dec, ostream::basefield);
 	return stream;
 }
 
 
 lib::ostream& lib::hex(ostream &stream) {
-	stream.setf(ostream::fmtflags::hex, ostream::fmtflags::basefield);
+	stream.setf(ostream::hex, ostream::basefield);
 	return stream;
 }
 
@@ -288,8 +288,8 @@ void show_numerical_value(lib::ostream& stream, T value) {
 
 	unsigned_value_type unsigned_value = 0;
 	unsigned_value_type base = 10;
-	auto basefield = stream.flags() & lib::ostream::fmtflags::basefield;
-	if (basefield == lib::ostream::fmtflags::hex) {
+	auto basefield = stream.flags() & lib::ostream::basefield;
+	if (basefield == lib::ostream::hex) {
 		unsigned_value = static_cast<unsigned_value_type>(value);
 		base = 16;
 	} else {
@@ -313,7 +313,7 @@ void show_numerical_value(lib::ostream& stream, T value) {
 		buffer[digits++] = '0';
 	}
 
-	if (basefield == lib::ostream::fmtflags::dec && value < 0) {
+	if (basefield == lib::ostream::dec && value < 0) {
 		buffer[digits++] = '-';
 	}
 

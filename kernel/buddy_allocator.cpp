@@ -3,6 +3,8 @@
 #include <bolgenos_config.hpp>
 #include <bolgenos-ng/memory.hpp>
 
+#include <basalt/format_guard.hpp>
+
 #include "free_list.hpp"
 
 using config::PAGE_SIZE;
@@ -122,3 +124,16 @@ size_t memory::allocators::BuddyAllocator::compute_order(const pblk_t &blk) {
 
 	return order;
 }
+
+namespace memory {
+namespace allocators {
+
+lib::ostream& operator <<(lib::ostream &stream, const pblk_t &blk)
+{
+	basalt::scoped_format_guard guard(stream);
+	return stream << lib::hex << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
+}
+
+}
+}
+

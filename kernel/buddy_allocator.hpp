@@ -60,12 +60,7 @@ struct pblk_t {
 };
 
 
-/// Output operator for \ref pblk_t
-inline lib::ostream& operator <<(lib::ostream &stream,
-		const pblk_t &blk) {
-	lib::scoped_format_guard guard(stream);
-	return stream << lib::hex << "pblk_t {" << blk.ptr << ", " << blk.size << "}";
-}
+lib::ostream& operator <<(lib::ostream &stream, const pblk_t &blk);
 
 
 /// \brief Buddy system.
