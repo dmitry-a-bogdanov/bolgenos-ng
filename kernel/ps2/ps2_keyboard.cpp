@@ -1,9 +1,10 @@
 #include "ps2_keyboard.hpp"
 
+#include <cstring>
+
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/keyboard.h>
-#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/ps2_line.hpp>
 #include <bolgenos-ng/ps2/device.hpp>

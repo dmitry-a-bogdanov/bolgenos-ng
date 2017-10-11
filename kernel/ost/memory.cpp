@@ -15,9 +15,7 @@
 #include "../buddy_allocator.hpp"
 #include "../mallocator.hpp"
 
-#include <bolgenos_config.hpp>
-
-using config::PAGE_SIZE;
+using memory::PAGE_SIZE;
 
 using namespace std;
 using namespace lib;

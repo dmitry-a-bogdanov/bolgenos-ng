@@ -4,8 +4,6 @@
 #include <memory>
 #include <ostream>
 
-#include <bolgenos_config.hpp>
-
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
@@ -93,17 +91,18 @@ public:
 	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
 	{
 		if (_divider->do_tick()) {
-			if constexpr(config::VERBOSE_TIMER_INTERRUPT)
+			if constexpr(VERBOSE_TIMER_INTERRUPT)
 			{
-				std::cout << "jiffy #" << jiffies << std::endl;
+				std::cout << "jiffy #" << bolgenos::jiffies << std::endl;
 			}
-			++jiffies;
+			++bolgenos::jiffies;
 		}
 		return status_t::HANDLED;
 	}
 
 private:
 	pit::details::FrequencyDivider *_divider;
+	static constexpr bool VERBOSE_TIMER_INTERRUPT = false;
 };
 
 
@@ -122,7 +121,7 @@ void pit::init() {
 	{
 		const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-		freq_divider.set_frequency(config::HZ, PIT_FREQUENCY, MAX_DIVIDER);
+		freq_divider.set_frequency(bolgenos::HZ, PIT_FREQUENCY, MAX_DIVIDER);
 		if (freq_divider.is_low_frequency())
 			LOG_WARNING("PIT: losing accuracy of timer");
 

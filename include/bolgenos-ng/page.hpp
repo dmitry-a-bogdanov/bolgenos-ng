@@ -1,17 +1,17 @@
 #pragma once
 
 #include <cstddef>
-#include <bolgenos_config.hpp>
 
 
 namespace memory {
 
+constexpr inline std::size_t PAGE_SIZE = 4096;
 
 /// \brief Page in real memory.
 ///
 /// Used only for simplifying address arithmetics.
 struct __attribute__((packed)) page_frame_t {
-	std::byte bytes[config::PAGE_SIZE]; ///< bytes in real page frame
+	std::byte bytes[PAGE_SIZE]; ///< bytes in real page frame
 };
 
 

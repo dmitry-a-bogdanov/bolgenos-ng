@@ -40,7 +40,16 @@ endforeach()
 
 set(kernel_binary_name "kernel")
 
+find_package(Git REQUIRED)
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	OUTPUT_VARIABLE last_commit
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(SUBSTRING "${last_commit}" 0 7 last_commit)
+
 set_property(SOURCE start.sx PROPERTY LANGUAGE "ASM-ATT")
+set_property(SOURCE main.cpp APPEND PROPERTY COMPILE_DEFINITIONS
+	BOLGENOS_NG_VERSION="${bolgenos-ng_VERSION}-${last_commit}")
 
 set(m4_input_files
 	m4/idt.cpp.m4
@@ -70,12 +79,7 @@ set(ps2_SOURCES
 )
 source_group("ps2" FILES ${ps2_SOURCES})
 
-
-set(lib_SOURCES
-	lib/snprintf.cpp
-	lib/string.cpp
-)
-source_group("lib" FILES ${lib_SOURCES})
+#add_definitions(-DBOLGENOS_NG_VERSION="${bolgenos-ng_VERSION}")
 
 
 set(ost_SOURCES
@@ -158,7 +162,6 @@ add_executable(${kernel_binary_name}
 	${idt}
 
 	${alloc_SOURCES}
-	${lib_SOURCES}
 	${ps2_SOURCES}
 	${ost_SOURCES}
 	${abi_SOURCES}

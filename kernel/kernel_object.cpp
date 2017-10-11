@@ -4,23 +4,25 @@
 #include <cstdint>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/page.hpp>
-#include <bolgenos_config.hpp>
 
+static constexpr std::size_t STACK_PAGES = 1024;
+static constexpr std::size_t STACK_SIZE = STACK_PAGES * STACK_PAGES;
+static constexpr std::size_t STACK_CANARY_PAGES = 1;
 
 extern "C"
 {
 
-extern memory::page_frame_t pre_ks[config::STACK_CANARY_PAGES];
-extern unsigned char ks[config::STACK_SIZE];
-extern memory::page_frame_t post_ks[config::STACK_CANARY_PAGES];
+extern memory::page_frame_t pre_ks[STACK_CANARY_PAGES];
+extern unsigned char ks[STACK_SIZE];
+extern memory::page_frame_t post_ks[STACK_CANARY_PAGES];
 
 
 }
 // extern "C"
 
-memory::page_frame_t pre_ks[config::STACK_CANARY_PAGES]		[[gnu::section(".pre_ks_canary")]];
-unsigned char ks[config::STACK_SIZE]						[[gnu::section(".ks")]];
-memory::page_frame_t post_ks[config::STACK_CANARY_PAGES]	[[gnu::section(".post_ks_canary")]];
+memory::page_frame_t pre_ks[STACK_CANARY_PAGES]		[[gnu::section(".pre_ks_canary")]];
+unsigned char ks[STACK_SIZE]						[[gnu::section(".ks")]];
+memory::page_frame_t post_ks[STACK_CANARY_PAGES]	[[gnu::section(".post_ks_canary")]];
 
 
 

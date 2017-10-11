@@ -1,6 +1,5 @@
 #include <ostream>
 
-#include <bolgenos_config.hpp>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/cxxabi.h>
@@ -29,7 +28,7 @@ extern "C" void kernel_main() {
 
 	bolgenos::io::vga::TextConsole::instance()->clear_screen();
 
-	LOG_NOTICE("Starting bolgenos-ng-" << config::BOLGENOS_NG_VERSION);
+	LOG_NOTICE("Starting bolgenos-ng-" << BOLGENOS_NG_VERSION);
 
 	mmu::init();	// Enables segmentation.
 	memory::init(); // Allow allocation

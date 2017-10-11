@@ -8,7 +8,9 @@ add_library(kstdc++ STATIC ${SOURCES}
 	ios_base.cpp
 	new.cpp
 	ostream.cpp
+	snprintf.cpp
 	streambuf.cpp
+	string.cpp
 	vga_buf.cpp
 	vga_buf.hpp
 	vga_log_buf.cpp

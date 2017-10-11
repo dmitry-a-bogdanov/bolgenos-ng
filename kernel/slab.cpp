@@ -7,11 +7,9 @@
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/page.hpp>
 
 
-#include <bolgenos_config.hpp>
-
-using config::PAGE_SIZE;
 using namespace memory;
 
 memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
@@ -26,8 +24,7 @@ bool memory::allocators::SlabAllocator::initialize(size_t elem_size,
 	nelems_ = nelems;
 	size_t required_memory = elem_size_ * nelems_
 			+ util::inplace::BitArray::expected_size(nelems_);
-	size_t required_pages =
-		align_up<PAGE_SIZE>(required_memory) / PAGE_SIZE;
+	size_t required_pages = align_up<PAGE_SIZE>(required_memory) / PAGE_SIZE;
 	area_ = alloc_pages(required_pages);
 	if (!area_) {
 		initialized_ = false;

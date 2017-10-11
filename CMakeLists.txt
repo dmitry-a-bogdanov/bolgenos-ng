@@ -15,17 +15,14 @@ set(kernel_headers ${kernel_std_headers} ${kernel_headers})
 if (${CMAKE_CROSSCOMPILING})
 	message(STATUS "CMake is being run in crosscompiling mode. "
 		"Kernel targets will be built.")
-	set(kernel_config_dir "config/")
 	include("cmake/gcc_conf.cmake")
-	add_subdirectory(${kernel_config_dir})
 
 	add_subdirectory("kstdc++/")
 	add_subdirectory("basalt/")
-
-	add_subdirectory(kernel)
+	add_subdirectory("kernel/")
 
 # Doxygen project
-	add_subdirectory(doc)
+	add_subdirectory("doc/")
 else()
 	message(STATUS "CMake is being run NOT in crosscompiling mode. "
 		" Only testing project will be built.")

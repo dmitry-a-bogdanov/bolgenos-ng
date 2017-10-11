@@ -1,12 +1,13 @@
 #include <bolgenos-ng/ps2_controller.hpp>
 
+#include <cstring>
+
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/init_queue.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/ps2_line.hpp>
-#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.hpp>
 
 #include <bolgenos-ng/ps2/device.hpp>
@@ -149,8 +150,7 @@ void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 	}
 	if (active_dev_count > 1) {
 		char info[100];
-		snprintf(info, 100, "more than 1 probed devices for "
-			"PS/2 line %li\n", line);
+		LOG_CRITICAL("more than 1 probed devices for PS/2 line " << line);
 		bug(info);
 	}
 
@@ -337,13 +337,13 @@ bool ps2::PS2Controller::wait_for_flag(status_reg_t flag, bool val, int ms) {
 		while (!((st = status()) & flag)
 				&& wait < ms) {
 			++wait;
-			sleep_ms(1 /* ms */);
+			bolgenos::sleep_ms(1 /* ms */);
 		}
 	} else {
 		while (((st = status()) & flag)
 				&& wait < ms) {
 			++wait;
-			sleep_ms(1 /* ms */);
+			bolgenos::sleep_ms(1 /* ms */);
 		}
 	}
 	return st & flag;

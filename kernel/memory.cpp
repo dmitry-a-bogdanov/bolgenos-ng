@@ -15,9 +15,6 @@
 #include "page_allocator.hpp"
 #include "mallocator.hpp"
 
-#include <bolgenos_config.hpp>
-
-using config::PAGE_SIZE;
 
 void *operator new(size_t, void *address)
 {
@@ -124,13 +121,13 @@ void detect_memory_regions() {
 	auto highmem_bytes = multiboot::boot_info->high_memory() * 1024;
 
 	highmem.begin(highmem_start);
-	highmem.end(highmem_start + memory::align_down<PAGE_SIZE>(highmem_bytes) / PAGE_SIZE);
+	highmem.end(highmem_start + memory::align_down<memory::PAGE_SIZE>(highmem_bytes) / memory::PAGE_SIZE);
 }
 
 
 void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE>(kobj::end()));
+			memory::align_up<memory::PAGE_SIZE>(kobj::end()));
 
 	highmem_buddy_allocator.initialize(&highmem);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,

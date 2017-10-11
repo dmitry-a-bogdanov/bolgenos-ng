@@ -1,4 +1,4 @@
-#include <bolgenos-ng/string.h>
+#include "include/cstring"
 
 #include <stdarg.h> // from gcc!
 #include <cstdint>
@@ -97,7 +97,7 @@ static int read_format(const char *fmt, struct format_entry *ret) {
 	}
 }
 
-int snprintf(char *str, size_t size, const char *format, ...) {
+int std::snprintf(char *str, size_t size, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
 	int ret = vsnprintf(str, size, format, args);
@@ -106,7 +106,7 @@ int snprintf(char *str, size_t size, const char *format, ...) {
 	return ret;
 }
 
-int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
+int std::vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 	int written = 0;
 	while (*format && size > 1) {
 		struct format_entry entry;

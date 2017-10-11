@@ -1,11 +1,8 @@
 #include "mallocator.hpp"
 
 #include <new>
-#include <bolgenos_config.hpp>
 
 #include <bolgenos-ng/error.h>
-
-using config::PAGE_SIZE;
 
 namespace {
 

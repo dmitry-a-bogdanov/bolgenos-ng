@@ -1,9 +1,9 @@
-#include <ostream>
+#include "include/ostream"
 
+#include <cstring>
 #include <type_traits>
 #include <utility>
 
-#include <bolgenos-ng/string.h>
 //#include "../kernel/lib/streambuf.hpp"
 //#include "../kernel/lib/vga_buf.hpp"
 //#include "../kernel/lib/vga_log_buf.hpp"
