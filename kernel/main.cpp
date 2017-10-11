@@ -13,6 +13,7 @@
 #include <bolgenos-ng/io/vga/text_console.hpp>
 
 #include <bolgenos-ng/log.hpp>
+#include <bolgenos-ng/log_level.hpp>
 
 #include "traps.hpp"
 

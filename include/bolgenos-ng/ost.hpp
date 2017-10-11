@@ -4,6 +4,7 @@
 
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
+#include <bolgenos-ng/log.hpp>
 
 
 // Special rules for OST:

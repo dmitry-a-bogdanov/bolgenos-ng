@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstddef>
+#include <streambuf>
 
 namespace std {
 
-class streambuf;
 
 
 /// \brief Output stream class
@@ -282,36 +282,3 @@ extern std::ostream cout;
 
 }
 
-namespace lib {
-
-/// Logging level type.
-enum log_level_type: int {
-	critical,
-	error,
-	warning,
-	notice,
-	info,
-	debug,
-};
-
-
-/// Get current system wide logging level.
-log_level_type get_log_level();
-
-
-/// Set new system wide logging level.
-void set_log_level(log_level_type log_level);
-
-
-
-/// \brief Console output object.
-///
-/// Object of \ref ostream is to be used for printing to VGA console.
-extern std::ostream ccrit;
-extern std::ostream cerr;
-extern std::ostream cwarn;
-extern std::ostream cnotice;
-extern std::ostream cinfo;
-extern std::ostream cdebug;
-
-} // namespace lib

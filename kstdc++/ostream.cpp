@@ -4,10 +4,10 @@
 #include <utility>
 
 #include <bolgenos-ng/string.h>
-
-#include "../lib/streambuf.hpp"
-#include "../lib/vga_buf.hpp"
-#include "../lib/vga_log_buf.hpp"
+//#include "../kernel/lib/streambuf.hpp"
+//#include "../kernel/lib/vga_buf.hpp"
+//#include "../kernel/lib/vga_log_buf.hpp"
+#include "vga_buf.hpp"
 
 
 namespace {
@@ -42,7 +42,7 @@ std::ostream& std::ostream::write(const char *str, size_t len) {
 	streambuf_->sputn(str, len);
 	return *this;
 }
-
+//
 
 std::ostream& std::ostream::operator <<(char val) {
 	fill_field(*this, width_, 1);
@@ -220,15 +220,6 @@ std::_impl::_setfill_type std::setfill(char fillch) {
 }
 
 
-void lib::set_log_level(log_level_type log_level) {
-	lib::_impl::vga_log_buf::set_system_log_level(log_level);
-}
-
-
-lib::log_level_type lib::get_log_level() {
-	return lib::_impl::vga_log_buf::get_system_log_level();
-}
-
 
 
 
@@ -236,12 +227,6 @@ namespace {
 
 
 lib::_impl::vga_buf plain_vga_buf;
-lib::_impl::vga_log_buf crit_buf(lib::log_level_type::critical, "[C] ");
-lib::_impl::vga_log_buf err_buf(lib::log_level_type::error, "[E] ");
-lib::_impl::vga_log_buf warn_buf(lib::log_level_type::warning, "[W] ");
-lib::_impl::vga_log_buf notice_buf(lib::log_level_type::notice, "[N] ");
-lib::_impl::vga_log_buf info_buf(lib::log_level_type::info, "[I] ");
-lib::_impl::vga_log_buf debug_buf(lib::log_level_type::debug, "[D] ");
 
 
 } // namespace
@@ -250,12 +235,6 @@ lib::_impl::vga_log_buf debug_buf(lib::log_level_type::debug, "[D] ");
 
 
 std::ostream std::cout(&plain_vga_buf);
-std::ostream lib::ccrit(&crit_buf);
-std::ostream lib::cerr(&err_buf);
-std::ostream lib::cwarn(&warn_buf);
-std::ostream lib::cnotice(&notice_buf);
-std::ostream lib::cinfo(&info_buf);
-std::ostream lib::cdebug(&debug_buf);
 
 
 namespace {

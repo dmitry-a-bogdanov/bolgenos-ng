@@ -16,3 +16,14 @@
 #define LOG_INFO(expr) _LOG_STREAM(lib::cinfo, expr)
 #define LOG_DEBUG(expr) _LOG_STREAM(lib::cdebug, expr)
 
+namespace lib
+{
+
+extern std::ostream ccrit;
+extern std::ostream cerr;
+extern std::ostream cwarn;
+extern std::ostream cnotice;
+extern std::ostream cinfo;
+extern std::ostream cdebug;
+
+}

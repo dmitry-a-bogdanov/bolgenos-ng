@@ -1,6 +1,6 @@
 #pragma once
 
-#include "streambuf.hpp"
+#include <streambuf>
 
 
 namespace lib {

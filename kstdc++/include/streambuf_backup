@@ -1,5 +1,5 @@
 #pragma once
-
+#error "Cannot include this header"
 #include <string>
 
 namespace std {
@@ -10,7 +10,7 @@ class basic_streambuf
 {
 public:
 	using char_type = CharT;
-	using traits_type = Traits;
+	using traits_type = Trait;
 	using int_type = typename traits_type::int_type;
 	using pos_type = typename traits_type::pos_type;
 	using off_type = typename traits_type::off_type;
