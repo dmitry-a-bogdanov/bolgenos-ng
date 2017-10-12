@@ -87,7 +87,7 @@ void memory::allocators::SlabAllocator::deallocate(void *addr) {
 		return;
 	}
 	if (!owns(addr)) {
-		LOG_CRITICAL(__func__ << ": deallocation of foreign memory = " << addr);
+		LOG_F_CRITICAL("deallocation of foreign memory = " << addr);
 		panic("Critical error");
 	}
 	auto uint_addr = reinterpret_cast<std::uintptr_t>(addr);

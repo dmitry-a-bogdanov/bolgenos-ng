@@ -2,6 +2,7 @@ project(basalt)
 
 set(SOURCES
 	"scoped_format_guard.cpp"
+	"scope_logger.cpp"
 )
 
 add_library(basalt STATIC ${SOURCES})

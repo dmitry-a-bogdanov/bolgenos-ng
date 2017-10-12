@@ -27,8 +27,8 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 	}
 
 	if (reinterpret_cast<size_t>(blk.ptr) & ((1 << 12) - 1)) {
-		LOG_CRITICAL(__func__ << ": bad page address: " << blk.ptr);
-		panic(__func__);
+		LOG_F_CRITICAL("bad page address: " << blk.ptr);
+		panic("");
 	}
 
 

@@ -23,7 +23,7 @@ void ost::test_bitarray() {
 		OST_ASSERT(ba.get(idx) == idx % 2);
 	}
 
-	LOG_INFO(__func__ << ": ok");
+	LOG_F_INFO("ok");
 
 	memory::free_pages(mem);
 }
