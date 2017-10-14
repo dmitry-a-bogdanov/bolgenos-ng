@@ -5,13 +5,13 @@
 
 
 namespace memory {
+class MemoryRegion; // forward declaration
 
 
 namespace allocators {
 
 
 class BuddyAllocator; // forward declaration
-class MemoryRegion; // forward declaration
 
 
 /// \brief Page allocator.

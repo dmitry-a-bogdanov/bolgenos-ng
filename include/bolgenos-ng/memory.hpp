@@ -5,7 +5,7 @@
 #include <type_traits>
 
 
-namespace memory {
+namespace bolgenos {
 
 
 bool is_initialized();
@@ -49,13 +49,8 @@ inline ValueType align_up(ValueType value) {
 	return reinterpret_cast<ValueType>(_val);
 }
 
-
-/**
-* \brief Initialize memory subsystem.
-*
-* The function initializes memory subsystem.
-*/
-void init();
+class MultibootInfo;
+void init_memory(const MultibootInfo*);
 
 
 /**

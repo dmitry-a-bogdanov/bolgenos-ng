@@ -13,14 +13,15 @@ template<class T>
 class intrusive_list_node
 {
 public:
-	intrusive_list_node(const T& val)
-		: data{ val }
+	intrusive_list_node(T data)
+		: _data{ data }
 	{
 	}
 	intrusive_list_node(const intrusive_list_node<T>&) = delete;
 	intrusive_list_node& operator =(const intrusive_list_node<T>&) = delete;
+	virtual ~intrusive_list_node() = default;
 
-	T data;
+	T _data;
 	intrusive_list_node<T>* _next{ nullptr };
 
 	friend intrusive_list<T>;
@@ -67,7 +68,7 @@ public:
 
 		T& operator *()
 		{
-			return _node->data;
+			return _node->_data;
 		}
 	private:
 		iterator(node_type *node)
@@ -106,7 +107,7 @@ public:
 
 		const T& operator *()
 		{
-			return _node->data;
+			return _node->_data;
 		}
 	private:
 		const_iterator(node_type *node)

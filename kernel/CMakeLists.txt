@@ -83,11 +83,13 @@ source_group("ps2" FILES ${ps2_SOURCES})
 
 
 set(ost_SOURCES
+	ost/assert.cpp
+	ost/conf.cpp
 	ost/bitarray.cpp
-	ost/bitarray.hpp
 	ost/memory.cpp
-	ost/memory.hpp
 	ost/ost.cpp
+	ost/test_case_base.cpp
+	ost/test_runner.cpp
 	ost/type_traits.cpp
 )
 source_group("ost" FILES ${ost_SOURCES})
@@ -134,6 +136,7 @@ set(kernel_SOURCES
 	mmu.cpp
 	multiboot_header.c
 	multiboot_info.cpp
+	multiboot_info.hpp
 	page_allocator.cpp
 	page_allocator.hpp
 	page.cpp

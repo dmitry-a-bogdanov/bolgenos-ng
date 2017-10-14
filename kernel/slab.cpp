@@ -11,6 +11,7 @@
 
 
 using namespace memory;
+using namespace bolgenos;
 
 memory::allocators::SlabAllocator::SlabAllocator(size_t elem_size,
 		size_t nelems) {

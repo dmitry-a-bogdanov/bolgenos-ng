@@ -1,4 +1,5 @@
 #include <type_traits>
+#include <bolgenos-ng/ost.hpp>
 
 namespace {
 
@@ -10,7 +11,7 @@ class ClassType {};
 using namespace std;
 
 
-namespace t_add_const
+TEST(TypeTraits, add_const)
 {
 
 static_assert(is_same<typename add_const<int>::type, add_const_t<int>>(), "");
@@ -29,11 +30,11 @@ static_assert(is_same<add_const<ClassType&>::type, ClassType&>::value, "");
 static_assert(is_same<add_const<ClassType (ClassType)>::type, ClassType (ClassType)>::value, "");
 static_assert(is_same<add_const<const ClassType>::type, const ClassType>::value, "");
 
-} // namespace t_add_const
+}
 
 
 
-namespace t_is_same
+TEST(TypeTraits, is_same)
 {
 
 static_assert(is_same<int, int>::value == true, "");
@@ -46,31 +47,29 @@ static_assert(is_same<int, const int>::value == false, "");
 static_assert(is_same<int, int&>::value == false, "");
 static_assert(is_same<int, ClassType>::value == false, "");
 
-} // t_is_same
-
-
-
-namespace t_integral_constant
-{
+}
 
 template<class T, T val>
 using ic = std::integral_constant<T, val>;
 
-static_assert(ic<int, 1>{}() == 1, "");
-static_assert(ic<int, 0>{}() == 0, "");
-static_assert(ic<int, -1>{}() == -1, "");
+TEST(TypeTraits, integral_constant)
+{
+    static_assert(ic<int, 1>{}() == 1, "");
+    static_assert(ic<int, 0>{}() == 0, "");
+    static_assert(ic<int, -1>{}() == -1, "");
 
-static_assert(ic<bool, true>{}() == true, "");
-static_assert(ic<bool, false>{}() == false, "");
+    static_assert(ic<bool, true>{}() == true, "");
+    static_assert(ic<bool, false>{}() == false, "");
 
-static_assert(ic<int, 1>() == 1, "");
-static_assert(ic<int, 0>() == 0, "");
-static_assert(ic<int, -1>() == -1, "");
+    static_assert(ic<int, 1>() == 1, "");
+    static_assert(ic<int, 0>() == 0, "");
+    static_assert(ic<int, -1>() == -1, "");
 
-static_assert(ic<bool, true>() == true, "");
-static_assert(ic<bool, false>() == false, "");
+    static_assert(ic<bool, true>() == true, "");
+    static_assert(ic<bool, false>() == false, "");
+}
 
-void test01()
+TEST(TypeTraits, integral_constant_instance)
 {
 	const bool *p = &std::integral_constant<bool, true>::value;
 	(void)p;
@@ -89,17 +88,17 @@ typedef false_type::type                    false_type;
 typedef false_type::type::value_type        false_type_value_type;
 typedef false_type::type::type              false_type_type;
 
+TEST(TypeTraits, bool_constant)
+{
+    static_assert(true_type::value == true, "" );
+    static_assert(false_type::value == false, "" );
+    static_assert(true_type::type::value == true, "" );
+    static_assert(false_type::type::value == false, "" );
+}
 
-static_assert(true_type::value == true, "" );
-static_assert(false_type::value == false, "" );
-static_assert(true_type::type::value == true, "" );
-static_assert(false_type::type::value == false, "" );
 
-} // namespace t_integral_constant
-
-
-
-namespace t_remove_reference {
+TEST(TypeTraits, remove_reference)
+{
 
 static_assert(is_same<remove_reference<int&>::type, int>::value, "");
 static_assert(is_same<remove_reference<int>::type, int>::value, "");

@@ -8,19 +8,20 @@
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/mmu.hpp>
-#include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/io/vga/text_console.hpp>
 
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/log_level.hpp>
 
+#include "multiboot_info.hpp"
 #include "traps.hpp"
 
 
 extern "C" void kernel_main() {
 	irq::disable();
 
-	multiboot::init();
+	bolgenos::MultibootInfo::init();
+	auto mboot_info = bolgenos::MultibootInfo::instance();
 
 	call_global_ctors();
 
@@ -31,7 +32,7 @@ extern "C" void kernel_main() {
 	LOG_NOTICE("Starting bolgenos-ng-" << BOLGENOS_NG_VERSION);
 
 	mmu::init();	// Enables segmentation.
-	memory::init(); // Allow allocation
+	bolgenos::init_memory(mboot_info); // Allow allocation
 	irq::install_traps();
 
 	auto interrupt_controller = devices::InterruptController::instance();

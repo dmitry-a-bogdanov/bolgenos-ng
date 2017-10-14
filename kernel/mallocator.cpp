@@ -4,6 +4,8 @@
 
 #include <bolgenos-ng/error.h>
 
+using namespace bolgenos;
+
 namespace {
 
 size_t chain_unit_size(size_t index) {

@@ -7,14 +7,14 @@
 ///
 /// Namespace aggregates functionality related to interaction with
 /// multiboot-compliant bootloader.
-namespace multiboot {
+namespace bolgenos {
 
 
 /// \brief Boot information.
 ///
 /// More info about members can be read in the following article:
 /// https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
-class __attribute__((packed)) boot_info_t {
+class [[gnu::packed]] MultibootInfo {
 public:
 	/// \brief Check that memory information is valid.
 	///
@@ -29,7 +29,7 @@ public:
 	/// multiboot-compliant bootloader.
 	///
 	/// \return Size of low memory.
-	uint32_t low_memory() const;
+	std::uint32_t low_memory() const;
 
 
 	/// \brief Get size of high memory.
@@ -39,6 +39,13 @@ public:
 	///
 	/// \return Size of high memory.
 	uint32_t high_memory() const;
+
+	// \brief Initialize multiboot information.
+	//
+	// Copy boot information structure provided by Multiboot-compliant bootloader to
+	// internal kernel memory.
+	static void init();
+	static const MultibootInfo *instance();
 
 protected:
 	uint32_t flags_;	///< Multiboot information status.
@@ -69,19 +76,6 @@ protected:
 	uint16_t vbe_interface_off;
 	uint16_t vbe_interface_len;
 };
-
-
-// \brief Initialize multiboot information.
-//
-// Copy boot information structure provided by Multiboot-compliant bootloader to
-// internal kernel memory.
-void init();
-
-
-/// \brief Boot information
-///
-/// Pointer to information that is got from multiboot-compliant bootloader.
-extern const boot_info_t *boot_info;
 
 
 } // namespace multiboot

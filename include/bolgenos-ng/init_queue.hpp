@@ -57,20 +57,23 @@ template<typename Functor>
 struct FunctorRegisterer: public InitCallback
 {
 	FunctorRegisterer(prio_t prio, const char* reg_name, Functor f)
-		: _f{ f }, _name{ reg_name }
+		: InitCallback(),
+		_f{ f }, _name{ reg_name },
+		_queue_node(static_cast<InitCallback*>(this))
 	{
 		bolgenos::init::Queue::instance().register_callback(_queue_node, prio);
 	}
 
 	FunctorRegisterer(const FunctorRegisterer<Functor>&) = delete;
 	FunctorRegisterer<Functor>& operator =(const FunctorRegisterer<Functor>&) = delete;
+	virtual ~FunctorRegisterer() = default;
 
 	const char* name() override { return _name; }
 	bool invoke() override { return _f(); }
 
 	Functor _f;
 	const char* _name;
-	basalt::intrusive_list_node<InitCallback *> _queue_node{static_cast<InitCallback *>(this)};
+	basalt::intrusive_list_node<InitCallback *> _queue_node;
 };
 
 

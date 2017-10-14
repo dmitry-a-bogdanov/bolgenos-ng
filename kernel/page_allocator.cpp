@@ -23,7 +23,7 @@ void memory::allocators::PageAllocator::initialize(BuddyAllocator *primary,
 	primary_ = primary;
 	auto region = primary_->region();
 
-	auto map_size = memory::align_up<PAGE_SIZE>(
+	auto map_size = bolgenos::align_up<PAGE_SIZE>(
 		util::inplace::BitArray::expected_size(region->size()))
 				/ PAGE_SIZE;
 	pblk_t pages;

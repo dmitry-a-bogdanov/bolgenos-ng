@@ -1,18 +1,12 @@
 #include <bolgenos-ng/init_queue.hpp>
-#include "memory.hpp"
-#include "bitarray.hpp"
+#include <bolgenos-ng/ost/test_runner.hpp>
 
 namespace
 {
 
 void run()
 {
-	ost::page_alloc_test();
-	ost::free_list_test();
-	ost::slab_test();
-	ost::buddy_allocator_test();
-	ost::test_bitarray();
-	ost::mallocator_test();
+	ost::TestRunner::default_runner()->execute();
 }
 
 using namespace bolgenos::init;
