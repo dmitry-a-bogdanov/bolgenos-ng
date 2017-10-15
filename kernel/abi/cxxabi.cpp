@@ -21,10 +21,10 @@ _asm_linked_ ctor_function_t* __ctors_end[];
 
 void call_global_ctors()
 {
-    for (auto begin = __ctors_begin; begin != __ctors_end; ++begin)
-    {
-        (*begin)();
-    }
+	for (auto begin = __ctors_begin; begin != __ctors_end; ++begin)
+	{
+		(*begin)();
+	}
 }
 
 
@@ -43,27 +43,39 @@ int __cxa_atexit(void (*destructor) (void *), void *arg, void *dso)
 }
 
 
-typedef std::atomic_bool __guard;
+typedef std::atomic_uchar __guard;
+constexpr unsigned char INITIALIZATION_NOT_STARTED = 0x00;
+constexpr unsigned char INITIALIZATION_STARTED = 0x01;
+constexpr unsigned char INITIALIZATION_FINISHED = 0x03;
 
 
 int __cxa_guard_acquire (__guard *g)
 {
-	if (g->compare_exchange(false, true)) {
-		return 1; // just to make sure that true is casted to 1
-	} else {
+	if (*g == INITIALIZATION_FINISHED)
+	{
 		return 0;
 	}
+
+	unsigned char previous = INITIALIZATION_NOT_STARTED;
+	if (g->compare_exchange(previous, INITIALIZATION_STARTED))
+	{
+		return 1;
+	}
+
+	while (*g == INITIALIZATION_STARTED) {}
+	return 0;
 }
 
 
-void __cxa_guard_release (__guard *g __attribute__((unused)))
+void __cxa_guard_release (__guard *g)
 {
+	*g = INITIALIZATION_FINISHED;
 }
 
 
 void __cxa_guard_abort (__guard *g)
 {
-	g->compare_exchange(true, false);
+	*g = INITIALIZATION_FINISHED;
 }
 
 

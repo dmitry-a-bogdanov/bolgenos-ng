@@ -113,7 +113,7 @@ namespace x86 {
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 1)>::type load(const volatile T& from, T& to)
 {
 	asm volatile("movb %1, %b0 \n"
 			: "=r"(to)
@@ -124,7 +124,7 @@ typename std::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 2)>::type load(const volatile T& from, T& to)
 {
 	asm volatile("movw %1, %w0 \n"
 			: "=r"(to)
@@ -135,7 +135,7 @@ typename std::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 4)>::type load(const volatile T& from, T& to)
 {
 	asm volatile("movl %1, %k0 \n"
 			: "=r"(to)
@@ -146,7 +146,7 @@ typename std::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 1)>::type store(const volatile T& from, T& to)
 {
 	asm volatile("movb %b1, %0 \n"
 			: "=m"(to)
@@ -157,7 +157,7 @@ typename std::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 2)>::type store(const volatile T& from, T& to)
 {
 	asm volatile("movw %w1, %0 \n"
 			: "=m"(to)
@@ -168,7 +168,7 @@ typename std::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
+typename std::enable_if<(sizeof(T) == 4)>::type store(const volatile T& from, T& to)
 {
 	asm volatile("movl %k1, %0 \n"
 			: "=m"(to)
