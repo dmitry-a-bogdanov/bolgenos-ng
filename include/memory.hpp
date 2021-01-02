@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "cstddef"
-#include "utility"
+#include "cstddef.hpp"
+#include "utility.hpp"
 
-namespace std {
+namespace lib {
 
 
 template<typename T>
@@ -40,7 +40,7 @@ public:
 
 
 
-template<typename T, typename Deleter = std::default_delete<T>>
+template<typename T, typename Deleter = default_delete<T>>
 class unique_ptr
 {
 public:
@@ -84,7 +84,7 @@ public:
 	unique_ptr& operator=(unique_ptr&& other)
 	{
 		reset(other.release());
-		_deleter = std::move(other.get_deleter());
+		_deleter = move(other.get_deleter());
 		return *this;
 	}
 
@@ -140,9 +140,9 @@ private:
 template<class T, class... Args>
 unique_ptr<T> make_unique(Args&& ...args)
 {
-	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+	return unique_ptr<T>(new T(forward<Args>(args)...));
 }
 
 
-} // namespace std
+} // namespace lib
 

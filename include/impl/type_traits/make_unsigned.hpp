@@ -3,7 +3,7 @@
 #include "enable_if.hpp"
 #include "is_unsigned.hpp"
 
-namespace std {
+namespace lib {
 
 
 template<typename T>
@@ -45,4 +45,4 @@ struct make_unsigned<long long> {
 template<class T>
 using make_unsigned_t = typename make_unsigned<T>::type;
 
-} // namespace std
+} // namespace lib

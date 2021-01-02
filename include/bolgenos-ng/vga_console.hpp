@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <cstdint.hpp>
 
 
 namespace vga_console {

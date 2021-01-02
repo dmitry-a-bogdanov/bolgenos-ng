@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 #if defined(__cplusplus)
-#include <cstddef>
+#include <cstddef.hpp>
 #else
 #include <stddef.h>
 #endif

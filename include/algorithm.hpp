@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace std {
+namespace lib {
 
 
 /// \brief Copy range of elements.
@@ -142,4 +142,4 @@ ForwardIterator find_if(ForwardIterator first, Sentinel last, Predicate pred)
 }
 
 
-} // namespace std
+} // namespace lib

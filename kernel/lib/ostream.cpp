@@ -1,9 +1,8 @@
 #include <lib/ostream.hpp>
 
-#include <type_traits>
+#include <type_traits.hpp>
 
 #include <bolgenos-ng/string.h>
-#include <bolgenos-ng/vga_console.hpp>
 
 #include <lib/utility.hpp>
 
@@ -11,6 +10,7 @@
 #include "vga_buf.hpp"
 #include "vga_log_buf.hpp"
 
+using namespace lib;
 
 namespace {
 
@@ -284,7 +284,7 @@ char to_printable(unsigned char digit) {
 template<typename T>
 void show_numerical_value(lib::ostream& stream, T value) {
 	using value_type = T;
-	using unsigned_value_type = typename std::make_unsigned<value_type>::type;
+	using unsigned_value_type = typename make_unsigned<value_type>::type;
 
 	unsigned_value_type unsigned_value = 0;
 	unsigned_value_type base = 10;

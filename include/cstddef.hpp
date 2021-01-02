@@ -6,14 +6,14 @@
 
 #include "impl/cstddef/byte.hpp"
 
-namespace std {
+namespace lib {
 
 #include <stddef.h> // libgcc header
 
 using nullptr_t = decltype(nullptr);
 
-} // namespace std
+} // namespace lib
 
-using std::nullptr_t;
-using std::ptrdiff_t;
-using std::size_t;
+using lib::nullptr_t;
+using lib::ptrdiff_t;
+using lib::size_t;

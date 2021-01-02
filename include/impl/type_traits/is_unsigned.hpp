@@ -2,7 +2,7 @@
 
 #include "integral_constant.hpp"
 
-namespace std {
+namespace lib {
 
 
 template<typename Type>
@@ -29,4 +29,4 @@ template<>
 struct is_unsigned<unsigned char>: true_type {};
 
 
-} // namespace std
+} // namespace lib

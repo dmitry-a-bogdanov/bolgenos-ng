@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <cstddef.hpp>
 
 #include "impl/type_traits/integral_constant.hpp"
 #include "impl/type_traits/is_signed.hpp"
@@ -10,7 +10,7 @@
 #include "impl/type_traits/make_unsigned.hpp"
 #include "impl/type_traits/remove_cv.hpp"
 
-namespace std {
+namespace lib {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ using remove_reference_t = typename remove_reference<T>::type;
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
-typename std::add_rvalue_reference<T>::type declval() noexcept;
+typename lib::add_rvalue_reference<T>::type declval() noexcept;
 
 
 
@@ -191,7 +191,7 @@ template<class T1, class T2>
 constexpr bool is_same_v = is_same<T1, T2>::value;
 
 
-} // namespace std
+} // namespace lib
 
 
 

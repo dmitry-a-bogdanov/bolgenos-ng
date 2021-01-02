@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
-#include <type_traits>
+#include <cstdint.hpp>
+#include <type_traits.hpp>
 
 #include "compiler.h"
 
@@ -113,7 +113,7 @@ namespace x86 {
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
 {
 	asm volatile("movb %1, %b0 \n"
 			: "=r"(to)
@@ -124,7 +124,7 @@ typename std::enable_if<(sizeof(T) == 1)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
 {
 	asm volatile("movw %1, %w0 \n"
 			: "=r"(to)
@@ -135,7 +135,7 @@ typename std::enable_if<(sizeof(T) == 2)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
 {
 	asm volatile("movl %1, %k0 \n"
 			: "=r"(to)
@@ -146,7 +146,7 @@ typename std::enable_if<(sizeof(T) == 4)>::type load(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
 {
 	asm volatile("movb %b1, %0 \n"
 			: "=m"(to)
@@ -157,7 +157,7 @@ typename std::enable_if<(sizeof(T) == 1)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
 {
 	asm volatile("movw %w1, %0 \n"
 			: "=m"(to)
@@ -168,7 +168,7 @@ typename std::enable_if<(sizeof(T) == 2)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
 {
 	asm volatile("movl %k1, %0 \n"
 			: "=m"(to)
@@ -179,7 +179,7 @@ typename std::enable_if<(sizeof(T) == 4)>::type store(const T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1)>::type exchange(T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 1)>::type exchange(T& from, T& to)
 {
 	asm volatile("lock; xchgb %b1, %2"
 			: "=a"(to)
@@ -191,7 +191,7 @@ typename std::enable_if<(sizeof(T) == 1)>::type exchange(T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2)>::type exchange(T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 2)>::type exchange(T& from, T& to)
 {
 	asm volatile("lock; xchgw %w1, %2 \n"
 			: "=a"(to)
@@ -203,7 +203,7 @@ typename std::enable_if<(sizeof(T) == 2)>::type exchange(T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4)>::type exchange(T& from, T& to)
+typename lib::enable_if<(sizeof(T) == 4)>::type exchange(T& from, T& to)
 {
 	asm volatile("lock; xchgl %k1, %2 \n"
 			: "=a"(to)
@@ -215,7 +215,7 @@ typename std::enable_if<(sizeof(T) == 4)>::type exchange(T& from, T& to)
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T increment)
+typename lib::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T increment)
 {
 	asm volatile("lock; xaddb %b0, %1 \n"
 		: "+r"(increment), "+m"(variable)
@@ -227,7 +227,7 @@ typename std::enable_if<(sizeof(T) == 1), T>::type fetch_add(T& variable, T incr
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 2), T>::type fetch_add(T& variable, T increment)
+typename lib::enable_if<(sizeof(T) == 2), T>::type fetch_add(T& variable, T increment)
 {
 	asm volatile("lock; xaddw %w0, %1 \n"
 		: "+r"(increment), "+m"(variable)
@@ -239,7 +239,7 @@ typename std::enable_if<(sizeof(T) == 2), T>::type fetch_add(T& variable, T incr
 
 template<typename T>
 inline
-typename std::enable_if<(sizeof(T) == 4), T>::type fetch_add(T& variable, T increment)
+typename lib::enable_if<(sizeof(T) == 4), T>::type fetch_add(T& variable, T increment)
 {
 	asm volatile("lock; xaddl %k0, %1 \n"
 		: "+r"(increment), "+m"(variable)

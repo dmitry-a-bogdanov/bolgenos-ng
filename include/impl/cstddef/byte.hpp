@@ -1,6 +1,6 @@
 #pragma once
 
-namespace std {
+namespace lib {
 
 
 enum class byte: unsigned char
@@ -9,62 +9,62 @@ enum class byte: unsigned char
 
 
 template<typename Integer>
-constexpr Integer to_integer(std::byte b) noexcept
+constexpr Integer to_integer(byte b) noexcept
 {
 	return static_cast<Integer>(b);
 }
 
 
 template<typename Integer>
-constexpr std::byte operator<<(std::byte b, Integer shift)
+constexpr byte operator<<(byte b, Integer shift)
 {
-	return std::byte{static_cast<unsigned char>(b) << shift};
+	return byte{static_cast<unsigned char>(b) << shift};
 }
 
 
 template<typename Integer>
-constexpr std::byte& operator<<=(std::byte b, Integer shift)
+constexpr byte& operator<<=(byte b, Integer shift)
 {
-	return b = std::byte{static_cast<unsigned char>(b) << shift};
+	return b = byte{static_cast<unsigned char>(b) << shift};
 }
 
 
 template<typename Integer>
-constexpr std::byte operator>>(std::byte b, Integer shift)
+constexpr byte operator>>(byte b, Integer shift)
 {
-	return std::byte{static_cast<unsigned char>(b) >> shift};
+	return byte{static_cast<unsigned char>(b) >> shift};
 }
 
 
 template<typename Integer>
-constexpr std::byte& operator>>=(std::byte b, Integer shift)
+constexpr byte& operator>>=(byte b, Integer shift)
 {
-	return b = std::byte{static_cast<unsigned char>(b) >> shift};
+	return b = byte{static_cast<unsigned char>(b) >> shift};
 }
 
 
-constexpr std::byte operator|(std::byte lhs, std::byte rhs)
+constexpr byte operator|(byte lhs, byte rhs)
 {
-	return std::byte(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+	return byte(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
 }
 
 
-constexpr std::byte operator&(std::byte lhs, std::byte rhs)
+constexpr byte operator&(byte lhs, byte rhs)
 {
-	return std::byte(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
+	return byte(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
 }
 
 
-constexpr std::byte operator^(std::byte lhs, std::byte rhs)
+constexpr byte operator^(byte lhs, byte rhs)
 {
-	return std::byte(static_cast<unsigned char>(lhs) ^ static_cast<unsigned char>(rhs));
+	return byte(static_cast<unsigned char>(lhs) ^ static_cast<unsigned char>(rhs));
 }
 
 
-constexpr std::byte operator~(std::byte lhs)
+constexpr byte operator~(byte lhs)
 {
-	return std::byte(static_cast<unsigned char>(lhs));
+	return byte(static_cast<unsigned char>(lhs));
 }
 
 
-} // namespace std
+} // namespace lib

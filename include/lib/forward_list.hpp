@@ -345,5 +345,4 @@ private:
 };
 
 
-
-} // namespace bolgenos_testing
+} // namespace lib

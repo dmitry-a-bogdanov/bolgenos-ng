@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <type_traits>
+#include <cstddef.hpp>
+#include <cstdint.hpp>
+#include <type_traits.hpp>
 
 
 /// Empty placement new.
@@ -12,16 +12,16 @@ void *operator new(size_t size, void *address);
 namespace memory {
 
 
-template<std::uintmax_t Boundary, typename T>
+template<lib::uintmax_t Boundary, typename T>
 constexpr T align_down(T value)
 {
-	if constexpr (std::is_pointer_v<T>)
+	if constexpr (lib::is_pointer_v<T>)
 	{
-		return align_down<Boundary, std::uintptr_t>(value);
+		return align_down<Boundary, lib::uintptr_t>(value);
 	}
 	else
 	{
-		using Type = std::make_unsigned_t<T>;
+		using Type = lib::make_unsigned_t<T>;
 		Type mask = ~(static_cast<Type>(Boundary) - 1);
 		Type retval = static_cast<Type>(value);
 		retval &= mask;

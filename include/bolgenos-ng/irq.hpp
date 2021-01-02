@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include <cstddef.hpp>
+#include <cstdint.hpp>
 
 #include "asm.hpp"
 

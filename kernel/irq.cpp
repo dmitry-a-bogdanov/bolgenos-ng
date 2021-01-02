@@ -1,15 +1,11 @@
 #include <bolgenos-ng/irq.hpp>
 
-#include <algorithm>
+#include <algorithm.hpp>
 
-#include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/error.h>
-
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
 
-#include <lib/forward_list.hpp>
 #include <lib/ostream.hpp>
 
 #include <m4/idt.hpp>
@@ -66,7 +62,7 @@ irq::IRQHandler::status_t irq::InterruptsManager::dispatch_exception(exception_t
 		return irq::IRQHandler::status_t::NONE;
 	}
 
-	std::for_each(handlers.begin(), handlers.end(),
+	lib::for_each(handlers.begin(), handlers.end(),
 		[frame_pointer](irq::ExceptionHandler *handler) -> void {
 			handler->handle_exception(frame_pointer);
 	});
@@ -78,7 +74,7 @@ irq::IRQHandler::status_t irq::InterruptsManager::dispatch_exception(exception_t
 irq::IRQHandler::status_t irq::InterruptsManager::dispatch_interrupt(irq_t vector)
 {
 	auto& handlers = _irq_handlers[vector];
-	auto used_handler = std::find_if(handlers.begin(), handlers.end(),
+	auto used_handler = lib::find_if(handlers.begin(), handlers.end(),
 		[vector] (irq::IRQHandler* handler) -> bool {
 			return handler->handle_irq(vector) == irq::IRQHandler::status_t::HANDLED;
 	});

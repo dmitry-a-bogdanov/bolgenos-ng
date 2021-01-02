@@ -1,6 +1,6 @@
 #pragma once
 
-#include <type_traits>
+#include <type_traits.hpp>
 
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/page.hpp>

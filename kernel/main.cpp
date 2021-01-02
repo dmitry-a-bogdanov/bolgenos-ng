@@ -28,7 +28,7 @@
 * The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
-extern "C" void kernel_main() {
+extern "C" [[noreturn]] void kernel_main() {
 	irq::disable();
 
 	multiboot::init();
@@ -74,6 +74,6 @@ extern "C" void kernel_main() {
 
 	do {
 		x86::halt_cpu();
-	} while(1);
+	} while(true);
 }
 

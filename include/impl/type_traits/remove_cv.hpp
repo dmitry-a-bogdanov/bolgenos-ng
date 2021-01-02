@@ -1,6 +1,6 @@
 #pragma once
 
-namespace std {
+namespace lib {
 
 
 template<class T>
@@ -51,4 +51,4 @@ template<class T>
 using remove_cv_t = typename remove_cv<T>::type;
 
 
-} // namespace std
+} // namespace lib

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <cstdint.hpp>
 
 // forward declaration
 namespace lib { class ostream; }

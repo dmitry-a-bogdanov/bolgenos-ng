@@ -1,6 +1,6 @@
 #include <bolgenos-ng/multiboot_info.hpp>
 
-#include <algorithm>
+#include <algorithm.hpp>
 
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>

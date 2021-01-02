@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace std {
+namespace lib {
 
 
 template<class T, T Value>
@@ -29,4 +29,4 @@ using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
 
 
-} // namespace std
+} // namespace lib

@@ -121,4 +121,4 @@ private:
 };
 
 
-} // namespace atomic
+} // namespace lib

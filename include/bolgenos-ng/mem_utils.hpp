@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <cstddef.hpp>
 
 
 /// \brief Helper for applying bit masks.
