@@ -205,29 +205,21 @@ static struct table_pointer gdtp _mmu_aligned_;
 * is set.
 */
 static void reload_segments() {
-
-#define __kern_ds 16
-static_assert(__kern_ds == mmu::KERNEL_DATA_SEGMENT_POINTER, "Wrong kernel data segment");
-
-
-#define __kern_cs 8
-static_assert(__kern_cs == mmu::KERNEL_CODE_SEGMENT_POINTER, "Wrong kernel code segment");
-
+    static_assert(8 == mmu::KERNEL_CODE_SEGMENT_POINTER, "Wrong kernel code segment");
+    static_assert(16 == mmu::KERNEL_DATA_SEGMENT_POINTER, "Wrong kernel data segment");
 
 	asm volatile(
-		"movw $" stringify(__kern_ds) ", %ax\n"
-		"movw %ax, %ds\n"
-		"movw %ax, %es\n"
-		"movw %ax, %ss\n"
-		"movw %ax, %fs\n"
-		"movw %ax, %gs\n"
-		"ljmp $" stringify(__kern_cs) ", $__update_cs\n"
+		"movw %w0, %%ds\n"
+		"movw %w0, %%es\n"
+		"movw %w0, %%ss\n"
+		"movw %w0, %%fs\n"
+		"movw %w0, %%gs\n"
+		"ljmp %w1, $__update_cs\n"
 		"__update_cs:\n"
+		: // no outputs
+		: "r" (mmu::KERNEL_DATA_SEGMENT_POINTER), "i" (mmu::KERNEL_CODE_SEGMENT_POINTER)
+		: "cc", "memory"
 		);
-
-
-#undef __kern_cs
-#undef __kern_ds
 }
 
 
