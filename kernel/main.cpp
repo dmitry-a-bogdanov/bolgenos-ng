@@ -1,21 +1,16 @@
 #include <bolgenos-ng/cxxabi.h>
-#include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2_controller.hpp>
-#include <bolgenos-ng/slab.hpp>
-#include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 
-#include <lib/atomic.hpp>
 #include <lib/ostream.hpp>
 
 #include "config.h"
@@ -28,7 +23,7 @@
 * The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
-extern "C" void kernel_main() {
+extern "C" [[noreturn]] void kernel_main() {
 	irq::disable();
 
 	multiboot::init();
@@ -74,6 +69,6 @@ extern "C" void kernel_main() {
 
 	do {
 		x86::halt_cpu();
-	} while(1);
+	} while(true);
 }
 

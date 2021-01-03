@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include <cstddef.hpp>
 
 namespace lib {
 
@@ -30,4 +30,4 @@ public:
 	}
 }; // class default_allocator
 
-} // namespace bolgenos_testing
+} // namespace lib

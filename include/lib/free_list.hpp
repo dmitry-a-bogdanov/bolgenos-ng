@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
+#include <stdtypes.hpp>
 
 #include "impl/basic_forward_list.hpp"
-#include <lib/type_traits.hpp>
+#include <type_traits.hpp>
 
 
 
@@ -263,4 +263,4 @@ private:
 };
 
 
-} // namespace bolgenos_testing
+} // namespace lib

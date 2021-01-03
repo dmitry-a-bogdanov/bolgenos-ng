@@ -1,15 +1,11 @@
 #include <bolgenos-ng/irq.hpp>
 
-#include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/error.h>
+#include <algorithm.hpp>
 
+#include <bolgenos-ng/error.h>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 
-#include <lib/algorithm.hpp>
-#include <lib/forward_list.hpp>
 #include <lib/ostream.hpp>
 
 #include <m4/idt.hpp>

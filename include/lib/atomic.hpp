@@ -2,8 +2,6 @@
 
 #include <bolgenos-ng/asm.hpp>
 
-#include "type_traits.hpp"
-
 
 namespace lib {
 
@@ -123,4 +121,4 @@ private:
 };
 
 
-} // namespace atomic
+} // namespace lib

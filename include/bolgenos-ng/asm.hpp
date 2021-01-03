@@ -1,9 +1,9 @@
 #pragma once
 
-#include "compiler.h"
-#include "stdtypes.hpp"
+#include <cstdint.hpp>
+#include <type_traits.hpp>
 
-#include <lib/type_traits.hpp>
+#include "compiler.h"
 
 
 /// \brief Pointer to descriptor table.

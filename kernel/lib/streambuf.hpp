@@ -1,8 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
-
-#include <lib/type_traits.hpp>
+#include <cstddef.hpp>
 
 
 namespace lib {

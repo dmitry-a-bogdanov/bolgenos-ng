@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstddef.hpp>
+#include <cstdint.hpp>
+
 #include "asm.hpp"
-#include "stdtypes.hpp"
 
 #include <lib/forward_list.hpp>
 

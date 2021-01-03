@@ -1,5 +1,6 @@
 ENTRY(_start_kernel)
 
+
 SECTIONS {
 	. = 0x100000; /* Kernel load address */
 	__object_begin = .;
@@ -10,6 +11,7 @@ SECTIONS {
 		*(.multiboot_header);
 		__text_begin = .;
 		*(.text*)
+		libgcc.a:(.text)
 		__text_end = .;
 	}
 
@@ -24,18 +26,30 @@ SECTIONS {
 		*(.rodata.*)
 	}
 
+	.eh_frame_hdr : {
+		*(.eh_frame_hdr)
+		*(.eh_frame_hdr.*)
+	}
+
 	.eh_frame : {
 		*(.eh_frame)
 		*(.eh_frame.*)
 	}
 
+	.gcc_except_table : {
+		*(.gcc_except_table)
+		*(.gcc_except_table.*)
+	}
+
 	.data : {
 		*(.data)
 		*(.data*)
+		libgcc.a:(.data)
 	}
 
 	.bss : {
 		*(.bss)
+		libgcc.a(.bss)
 	}
 
 	.kernel_stack : {
@@ -48,5 +62,7 @@ SECTIONS {
 		*(.comment)
 		*(.comment.*)
 	}
+
+
 	__object_end = .;
 }

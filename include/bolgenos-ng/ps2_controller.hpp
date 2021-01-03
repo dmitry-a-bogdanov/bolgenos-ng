@@ -1,7 +1,8 @@
 #pragma once
 
+#include <cstddef.hpp>
+
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 
 #include <lib/ostream.hpp>
 

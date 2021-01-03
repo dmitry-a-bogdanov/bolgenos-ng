@@ -1,7 +1,6 @@
 #pragma once
 
 #include "irq.hpp"
-#include "stdtypes.hpp"
 
 
 namespace devices {

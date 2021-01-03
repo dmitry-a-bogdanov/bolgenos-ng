@@ -1,8 +1,6 @@
 #pragma once
 
-/// \brief Library namespace.
-///
-/// Namespace that combines STL-like functionality.
+
 namespace lib {
 
 

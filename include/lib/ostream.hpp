@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include <bolgenos-ng/stdtypes.hpp>
+#include <cstddef.hpp>
 
 
 namespace lib {

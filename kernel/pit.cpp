@@ -1,12 +1,12 @@
 #include <bolgenos-ng/pit.hpp>
 
-#include <bolgenos-ng/error.h>
+#include <cstdint.hpp>
+#include <memory.hpp>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
 #include <bolgenos-ng/time.hpp>
 
 #include <lib/ostream.hpp>
@@ -15,6 +15,7 @@
 
 #include "config.h"
 
+using namespace lib;
 
 namespace {
 
@@ -80,30 +81,27 @@ public:
 	PitIRQHandler& operator =(PitIRQHandler&&) = delete;
 
 
-	explicit PitIRQHandler(pit::details::FrequencyDivider *divider)
-			:_divider(divider)
+	explicit PitIRQHandler(unique_ptr<pit::details::FrequencyDivider> divider)
+			:_divider(move(divider))
 	{
 	}
 
-	virtual ~PitIRQHandler()
-	{
-		delete _divider;
-		_divider = nullptr;
-	}
+	virtual ~PitIRQHandler() {}
 
 	status_t handle_irq(irq::irq_t vector __attribute__((unused))) override
 	{
 		if (_divider->do_tick()) {
-#if VERBOSE_TIMER_INTERRUPT
-			lib::cout << "jiffy #" << jiffies << lib::endl;
-#endif
+			if constexpr(VERBOSE_TIMER_INTERRUPT)
+			{
+				lib::cout << "jiffy #" << jiffies << lib::endl;
+			}
 			++jiffies;
 		}
 		return status_t::HANDLED;
 	}
 
 private:
-	pit::details::FrequencyDivider *_divider;
+	unique_ptr<pit::details::FrequencyDivider> _divider;
 };
 
 } // namespace
@@ -113,17 +111,17 @@ private:
 void pit::init() {
 	const irq::irq_t timer_irq = devices::InterruptController::instance()->min_irq_vector() + 0;
 
-	auto freq_divider = new pit::details::FrequencyDivider();
+	auto freq_divider = make_unique<pit::details::FrequencyDivider>();
 	freq_divider->set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
 	if (freq_divider->is_low_frequency())
-		lib::cwarn << "PIT: losing accuracy of timer" << lib::endl;
-
-	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(freq_divider));
+		cwarn << "PIT: losing accuracy of timer" << endl;
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
 	outb(pit_port::cmd, cmd);
 	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 0, 0xff));
 	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 8, 0xff));
+
+	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(move(freq_divider)));
 }
 

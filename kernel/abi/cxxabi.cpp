@@ -1,3 +1,5 @@
+#include <unwind.h>
+
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
@@ -7,6 +9,8 @@
 #include <lib/atomic.hpp>
 
 extern "C" {
+
+//#include "/home/dabogdanov/proj/cross-compile/gcc-6.2.0/libgcc/unwind.inc"
 
 typedef void (*ctor_function_t)();
 
@@ -80,6 +84,16 @@ void operator delete(void *p) noexcept
 	memory::kfree(p);
 }
 
+void operator delete(void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
+
+
+void operator delete[](void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
 
 void operator delete[](void *p) noexcept
 {

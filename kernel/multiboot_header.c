@@ -1,7 +1,6 @@
 #include <bolgenos-ng/compiler.h>
 
-#include <bolgenos-ng/stdtypes.hpp>
-
+#include <stdint.h>
 
 struct _packed_ multiboot_hdr {
 	uint32_t magic;
