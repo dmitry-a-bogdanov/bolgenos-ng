@@ -7,9 +7,12 @@
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
+#include <m4/idt.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
+
+#include <arch/x86/multitasking.hpp>
 
 #include <lib/ostream.hpp>
 
@@ -66,6 +69,19 @@ extern "C" [[noreturn]] void kernel_main() {
 
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
+
+	gate_t* current_task_gate = static_cast<gate_t*>(nullptr) + 1;
+
+	lib::cnotice << "task gate ptr: " << current_task_gate << lib::endl;
+
+	asm volatile("ljmp $24, $0x0\n\t");
+
+	asm volatile("str %0\n\t"
+		: "=m"(current_task_gate)
+		:
+		: "memory");
+
+	lib::cnotice << "task gate ptr: " << current_task_gate << lib::endl;
 
 	do {
 		x86::halt_cpu();

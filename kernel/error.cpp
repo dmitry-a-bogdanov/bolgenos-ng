@@ -9,7 +9,7 @@ void panic(const char *msg) {
 	irq::disable();
 	printk("Kernel Panic:\n");
 	printk(msg);
-	while(1) {
+	while(true) {
 		x86::halt_cpu();
 	}
 }

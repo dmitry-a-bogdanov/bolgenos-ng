@@ -87,10 +87,16 @@ void execinfo::show_backtrace(lib::ostream& out,
 
 	do {
 		out << *frame << lib::endl;
-		frame = static_cast<decltype(frame)>(frame->callers_ebp);
+		auto new_frame = static_cast<decltype(frame)>(frame->callers_ebp);
+		if (frame == new_frame) {
+			break;
+		} else {
+			frame = new_frame;
+		}
 	} while (is_inside_stack(frame) &&
 			is_inside_code(frame->return_address));
 }
+
 
 namespace {
 

@@ -118,7 +118,9 @@ set(kernel_sources ${kernel_start_file}
 	page_allocator.cpp
 	page.cpp
 	slab.cpp
-	
+
+	arch/x86/multitasking.cpp
+
 	abi/cxxabi.cpp
 	backtrace.cpp
 	
@@ -131,7 +133,9 @@ set(kernel_sources ${kernel_start_file}
 	lib/vga_buf.cpp
 	lib/vga_log_buf.hpp
 	lib/vga_log_buf.cpp
-	
+
+	m4/idt_other.cpp
+
 	ost/ost.cpp
 	ost/bitarray.hpp
 	ost/bitarray.cpp
@@ -173,5 +177,5 @@ set_target_properties(${kernel_binary} PROPERTIES
 
 add_custom_target(start_qemu
 	COMMENT "Starting kernel in Qemu..."
-	COMMAND qemu-system-i386 -kernel ${kernel_binary})
+	COMMAND qemu-system-i386 -d guest_errors,mmu,pcall,int,unimp -kernel ${kernel_binary})
 add_dependencies(start_qemu ${kernel_binary})
