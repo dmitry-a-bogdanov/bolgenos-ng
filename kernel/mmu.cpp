@@ -41,30 +41,6 @@ static struct
 extern "C" [[noreturn]] void other_task_routine();
 extern "C" [[noreturn]] void other_task_routine2();
 
-x86::TaskStateSegment other_task{
-	0,
-	KERNEL_DATA_SEGMENT_POINTER,
-	other_stack_storage.stack,
-	reinterpret_cast<lib::byte*>(&other_task_routine),
-	0x0,
-	0x0, 0x0, 0x0, 0x0,
-	other_stack_storage.stack, other_stack_storage.stack,
-	0x0, 0x0,
-	KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
-};
-
-
-x86::TaskStateSegment other_task2{
-	0,
-	KERNEL_DATA_SEGMENT_POINTER,
-	other_stack_storage2.stack,
-	reinterpret_cast<lib::byte*>(&other_task_routine2),
-	0x0,
-	0x0, 0x0, 0x0, 0x0,
-	other_stack_storage2.stack, other_stack_storage2.stack,
-	0x0, 0x0,
-	KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
-};
 
 
 /// \brief Global Descriptor Table.
@@ -72,7 +48,7 @@ x86::TaskStateSegment other_task2{
 /// Array represents global descriptor table for the system. Note,
 /// that it has zero overhead for filling it as structs, this initializers
 /// works during compile-time.
-static GDTEntry gdt[] _mmu_aligned_ = {
+static GDTEntry gdt[SegmentIndex::last_task_index + 1] _mmu_aligned_ = {
 	[mmu::SegmentIndex::null] = {.memory_segment = {
 			0x0,
 			0x0,
@@ -105,8 +81,10 @@ static GDTEntry gdt[] _mmu_aligned_ = {
 			seg_long_type::other,
 			seg_db_type::db32_bit,
 			seg_granularity_type::four_k_pages
-	}},
-	[mmu::SegmentIndex::kernel_scheduler] = {.task_descriptor = {
+	}}
+	/*
+	[mmu::SegmentIndex::kernel_scheduler
+		... (mmu::SegmentIndex::kernel_scheduler + x86::TASKS)] = {.task_descriptor = {
 		reinterpret_cast<uint32_t>(static_cast<void *>(&x86::scheduler_task)),
 		sizeof(x86::TaskStateSegment) - 1,
 		false,
@@ -129,7 +107,7 @@ static GDTEntry gdt[] _mmu_aligned_ = {
 		protection_ring_t::ring_kernel,
 		seg_present_type::present,
 		seg_granularity_type::bytes
-	}},
+	}},*/
 };
 
 
@@ -163,8 +141,66 @@ static void reload_segments() {
 		);
 }
 
+static struct
+{
+	lib::byte data[8 * 1024 * 4 * 10];
+	lib::byte stack[0];
+} scheduler_task_stack_storage;
+
 
 void mmu::init() {
+	x86::tasks[SegmentIndex::kernel_scheduler - SegmentIndex::first_task_index].tss = x86::TSS{
+		0,
+		KERNEL_DATA_SEGMENT_POINTER,
+		scheduler_task_stack_storage.stack,
+		reinterpret_cast<byte*>(scheduler_routine),
+		0x0,
+		0x0, 0x0, 0x0, 0x0,
+		scheduler_task_stack_storage.stack, scheduler_task_stack_storage.stack,
+		0x0, 0x0,
+		KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
+	};
+
+	x86::tasks[SegmentIndex::kernel_other_task - SegmentIndex::first_task_index].tss = x86::TSS{
+		0,
+		KERNEL_DATA_SEGMENT_POINTER,
+		other_stack_storage.stack,
+		reinterpret_cast<lib::byte*>(&other_task_routine),
+		0x0,
+		0x0, 0x0, 0x0, 0x0,
+		other_stack_storage.stack, other_stack_storage.stack,
+		0x0, 0x0,
+		KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
+	};
+
+	x86::tasks[SegmentIndex::kernel_other_task2 - SegmentIndex::first_task_index].tss = x86::TSS{
+		0,
+		KERNEL_DATA_SEGMENT_POINTER,
+		other_stack_storage2.stack,
+		reinterpret_cast<lib::byte*>(&other_task_routine2),
+		0x0,
+		0x0, 0x0, 0x0, 0x0,
+		other_stack_storage2.stack, other_stack_storage2.stack,
+		0x0, 0x0,
+		KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
+	};
+
+	for (size_t segment_idx = SegmentIndex::first_task_index;
+		segment_idx <= (SegmentIndex::first_task_index + x86::TASKS);
+		++segment_idx)
+	{
+		size_t task_idx = segment_idx - SegmentIndex::first_task_index;
+		gdt[segment_idx].task_descriptor =  {
+			reinterpret_cast<uint32_t>(
+				static_cast<void *>(x86::get_task_ptr(task_idx))),
+			sizeof(x86::Task) - 1,
+			false,
+			protection_ring_t::ring_kernel,
+			seg_present_type::present,
+			seg_granularity_type::bytes
+		};
+	}
+
 	gdtp.limit = sizeof(gdt) - 1;
 	gdtp.base = gdt;
 	asm volatile("lgdt %0"::"m" (gdtp));
@@ -175,9 +211,6 @@ void mmu::init() {
 extern "C" [[noreturn]] void other_task_routine() {
 	irq::enable();
 	lib::cwarn << "inside the first task!" << lib::endl;
-	lib::cnotice
-		<< "1:" << other_task << lib::endl
-		<< "2:" << other_task2 << lib::endl;
 
 	uint32_t current_task_gate;
 
@@ -210,10 +243,6 @@ extern "C" [[noreturn]] void other_task_routine() {
 extern "C" [[noreturn]] void other_task_routine2() {
 	irq::enable();
 	lib::cwarn << "inside the second task!" << lib::endl;
-	lib::cnotice
-		<< "1:" << other_task << lib::endl
-		<< "2:" << other_task2 << lib::endl;
-
 
 	uint32_t current_task_gate;
 

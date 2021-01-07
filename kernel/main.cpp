@@ -77,52 +77,11 @@ extern "C" [[noreturn]] void kernel_main() {
 	lib::cwarn << "Kernel initialization routine has been finished!"
 			<< lib::endl;
 
-	//irq::disable();
-
 	lib::cwarn << "starting first switch" << lib::endl;
-	lib::cnotice
-		<< "1:" << other_task << lib::endl
-		<< "2:" << other_task2 << lib::endl;
 
 	x86::switch_to(mmu::SegmentIndex::kernel_scheduler);
 
-	/*
-	struct {unsigned int offset; unsigned short segment;} dest;
-	dest.offset = 0x0;
-	dest.segment = target; // whatever value you want in CS
-	asm volatile (
-	//"movl $1f, %0\n"
-	"ljmp *%0\n"
-	"1:" :: "m"(dest));
-	 */
-
-	/*
-	asm volatile(
-	"pushw $32\n\t"
- 	"pushl $0\n\t"
-  	"ljmp *%%esp\n\t"
-	:
-	: "r"(&target)
-	:
-	);*/
-	/*asm volatile(
-			"movw $32, %%ax\n\t"
-			"ltr %%ax\n\t"
-	      		"ret\n\t"
-	      		::: "cc");*/
-
-	lib::cwarn << "Switched!"
-		   << lib::endl;
-
-
-	gate_t* current_task_gate;
-
-	asm volatile("str %0\n\t"
-		: "=m"(current_task_gate)
-		:
-		: "memory");
-
-	lib::cnotice << "task gate ptr: " << current_task_gate << lib::endl;
+	panic("Couldn't switch to scheduler");
 
 	do {
 		x86::halt_cpu();

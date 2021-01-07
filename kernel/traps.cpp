@@ -90,7 +90,7 @@ public:
 
 	void handle(irq::int_frame_noerror_t *frame_pointer) override
 	{
-		lib::ccrit << _message << lib::endl;
+		lib::ccrit << _message << lib::endl << *frame_pointer << lib::endl;
 		execinfo::show_backtrace(lib::ccrit, frame_pointer->regs.ebp,
 				frame_pointer->exe.eip);
 		panic("Forbidden exception in kernel mode!");

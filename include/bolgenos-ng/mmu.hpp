@@ -199,8 +199,11 @@ enum SegmentIndex: int
 	kernel_code = 1,
 	kernel_data = 2,
 	kernel_scheduler = 3,
+	first_task_index = kernel_scheduler,
 	kernel_other_task = 4,
 	kernel_other_task2 = 5,
+	last_task_index = first_task_index + x86::TASKS,
+	last_segment_idx = last_task_index
 };
 
 union GDTEntry

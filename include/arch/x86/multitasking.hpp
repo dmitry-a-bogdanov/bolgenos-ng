@@ -3,6 +3,7 @@
 #include <bolgenos-ng/asm.hpp>
 #include <lib/ostream.hpp>
 #include <cstddef.hpp>
+#include <bolgenos-ng/page.hpp>
 
 namespace x86 {
 
@@ -66,6 +67,25 @@ struct __attribute__((packed)) TaskStateSegment {
 		io_map_base_address{0}
 	{}
 
+	constexpr TaskStateSegment()
+		: TaskStateSegment{
+		0,
+		0,
+		nullptr,
+		nullptr,
+		0,
+		0,
+		0,
+		0,
+		0,
+		nullptr,
+		nullptr,
+		0,
+		0,
+		0,
+		0}
+	{}
+
 	uint16_t	previous_task_link;
 	uint16_t	reserved_01{0};
 	StackData	stack_0;
@@ -101,15 +121,27 @@ static_assert(sizeof(TaskStateSegment) == 104);
 
 using TSS = TaskStateSegment;
 
-struct TaskGate {
-};
-
 void switch_to(uint16_t segment);
 
 lib::ostream& operator<<(lib::ostream& out, const TaskStateSegment& tss);
 
 void kernel_yield();
 
-extern TaskStateSegment scheduler_task;
+
+struct Task {
+	TSS tss{};
+	bool available = true;
+};
+
+constexpr size_t TASKS = 128;
+extern Task tasks[TASKS];
+inline Task& get_task(const size_t i) {
+	return tasks[i];
+}
+inline Task* get_task_ptr(const size_t i) {
+	return tasks + i;
+}
 
 } // namespace x86
+
+[[noreturn]] void scheduler_routine();

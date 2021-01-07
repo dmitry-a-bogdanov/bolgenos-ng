@@ -33,26 +33,6 @@ void x86::kernel_yield()
 }
 
 
-static struct
-{
-	lib::byte data[8 * 1024 * 4 * 10];
-	lib::byte stack[0];
-} scheduler_task_stack_storage;
-
-[[noreturn]] void scheduler_routine();
-
-x86::TaskStateSegment x86::scheduler_task{
-	0,
-	KERNEL_DATA_SEGMENT_POINTER,
-	scheduler_task_stack_storage.stack,
-	reinterpret_cast<lib::byte*>(&scheduler_routine),
-	0x0,
-	0x0, 0x0, 0x0, 0x0,
-	scheduler_task_stack_storage.stack, scheduler_task_stack_storage.stack,
-	0x0, 0x0,
-	KERNEL_DATA_SEGMENT_POINTER, KERNEL_CODE_SEGMENT_POINTER
-};
-
 [[noreturn]] void scheduler_routine()
 {
 	irq::enable();
@@ -62,4 +42,7 @@ x86::TaskStateSegment x86::scheduler_task{
 		x86::switch_to(SegmentIndex::kernel_other_task2);
 	}
 }
+
+alignas(PAGE_SIZE)
+x86::Task x86::tasks[x86::TASKS];
 
