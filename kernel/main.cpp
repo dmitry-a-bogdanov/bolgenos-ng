@@ -41,6 +41,13 @@ extern "C" [[noreturn]] void kernel_main() {
 	memory::init(); // Allow allocation
 
 
+	using namespace lib;
+	cnotice
+		<< R"(  __                           __  )" << endl
+     		<< R"( |__| _ | _  _  _  _  _  |\  |/    )" << endl
+	  	<< R"( |  \| ||/ ||_|| || ||_  | \ ||  _ )" << endl
+		<< R"( |__/|_||\_||_ | ||_| _| |  \|\__/ )" << endl
+		<< R"(       ____|                       )" << endl;
 
 	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< lib::endl;
