@@ -21,11 +21,12 @@ endif()
 
 
 set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=c++17 -fno-exceptions")
+set(cxxstd_flags "-std=gnu++17 -fno-exceptions")
 
 set(opt_flags "-O3")
 
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
+#set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
 set(warn_flags_cxx "-Weffc++")
 
 

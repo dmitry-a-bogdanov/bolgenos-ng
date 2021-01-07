@@ -6,7 +6,7 @@
 #include "asm.hpp"
 
 #include <lib/forward_list.hpp>
-
+#include <lib/ostream.hpp>
 
 namespace lib {
 	class ostream;
@@ -128,6 +128,7 @@ private:
 ///
 /// Enable interrupts by setting Interrupt Flag for CPU.
 inline void enable() {
+	lib::cnotice << "enabling interrupts" << lib::endl;
 	asm volatile ("sti\n");
 }
 
@@ -136,7 +137,10 @@ inline void enable() {
 ///
 /// Disable interrupts by clearing Interrupt Flag for CPU.
 ///
-inline void disable() {
+inline void disable(bool debug = true) {
+	if (debug) {
+		lib::cnotice << "disabling interrupts" << lib::endl;
+	}
 	asm volatile ("cli\n");
 }
 
