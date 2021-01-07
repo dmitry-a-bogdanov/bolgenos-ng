@@ -17,7 +17,7 @@ extern "C" {
 /**
 * \brief Calculate length of specified string.
 *
-* The fuction works like a strlen from POSIX.
+* The function works like a strlen from POSIX.
 * \param str Pointer to string.
 * \return Length of string.
 */

@@ -30,8 +30,7 @@ lib::ostream::ostream(streambuf *sb)
 }
 
 
-lib::ostream::~ostream() {
-}
+lib::ostream::~ostream() = default;
 
 
 lib::ostream& lib::ostream::put(char c) {
@@ -115,7 +114,7 @@ lib::ostream& lib::ostream::operator <<(unsigned long val) {
 }
 
 
-lib::ostream& lib::ostream::operator <<(void *ptr) {
+lib::ostream& lib::ostream::operator <<(const void *ptr) {
 	auto integer_value = reinterpret_cast<size_t>(ptr);
 	return *this << integer_value;
 }
@@ -177,6 +176,11 @@ lib::ostream& lib::ostream::copyfmt(lib::ostream& other) {
 	format_ = other.format_;
 	width_ = other.width_;
 	return *this;
+}
+
+ostream& ostream::operator<<(void* ptr)
+{
+	return *this << static_cast<const void*>(ptr);
 }
 
 

@@ -7,12 +7,10 @@
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
-#include <m4/idt.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
-
-#include <arch/x86/multitasking.hpp>
+#include <bolgenos-ng/x86/multitasking.hpp>
 
 #include <lib/ostream.hpp>
 
@@ -26,7 +24,7 @@
 * The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
-extern "C" [[noreturn]] void kernel_main() {
+extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	irq::disable(false);
 
 	multiboot::init();

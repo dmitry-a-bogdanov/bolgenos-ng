@@ -71,6 +71,14 @@ public:
 	ostream& operator<<(char val);
 
 
+	/// Print specified pointer.
+	ostream& operator<<(void *ptr);
+
+
+	/// Print specified pointer.
+	ostream& operator<<(const void *ptr);
+
+
 	/// Print specified string.
 	ostream& operator<<(const char *string);
 
@@ -105,11 +113,6 @@ public:
 
 	/// Print specified unsigned long.
 	ostream& operator<<(unsigned long val);
-
-
-	/// Print specified pointer.
-	ostream& operator<<(void *ptr);
-
 
 	/// Apply formatter to ostream.
 	ostream& operator<<(manipulator_type formatter);

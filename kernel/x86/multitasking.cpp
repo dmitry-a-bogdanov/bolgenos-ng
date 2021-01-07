@@ -1,4 +1,4 @@
-#include <arch/x86/multitasking.hpp>
+#include <bolgenos-ng/x86/multitasking.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/irq.hpp>
 
@@ -15,17 +15,6 @@ void x86::switch_to(const uint16_t segment)
 	"1:" :: "m"(dest));
 }
 
-lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)
-{
-	return out
-		<< "tss{"
-		<< "prev=" << tss.previous_task_link
-		<< ",stack_0=" << tss.stack_0.stack_ptr << "/" << tss.stack_0.stack_segment
-		<< ",isp=" << reinterpret_cast<uint32_t>(tss.instruction_ptr)
-		<< ",eflags=" << tss.eflags
-		<< ",cs=" << tss.cs.segment
-		<< "}";
-}
 
 void x86::kernel_yield()
 {

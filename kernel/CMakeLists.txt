@@ -120,7 +120,8 @@ set(kernel_sources ${kernel_start_file}
 	page.cpp
 	slab.cpp
 
-	arch/x86/multitasking.cpp
+	x86/multitasking.cpp
+	x86/tss.cpp
 
 	abi/cxxabi.cpp
 	backtrace.cpp
