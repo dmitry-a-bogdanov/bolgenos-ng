@@ -2,7 +2,8 @@
 
 #include <bolgenos-ng/kernel_object.hpp>
 
-#include <lib/ostream.hpp>
+#include <ostream.hpp>
+#include <ext/scoped_format_guard.hpp>
 
 namespace {
 
@@ -26,7 +27,7 @@ bool is_inside_stack(void *ptr) {
 
 
 lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::hex;
 
@@ -61,7 +62,7 @@ lib::ostream& operator <<(lib::ostream& out, const stack_frame_t& frame) {
 
 void execinfo::show_backtrace(lib::ostream& out,
 		void *ebp, void *eip) {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::setw(50) << lib::setfill('-')
 		<< '\n'

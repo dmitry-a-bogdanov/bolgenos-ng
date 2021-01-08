@@ -1,4 +1,4 @@
-#include <bolgenos-ng/string.h>
+#include <cstring.hpp>
 
 #include <stdarg.h> // from gcc!
 #include <cstdint.hpp>

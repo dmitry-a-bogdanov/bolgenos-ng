@@ -1,6 +1,6 @@
 #include <bolgenos-ng/ps2/common.hpp>
 
-#include <lib/ostream.hpp>
+#include <ostream.hpp>
 
 lib::ostream& ps2::operator<<(lib::ostream& out, const ErrorCode& code)
 {

@@ -6,10 +6,9 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/time.hpp>
-
-#include <lib/ostream.hpp>
 
 #include "frequency_divider.hpp"
 

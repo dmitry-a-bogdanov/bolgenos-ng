@@ -1,7 +1,8 @@
-#include <bolgenos-ng/x86/tss.hpp>
+#include <x86/tss.hpp>
 
 #include <bolgenos-ng/mmu.hpp>
-#include <lib/ostream.hpp>
+#include <ostream.hpp>
+#include <ext/scoped_format_guard.hpp>
 
 using namespace lib;
 
@@ -18,7 +19,7 @@ lib::ostream& x86::tss::operator<<(ostream& out, const x86::tss::SegmentRegister
 
 ostream& x86::tss::operator<<(ostream& out, const x86::tss::ProtectionRingStack& stack)
 {
-	scoped_format_guard guard{out};
+	ScopedFormatGuard guard{out};
 	return out << stack.segment() << ":" << hex << static_cast<const void*>(stack.pointer());
 }
 

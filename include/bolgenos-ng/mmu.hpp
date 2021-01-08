@@ -3,7 +3,7 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/x86/multitasking.hpp>
+#include <x86/multitasking.hpp>
 
 namespace mmu {
 

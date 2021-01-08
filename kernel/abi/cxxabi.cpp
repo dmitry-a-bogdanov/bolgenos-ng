@@ -4,13 +4,10 @@
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/memory.hpp>
-#include <lib/ostream.hpp>
 
-#include <lib/atomic.hpp>
+#include <atomic.hpp>
 
 extern "C" {
-
-//#include "/home/dabogdanov/proj/cross-compile/gcc-6.2.0/libgcc/unwind.inc"
 
 typedef void (*ctor_function_t)();
 

@@ -1,4 +1,4 @@
-#include <bolgenos-ng/x86/multitasking.hpp>
+#include <x86/multitasking.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/irq.hpp>
 

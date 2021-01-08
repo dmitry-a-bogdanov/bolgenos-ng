@@ -4,7 +4,6 @@
 #include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <lib/ostream.hpp>
 
 struct __attribute__((packed)) gate_t {
 	using func_type = void (*)();

@@ -281,71 +281,10 @@ _impl::_setw_type setw(size_t n);
 _impl::_setfill_type setfill(char fillch);
 
 
-/// Logging level type.
-enum log_level_type: int {
-	/// Critical error
-	critical	= 0,
-	/// Error
-	error		= 1,
-	/// Warning
-	warning		= 2,
-	/// Notice
-	notice		= 3,
-	/// Additional information
-	info		= 4,
-};
-
-
-/// Get current system wide logging level.
-log_level_type get_log_level();
-
-
-/// Set new system wide logging level.
-void set_log_level(log_level_type log_level);
-
-
 /// \brief Console output object.
 ///
 /// Object of \ref ostream is to be used for printing to VGA console.
 extern ostream cout;
-
-
-/// Output object for critical error messages.
-extern ostream ccrit;
-
-
-/// Output object for error messages.
-extern ostream cerr;
-
-
-/// Output object for warning messages.
-extern ostream cwarn;
-
-
-/// Output object for notice messages.
-extern ostream cnotice;
-
-
-/// Output object for info messages.
-extern ostream cinfo;
-
-
-class scoped_format_guard {
-public:
-	scoped_format_guard() = delete;
-	scoped_format_guard(const scoped_format_guard&) = delete;
-	scoped_format_guard(ostream& guarded_stream)
-		: guarded_stream_(guarded_stream),
-		  backup_(nullptr) {
-		backup_.copyfmt(guarded_stream_);
-	}
-	~scoped_format_guard() {
-		guarded_stream_.copyfmt(backup_);
-	}
-public:
-	ostream& guarded_stream_;
-	ostream backup_;
-};
 
 
 } // namespace lib

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
+
 #include "vga_buf.hpp"
 
 

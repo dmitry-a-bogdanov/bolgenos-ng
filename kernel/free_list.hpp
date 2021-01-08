@@ -3,14 +3,13 @@
 #include <cstddef.hpp>
 
 #include <bolgenos-ng/error.h>
-
 #include <bolgenos-ng/page.hpp>
-
-
-#include <lib/ostream.hpp>
 
 #include "config.h"
 
+namespace lib {
+class ostream;
+}
 
 namespace memory {
 

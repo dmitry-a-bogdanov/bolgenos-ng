@@ -4,8 +4,7 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/execinfo.hpp>
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 
 namespace {

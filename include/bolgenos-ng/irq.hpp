@@ -2,11 +2,11 @@
 
 #include <cstddef.hpp>
 #include <cstdint.hpp>
+#include <forward_list.hpp>
 
 #include "asm.hpp"
 
-#include <lib/forward_list.hpp>
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 namespace lib {
 	class ostream;

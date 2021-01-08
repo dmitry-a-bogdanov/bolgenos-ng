@@ -6,7 +6,7 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 
-#include <lib/ostream.hpp>
+#include <ext/scoped_format_guard.hpp>
 
 #include <m4/idt.hpp>
 
@@ -111,7 +111,7 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::registers_dump_t& regs)
 {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex << lib::setfill(' ');
 	out	<< " eax = "
@@ -135,7 +135,7 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::execution_info_dump_t& exe)
 {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex
 		<< "eflg = " << lib::setw(8) << exe.eflags << lib::setw(0) << ' '
@@ -149,7 +149,7 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::int_frame_error_t& frame)
 {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::hex
 		<< lib::setw(0) << " err = "
@@ -165,7 +165,7 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::int_frame_noerror_t& frame)
 {
-	lib::scoped_format_guard format_guard(out);
+	lib::ScopedFormatGuard format_guard(out);
 
 	out	<< lib::setw(0) << lib::hex
 		<< frame.exe << lib::endl

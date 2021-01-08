@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint.hpp>
-#include <lib/atomic.hpp>
+#include <atomic.hpp>
 
 /**
 * \brief Current ticks number.

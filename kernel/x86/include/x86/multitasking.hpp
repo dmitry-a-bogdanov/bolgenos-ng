@@ -3,7 +3,6 @@
 #include <cstddef.hpp>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/page.hpp>
-#include <lib/ostream.hpp>
 
 #include "tss.hpp"
 

@@ -5,9 +5,9 @@
 #include <bolgenos-ng/compiler.h>
 
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/x86/multitasking.hpp>
-#include <lib/ostream.hpp>
+#include <x86/multitasking.hpp>
 #include <m4/idt.hpp>
 #include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/memory.hpp>

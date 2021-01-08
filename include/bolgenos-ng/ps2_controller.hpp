@@ -4,8 +4,6 @@
 
 #include <bolgenos-ng/irq.hpp>
 
-#include <lib/ostream.hpp>
-
 #include "ps2/common.hpp"
 
 /**

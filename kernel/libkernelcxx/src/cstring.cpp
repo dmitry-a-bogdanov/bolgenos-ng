@@ -1,4 +1,4 @@
-#include <bolgenos-ng/string.h>
+#include <cstring.hpp>
 
 
 size_t strlen(const char *str) {

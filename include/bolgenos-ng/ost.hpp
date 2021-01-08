@@ -2,9 +2,7 @@
 
 
 #include <bolgenos-ng/error.h>
-
-#include <lib/ostream.hpp>
-
+#include <bolgenos-ng/log.hpp>
 
 namespace ost {
 

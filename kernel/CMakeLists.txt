@@ -49,6 +49,8 @@ set(kernel_binary "kernel.bin")
 
 include_directories(${CONFIG_INCLUDE_DIRS})
 
+add_subdirectory(libkernelcxx)
+
 # Variable $kernel_start_file should keep source file that will be included
 # in kernel of any configuration and can be compiled very fast.
 # This file is used for forcing relinking of resulting object.
@@ -74,6 +76,29 @@ foreach (m4_file ${m4_input_files})
 		DEPENDS "${m4_file}")
 endforeach (m4_file)
 
+
+set(logging_src
+	src/log/log.cpp
+	src/log/vga_buf.cpp
+	src/log/vga_buf.hpp
+	src/log/vga_log_buf.cpp
+	src/log/vga_log_buf.hpp
+)
+
+set(x86_src
+	x86/include/x86/gdt.hpp
+	x86/include/x86/multitasking.hpp
+	x86/include/x86/scheduler.hpp
+	x86/include/x86/tss.hpp
+
+	x86/src/gdt.cpp
+	x86/src/multitasking.cpp
+	x86/src/scheduler.cpp
+	x86/src/simple_hw_scheduler.hpp
+	x86/src/tss.cpp
+
+)
+
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
@@ -87,7 +112,7 @@ set(kernel_sources ${kernel_start_file}
 	main.cpp
 	memory.cpp
 	mmu.cpp
-	multiboot_header.c
+	multiboot_header.cpp
 	multiboot_info.cpp
 	pit.cpp
 	printk.cpp
@@ -120,23 +145,8 @@ set(kernel_sources ${kernel_start_file}
 	page.cpp
 	slab.cpp
 
-	x86/multitasking.cpp
-	x86/scheduler.cpp
-	x86/simple_hw_scheduler.hpp
-	x86/tss.cpp
-
 	abi/cxxabi.cpp
 	backtrace.cpp
-
-	lib/snprintf.cpp
-	lib/streambuf.hpp
-	lib/streambuf.cpp
-	lib/string.cpp
-	lib/ostream.cpp
-	lib/vga_buf.hpp
-	lib/vga_buf.cpp
-	lib/vga_log_buf.hpp
-	lib/vga_log_buf.cpp
 
 	m4/idt_other.cpp
 
@@ -146,7 +156,10 @@ set(kernel_sources ${kernel_start_file}
 	ost/memory.hpp
 	ost/memory.cpp
 	ost/type_traits.cpp
-	)
+
+	${logging_src}
+	${x86_src}
+)
 
 set_source_files_properties(${m4_generated_files}
 	PROPERTIES GENERATED TRUE)
@@ -167,6 +180,8 @@ add_executable(${kernel_binary}
 	${kernel_sources}
 	)
 
+target_include_directories(${kernel_binary} PRIVATE x86/include)
+
 # custom target is always out-of-date
 add_custom_target(__relink_kernel
 	COMMAND touch ${kernel_start_file}
@@ -174,6 +189,8 @@ add_custom_target(__relink_kernel
 	COMMENT "Forcing kernel relinking..")
 
 add_dependencies(${kernel_binary} __relink_kernel)
+
+target_link_libraries(${kernel_binary} libkernelcxx)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")

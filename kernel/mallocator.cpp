@@ -2,8 +2,6 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <lib/ostream.hpp>
-
 namespace {
 
 size_t chain_unit_size(size_t index) {

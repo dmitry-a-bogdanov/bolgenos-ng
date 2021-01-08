@@ -2,10 +2,9 @@
 
 #include <bolgenos-ng/error.h>
 
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
-
-#include <lib/ostream.hpp>
 
 #include "config.h"
 
