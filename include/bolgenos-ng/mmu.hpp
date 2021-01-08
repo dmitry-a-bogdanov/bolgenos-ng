@@ -108,6 +108,7 @@ enum tag_type
 struct _packed_ Segment
 {
 public:
+	constexpr Segment() = default;
 	constexpr Segment(uint32_t base,
 			  uint32_t limit,
 			  tag_type tag,
@@ -152,6 +153,7 @@ private:
 
 struct _packed_ TaskStateSegmentDescriptor
 {
+	constexpr TaskStateSegmentDescriptor() = default;
 	constexpr TaskStateSegmentDescriptor(uint32_t base,
 					     uint32_t limit,
 					     bool busy,
@@ -172,8 +174,7 @@ struct _packed_ TaskStateSegmentDescriptor
 		_const_4_22{0},
 		granularity_{granularity},
 		base_24_31_(bitmask(base, 24, 0xff))
-	{
-	}
+	{}
 
 	uint16_t limit_00_15_: 16;
 	uint16_t base_00_15_: 16;
@@ -203,7 +204,9 @@ enum SegmentIndex: int
 	kernel_other_task = 4,
 	kernel_other_task2 = 5,
 	last_task_index = first_task_index + x86::TASKS,
-	last_segment_idx = last_task_index
+
+	last_segment_idx = last_task_index,
+	number_of_segments = last_segment_idx + 1,
 };
 
 union GDTEntry

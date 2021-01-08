@@ -1,16 +1,16 @@
 #include <bolgenos-ng/mmu.hpp>
 
+#include <array.hpp>
+
 #include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/printk.h>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
 #include <bolgenos-ng/x86/multitasking.hpp>
-#include <bolgenos-ng/kernel_object.hpp>
 #include <lib/ostream.hpp>
 #include <m4/idt.hpp>
-#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/time.hpp>
+#include <bolgenos-ng/memory.hpp>
 
 using namespace mmu;
 using namespace lib;
@@ -25,9 +25,77 @@ static struct
 	lib::byte stack[0];
 } other_stack_storage, other_stack_storage2;
 
-extern "C" [[noreturn]] void other_task_routine();
-extern "C" [[noreturn]] void other_task_routine2();
+[[noreturn]] void other_task_routine();
+[[noreturn]] void other_task_routine2();
 
+namespace Segments {
+
+const GDTEntry null = { .memory_segment = {
+	0x0,
+	0x0,
+	tag_type::st_null,
+	seg_sys_flag_type::sys_null,
+	protection_ring_t::ring_null,
+	seg_present_type::present_null,
+	seg_long_type::long_null,
+	seg_db_type::db_null,
+	seg_granularity_type::granularity_null
+}};
+
+const GDTEntry kernel_code = { .memory_segment = {
+	0x0,
+	0xfffff,
+	static_cast<tag_type>(tag_type::code | tag_type::code_read),
+	seg_sys_flag_type::code_or_data,
+	protection_ring_t::ring_kernel,
+	seg_present_type::present,
+	seg_long_type::other,
+	seg_db_type::db32_bit,
+	seg_granularity_type::four_k_pages
+}};
+
+const GDTEntry kernel_data = { .memory_segment = {
+	0x0,
+	0xfffff,
+	static_cast<tag_type>(tag_type::data | tag_type::data_write),
+	seg_sys_flag_type::code_or_data,
+	protection_ring_t::ring_kernel,
+	seg_present_type::present,
+	seg_long_type::other,
+	seg_db_type::db32_bit,
+	seg_granularity_type::four_k_pages
+}};
+
+
+static_assert(lib::is_standard_layout_v<TaskStateSegmentDescriptor>,
+        "TaskStateSegmentDescriptor is not std layout");
+
+static_assert(lib::is_trivial_v<TaskStateSegmentDescriptor>,
+	"TaskStateSegmentDescriptor is not trivial");
+
+static_assert(lib::is_pod_v<TaskStateSegmentDescriptor>,
+	"TaskStateSegmentDescriptor is not POD");
+
+static_assert(lib::is_standard_layout_v<Segment>,
+	"Segment is not std layout");
+
+static_assert(lib::is_trivial_v<Segment>,
+	"Segment is not trivial");
+
+static_assert(lib::is_pod_v<Segment>,
+	"Segment is not POD");
+
+}
+
+
+static_assert(lib::is_standard_layout_v<GDTEntry>,
+	"GDTEntry is not std layout");
+
+static_assert(lib::is_trivial_v<GDTEntry>,
+	"GDTEntry is not trivial");
+
+static_assert(lib::is_pod_v<GDTEntry>,
+	"GDTEntry is not POD");
 
 
 /// \brief Global Descriptor Table.
@@ -35,42 +103,14 @@ extern "C" [[noreturn]] void other_task_routine2();
 /// Array represents global descriptor table for the system. Note,
 /// that it has zero overhead for filling it as structs, this initializers
 /// works during compile-time.
-static GDTEntry gdt[SegmentIndex::last_task_index + 1] _mmu_aligned_ = {
-	[mmu::SegmentIndex::null] = {.memory_segment = {
-			0x0,
-			0x0,
-			tag_type::st_null,
-			seg_sys_flag_type::sys_null,
-			protection_ring_t::ring_null,
-			seg_present_type::present_null,
-			seg_long_type::long_null,
-			seg_db_type::db_null,
-			seg_granularity_type::granularity_null
-	}},
-	[mmu::SegmentIndex::kernel_code] = {.memory_segment = {
-			0x0,
-			0xfffff,
-			static_cast<tag_type>(tag_type::code | tag_type::code_read),
-			seg_sys_flag_type::code_or_data,
-			protection_ring_t::ring_kernel,
-			seg_present_type::present,
-			seg_long_type::other,
-			seg_db_type::db32_bit,
-			seg_granularity_type::four_k_pages
-	}},
-	[mmu::SegmentIndex::kernel_data] = {.memory_segment = {
-			0x0,
-			0xfffff,
-			static_cast<tag_type>(tag_type::data | tag_type::data_write),
-			seg_sys_flag_type::code_or_data,
-			protection_ring_t::ring_kernel,
-			seg_present_type::present,
-			seg_long_type::other,
-			seg_db_type::db32_bit,
-			seg_granularity_type::four_k_pages
-	}}
+alignas(cpu_alignment)
+static lib::Array<GDTEntry, SegmentIndex::number_of_segments> gdt{
+	Segments::null,
+	Segments::kernel_code,
+	Segments::kernel_data
 };
 
+static_assert(memory::is_aligned_at_least<cpu_alignment>(gdt.data()));
 
 /**
 * \brief Global Descriptor Table Pointer.
@@ -157,13 +197,13 @@ void mmu::init() {
 	}
 
 	gdtp.limit = sizeof(gdt) - 1;
-	gdtp.base = gdt;
+	gdtp.base = gdt.data();
 	asm volatile("lgdt %0"::"m" (gdtp));
 	reload_segments();
 }
 
 
-extern "C" [[noreturn]] void other_task_routine() {
+[[noreturn]] void other_task_routine() {
 	irq::enable();
 	lib::cwarn << "inside the first task!" << lib::endl;
 
@@ -176,7 +216,7 @@ extern "C" [[noreturn]] void other_task_routine() {
 }
 
 
-extern "C" [[noreturn]] void other_task_routine2() {
+[[noreturn]] void other_task_routine2() {
 	irq::enable();
 	lib::cwarn << "inside the second task!" << lib::endl;
 

@@ -191,6 +191,24 @@ template<class T1, class T2>
 constexpr bool is_same_v = is_same<T1, T2>::value;
 
 
+template<class T>
+struct is_pod: integral_constant<bool, __is_pod(T)> {};
+
+template<class T>
+constexpr bool is_pod_v = is_pod<T>::value;
+
+template<class T>
+struct is_standard_layout: integral_constant<bool, __is_standard_layout(T)> {};
+
+template<class T>
+constexpr bool is_standard_layout_v = is_standard_layout<T>::value;
+
+template<class T>
+struct is_trivial: integral_constant<bool, __is_trivial(T)> {};
+
+template<class T>
+constexpr bool is_trivial_v = is_trivial<T>::value;
+
 } // namespace lib
 
 

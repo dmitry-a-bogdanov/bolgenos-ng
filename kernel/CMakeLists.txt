@@ -21,7 +21,7 @@ endif()
 
 
 set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++17 -fno-exceptions")
+set(cxxstd_flags "-std=gnu++20 -fno-exceptions")
 
 set(opt_flags "-O3")
 

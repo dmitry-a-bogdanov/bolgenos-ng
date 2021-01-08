@@ -93,7 +93,7 @@ public:
 		if (_divider->do_tick()) {
 			if constexpr(VERBOSE_TIMER_INTERRUPT)
 			{
-				lib::cout << "jiffy #" << jiffies << lib::endl;
+				lib::cout << "jiffy #" << jiffies.load() << lib::endl;
 			}
 			++jiffies;
 		}

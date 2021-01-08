@@ -31,7 +31,7 @@ constexpr T align_down(T value)
 
 
 /**
-* \brief Aling specified value up.
+* \brief Align specified value up.
 *
 * Align given value up to specified boundary.
 *
@@ -41,13 +41,18 @@ constexpr T align_down(T value)
 * \return Aligned value.
 */
 template<size_t Boundary, typename ValueType>
-inline ValueType align_up(ValueType value) {
+constexpr inline ValueType align_up(ValueType value) {
 	constexpr size_t alignment_mask = Boundary - 1;
 	auto _val = reinterpret_cast<size_t>(value);
 	if (_val & alignment_mask) {
 		_val = align_down<Boundary>(_val) + Boundary;
 	}
 	return reinterpret_cast<ValueType>(_val);
+}
+
+template<size_t Boundary, typename ValueType>
+constexpr inline bool is_aligned_at_least(ValueType value) {
+	return align_up<Boundary>(value) == value;
 }
 
 

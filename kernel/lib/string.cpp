@@ -28,3 +28,12 @@ char *strncpy(char *dest, const char *src, size_t n) {
 	return dest;
 }
 
+
+void *memset(void *s, int c, size_t n) {
+	const auto byte = static_cast<lib::byte>(c);
+	auto* memory = static_cast<lib::byte *>(s);
+	while (n--) {
+		*(memory++) = byte;
+	}
+	return s;
+}

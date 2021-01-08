@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../asm.hpp"
-#include "../../lib/ostream.hpp"
-#include "../../cstddef.hpp"
-#include "../page.hpp"
+#include <cstddef.hpp>
+#include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/page.hpp>
+#include <lib/ostream.hpp>
 
 #include "tss.hpp"
 
@@ -17,10 +17,12 @@ void kernel_yield();
 struct Task {
 	TSS tss{};
 	bool available = true;
+	lib::byte stack[PAGE_SIZE*16];
 };
 
 constexpr size_t TASKS = 128;
 extern Task tasks[TASKS];
+
 inline Task& get_task(const size_t i) {
 	return tasks[i];
 }
