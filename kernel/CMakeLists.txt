@@ -11,13 +11,13 @@ if (NOT ("${CMAKE_SYSTEM_NAME}" STREQUAL "${target_binary_format}"))
 	message(FATAL_ERROR "BOLGENOS-NG can be compiled only in "
 		" '${target_binary_format}'"
 		" but '${CMAKE_SYSTEM_NAME}' is supplied")
-endif()
+endif ()
 
 
 if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 	message(FATAL_ERROR "BOLGENOS-NG supports only ${target_processor} "
 		"but ${CMAKE_SYSTEM_PROCESSOR} is supplied")
-endif()
+endif ()
 
 
 set(cstd_flags "-std=gnu99")
@@ -39,9 +39,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warn_flags} ${warn_flags_cxx} ${cxxstd
 set(CMAKE_ASM-ATT_COMPILE_OBJECT ${CMAKE_C_COMPILE_OBJECT})
 
 message(STATUS "Toolchain information:")
-foreach(compiler CMAKE_C_COMPILER CMAKE_C_COMPILER CMAKE_ASM-ATT_COMPILER)
+foreach (compiler CMAKE_C_COMPILER CMAKE_C_COMPILER CMAKE_ASM-ATT_COMPILER)
 	message(STATUS "${compiler} = ${${compiler}}")
-endforeach()
+endforeach ()
 
 message(STATUS "Compiler is configured. Adding targets..")
 
@@ -61,7 +61,7 @@ set(m4_output_dir "${CMAKE_CURRENT_BINARY_DIR}/m4_generated")
 file(MAKE_DIRECTORY ${m4_output_dir})
 
 
-foreach(m4_file ${m4_input_files})
+foreach (m4_file ${m4_input_files})
 	get_filename_component(in_basename ${m4_file} NAME)
 	string(REGEX REPLACE ".m4" "" out_basename ${in_basename})
 	set(out_file "${m4_output_dir}/${out_basename}")
@@ -72,7 +72,7 @@ foreach(m4_file ${m4_input_files})
 		COMMENT m4 -P "${m4_file}" > "${out_file}"
 		WORKING_DIRECTORY "${m4_input_dir}"
 		DEPENDS "${m4_file}")
-endforeach(m4_file)
+endforeach (m4_file)
 
 set(kernel_sources ${kernel_start_file}
 	${config_h}
@@ -95,11 +95,11 @@ set(kernel_sources ${kernel_start_file}
 	traps.hpp
 	traps.cpp
 	vga_console.cpp
-	
+
 	devices/interrupt_controller/interrupt_controller.cpp
 	devices/interrupt_controller/pic_8259.hpp
 	devices/interrupt_controller/pic_8259.cpp
-	
+
 	ps2/common.cpp
 	ps2/ps2_controller.cpp
 	ps2/ps2_line.cpp
@@ -108,7 +108,7 @@ set(kernel_sources ${kernel_start_file}
 	ps2/ps2_keyboard.cpp
 	ps2/ps2_keyboard_sm.hpp
 	ps2/ps2_keyboard_sm.cpp
-	
+
 	buddy_allocator.hpp
 	buddy_allocator.cpp
 	free_list.hpp
@@ -127,7 +127,7 @@ set(kernel_sources ${kernel_start_file}
 
 	abi/cxxabi.cpp
 	backtrace.cpp
-	
+
 	lib/snprintf.cpp
 	lib/streambuf.hpp
 	lib/streambuf.cpp
@@ -160,13 +160,12 @@ set_source_files_properties(${kernel_start_file} PROPERTIES
 message(STATUS "Build configuration: ${config_h}")
 
 
-
 message(STATUS "List of kernel source files: ${kernel_sources}")
 message("C = ${CMAKE_C_FLAGS}, CXX = ${CMAKE_CXX_FLAGS}")
 add_executable(${kernel_binary}
 	${kernel_headers}
 	${kernel_sources}
-)
+	)
 
 # custom target is always out-of-date
 add_custom_target(__relink_kernel
