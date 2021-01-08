@@ -18,3 +18,13 @@ void bug(const char *msg) {
 	printk("Kernel Bug! Escalating to Kernel Panic...\n");
 	panic(msg);
 }
+
+void raise_not_implemented(const char* msg)
+{
+	if (msg != nullptr) {
+		printk(msg);
+	}
+	panic("not implemented error");
+}
+
+

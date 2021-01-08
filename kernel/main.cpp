@@ -47,8 +47,8 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 		<< R"( |__/|_||\_||_ | ||_| _| |  \|\__/ )" << endl
 		<< R"(       ____|                       )" << endl;
 
-	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
-		<< lib::endl;
+	cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< endl;
 
 	// explicitly create instance
 	auto interrupt_manager = irq::InterruptsManager::instance();
@@ -66,16 +66,16 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	irq::enable();
 
-	lib::cinfo << "CPU is initialized" << lib::endl;
+	cinfo << "CPU is initialized" << endl;
 
 	ps2::PS2Controller::instance()->initialize_controller();
 
 	ost::run();
 
-	lib::cwarn << "Kernel initialization routine has been finished!"
-			<< lib::endl;
+	cwarn << "Kernel initialization routine has been finished!"
+			<< endl;
 
-	lib::cwarn << "starting first switch" << lib::endl;
+	cwarn << "starting first switch" << endl;
 
 	x86::switch_to(mmu::SegmentIndex::kernel_scheduler);
 

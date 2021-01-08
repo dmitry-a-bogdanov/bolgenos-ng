@@ -121,6 +121,8 @@ set(kernel_sources ${kernel_start_file}
 	slab.cpp
 
 	x86/multitasking.cpp
+	x86/scheduler.cpp
+	x86/simple_hw_scheduler.hpp
 	x86/tss.cpp
 
 	abi/cxxabi.cpp

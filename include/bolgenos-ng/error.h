@@ -16,8 +16,13 @@ void panic(const char *msg) __attribute__((noreturn));
 */
 void bug(const char *msg) __attribute__((noreturn));
 
+[[noreturn]] void raise_not_implemented(const char* msg = nullptr);
+
+#define RAISE_NOT_IMPLEMENTED do { raise_not_implemented(__PRETTY_FUNCTION__); } while(false)
+
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif // __BOLGENOS_NG__ERROR_H__

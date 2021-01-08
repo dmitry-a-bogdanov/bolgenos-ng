@@ -19,12 +19,6 @@ static_assert(SEGMENT_STRUCT_SIZE == 8, "Segment has wrong size");
 static_assert(sizeof(GDTEntry) == 8, "Wrong entry size");
 static_assert(sizeof(TaskStateSegmentDescriptor) == 8, "Wrong size");
 
-static struct
-{
-	lib::byte data[8 * 1024 * 4 * 10];
-	lib::byte stack[0];
-} other_stack_storage, other_stack_storage2;
-
 [[noreturn]] void other_task_routine();
 [[noreturn]] void other_task_routine2();
 
@@ -142,43 +136,48 @@ static void reload_segments() {
 		);
 }
 
-static struct
-{
-	lib::byte data[8 * 1024 * 4 * 10];
-	lib::byte stack[0];
-} scheduler_task_stack_storage;
-
-
 void mmu::init() {
-	x86::tasks[SegmentIndex::kernel_scheduler - SegmentIndex::first_task_index].tss = x86::TSS{
-		0,
-		KERNEL_DATA_SEGMENT_POINTER,
-		scheduler_task_stack_storage.stack,
-		reinterpret_cast<byte*>(scheduler_routine),
-		0x0,
-		x86::tss::GPRegistersPack::zero_on_stack(scheduler_task_stack_storage.stack),
-		x86::tss::SegmentRegistersPack::kernel()
-	};
+	{
+		auto& task = x86::tasks[SegmentIndex::kernel_scheduler - SegmentIndex::first_task_index];
+		task.tss = x86::TSS{
+			0,
+			KERNEL_DATA_SEGMENT_POINTER,
+			task.stack,
+			reinterpret_cast<byte*>(scheduler_routine),
+			0x0,
+			x86::tss::GPRegistersPack::zero_on_stack(task.stack),
+			x86::tss::SegmentRegistersPack::kernel()
+		};
+		task.available = false;
+	}
 
-	x86::tasks[SegmentIndex::kernel_other_task - SegmentIndex::first_task_index].tss = x86::TSS{
-		0,
-		KERNEL_DATA_SEGMENT_POINTER,
-		other_stack_storage.stack,
-		reinterpret_cast<lib::byte*>(&other_task_routine),
-		0x0,
-		x86::tss::GPRegistersPack::zero_on_stack(other_stack_storage.stack),
-		x86::tss::SegmentRegistersPack::kernel()
-	};
+	{
+		auto& task = x86::tasks[SegmentIndex::kernel_other_task - SegmentIndex::first_task_index];
+		task.tss = x86::TSS{
+			0,
+			KERNEL_DATA_SEGMENT_POINTER,
+			task.stack,
+			reinterpret_cast<lib::byte*>(&other_task_routine),
+			0x0,
+			x86::tss::GPRegistersPack::zero_on_stack(task.stack),
+			x86::tss::SegmentRegistersPack::kernel()
+		};
+		task.available = false;
+	}
 
-	x86::tasks[SegmentIndex::kernel_other_task2 - SegmentIndex::first_task_index].tss = x86::TSS{
-		0,
-		KERNEL_DATA_SEGMENT_POINTER,
-		other_stack_storage2.stack,
-		reinterpret_cast<lib::byte*>(&other_task_routine2),
-		0x0,
-		x86::tss::GPRegistersPack::zero_on_stack(other_stack_storage2.stack),
-		x86::tss::SegmentRegistersPack::kernel()
-	};
+	{
+		auto& task = x86::tasks[SegmentIndex::kernel_other_task2 - SegmentIndex::first_task_index];
+		task.tss = x86::TSS{
+			0,
+			KERNEL_DATA_SEGMENT_POINTER,
+			task.stack,
+			reinterpret_cast<lib::byte*>(&other_task_routine2),
+			0x0,
+			x86::tss::GPRegistersPack::zero_on_stack(task.stack),
+			x86::tss::SegmentRegistersPack::kernel()
+		};
+		task.available = false;
+	}
 
 	for (size_t segment_idx = SegmentIndex::first_task_index;
 		segment_idx <= (SegmentIndex::first_task_index + x86::TASKS);
@@ -210,7 +209,7 @@ void mmu::init() {
 	uint16_t counter = 0;
 	while (true) {
 		lib::cnotice << "task[1]: " << ++counter << lib::endl;
-		sleep_ms(2000);
+		sleep_ms(100);
 		x86::kernel_yield();
 	}
 }
@@ -223,7 +222,7 @@ void mmu::init() {
 	uint16_t counter = 0;
 	while (true) {
 		lib::cnotice << "task[2]: " << ++counter << lib::endl;
-		sleep_ms(1000);
+		sleep_ms(100);
 		x86::kernel_yield();
 	}
 }

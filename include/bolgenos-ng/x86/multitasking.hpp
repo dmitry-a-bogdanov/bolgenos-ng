@@ -17,7 +17,14 @@ void kernel_yield();
 struct Task {
 	TSS tss{};
 	bool available = true;
-	lib::byte stack[PAGE_SIZE*16];
+	lib::byte _stack_storage[PAGE_SIZE*16]{};
+	lib::byte stack[0];
+
+	void clear_stack() {
+		for (auto& byte: _stack_storage) {
+			byte = static_cast<lib::byte>(0xaa);
+		}
+	}
 };
 
 constexpr size_t TASKS = 128;
