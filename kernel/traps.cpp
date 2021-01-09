@@ -123,7 +123,7 @@ void irq::install_traps() {
 	irq_manager->add_handler(irq::exception_t::invalid_tss,
 			new PrintingErrcodeHandler("Invalid TSS"));
 	irq_manager->add_handler(irq::exception_t::segment_not_present,
-			new PrintingErrcodeHandler("Segment not present"));
+			new PrintingErrcodeHandler("MemorySegmentDescriptor not present"));
 	irq_manager->add_handler(irq::exception_t::stack_segment_fault,
 			new PrintingErrcodeHandler("Stack segment fault"));
 	irq_manager->add_handler(irq::exception_t::general_protection_fault,

@@ -87,16 +87,20 @@ set(logging_src
 
 set(x86_src
 	x86/include/x86/gdt.hpp
+	x86/include/x86/memory_segment_d.hpp
 	x86/include/x86/multitasking.hpp
 	x86/include/x86/scheduler.hpp
+	x86/include/x86/segment_flags.hpp
+	x86/include/x86/tssd.hpp
 	x86/include/x86/tss.hpp
 
 	x86/src/gdt.cpp
+	x86/src/memory_segment_d.cpp
 	x86/src/multitasking.cpp
 	x86/src/scheduler.cpp
 	x86/src/simple_hw_scheduler.hpp
 	x86/src/tss.cpp
-
+	x86/src/tssd.cpp
 )
 
 set(kernel_sources ${kernel_start_file}

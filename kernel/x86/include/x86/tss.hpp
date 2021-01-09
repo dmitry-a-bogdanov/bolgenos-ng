@@ -12,7 +12,7 @@ namespace x86 {
 namespace tss {
 
 /**
- * \brief Segment register info from TSS
+ * \brief MemorySegmentDescriptor register info from TSS
  */
 struct [[gnu::packed]] SegmentRegister {
 	constexpr explicit SegmentRegister(uint16_t segment)

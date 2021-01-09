@@ -15,9 +15,7 @@
 using namespace mmu;
 using namespace lib;
 
-static_assert(SEGMENT_STRUCT_SIZE == 8, "Segment has wrong size");
 static_assert(sizeof(GDTEntry) == 8, "Wrong entry size");
-static_assert(sizeof(TaskStateSegmentDescriptor) == 8, "Wrong size");
 
 [[noreturn]] void other_task_routine();
 [[noreturn]] void other_task_routine2();
@@ -59,25 +57,6 @@ const GDTEntry kernel_data = { .memory_segment = {
 	seg_db_type::db32_bit,
 	seg_granularity_type::four_k_pages
 }};
-
-
-static_assert(lib::is_standard_layout_v<TaskStateSegmentDescriptor>,
-        "TaskStateSegmentDescriptor is not std layout");
-
-static_assert(lib::is_trivial_v<TaskStateSegmentDescriptor>,
-	"TaskStateSegmentDescriptor is not trivial");
-
-static_assert(lib::is_pod_v<TaskStateSegmentDescriptor>,
-	"TaskStateSegmentDescriptor is not POD");
-
-static_assert(lib::is_standard_layout_v<Segment>,
-	"Segment is not std layout");
-
-static_assert(lib::is_trivial_v<Segment>,
-	"Segment is not trivial");
-
-static_assert(lib::is_pod_v<Segment>,
-	"Segment is not POD");
 
 }
 
@@ -184,7 +163,7 @@ void mmu::init() {
 		++segment_idx)
 	{
 		size_t task_idx = segment_idx - SegmentIndex::first_task_index;
-		gdt[segment_idx].task_descriptor =  {
+		gdt[segment_idx].task =  {
 			reinterpret_cast<uint32_t>(
 				static_cast<void *>(x86::get_task_ptr(task_idx))),
 			sizeof(x86::Task) - 1,
