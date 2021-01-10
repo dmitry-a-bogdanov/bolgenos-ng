@@ -96,5 +96,20 @@ enum tag_type
 	code_conforming = 1 << 2,
 };
 
+enum class TableIndicator {
+	GLOBAL = 0,
+	LOCAL = 1
+};
+
+
+constexpr inline
+uint16_t segment_selector(uint16_t segment_idx, TableIndicator ti,
+			       protection_ring_t required_privilege_level) noexcept
+{
+	return (segment_idx << 3)
+	       | (static_cast<uint16_t>(ti) << 2)
+	       | (static_cast<uint16_t>(required_privilege_level));
+}
+
 }
 

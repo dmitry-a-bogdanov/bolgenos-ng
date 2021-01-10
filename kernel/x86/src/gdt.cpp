@@ -7,15 +7,6 @@
 
 using namespace lib;
 
-uint16_t x86::segment_selector(uint16_t segment_idx, x86::TableIndicator ti,
-			       protection_ring_t required_privilege_level)
-{
-	return (segment_idx << 3)
-		| (static_cast<uint16_t>(ti) << 2)
-		| (static_cast<uint16_t>(required_privilege_level));
-}
-
-
 x86::GDT::GDT()
 {
 	static_assert(sizeof(Entry) == 8);

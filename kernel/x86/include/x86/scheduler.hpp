@@ -22,7 +22,7 @@ public:
 	Task* create_task(task_routine* routine, const char* name = nullptr);
 	void yield();
 
-	[[noreturn]] [[gnu::thiscall]]
+	[[maybe_unused]] [[noreturn]] [[gnu::thiscall]]
 	void schedule_forever();
 private:
 	static constexpr size_t _n_tasks = 128;

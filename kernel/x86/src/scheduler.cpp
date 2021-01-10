@@ -10,7 +10,7 @@ using namespace mmu;
 
 x86::Scheduler::Scheduler() = default;
 
-void x86::Scheduler::schedule_forever()
+[[maybe_unused]] void x86::Scheduler::schedule_forever()
 {
 	irq::enable();
 	cwarn << "STARTED SCHEDULING" << endl;
@@ -58,13 +58,13 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, const char* n
 	auto& tss = task->tss;
 	tss.instruction_ptr = reinterpret_cast<byte*>(routine);
 	tss._segment_registers = x86::tss::SegmentRegistersPack(
-		mmu::KERNEL_CODE_SEGMENT_POINTER,
-		mmu::KERNEL_DATA_SEGMENT_POINTER
+		mmu::KERNEL_CODE_SEGMENT_SELECTOR,
+		mmu::KERNEL_DATA_SEGMENT_SELECTOR
 	);
 	tss._gp_registers_pack = {};
 	tss._gp_registers_pack.ebp = task->stack;
 	tss._gp_registers_pack.esp = task->stack;
-	tss.stack[0] = {mmu::KERNEL_DATA_SEGMENT_POINTER, task->stack};
+	tss.stack[0] = {mmu::KERNEL_DATA_SEGMENT_SELECTOR, task->stack};
 	tss.stack[1] = tss.stack[2] = {};
 
 	uint16_t tssd_idx = _gdt->push_back(kernel_task_descriptor(task));

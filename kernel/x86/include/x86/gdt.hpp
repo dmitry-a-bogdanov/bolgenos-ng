@@ -12,15 +12,7 @@ namespace x86 {
 // FIXME: remove
 using namespace mmu;
 
-enum class TableIndicator {
-	GLOBAL = 0,
-	LOCAL = 1
-};
-
 [[gnu::noinline]] void reload_segment_registers();
-
-uint16_t segment_selector(uint16_t segment_idx, TableIndicator ti,
-			  protection_ring_t required_privilege_level);
 
 class GDT {
 public:

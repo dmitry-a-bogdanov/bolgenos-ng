@@ -12,10 +12,6 @@ class ostream;
 
 namespace x86 {
 
-void switch_to(uint16_t segment);
-
-void kernel_yield();
-
 
 struct Task {
 	TSS tss{};
@@ -35,16 +31,4 @@ struct Task {
 
 lib::ostream& operator<<(lib::ostream& out, const Task& task);
 
-constexpr size_t TASKS = 128;
-extern Task tasks[TASKS];
-
-inline Task& get_task(const size_t i) {
-	return tasks[i];
-}
-inline Task* get_task_ptr(const size_t i) {
-	return tasks + i;
-}
-
 } // namespace x86
-
-[[noreturn]] void scheduler_routine();

@@ -5,7 +5,6 @@
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
@@ -13,7 +12,6 @@
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 #include <x86/cpu.hpp>
-#include <x86/multitasking.hpp>
 #include <x86/scheduler.hpp>
 
 #include "config.h"
@@ -117,12 +115,6 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	scheduler.init_multitasking(&cpu.gdt(), multithreaded_init_stage);
 
-	//x86::switch_to(mmu::SegmentIndex::kernel_scheduler);
-
 	panic("Couldn't switch to scheduler");
-
-	do {
-		x86::halt_cpu();
-	} while(true);
 }
 

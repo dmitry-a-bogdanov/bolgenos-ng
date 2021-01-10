@@ -39,7 +39,7 @@ lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)
 x86::tss::SegmentRegistersPack x86::tss::SegmentRegistersPack::kernel()
 {
 	return x86::tss::SegmentRegistersPack(
-		mmu::KERNEL_CODE_SEGMENT_POINTER,
-		mmu::KERNEL_DATA_SEGMENT_POINTER
+		mmu::KERNEL_CODE_SEGMENT_SELECTOR,
+		mmu::KERNEL_DATA_SEGMENT_SELECTOR
 	);
 }

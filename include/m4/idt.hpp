@@ -33,7 +33,7 @@ struct __attribute__((packed)) gate_t {
 
 	constexpr gate_t()
 		: offset_00_15_(0x0),
-		  segment_(mmu::KERNEL_CODE_SEGMENT_POINTER),
+		  segment_(mmu::KERNEL_CODE_SEGMENT_SELECTOR),
 		  reserved_(0),
 		  zeros_(0),
 		  gate_kind_(gate_kind_type::interrupt),
@@ -48,7 +48,7 @@ struct __attribute__((packed)) gate_t {
 	explicit constexpr gate_t(func_addr_type func,
 				  gate_kind_type kind = gate_kind_type::trap)
 		: offset_00_15_(bitmask(func, 0, 0xffff)),
-		  segment_(mmu::KERNEL_CODE_SEGMENT_POINTER),
+		  segment_(mmu::KERNEL_CODE_SEGMENT_SELECTOR),
 		  reserved_(0),
 		  zeros_(0),
 		  gate_kind_(kind),
