@@ -35,3 +35,7 @@ void x86::kernel_yield()
 alignas(PAGE_SIZE)
 x86::Task x86::tasks[x86::TASKS];
 
+lib::ostream& x86::operator<<(lib::ostream& out, const Task& task) {
+	return out << "{.tss = " << task.tss << "}";
+}
+

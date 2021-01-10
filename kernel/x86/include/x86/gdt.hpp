@@ -1,10 +1,46 @@
 #pragma once
 
+#include <ext/fixed_size_vector.hpp>
+
+#include "multitasking.hpp"
+
+#include "memory_segment_d.hpp"
+#include "tssd.hpp"
+
 namespace x86 {
+
+// FIXME: remove
+using namespace mmu;
+
+enum class TableIndicator {
+	GLOBAL = 0,
+	LOCAL = 1
+};
+
+[[gnu::noinline]] void reload_segment_registers();
+
+uint16_t segment_selector(uint16_t segment_idx, TableIndicator ti,
+			  protection_ring_t required_privilege_level);
 
 class GDT {
 public:
-	void reload();
+	GDT();
+
+	union Entry
+	{
+		MemorySegmentDescriptor memory_segment;
+		TaskStateSegmentDescriptor task;
+	};
+
+	void reload_table();
+
+	uint16_t push_back(const MemorySegmentDescriptor& msd);
+	uint16_t push_back(const TaskStateSegmentDescriptor& tssd);
+
+private:
+
+	alignas(cpu_alignment) lib::FixedSizeVector<Entry, 1024> _gdt{};
+	alignas(cpu_alignment) table_pointer _gdt_pointer{};
 };
 
 }

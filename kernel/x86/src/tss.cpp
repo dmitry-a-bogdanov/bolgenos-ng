@@ -25,7 +25,8 @@ ostream& x86::tss::operator<<(ostream& out, const x86::tss::ProtectionRingStack&
 
 lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)
 {
-	return out
+	lib::ScopedFormatGuard guard{out};
+	return out << hex
 		<< "tss{"
 		<< "prev=" << tss.previous_task_link
 		<< ",stack_0=" << tss.stack[0]

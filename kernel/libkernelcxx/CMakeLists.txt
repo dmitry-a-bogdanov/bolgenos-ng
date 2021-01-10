@@ -10,6 +10,8 @@ set(libkernelcxx_HEADERS
 	include/type_traits.hpp
 	include/utility.hpp
 
+	include/ext/fixed_size_vector.hpp
+	include/ext/memory.hpp
 	include/ext/scoped_format_guard.hpp
 )
 

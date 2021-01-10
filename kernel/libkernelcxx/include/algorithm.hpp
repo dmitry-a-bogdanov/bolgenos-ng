@@ -141,5 +141,9 @@ ForwardIterator find_if(ForwardIterator first, Sentinel last, Predicate pred)
 	return first;
 }
 
+template<class T>
+constexpr const T& max( const T& a, const T& b ) {
+	return (a < b) ? b : a;
+}
 
 } // namespace lib

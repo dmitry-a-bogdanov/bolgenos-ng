@@ -8,7 +8,7 @@ extern "C" {
 /**
 * \brief Print critical error and hang forever.
 */
-void panic(const char *msg) __attribute__((noreturn));
+void panic(const char *msg = nullptr) __attribute__((noreturn));
 
 
 /**

@@ -9,15 +9,53 @@
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
+#include <bolgenos-ng/time.hpp>
 #include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
+#include <x86/cpu.hpp>
 #include <x86/multitasking.hpp>
+#include <x86/scheduler.hpp>
 
 #include "config.h"
 
 #include "traps.hpp"
 
 using namespace lib;
+
+x86::Processor cpu;
+x86::Scheduler scheduler;
+
+
+[[noreturn]] void task1() {
+	cinfo << "Started task 1" << endl;
+	irq::enable();
+	uint32_t counter = 0;
+	while (true) {
+		cnotice << "task1. iteration #" << ++counter << endl;
+		sleep_ms(300);
+		scheduler.yield();
+	}
+}
+
+
+[[noreturn]]
+void multithreaded_init_stage() {
+	cnotice << "Continue initialization in multithreaded env" << endl;
+	cnotice << "Kernel initialization routine has been finished!"
+	      << endl;
+	irq::enable();
+
+	scheduler.create_task(task1, "task #1");
+	cinfo << "created first task" << endl;
+
+	uint32_t counter = 0;
+
+	do {
+		x86::halt_cpu();
+		scheduler.yield();
+		cnotice << "main task. iteration #" << ++counter << endl;
+	} while(true);
+}
 
 /**
 * \brief Kernel main function.
@@ -46,7 +84,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< endl;
 
-	mmu::init();	// Enables segmentation.
+	cpu.load_kernel_segments();
 	memory::init(); // Allow allocation
 
 
@@ -77,7 +115,9 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	cwarn << "starting first switch" << endl;
 
-	x86::switch_to(mmu::SegmentIndex::kernel_scheduler);
+	scheduler.init_multitasking(&cpu.gdt(), multithreaded_init_stage);
+
+	//x86::switch_to(mmu::SegmentIndex::kernel_scheduler);
 
 	panic("Couldn't switch to scheduler");
 
