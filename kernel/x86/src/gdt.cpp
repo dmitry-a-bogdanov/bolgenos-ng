@@ -6,6 +6,7 @@
 #include <bolgenos-ng/mmu.hpp>
 
 using namespace lib;
+using namespace x86;
 
 x86::GDT::GDT()
 {
@@ -24,14 +25,14 @@ void x86::GDT::reload_table()
 	cinfo << "gdt was reloaded" << endl;
 }
 
-uint16_t x86::GDT::push_back(const mmu::MemorySegmentDescriptor& msd)
+uint16_t x86::GDT::push_back(const MemorySegmentDescriptor& msd)
 {
 	uint16_t idx = _gdt.size();
 	_gdt.push_back({.memory_segment = msd});
 	return idx;
 }
 
-uint16_t x86::GDT::push_back(const mmu::TaskStateSegmentDescriptor& tssd)
+uint16_t x86::GDT::push_back(const TaskStateSegmentDescriptor& tssd)
 {
 	uint16_t idx = _gdt.size();
 	_gdt.push_back({.task = tssd});
@@ -40,12 +41,12 @@ uint16_t x86::GDT::push_back(const mmu::TaskStateSegmentDescriptor& tssd)
 
 void x86::reload_segment_registers()
 {
-	const uint16_t data_segment = segment_selector(mmu::SegmentIndex::kernel_data,
-						TableIndicator::GLOBAL,
-					  protection_ring_t::ring_kernel);
-	const uint16_t code_segment = segment_selector(mmu::SegmentIndex::kernel_code,
-						TableIndicator::GLOBAL,
-						protection_ring_t::ring_kernel);
+	const uint16_t data_segment = segment_selector(SegmentIndex::kernel_data,
+						       TableIndicator::GLOBAL,
+						       ProtectionRing::kernel);
+	const uint16_t code_segment = segment_selector(SegmentIndex::kernel_code,
+						       TableIndicator::GLOBAL,
+						       ProtectionRing::kernel);
 	asm volatile(
 	"movw %w0, %%ds\n"
 	"movw %w0, %%es\n"

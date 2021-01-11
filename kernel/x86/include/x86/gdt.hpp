@@ -2,15 +2,12 @@
 
 #include <ext/fixed_size_vector.hpp>
 
-#include "multitasking.hpp"
+#include "task.hpp"
 
 #include "memory_segment_d.hpp"
 #include "tssd.hpp"
 
 namespace x86 {
-
-// FIXME: remove
-using namespace mmu;
 
 [[gnu::noinline]] void reload_segment_registers();
 

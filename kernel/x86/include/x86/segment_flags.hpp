@@ -1,15 +1,17 @@
 #pragma once
 
-namespace mmu {
+#include <type_traits.hpp>
+
+namespace x86 {
 
 
 /// \brief Memory segment: system flag
 ///
 /// Enum holds values of system flag for memory segment descriptor.
-enum class seg_sys_flag_type
+enum class System
 {
 	/// NULL-segment
-	sys_null = 0x0,
+	null = 0x0,
 
 
 	/// System segment
@@ -26,9 +28,9 @@ enum class seg_sys_flag_type
 *
 * Enum holds values of present flag for memory segment descriptor.
 */
-enum seg_present_type
+enum class Present
 {
-	present_null = 0x0, /*!< NULL-segment */
+	null = 0x0, /*!< NULL-segment */
 	not_present = 0x0, /*!< MemorySegmentDescriptor is not present */
 	present = 0x1, /*!< MemorySegmentDescriptor is present */
 };
@@ -39,17 +41,17 @@ enum seg_present_type
 *
 * Enum holds values of long flag for memory segment descriptor.
 */
-enum seg_long_type
+enum class Long
 {
-	long_null = 0x0, /*!< NULL-segment */
+	null = 0x0, /*!< NULL-segment */
 	long_64 = 0x1, /*!< 64-bit segment */
 	other = 0x0, /*!< 32-bit segment */
 };
 
 
-enum seg_db_type
+enum class OperationSize: uint8_t
 {
-	db_null = 0x0,
+	null = 0x0,
 	db32_bit = 0x1,
 	db16_bit = 0x0,
 };
@@ -60,28 +62,22 @@ enum seg_db_type
 *
 * Enum holds values of granularity flag for memory segment descriptor.
 */
-enum seg_granularity_type
+enum class Granularity: uint8_t
 {
-	granularity_null = 0x0, /*!< NULL-segment */
+	null = 0x0, /*!< NULL-segment */
 	four_k_pages = 0x1, /*!< Use 4K pages */
 	bytes = 0x0, /*!< Do not use pages */
 };
 
 
-enum seg_avl_type
+enum class Avl
 {
-	avl_null = 0x0
+	null = 0x0
 };
 
-/// \brief Memory segment: D/B flag.
-///
-/// \warning hard to document this option without good description of
-/// segmentation mechanism.
-///
-/// TODO: document this shit.
-enum tag_type
+enum class SegmentType: uint8_t
 {
-	st_null = 0 << 0,
+	null = 0 << 0,
 	// common
 	accessed = 1 << 0,
 
@@ -96,6 +92,16 @@ enum tag_type
 	code_conforming = 1 << 2,
 };
 
+template<class T>
+constexpr T enum_or(T lhs, T rhs) {
+	using UT = lib::underlying_type_t<T>;
+	return static_cast<T>(static_cast<UT>(lhs) | static_cast<UT>(rhs));
+}
+
+constexpr SegmentType operator|(SegmentType lhs, SegmentType rhs) {
+	return enum_or(lhs, rhs);
+}
+
 enum class TableIndicator {
 	GLOBAL = 0,
 	LOCAL = 1
@@ -104,7 +110,7 @@ enum class TableIndicator {
 
 constexpr inline
 uint16_t segment_selector(uint16_t segment_idx, TableIndicator ti,
-			       protection_ring_t required_privilege_level) noexcept
+			  ProtectionRing required_privilege_level) noexcept
 {
 	return (segment_idx << 3)
 	       | (static_cast<uint16_t>(ti) << 2)

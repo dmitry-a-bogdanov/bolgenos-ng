@@ -4,7 +4,7 @@
 
 #include <ext/memory.hpp>
 
-#include "multitasking.hpp"
+#include "task.hpp"
 #include "gdt.hpp"
 
 namespace x86 {

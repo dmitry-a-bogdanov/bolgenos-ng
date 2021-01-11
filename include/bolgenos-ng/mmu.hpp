@@ -3,12 +3,12 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <x86/multitasking.hpp>
+#include <x86/task.hpp>
 
 #include <x86/tssd.hpp>
 #include <x86/memory_segment_d.hpp>
 
-namespace mmu {
+namespace x86 {
 
 enum SegmentIndex: int
 {
@@ -20,10 +20,10 @@ enum SegmentIndex: int
 
 /// Kernel code segment.
 constexpr uint16_t KERNEL_CODE_SEGMENT_SELECTOR =
-	segment_selector(kernel_code, TableIndicator::GLOBAL, ring_kernel);
+	segment_selector(kernel_code, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
 /// Kernel data segment.
 constexpr uint16_t KERNEL_DATA_SEGMENT_SELECTOR =
-	segment_selector(kernel_data, TableIndicator::GLOBAL, ring_kernel);
+	segment_selector(kernel_data, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
-} // namespace mmu
+} // namespace x86

@@ -4,8 +4,8 @@
 
 namespace x86::segments {
 
-extern const mmu::MemorySegmentDescriptor null;
-extern const mmu::MemorySegmentDescriptor kernel_code;
-extern const mmu::MemorySegmentDescriptor kernel_data;
+extern const MemorySegmentDescriptor null;
+extern const MemorySegmentDescriptor kernel_code;
+extern const MemorySegmentDescriptor kernel_data;
 
 }

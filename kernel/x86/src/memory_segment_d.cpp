@@ -2,7 +2,7 @@
 
 #include <type_traits.hpp>
 
-using namespace mmu;
+using namespace x86;
 
 static_assert(lib::is_standard_layout_v<MemorySegmentDescriptor>,
 	      "MemorySegmentDescriptor is not std layout");

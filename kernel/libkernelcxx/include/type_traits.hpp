@@ -209,6 +209,14 @@ struct is_trivial: integral_constant<bool, __is_trivial(T)> {};
 template<class T>
 constexpr bool is_trivial_v = is_trivial<T>::value;
 
+template<class T>
+struct underlying_type {
+	using type = __underlying_type(T);
+};
+
+template<class T>
+using underlying_type_t = typename underlying_type<T>::type;
+
 } // namespace lib
 
 

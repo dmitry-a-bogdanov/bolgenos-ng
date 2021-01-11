@@ -6,7 +6,6 @@
 #include <cstring.hpp>
 
 using namespace lib;
-using namespace mmu;
 
 x86::Scheduler::Scheduler() = default;
 
@@ -58,17 +57,17 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, const char* n
 	auto& tss = task->tss;
 	tss.instruction_ptr = reinterpret_cast<byte*>(routine);
 	tss._segment_registers = x86::tss::SegmentRegistersPack(
-		mmu::KERNEL_CODE_SEGMENT_SELECTOR,
-		mmu::KERNEL_DATA_SEGMENT_SELECTOR
+		x86::KERNEL_CODE_SEGMENT_SELECTOR,
+		x86::KERNEL_DATA_SEGMENT_SELECTOR
 	);
 	tss._gp_registers_pack = {};
 	tss._gp_registers_pack.ebp = task->stack;
 	tss._gp_registers_pack.esp = task->stack;
-	tss.stack[0] = {mmu::KERNEL_DATA_SEGMENT_SELECTOR, task->stack};
+	tss.stack[0] = {x86::KERNEL_DATA_SEGMENT_SELECTOR, task->stack};
 	tss.stack[1] = tss.stack[2] = {};
 
 	uint16_t tssd_idx = _gdt->push_back(kernel_task_descriptor(task));
-	uint16_t task_selector = segment_selector(tssd_idx, TableIndicator::GLOBAL, ring_kernel);
+	uint16_t task_selector = segment_selector(tssd_idx, TableIndicator::GLOBAL, ProtectionRing::kernel);
 	task->segment_selector = task_selector;
 	if (name != nullptr) {
 		snprintf(task->name, sizeof(Task::name), name);
