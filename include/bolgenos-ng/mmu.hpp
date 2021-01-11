@@ -15,6 +15,7 @@ enum SegmentIndex: int
 	null = 0,
 	kernel_code = 1,
 	kernel_data = 2,
+	single_task = 3,
 };
 
 

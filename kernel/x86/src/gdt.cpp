@@ -4,6 +4,8 @@
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/mmu.hpp>
+#include <x86/segments.hpp>
+#include <x86/segment_flags.hpp>
 
 using namespace lib;
 using namespace x86;
@@ -39,7 +41,7 @@ uint16_t x86::GDT::push_back(const TaskStateSegmentDescriptor& tssd)
 	return idx;
 }
 
-void x86::reload_segment_registers()
+[[gnu::noinline]] void x86::reload_segment_registers()
 {
 	const uint16_t data_segment = segment_selector(SegmentIndex::kernel_data,
 						       TableIndicator::GLOBAL,
@@ -60,3 +62,15 @@ void x86::reload_segment_registers()
 	: "cc", "memory"
 	);
 }
+
+void x86::init_task_register()
+{
+	asm volatile(
+		"ltr %0\n\t"
+		:
+		: "r"(segment_selector(SegmentIndex::single_task, TableIndicator::GLOBAL,
+		     ProtectionRing::kernel))
+		: "cc", "memory"
+		);
+}
+

@@ -38,3 +38,13 @@ const MemorySegmentDescriptor x86::segments::kernel_data{
 	Granularity::four_k_pages
 };
 
+const TaskStateSegment x86::segments::single_task{};
+
+const TaskStateSegmentDescriptor x86::segments::single_task_descriptor{
+	reinterpret_cast<lib::uintptr_t>(&single_task),
+	sizeof(single_task) - 1,
+	false,
+	ProtectionRing::kernel,
+	Present::present,
+	Granularity::bytes
+};

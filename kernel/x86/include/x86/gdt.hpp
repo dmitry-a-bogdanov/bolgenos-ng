@@ -9,7 +9,8 @@
 
 namespace x86 {
 
-[[gnu::noinline]] void reload_segment_registers();
+void reload_segment_registers();
+void init_task_register();
 
 class GDT {
 public:
