@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../stdtypes.hpp"
+#include <cstdint.hpp>
 
 // forward declaration
 namespace lib { class ostream; }

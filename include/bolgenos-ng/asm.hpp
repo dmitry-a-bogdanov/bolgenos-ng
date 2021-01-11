@@ -1,9 +1,9 @@
 #pragma once
 
-#include "compiler.h"
-#include "stdtypes.hpp"
+#include <cstdint.hpp>
+#include <type_traits.hpp>
 
-#include <lib/type_traits.hpp>
+#include "compiler.h"
 
 
 /// \brief Pointer to descriptor table.
@@ -18,12 +18,12 @@ struct _packed_ table_pointer {
 /// \brief Privilege level.
 ///
 /// Enum holds values of privilege level as index of protection level.
-enum protection_ring_t {
-	ring_null = 0x0,
-	ring_kernel = 0x0,
+enum class ProtectionRing {
+	null = 0x0,
+	kernel = 0x0,
 	ring_1 = 0x1,
 	ring_2 = 0x2,
-	ring_user = 0x3
+	user = 0x3
 };
 
 

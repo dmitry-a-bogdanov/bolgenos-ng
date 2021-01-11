@@ -1,7 +1,8 @@
 #pragma once
 
+#include <cstddef.hpp>
+
 #include "page.hpp"
-#include "stdtypes.hpp"
 
 
 namespace memory {

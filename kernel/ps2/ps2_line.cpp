@@ -1,7 +1,6 @@
 #include <bolgenos-ng/ps2_line.hpp>
 
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 /// Timeout for output operation.
 constexpr int OUTPUT_TIMEOUT = 1 /* ms */;

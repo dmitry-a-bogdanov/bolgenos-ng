@@ -1,10 +1,6 @@
 #include "mallocator.hpp"
 
-#include <bolgenos-ng/stdtypes.hpp>
-
 #include <bolgenos-ng/error.h>
-
-#include <lib/ostream.hpp>
 
 namespace {
 

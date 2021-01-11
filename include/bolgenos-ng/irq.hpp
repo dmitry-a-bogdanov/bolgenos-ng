@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef.hpp>
+#include <cstdint.hpp>
+#include <forward_list.hpp>
+
 #include "asm.hpp"
-#include "stdtypes.hpp"
 
-#include <lib/forward_list.hpp>
-
+#include <bolgenos-ng/log.hpp>
 
 namespace lib {
 	class ostream;
@@ -126,6 +128,7 @@ private:
 ///
 /// Enable interrupts by setting Interrupt Flag for CPU.
 inline void enable() {
+	lib::cnotice << "enabling interrupts" << lib::endl;
 	asm volatile ("sti\n");
 }
 
@@ -134,7 +137,10 @@ inline void enable() {
 ///
 /// Disable interrupts by clearing Interrupt Flag for CPU.
 ///
-inline void disable() {
+inline void disable(bool debug = true) {
+	if (debug) {
+		lib::cnotice << "disabling interrupts" << lib::endl;
+	}
 	asm volatile ("cli\n");
 }
 

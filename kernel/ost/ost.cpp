@@ -1,6 +1,6 @@
 #include <bolgenos-ng/ost.hpp>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 #include <ost.h>
 #include "memory.hpp"

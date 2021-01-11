@@ -1,9 +1,8 @@
 #pragma once
 
-#include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
+#include <cstddef.hpp>
 
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/irq.hpp>
 
 #include "ps2/common.hpp"
 

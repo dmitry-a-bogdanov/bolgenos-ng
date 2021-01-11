@@ -1,9 +1,7 @@
 #include <bolgenos-ng/vga_console.hpp>
 
-#include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/stdtypes.hpp>
-
-#include <lib/algorithm.hpp>
+#include <algorithm.hpp>
+#include <cstdint.hpp>
 
 namespace {
 

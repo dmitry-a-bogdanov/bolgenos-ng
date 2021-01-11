@@ -1,26 +1,59 @@
 #include <bolgenos-ng/cxxabi.h>
-#include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
+#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/mmu.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
-#include <bolgenos-ng/ps2_controller.hpp>
-#include <bolgenos-ng/slab.hpp>
 #include <bolgenos-ng/time.hpp>
+#include <bolgenos-ng/ps2_controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
-
-#include <lib/atomic.hpp>
-#include <lib/ostream.hpp>
+#include <x86/cpu.hpp>
+#include <x86/scheduler.hpp>
 
 #include "config.h"
 
 #include "traps.hpp"
+
+using namespace lib;
+
+x86::Processor cpu;
+x86::Scheduler scheduler;
+
+
+[[noreturn]] void task1() {
+	cinfo << "Started task 1" << endl;
+	irq::enable();
+	uint32_t counter = 0;
+	while (true) {
+		cnotice << "task1. iteration #" << ++counter << endl;
+		sleep_ms(300);
+		scheduler.yield();
+	}
+}
+
+
+[[noreturn]]
+void multithreaded_init_stage() {
+	cnotice << "Continue initialization in multithreaded env" << endl;
+	cnotice << "Kernel initialization routine has been finished!"
+	      << endl;
+	irq::enable();
+
+	scheduler.create_task(task1, "task #1");
+	cinfo << "created first task" << endl;
+
+	uint32_t counter = 0;
+
+	do {
+		x86::halt_cpu();
+		scheduler.yield();
+		cnotice << "main task. iteration #" << ++counter << endl;
+	} while(true);
+}
 
 /**
 * \brief Kernel main function.
@@ -28,24 +61,30 @@
 * The main kernel function. The function performs full bootstrap of kernel
 *	and then goes to idle state.
 */
-extern "C" void kernel_main() {
-	irq::disable();
+extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
+	irq::disable(false);
 
 	multiboot::init();
 
 	call_global_ctors();
 
-	lib::set_log_level(lib::log_level_type::notice);
+	set_log_level(log_level_type::notice);
 
 	vga_console::clear_screen();
 
-	mmu::init();	// Enables segmentation.
+	cout
+		<< R"(  __                           __  )" << endl
+		<< R"( |__| _ | _  _  _  _  _  |\  |/    )" << endl
+		<< R"( |  \| ||/ ||_|| || ||_  | \ ||  _ )" << endl
+		<< R"( |__/|_||\_||_ | ||_| _| |  \|\__/ )" << endl
+		<< R"(       ____|                       )" << endl;
+
+	cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
+		<< endl;
+
+	cpu.load_kernel_segments();
 	memory::init(); // Allow allocation
 
-
-
-	lib::cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
-		<< lib::endl;
 
 	// explicitly create instance
 	auto interrupt_manager = irq::InterruptsManager::instance();
@@ -63,17 +102,19 @@ extern "C" void kernel_main() {
 
 	irq::enable();
 
-	lib::cinfo << "CPU is initialized" << lib::endl;
+	cinfo << "CPU is initialized" << endl;
 
 	ps2::PS2Controller::instance()->initialize_controller();
 
 	ost::run();
 
-	lib::cwarn << "Kernel initialization routine has been finished!"
-			<< lib::endl;
+	cwarn << "Kernel initialization routine has been finished!"
+			<< endl;
 
-	do {
-		x86::halt_cpu();
-	} while(1);
+	cwarn << "starting first switch" << endl;
+
+	scheduler.init_multitasking(&cpu.gdt(), multithreaded_init_stage);
+
+	panic("Couldn't switch to scheduler");
 }
 

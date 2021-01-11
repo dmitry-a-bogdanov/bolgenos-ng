@@ -1,10 +1,11 @@
+#include <unwind.h>
+
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
 #include <bolgenos-ng/memory.hpp>
-#include <lib/ostream.hpp>
 
-#include <lib/atomic.hpp>
+#include <atomic.hpp>
 
 extern "C" {
 
@@ -80,6 +81,16 @@ void operator delete(void *p) noexcept
 	memory::kfree(p);
 }
 
+void operator delete(void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
+
+
+void operator delete[](void *p, size_t) noexcept
+{
+	memory::kfree(p);
+}
 
 void operator delete[](void *p) noexcept
 {

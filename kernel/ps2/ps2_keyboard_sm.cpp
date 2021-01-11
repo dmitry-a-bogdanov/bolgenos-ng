@@ -2,8 +2,7 @@
 
 #include <bolgenos-ng/keyboard.h>
 #include <bolgenos-ng/vga_console.hpp>
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 #include "ps2_keyboard.hpp"
 

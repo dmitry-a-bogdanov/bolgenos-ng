@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stdtypes.hpp"
+#include <cstddef.hpp>
 
 #include "config.h"
 
@@ -11,8 +11,8 @@ namespace memory {
 /// \brief Page in real memory.
 ///
 /// Used only for simplifying address arithmetics.
-struct __attribute__((packed)) page_frame_t {
-	uint8_t bytes[PAGE_SIZE]; ///< bytes in real page frame
+struct __attribute__((packed, aligned(PAGE_SIZE))) page_frame_t {
+	lib::byte bytes[PAGE_SIZE]; ///< bytes in real page frame
 };
 
 

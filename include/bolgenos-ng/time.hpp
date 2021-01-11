@@ -1,13 +1,14 @@
 #pragma once
 
-#include "stdtypes.hpp"
+#include <cstdint.hpp>
+#include <atomic.hpp>
 
 /**
 * \brief Current ticks number.
 *
 * This variable keeps number of ticks since start of kernel.
 */
-extern volatile uint32_t jiffies;
+extern lib::atomic<uint32_t> jiffies;
 
 
 /**

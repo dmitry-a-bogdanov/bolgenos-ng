@@ -8,8 +8,7 @@
 #include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"

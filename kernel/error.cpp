@@ -8,8 +8,10 @@
 void panic(const char *msg) {
 	irq::disable();
 	printk("Kernel Panic:\n");
-	printk(msg);
-	while(1) {
+	if (msg != nullptr) {
+		printk(msg);
+	}
+	while(true) {
 		x86::halt_cpu();
 	}
 }
@@ -18,3 +20,13 @@ void bug(const char *msg) {
 	printk("Kernel Bug! Escalating to Kernel Panic...\n");
 	panic(msg);
 }
+
+void raise_not_implemented(const char* msg)
+{
+	if (msg != nullptr) {
+		printk(msg);
+	}
+	panic("not implemented error");
+}
+
+

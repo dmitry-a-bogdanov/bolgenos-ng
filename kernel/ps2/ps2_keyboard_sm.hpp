@@ -1,7 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/stdtypes.hpp>
-
+#include <cstdint.hpp>
 
 // forward declaration
 namespace ps2 {

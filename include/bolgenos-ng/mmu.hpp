@@ -1,40 +1,29 @@
 #pragma once
 
-#include <lib/type_traits.hpp>
+#include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/compiler.h>
+#include <bolgenos-ng/mem_utils.hpp>
+#include <x86/task.hpp>
 
+#include <x86/tssd.hpp>
+#include <x86/memory_segment_d.hpp>
 
-namespace mmu {
+namespace x86 {
 
-
-/// Index of null segment.
-constexpr int NULL_SEGMENT_INDEX = 0;
-
-
-/// Size of segment descriptor.
-constexpr int SEGMENT_STRUCT_SIZE = 8;
-
-
-/// Index of kernel code segment.
-constexpr int KERNEL_CODE_SEGMENT_INDEX = 1;
+enum SegmentIndex: int
+{
+	null = 0,
+	kernel_code = 1,
+	kernel_data = 2,
+};
 
 
 /// Kernel code segment.
-constexpr int KERNEL_CODE_SEGMENT_POINTER = KERNEL_CODE_SEGMENT_INDEX * SEGMENT_STRUCT_SIZE;
-
-
-/// Index of kernel data segment.
-constexpr int KERNEL_DATA_SEGMENT_INDEX = 2;
-
+constexpr uint16_t KERNEL_CODE_SEGMENT_SELECTOR =
+	segment_selector(kernel_code, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
 /// Kernel data segment.
-constexpr int KERNEL_DATA_SEGMENT_POINTER = KERNEL_DATA_SEGMENT_INDEX * SEGMENT_STRUCT_SIZE;
+constexpr uint16_t KERNEL_DATA_SEGMENT_SELECTOR =
+	segment_selector(kernel_data, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
-
-/// \brief Setup segmentation support.
-///
-/// Setup segmentation support. The function initializes Global Descriptior
-/// Table and loads it to appropriate CPU register.
-void init();
-
-
-} // namespace mmu
+} // namespace x86

@@ -1,6 +1,5 @@
 #include "pic_8259.hpp"
 
-#include <bolgenos-ng/string.h>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/error.h>

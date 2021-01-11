@@ -4,8 +4,7 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/execinfo.hpp>
-
-#include <lib/ostream.hpp>
+#include <bolgenos-ng/log.hpp>
 
 
 namespace {
@@ -90,7 +89,7 @@ public:
 
 	void handle(irq::int_frame_noerror_t *frame_pointer) override
 	{
-		lib::ccrit << _message << lib::endl;
+		lib::ccrit << _message << lib::endl << *frame_pointer << lib::endl;
 		execinfo::show_backtrace(lib::ccrit, frame_pointer->regs.ebp,
 				frame_pointer->exe.eip);
 		panic("Forbidden exception in kernel mode!");
@@ -124,7 +123,7 @@ void irq::install_traps() {
 	irq_manager->add_handler(irq::exception_t::invalid_tss,
 			new PrintingErrcodeHandler("Invalid TSS"));
 	irq_manager->add_handler(irq::exception_t::segment_not_present,
-			new PrintingErrcodeHandler("Segment not present"));
+			new PrintingErrcodeHandler("MemorySegmentDescriptor not present"));
 	irq_manager->add_handler(irq::exception_t::stack_segment_fault,
 			new PrintingErrcodeHandler("Stack segment fault"));
 	irq_manager->add_handler(irq::exception_t::general_protection_fault,
