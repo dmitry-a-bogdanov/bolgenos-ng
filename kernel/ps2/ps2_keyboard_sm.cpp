@@ -1,6 +1,6 @@
 #include "ps2_keyboard_sm.hpp"
 
-#include <bolgenos-ng/keyboard.h>
+#include <bolgenos-ng/keyboard.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 #include <bolgenos-ng/log.hpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../irq.hpp"
-#include "../device.h"
+#include <bolgenos-ng/device.hpp>
 
 namespace ps2 {
 

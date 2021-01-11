@@ -1,4 +1,4 @@
-#include <bolgenos-ng/keyboard.h>
+#include <bolgenos-ng/keyboard.hpp>
 
 
 namespace {
