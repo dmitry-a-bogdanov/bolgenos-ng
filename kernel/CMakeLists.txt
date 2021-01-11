@@ -49,8 +49,6 @@ set(kernel_binary "kernel.bin")
 
 include_directories(${CONFIG_INCLUDE_DIRS})
 
-add_subdirectory(libkernelcxx)
-
 # Variable $kernel_start_file should keep source file that will be included
 # in kernel of any configuration and can be compiled very fast.
 # This file is used for forcing relinking of resulting object.
@@ -85,26 +83,6 @@ set(logging_src
 	src/log/vga_log_buf.hpp
 )
 
-set(x86_src
-	x86/include/x86/cpu.hpp
-	x86/include/x86/gdt.hpp
-	x86/include/x86/memory_segment_d.hpp
-	x86/include/x86/scheduler.hpp
-	x86/include/x86/segment_flags.hpp
-	x86/include/x86/segments.hpp
-	x86/include/x86/task.hpp
-	x86/include/x86/tssd.hpp
-	x86/include/x86/tss.hpp
-
-	x86/src/cpu.cpp
-	x86/src/gdt.cpp
-	x86/src/memory_segment_d.cpp
-	x86/src/task.cpp
-	x86/src/scheduler.cpp
-	x86/src/segments.cpp
-	x86/src/tss.cpp
-	x86/src/tssd.cpp
-)
 
 set(kernel_sources ${kernel_start_file}
 	${config_h}
@@ -187,6 +165,10 @@ add_executable(${kernel_binary}
 	${kernel_sources}
 	)
 
+add_subdirectory(libkernelcxx)
+add_subdirectory(x86)
+add_subdirectory(threading)
+
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
 # custom target is always out-of-date
@@ -197,7 +179,7 @@ add_custom_target(__relink_kernel
 
 add_dependencies(${kernel_binary} __relink_kernel)
 
-target_link_libraries(${kernel_binary} libkernelcxx)
+target_link_libraries(${kernel_binary} libkernelcxx libthreading libx86)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")

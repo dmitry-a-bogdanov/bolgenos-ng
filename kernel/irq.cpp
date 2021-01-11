@@ -9,6 +9,7 @@
 #include <ext/scoped_format_guard.hpp>
 
 #include <m4/idt.hpp>
+#include <atomic.hpp>
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
@@ -174,6 +175,23 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 	return out;
 }
 
+static lib::atomic<bool> interrupts_enabled{false};
+
+void irq::enable() {
+	lib::cnotice << "enabling interrupts" << lib::endl;
+	interrupts_enabled.store(true);
+	asm volatile ("sti\n");
+}
+
+bool irq::disable(bool debug) {
+	if (debug) {
+		lib::cnotice << "disabling interrupts" << lib::endl;
+	}
+
+	asm volatile ("cli\n");
+
+	return interrupts_enabled.exchange(false);
+}
 
 // Compile-time guards
 static_assert(sizeof(irq::registers_dump_t) == 8*4,

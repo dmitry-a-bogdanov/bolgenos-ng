@@ -127,22 +127,16 @@ private:
 /// \brief Enable interrupts.
 ///
 /// Enable interrupts by setting Interrupt Flag for CPU.
-inline void enable() {
-	lib::cnotice << "enabling interrupts" << lib::endl;
-	asm volatile ("sti\n");
-}
+void enable();
 
 
 /// \brief Disable interrupts.
 ///
 /// Disable interrupts by clearing Interrupt Flag for CPU.
 ///
-inline void disable(bool debug = true) {
-	if (debug) {
-		lib::cnotice << "disabling interrupts" << lib::endl;
-	}
-	asm volatile ("cli\n");
-}
+/// \param debug - print debug
+/// \return previous status
+bool disable(bool debug = true);
 
 
 /// \brief Registers dump on stack.

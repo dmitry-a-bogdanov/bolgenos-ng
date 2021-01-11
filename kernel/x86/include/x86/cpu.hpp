@@ -1,11 +1,15 @@
 #pragma once
 
 #include "gdt.hpp"
+#include "eflags.hpp"
 
 namespace x86 {
 
 class Processor {
 public:
+
+	static EFlags flags();
+
 	[[nodiscard]] constexpr const GDT& gdt() const noexcept {
 		return _gdt;
 	}

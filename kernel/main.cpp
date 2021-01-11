@@ -30,7 +30,7 @@ x86::Scheduler scheduler;
 	uint32_t counter = 0;
 	while (true) {
 		cnotice << "task1. iteration #" << ++counter << endl;
-		sleep_ms(300);
+		sleep_ms(1000);
 		scheduler.yield();
 	}
 }
@@ -87,9 +87,8 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 
 	// explicitly create instance
-	auto interrupt_manager = irq::InterruptsManager::instance();
+	irq::InterruptsManager::instance();
 	irq::install_traps();
-	(void) interrupt_manager;
 
 
 

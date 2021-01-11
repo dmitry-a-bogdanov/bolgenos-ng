@@ -2,7 +2,7 @@
 
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mmu.hpp>
-
+#include <threading/threading.hpp>
 #include <cstring.hpp>
 
 using namespace lib;
@@ -35,14 +35,17 @@ void scheduling_task_routine() {
 
 void x86::Scheduler::init_multitasking(observer_ptr<GDT> gdt, x86::task_routine* main_continuation)
 {
-	_gdt = gdt;
-	Task* scheduler_task = create_task(scheduling_task_routine, "scheduler");
-	scheduler_task->tss._gp_registers_pack.ecx = reinterpret_cast<uintptr_t>(this);
-	_scheduler_task = scheduler_task;
+	thr::with_lock<thr::RecursiveIrqLocker>([&]{
+		_gdt = gdt;
+		Task* scheduler_task = create_task(scheduling_task_routine, "scheduler");
+		scheduler_task->tss._gp_registers_pack.ecx = reinterpret_cast<uintptr_t>(this);
+		_scheduler_task = scheduler_task;
 
-	create_task(main_continuation, "main");
+		create_task(main_continuation, "main");
 
-	_gdt->reload_table();
+		_gdt->reload_table();
+	});
+
 	yield();
 
 	panic("couldn't start scheduling");
