@@ -145,9 +145,7 @@ struct __attribute__((packed)) TaskStateSegment {
 	{}
 
 	uint16_t			previous_task_link;
-private:
 	uint16_t			_reserved_01{0};
-public:
 	tss::ProtectionRingStack	stack[3];
 	/**
 	 * \brief CR3
@@ -158,9 +156,7 @@ public:
 	tss::GPRegistersPack		_gp_registers_pack;
 	tss::SegmentRegistersPack	_segment_registers;
 	bool				debug_trap:1;
-private:
 	uint16_t			_reserved_02:15;
-public:
 	uint16_t			io_map_base_address;
 };
 

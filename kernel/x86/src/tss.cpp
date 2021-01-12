@@ -10,6 +10,7 @@ using namespace lib;
 static_assert(sizeof(x86::tss::ProtectionRingStack) == 8);
 static_assert(sizeof(x86::tss::SegmentRegister) == 4);
 static_assert(sizeof(x86::TaskStateSegment) == 104);
+static_assert(is_standard_layout_v<x86::TaskStateSegment>);
 
 
 lib::ostream& x86::tss::operator<<(ostream& out, const x86::tss::SegmentRegister& segment_register)
