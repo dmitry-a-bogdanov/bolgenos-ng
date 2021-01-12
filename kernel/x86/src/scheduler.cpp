@@ -12,7 +12,7 @@ x86::Scheduler::Scheduler() = default;
 [[maybe_unused]] void x86::Scheduler::schedule_forever()
 {
 	irq::enable();
-	cwarn << "STARTED SCHEDULING" << endl;
+	cwarn << "===== STARTED SCHEDULING =====" << endl;
 	while (true) {
 		for (auto& task: _tasks) {
 			if (&task == _scheduler_task) {
@@ -26,22 +26,27 @@ x86::Scheduler::Scheduler() = default;
 	}
 }
 
-/**
- * expectes ecx is filled by scheduler object
- */
-void scheduling_task_routine() {
-	asm volatile("call _ZN3x869Scheduler16schedule_foreverEv\n\t");
+void scheduling_task_routine(void *arg) {
+	static_cast<x86::Scheduler *>(arg)->schedule_forever();
 }
 
 void x86::Scheduler::init_multitasking(observer_ptr<GDT> gdt, x86::task_routine* main_continuation)
 {
+	[[gnu::thiscall]] void (*run_ptr)(Task *);
+	run_ptr = &Task::wrapperForRun;
+
+	static_assert(sizeof(run_ptr) == sizeof(_entry_point_for_tasks));
+	lib::copy_n(reinterpret_cast<const char *>(&run_ptr), sizeof(run_ptr),
+		    reinterpret_cast<char *>(&_entry_point_for_tasks));
+
+	cinfo << "common entry point: " << hex << _entry_point_for_tasks << dec << endl;
+
 	thr::with_lock<thr::RecursiveIrqLocker>([&]{
 		_gdt = gdt;
-		Task* scheduler_task = create_task(scheduling_task_routine, "scheduler");
-		scheduler_task->tss._gp_registers_pack.ecx = reinterpret_cast<uintptr_t>(this);
+		Task* scheduler_task = create_task(scheduling_task_routine, this, "scheduler");
 		_scheduler_task = scheduler_task;
 
-		create_task(main_continuation, "main");
+		create_task(main_continuation, nullptr, "main");
 
 		_gdt->reload_table();
 	});
@@ -51,14 +56,17 @@ void x86::Scheduler::init_multitasking(observer_ptr<GDT> gdt, x86::task_routine*
 	panic("couldn't start scheduling");
 }
 
-x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, const char* name)
+x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, void* arg, const char* name)
 {
 	auto task = allocate_task();
 	if (task == nullptr) {
 		panic("no free tasks");
 	}
+	task->routine = routine;
+	task->arg = arg;
+
 	auto& tss = task->tss;
-	tss.instruction_ptr = reinterpret_cast<byte*>(routine);
+	tss.instruction_ptr = _entry_point_for_tasks;
 	tss._segment_registers = x86::tss::SegmentRegistersPack(
 		x86::KERNEL_CODE_SEGMENT_SELECTOR,
 		x86::KERNEL_DATA_SEGMENT_SELECTOR
@@ -66,6 +74,7 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, const char* n
 	tss._gp_registers_pack = {};
 	tss._gp_registers_pack.ebp = task->stack;
 	tss._gp_registers_pack.esp = task->stack;
+	tss._gp_registers_pack.ecx = reinterpret_cast<uintptr_t>(task);
 	tss.stack[0] = {x86::KERNEL_DATA_SEGMENT_SELECTOR, task->stack};
 	tss.stack[1] = tss.stack[2] = {};
 

@@ -9,8 +9,6 @@
 
 namespace x86 {
 
-using task_routine = void ();
-
 class Scheduler
 {
 public:
@@ -19,7 +17,7 @@ public:
 	[[noreturn]]
 	void init_multitasking(lib::observer_ptr<GDT> gdt, task_routine* main_continuation);
 
-	Task* create_task(task_routine* routine, const char* name = nullptr);
+	Task* create_task(task_routine* routine, void* arg, const char* name = nullptr);
 	void yield();
 
 	[[maybe_unused]] [[noreturn]] [[gnu::thiscall]]
@@ -40,6 +38,7 @@ private:
 	lib::observer_ptr<GDT> _gdt{nullptr};
 	x86::Task _tasks[_n_tasks];
 	x86::Task* _scheduler_task{nullptr};
+	lib::byte* _entry_point_for_tasks{nullptr};
 };
 
 }

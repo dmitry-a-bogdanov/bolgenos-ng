@@ -12,6 +12,7 @@ class ostream;
 
 namespace x86 {
 
+using task_routine = void (void *);
 
 struct Task {
 	TSS tss{};
@@ -20,12 +21,19 @@ struct Task {
 	lib::byte stack[0];
 	uint16_t segment_selector{0};
 	char name[16]{"<unknown>"};
+	void *arg{nullptr};
+	task_routine* routine{nullptr};
 
+	void run();
 
 	void clear_stack() {
 		for (auto& byte: _stack_storage) {
 			byte = static_cast<lib::byte>(0xaa);
 		}
+	}
+
+	[[gnu::thiscall]] static void wrapperForRun(Task* task) {
+		task->run();
 	}
 };
 

@@ -14,13 +14,14 @@ static_assert(sizeof(x86::TaskStateSegment) == 104);
 
 lib::ostream& x86::tss::operator<<(ostream& out, const x86::tss::SegmentRegister& segment_register)
 {
-	return out << segment_register.segment();
+	ScopedFormatGuard format_guard{out};
+	return out << dec << segment_register.segment();
 }
 
 ostream& x86::tss::operator<<(ostream& out, const x86::tss::ProtectionRingStack& stack)
 {
 	ScopedFormatGuard guard{out};
-	return out << stack.segment() << ":" << hex << static_cast<const void*>(stack.pointer());
+	return out << dec << stack.segment() << ":" << hex << static_cast<const void*>(stack.pointer());
 }
 
 lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)

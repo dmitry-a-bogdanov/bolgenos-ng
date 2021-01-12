@@ -24,34 +24,33 @@ x86::Processor cpu;
 x86::Scheduler scheduler;
 
 
-[[noreturn]] void task1() {
-	cinfo << "Started task 1" << endl;
+[[noreturn]] void test_task(void* number_ptr) {
+	const int task_number = *static_cast<const int *>(number_ptr);
+	cinfo << "Started task " << task_number << endl;
 	irq::enable();
 	uint32_t counter = 0;
 	while (true) {
-		cnotice << "task1. iteration #" << ++counter << endl;
-		sleep_ms(1000);
+		cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+		//sleep_ms(10);
 		scheduler.yield();
 	}
 }
 
 
 [[noreturn]]
-void multithreaded_init_stage() {
+void multithreaded_init_stage(void*) {
 	cnotice << "Continue initialization in multithreaded env" << endl;
 	cnotice << "Kernel initialization routine has been finished!"
 	      << endl;
 	irq::enable();
 
-	scheduler.create_task(task1, "task #1");
-	cinfo << "created first task" << endl;
-
-	uint32_t counter = 0;
+	for (int i = 0; i <= 9; ++i) {
+		scheduler.create_task(test_task, new int{i}, "task #1");
+	}
 
 	do {
 		x86::halt_cpu();
 		scheduler.yield();
-		cnotice << "main task. iteration #" << ++counter << endl;
 	} while(true);
 }
 

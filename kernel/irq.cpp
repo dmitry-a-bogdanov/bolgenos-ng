@@ -178,14 +178,14 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 static lib::atomic<bool> interrupts_enabled{false};
 
 void irq::enable() {
-	lib::cnotice << "enabling interrupts" << lib::endl;
+	lib::cinfo << "enabling interrupts" << lib::endl;
 	interrupts_enabled.store(true);
 	asm volatile ("sti\n");
 }
 
 bool irq::disable(bool debug) {
 	if (debug) {
-		lib::cnotice << "disabling interrupts" << lib::endl;
+		lib::cinfo << "disabling interrupts" << lib::endl;
 	}
 
 	asm volatile ("cli\n");
