@@ -14,11 +14,11 @@ namespace x86 {
 
 using task_routine = void (void *);
 
+class Scheduler;
+
 struct Task {
 	TSS tss{};
-	bool available = true;
-	lib::byte _stack_storage[PAGE_SIZE*16]{};
-	lib::byte stack[0];
+	lib::byte* stack{};
 	uint16_t segment_selector{0};
 	char name[16]{"<unknown>"};
 	void *arg{nullptr};
@@ -26,15 +26,7 @@ struct Task {
 
 	void run();
 
-	void clear_stack() {
-		for (auto& byte: _stack_storage) {
-			byte = static_cast<lib::byte>(0xaa);
-		}
-	}
-
-	[[gnu::thiscall]] static void wrapperForRun(Task* task) {
-		task->run();
-	}
+	[[gnu::thiscall]] static void wrapperForRun(Task* task);
 };
 
 lib::ostream& operator<<(lib::ostream& out, const Task& task);

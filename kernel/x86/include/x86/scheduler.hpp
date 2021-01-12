@@ -3,6 +3,7 @@
 #include <cstddef.hpp>
 
 #include <ext/memory.hpp>
+#include <forward_list.hpp>
 
 #include "task.hpp"
 #include "gdt.hpp"
@@ -13,6 +14,10 @@ class Scheduler
 {
 public:
 	Scheduler();
+	Scheduler(const Scheduler&) = delete;
+	Scheduler(Scheduler&&) = delete;
+	Scheduler& operator=(const Scheduler&) = delete;
+	Scheduler& operator=(Scheduler&&) = delete;
 
 	[[noreturn]]
 	void init_multitasking(lib::observer_ptr<GDT> gdt, task_routine* main_continuation);
@@ -36,7 +41,7 @@ private:
 
 
 	lib::observer_ptr<GDT> _gdt{nullptr};
-	x86::Task _tasks[_n_tasks];
+	lib::forward_list<x86::Task*> _tasks{};
 	x86::Task* _scheduler_task{nullptr};
 	lib::byte* _entry_point_for_tasks{nullptr};
 };

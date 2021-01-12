@@ -4,6 +4,7 @@
 #include <bolgenos-ng/mmu.hpp>
 #include <threading/threading.hpp>
 #include <cstring.hpp>
+#include <bolgenos-ng/memory.hpp>
 
 using namespace lib;
 
@@ -14,14 +15,12 @@ x86::Scheduler::Scheduler() = default;
 	irq::enable();
 	cwarn << "===== STARTED SCHEDULING =====" << endl;
 	while (true) {
-		for (auto& task: _tasks) {
-			if (&task == _scheduler_task) {
+		for (auto& task_ptr: _tasks) {
+			if (task_ptr == _scheduler_task) {
 				continue;
 			}
-			if (!task.available) {
-				cinfo << "Scheduling to task [" << task.name << "]" << endl;
-				switch_to(&task);
-			}
+			cinfo << "Scheduling to task [" << task_ptr->name << "]" << endl;
+			switch_to(task_ptr);
 		}
 	}
 }
@@ -97,13 +96,10 @@ bool x86::Scheduler::is_initialized() const noexcept
 
 x86::Task* x86::Scheduler::allocate_task()
 {
-	for (x86::Task& task: _tasks) {
-		if (task.available) {
-			task.available = false;
-			return &task;
-		}
-	}
-	return nullptr;
+	auto* task = new Task{};
+	task->stack = reinterpret_cast<lib::byte*>(memory::alloc_pages(16));
+	_tasks.push_front(task);
+	return task;
 }
 
 void x86::Scheduler::switch_to(x86::Task* task)
