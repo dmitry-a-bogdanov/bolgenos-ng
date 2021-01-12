@@ -30,10 +30,6 @@ public:
 private:
 	static constexpr size_t _n_tasks = 128;
 
-	[[nodiscard]]
-	bool is_initialized() const noexcept;
-
-	Task* allocate_task();
 	void switch_to(Task* task);
 
 	[[gnu::noinline]]
