@@ -10,22 +10,22 @@ namespace ost {
 void run();
 
 
-inline void __show() {
+inline void show__() {
 	lib::ccrit << lib::endl;
 }
 
 
 template<typename HeadType, typename ...TailTypes>
-void __show(const HeadType &head, TailTypes ...tail) {
+void show__(const HeadType &head, TailTypes ...tail) {
 	lib::ccrit << head;
-	__show(tail...);
+	show__(tail...);
 }
 
 
 template<typename ...Messages>
 void assert(bool expression, Messages... messages) {
 	if (not expression) {
-		__show(messages...);
+		show__(messages...);
 		panic("OST assertion failed.");
 	}
 }

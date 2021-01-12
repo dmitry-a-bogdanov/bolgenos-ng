@@ -10,15 +10,6 @@
 */
 extern lib::atomic<uint32_t> jiffies;
 
-
-/**
-* \brief Do nothing during specified time.
-*
-* Function does nothing during specified at least specified time.
-* \param ticks_timeout Timeout for doing nothing in ticks.
-*/
-void __sleep(uint32_t ticks_timeout);
-
 /**
 * \brief Do nothing during specified time.
 *

@@ -13,6 +13,8 @@
 
 #include "ps2_keyboard.hpp"
 
+using namespace lib;
+
 namespace {
 
 
@@ -152,10 +154,8 @@ void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 		}
 	}
 	if (active_dev_count > 1) {
-		char info[100];
-		snprintf(info, 100, "more than 1 probed devices for "
-			"PS/2 line %li\n", (long) line);
-		bug(info);
+		ccrit << "more than 1 probed devices for PS/2 line" << line->id() << endl;
+		bug("");
 	}
 
 	lib::cinfo << "PS/2[" << line->id() << "]: active_dev = " << active_dev << lib::endl;

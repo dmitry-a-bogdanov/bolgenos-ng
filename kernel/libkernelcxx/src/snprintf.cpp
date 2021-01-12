@@ -7,7 +7,7 @@
 
 #include <bolgenos-ng/mem_utils.hpp>
 
-static char __to_printable(int chr) {
+static char to_printable__(int chr) {
 	if (chr < 10) {
 		return '0' + chr;
 	} else if (chr >= 10) {
@@ -17,11 +17,10 @@ static char __to_printable(int chr) {
 	}
 }
 
-const uint32_t		__uint32_max_divisor = 1000000000; // max = 4294967296
-// const int32_t		__int32_max_divisor = 1000000000;
+const uint32_t		uint32_max_divisor__ = 1000000000; // max = 4294967296
 
-static int __snprintf_int32(char *str, size_t size, int32_t value);	// %li
-static int __snprintf_uint32(char *str, size_t size, uint32_t value);	// %lu
+static int snprintf_int32__(char *str, size_t size, int32_t value);	// %li
+static int snprintf_uint32__(char *str, size_t size, uint32_t value);	// %lu
 
 enum fmt_spec {
 	fmt_s_copy,
@@ -97,15 +96,6 @@ static int read_format(const char *fmt, struct format_entry *ret) {
 	}
 }
 
-int snprintf(char *str, size_t size, const char *format, ...) {
-	va_list args;
-	va_start(args, format);
-	int ret = vsnprintf(str, size, format, args);
-	va_end(args);
-
-	return ret;
-}
-
 int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 	int written = 0;
 	while (*format && size > 1) {
@@ -150,7 +140,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 			{
 				int32_t val = va_arg(arg, int32_t);
 				int print_chars =
-					__snprintf_int32(str, size - 1, val);
+					snprintf_int32__(str, size - 1, val);
 				size -= print_chars;
 				str += print_chars;
 				written += print_chars;
@@ -160,7 +150,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list arg) {
 			{
 				uint32_t val = va_arg(arg, uint32_t);
 				int print_chars =
-					__snprintf_uint32(str, size - 1, val);
+					snprintf_uint32__(str, size - 1, val);
 				size -= print_chars;
 				str += print_chars;
 				written += print_chars;
@@ -180,7 +170,7 @@ out_fail:
 	bug("out_fail reached in snprintf");
 }
 
-static int __snprintf_int32(char *str, size_t size, int32_t value) {
+static int snprintf_int32__(char *str, size_t size, int32_t value) {
 	if (str == NULL || size == 0)
 		return 0;
 	int written = 0;
@@ -195,15 +185,15 @@ static int __snprintf_int32(char *str, size_t size, int32_t value) {
 	} else {
 		unsigned_value = value;
 	}
-	return written + __snprintf_uint32(str + written, size - written,
-			unsigned_value);
+	return written + snprintf_uint32__(str + written, size - written,
+					   unsigned_value);
 }
 
 
-static int __snprintf_uint32(char *str, size_t size, uint32_t value) {
+static int snprintf_uint32__(char *str, size_t size, uint32_t value) {
 	if (str == NULL || size == 0)
 		return 0;
-	uint32_t divisor = __uint32_max_divisor;
+	uint32_t divisor = uint32_max_divisor__;
 	int leading_zero = 1;
 	size_t written = 0;
 	while (divisor != 0 && written < size) {
@@ -211,7 +201,7 @@ static int __snprintf_uint32(char *str, size_t size, uint32_t value) {
 		if (q)
 			leading_zero = 0;
 		if (q || !leading_zero) {
-			char printable = __to_printable(q);
+			char printable = to_printable__(q);
 			str[written++] = printable;
 		}
 		value = value % divisor;

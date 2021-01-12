@@ -81,7 +81,8 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, void* arg, co
 	uint16_t task_selector = segment_selector(tssd_idx, TableIndicator::GLOBAL, ProtectionRing::kernel);
 	task->segment_selector = task_selector;
 	if (name != nullptr) {
-		snprintf(task->name, sizeof(Task::name), name);
+		strncpy(task->name, name, sizeof(Task::name));
+		task->name[sizeof(Task::name) - 1] = '\0';
 	}
 
 	_gdt->reload_table();

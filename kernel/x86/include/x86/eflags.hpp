@@ -10,7 +10,7 @@ namespace x86 {
 
 struct [[gnu::packed]] EFlags
 {
-	#define reserved macro_concat(_reserved_, __LINE__)
+	#define reserved macro_concat(_reserved_, __COUNTER__)
 	bool carry: 1;
 	bool reserved: 1;
 	bool parity: 1;

@@ -1,5 +1,4 @@
-#ifndef __BOLGENOS_NG__PRINTK_H__
-#define __BOLGENOS_NG__PRINTK_H__
+#pragma once
 
 #include <stdarg.h>
 
@@ -32,5 +31,3 @@ int vprintk(const char *fmt, va_list args);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __BOLGENOS_NG__PRINTK_H__
