@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex.hpp>
+
 namespace thr {
 
 
@@ -11,5 +13,14 @@ private:
 	bool _enable_on_unlock{};
 };
 
+
+class RecursiveIrqGuard {
+public:
+	RecursiveIrqGuard();
+	~RecursiveIrqGuard();
+private:
+	RecursiveIrqLocker _lock;
+	lib::lock_guard<RecursiveIrqLocker> _lock_guard;
+};
 
 }

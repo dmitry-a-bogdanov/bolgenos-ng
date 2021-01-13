@@ -13,3 +13,11 @@ void thr::RecursiveIrqLocker::unlock()
 		irq::enable();
 	}
 }
+
+thr::RecursiveIrqGuard::RecursiveIrqGuard()
+	: _lock{},
+	_lock_guard{_lock}
+{
+}
+
+thr::RecursiveIrqGuard::~RecursiveIrqGuard() = default;

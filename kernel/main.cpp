@@ -31,7 +31,7 @@ x86::Scheduler scheduler;
 	uint32_t counter = 0;
 	while (true) {
 		cinfo << "task " << task_number << ". iteration #" << ++counter << endl;
-		//sleep_ms(10);
+		sleep_ms(1000);
 		scheduler.yield();
 	}
 }
@@ -67,7 +67,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	call_global_ctors();
 
-	set_log_level(log_level_type::notice);
+	set_log_level(log_level_type::info);
 
 	vga_console::clear_screen();
 
