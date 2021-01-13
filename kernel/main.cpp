@@ -9,7 +9,7 @@
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/time.hpp>
-#include <bolgenos-ng/ps2_controller.hpp>
+#include <ps2/controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 #include <x86/cpu.hpp>
 #include <x86/scheduler.hpp>
@@ -30,7 +30,7 @@ x86::Scheduler scheduler;
 	irq::enable();
 	uint32_t counter = 0;
 	while (true) {
-		cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+		cinfo << "task " << task_number << ". iteration #" << ++counter << endl;
 		//sleep_ms(10);
 		scheduler.yield();
 	}

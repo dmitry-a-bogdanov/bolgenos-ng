@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ps2/common.hpp"
-#include "ps2_controller.hpp"
+#include "common.hpp"
+#include "controller.hpp"
 
 
 namespace ps2 {

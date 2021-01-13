@@ -1,4 +1,4 @@
-#include <bolgenos-ng/ps2/common.hpp>
+#include <ps2/common.hpp>
 
 #include <ostream.hpp>
 

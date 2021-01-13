@@ -1,4 +1,4 @@
-#include <bolgenos-ng/ps2_line.hpp>
+#include <ps2/line.hpp>
 
 #include <bolgenos-ng/log.hpp>
 

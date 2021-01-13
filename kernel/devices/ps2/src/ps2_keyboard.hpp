@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/ps2/device.hpp>
+#include <ps2/device.hpp>
 #include <bolgenos-ng/keyboard.hpp>
 
 #include "ps2_keyboard_sm.hpp"

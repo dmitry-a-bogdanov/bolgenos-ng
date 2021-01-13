@@ -110,14 +110,7 @@ set(kernel_sources ${kernel_start_file}
 	devices/interrupt_controller/pic_8259.hpp
 	devices/interrupt_controller/pic_8259.cpp
 
-	ps2/common.cpp
-	ps2/ps2_controller.cpp
-	ps2/ps2_line.cpp
 	keyboard.cpp
-	ps2/ps2_keyboard.hpp
-	ps2/ps2_keyboard.cpp
-	ps2/ps2_keyboard_sm.hpp
-	ps2/ps2_keyboard_sm.cpp
 
 	buddy_allocator.hpp
 	buddy_allocator.cpp
@@ -168,6 +161,7 @@ add_executable(${kernel_binary}
 add_subdirectory(libkernelcxx)
 add_subdirectory(x86)
 add_subdirectory(threading)
+add_subdirectory(devices)
 
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
@@ -179,7 +173,11 @@ add_custom_target(__relink_kernel
 
 add_dependencies(${kernel_binary} __relink_kernel)
 
-target_link_libraries(${kernel_binary} libkernelcxx libthreading libx86)
+target_link_libraries(${kernel_binary}
+	libkernelcxx
+	libthreading
+	libx86
+	libdevices)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")

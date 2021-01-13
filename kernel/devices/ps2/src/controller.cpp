@@ -1,4 +1,4 @@
-#include <bolgenos-ng/ps2_controller.hpp>
+#include <ps2/controller.hpp>
 
 #include <cstring.hpp>
 
@@ -6,10 +6,10 @@
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/log.hpp>
-#include <bolgenos-ng/ps2_line.hpp>
+#include <ps2/line.hpp>
 #include <bolgenos-ng/time.hpp>
 
-#include <bolgenos-ng/ps2/device.hpp>
+#include <ps2/device.hpp>
 
 #include "ps2_keyboard.hpp"
 

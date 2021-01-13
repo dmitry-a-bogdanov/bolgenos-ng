@@ -4,7 +4,7 @@
 
 #include <bolgenos-ng/irq.hpp>
 
-#include "ps2/common.hpp"
+#include "common.hpp"
 
 /**
 * Timeout for self-test procedure.
