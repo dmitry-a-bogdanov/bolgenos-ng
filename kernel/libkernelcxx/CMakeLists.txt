@@ -13,6 +13,7 @@ set(libkernelcxx_HEADERS
 	include/ext/fixed_size_vector.hpp
 	include/ext/memory.hpp
 	include/ext/scoped_format_guard.hpp
+	include/ext/snprintf_stream.hpp
 )
 
 set(libkernelcxx_SOURCES
@@ -22,6 +23,7 @@ set(libkernelcxx_SOURCES
 	src/streambuf.cpp
 
 	src/ext/scoped_format_guard.cpp
+	src/ext/snprintf_stream.cpp
 )
 
 add_library(libkernelcxx OBJECT
