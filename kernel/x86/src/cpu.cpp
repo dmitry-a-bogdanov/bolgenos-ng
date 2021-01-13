@@ -27,3 +27,13 @@ x86::EFlags x86::Processor::flags()
 		);
 	return result;
 }
+
+void x86::Processor::switch_task_to(uint16_t segment_selector)
+{
+	struct {unsigned int offset; unsigned short segment;} dest{};
+	dest.offset = 0x0;
+	dest.segment = segment_selector;
+	asm volatile (
+	"ljmp *%0\n"
+	"1:" :: "m"(dest));
+}

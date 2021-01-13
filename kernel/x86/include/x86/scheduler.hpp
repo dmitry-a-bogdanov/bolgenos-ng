@@ -32,10 +32,6 @@ private:
 
 	void switch_to(Task* task);
 
-	[[gnu::noinline]]
-	void switch_to__(uint16_t selector);
-
-
 	lib::observer_ptr<GDT> _gdt{nullptr};
 	lib::forward_list<x86::Task*> _tasks{};
 	x86::Task* _scheduler_task{nullptr};

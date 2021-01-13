@@ -19,6 +19,9 @@ public:
 	}
 
 	void load_kernel_segments();
+
+	[[gnu::noinline]]
+	static void switch_task_to(uint16_t segment_selector);
 private:
 	GDT _gdt{};
 };

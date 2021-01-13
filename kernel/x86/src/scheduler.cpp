@@ -3,8 +3,8 @@
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/mmu.hpp>
 #include <threading/threading.hpp>
-#include <cstring.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <x86/cpu.hpp>
 
 using namespace lib;
 
@@ -73,19 +73,10 @@ void x86::Scheduler::switch_to(x86::Task* task)
 	uint16_t selector = task->segment_selector();
 	cinfo << "switching to task [" << task->name() << "]:" << selector << endl;
 	cinfo << "task info: " << *task << endl;
-	//x86::switch_to(task->segment_selector);
-	switch_to__(selector);
+	x86::Processor::switch_task_to(selector);
 	cinfo << "returned from switch" << endl;
 }
 
-void x86::Scheduler::switch_to__(uint16_t selector) {
-	struct {unsigned int offset; unsigned short segment;} dest{};
-	dest.offset = 0x0;
-	dest.segment = selector;
-	asm volatile (
-	"ljmp *%0\n"
-	"1:" :: "m"(dest));
-}
 
 void x86::Scheduler::yield()
 {
