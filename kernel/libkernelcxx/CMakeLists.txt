@@ -19,7 +19,6 @@ set(libkernelcxx_HEADERS
 set(libkernelcxx_SOURCES
 	src/cstring.cpp
 	src/ostream.cpp
-	src/snprintf.cpp
 	src/streambuf.cpp
 
 	src/ext/scoped_format_guard.cpp

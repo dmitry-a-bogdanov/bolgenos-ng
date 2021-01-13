@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdarg.h>
-
 #if defined(__cplusplus)
 #include <cstddef.hpp>
 #else
@@ -21,24 +19,6 @@ extern "C" {
 * \return Length of string.
 */
 size_t strlen(const char *str);
-
-
-/**
-* \brief Formatted output to string. Version for va_list.
-*
-* The fuction works like a POSIX-version but not all formats are supported.
-* The following formats are supported:
-*	- li
-*	- lu
-*	- s
-* \param str Pointer to output string.
-* \param size Size of maximal possible output including null termination byte.
-* \param format Format string.
-* \param args Pointer to container of variadic arguments for format
-*	specification.
-* \return Number of written symbol excluding null termination byte.
-*/
-int vsnprintf(char *str, size_t size, const char *format, va_list args);
 
 
 /**
