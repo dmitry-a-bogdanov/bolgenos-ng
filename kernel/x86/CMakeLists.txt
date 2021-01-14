@@ -3,6 +3,7 @@ project(libx86)
 add_library(libx86 STATIC
 	include/x86/cpu.hpp
 	include/x86/gdt.hpp
+	include/x86/idt.hpp
 	include/x86/memory_segment_d.hpp
 	include/x86/scheduler.hpp
 	include/x86/segment_flags.hpp
@@ -14,6 +15,7 @@ add_library(libx86 STATIC
 	src/cpu.cpp
 	src/eflags.cpp
 	src/gdt.cpp
+	src/idt.cpp
 	src/memory_segment_d.cpp
 	src/task.cpp
 	src/scheduler.cpp

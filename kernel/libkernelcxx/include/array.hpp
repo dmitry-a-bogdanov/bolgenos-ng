@@ -10,17 +10,13 @@ template<class T, size_t N>
 class Array
 {
 public:
-	constexpr T& operator[](size_t pos) noexcept { return _data[pos]; }
-	constexpr const T& operator[](size_t pos) const noexcept { return _data[pos]; }
-
-	template<size_t M>
-	constexpr explicit Array(T values[M]) noexcept
-		: _data{values}
+	template<typename ...Ts>
+	constexpr Array(Ts&& ...vals)
+		: _data{forward<Ts>(vals)...}
 	{}
 
-	template<class... Ts>
-	constexpr explicit Array(Ts&& ...values) noexcept
-		: _data{lib::forward<Ts>(values)...} {}
+	constexpr T& operator[](size_t pos) noexcept { return _data[pos]; }
+	constexpr const T& operator[](size_t pos) const noexcept { return _data[pos]; }
 
 	constexpr T& at(size_t pos) {
 		if (pos >= N || pos < 0) [[unlikely]] {
@@ -41,6 +37,10 @@ public:
 	}
 	constexpr const T* data() const noexcept {
 		return _data;
+	}
+
+	constexpr size_t size() const noexcept {
+		return N;
 	}
 
 private:

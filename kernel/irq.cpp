@@ -1,31 +1,30 @@
 #include <bolgenos-ng/irq.hpp>
 
 #include <algorithm.hpp>
+#include <atomic.hpp>
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 
 #include <ext/scoped_format_guard.hpp>
 
-#include <m4/idt.hpp>
-#include <atomic.hpp>
+#include <x86/cpu.hpp>
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
-irq::InterruptsManager::InterruptsManager()
+irq::InterruptsManager::InterruptsManager(x86::Processor& cpu)
 {
-	idt_pointer.base = m4::get_idt(handle_irq);
-	uint16_t idt_size = irq::NUMBER_OF_LINES*irq::GATE_SIZE - 1;
-	idt_pointer.limit = idt_size;
-	asm volatile("lidt %0"::"m" (idt_pointer));
+	cpu.idt().reload_table(handle_irq);
+}
+
+
+void irq::InterruptsManager::init(x86::Processor& cpu)
+{
+	_instance = new InterruptsManager{cpu};
 }
 
 irq::InterruptsManager *irq::InterruptsManager::instance()
 {
-	if (!_instance) {
-		_instance = new InterruptsManager{};
-	}
 	return _instance;
 }
 
@@ -107,8 +106,6 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 }
 
 
-
-
 lib::ostream& irq::operator <<(lib::ostream& out,
 		const irq::registers_dump_t& regs)
 {
@@ -177,8 +174,10 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 static lib::atomic<bool> interrupts_enabled{false};
 
-void irq::enable() {
-	lib::cinfo << "enabling interrupts" << lib::endl;
+void irq::enable(bool debug) {
+	if (debug) {
+		lib::cinfo << "enabling interrupts" << lib::endl;
+	}
 	interrupts_enabled.store(true);
 	asm volatile ("sti\n");
 }

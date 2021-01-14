@@ -5,12 +5,19 @@
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
 
+#include <array.hpp>
+
+namespace x86 {
+
 struct __attribute__((packed)) gate_t {
 	using func_type = void (*)();
 	using func_addr_type = uint32_t;
 	using segment_type = uint16_t;
 	using nothing_type = uint32_t;
 
+	static constexpr func_addr_type get_addr(func_type fp) {
+		return (func_addr_type) fp;
+	}
 
 	enum gate_kind_type {
 		task		= 0x5,
@@ -60,8 +67,8 @@ struct __attribute__((packed)) gate_t {
 	}
 
 
-	static gate_t interrupt_gate(func_type func) {
-		auto func_addr = reinterpret_cast<func_addr_type>(func);
+	constexpr static gate_t interrupt_gate(func_type func) {
+		const auto func_addr = get_addr(func);
 		gate_t gate(func_addr, gate_kind_type::interrupt);
 		return gate;
 	}
@@ -85,18 +92,19 @@ struct __attribute__((packed)) gate_t {
 	func_addr_type		offset_16_31_	:16;
 };
 
+class IDT {
+public:
+
+	/// Type of pointer to IRQ dispatcher function.
+	using irq_dispatcher_func_t =  void (*)(irq::irq_t vector, irq::stack_ptr_t frame);
+	IDT();
+	void reload_table(irq_dispatcher_func_t irq_dispatcher);
+	static irq_dispatcher_func_t _dispatcher;
+private:
+	alignas(cpu_alignment) lib::Array<gate_t, irq::NUMBER_OF_LINES> _idt;
+	alignas(cpu_alignment) table_pointer _idt_pointer;
+};
+
 lib::ostream& operator<<(lib::ostream& out, const gate_t& gate);
 
-namespace m4 {
-
-
-/// Type of pointer to IRQ dispatcher function.
-using irq_dispatcher_func_t =  __attribute__((regparm(0),cdecl))  void (*)(irq::irq_t vector,
-		irq::stack_ptr_t frame);
-
-
-/// Get pointer to preset interrupt descriptor table.
-void* get_idt(irq_dispatcher_func_t function);
-
-
-} // namespace m4
+} // namespace x86

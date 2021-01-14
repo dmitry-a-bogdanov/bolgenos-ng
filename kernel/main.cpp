@@ -86,7 +86,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 
 	// explicitly create instance
-	irq::InterruptsManager::instance();
+	irq::InterruptsManager::init(cpu);
 	irq::install_traps();
 
 

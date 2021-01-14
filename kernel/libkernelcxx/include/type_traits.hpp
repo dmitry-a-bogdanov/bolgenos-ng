@@ -144,7 +144,7 @@ struct conditional<false, T, F>
 
 
 template<bool Cond, class T, class F>
-using conditinal_t = typename conditional<Cond, T, F>::type;
+using conditional_t = typename conditional<Cond, T, F>::type;
 
 
 

@@ -10,7 +10,7 @@ void thr::RecursiveIrqLocker::lock()
 void thr::RecursiveIrqLocker::unlock()
 {
 	if (_enable_on_unlock) {
-		irq::enable();
+		irq::enable(false);
 	}
 }
 
