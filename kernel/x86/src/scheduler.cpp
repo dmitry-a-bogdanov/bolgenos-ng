@@ -70,10 +70,13 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, void* arg, co
 
 void x86::Scheduler::switch_to(x86::Task* task)
 {
+	auto prev = _current.load();
 	uint16_t selector = task->segment_selector();
-	cinfo << "switching to task [" << task->name() << "]:" << selector << endl;
+	cinfo << "switching from " << (prev ? prev->name() : "null")
+	      << "to task [" << task->name() << "]:" << selector << endl;
 	cinfo << "task info: " << *task << endl;
 	x86::Processor::switch_task_to(selector);
+	_current = task;
 	cinfo << "returned from switch" << endl;
 }
 

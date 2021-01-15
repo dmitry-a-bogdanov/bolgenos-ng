@@ -2,6 +2,8 @@
 
 #include <type_traits.hpp>
 
+#include <bolgenos-ng/asm.hpp>
+
 namespace x86 {
 
 

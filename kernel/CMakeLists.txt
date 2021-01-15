@@ -67,6 +67,7 @@ set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
+	compiler.cpp
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp

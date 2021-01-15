@@ -17,6 +17,11 @@ void x86::Processor::load_kernel_segments()
 	});
 }
 
+void x86::Processor::load_interrupts_table()
+{
+	_idt.reload_table();
+}
+
 x86::EFlags x86::Processor::flags()
 {
 	EFlags result;
@@ -37,3 +42,4 @@ void x86::Processor::switch_task_to(uint16_t segment_selector)
 	"ljmp *%0\n"
 	"1:" :: "m"(dest));
 }
+

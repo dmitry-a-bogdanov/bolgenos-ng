@@ -101,3 +101,6 @@
 *	extern declaration.
 */
 #define _asm_linked_			extern
+
+[[noreturn]]
+void unreachable();

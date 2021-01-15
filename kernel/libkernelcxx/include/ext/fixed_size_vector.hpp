@@ -62,7 +62,7 @@ public:
 	}
 
 private:
-	lib::Array<T, Size> _data{};
+	lib::array<T, Size> _data{};
 	size_t _size{};
 };
 

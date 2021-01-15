@@ -7,11 +7,11 @@
 namespace lib {
 
 template<class T, size_t N>
-class Array
+class array
 {
 public:
 	template<typename ...Ts>
-	constexpr Array(Ts&& ...vals)
+	constexpr array(Ts&& ...vals)
 		: _data{forward<Ts>(vals)...}
 	{}
 
@@ -48,6 +48,6 @@ private:
 };
 
 template<class T_, class... U>
-Array(T_, U...) -> Array<T_, 1 + sizeof...(U)>;
+array(T_, U...) -> array<T_, 1 + sizeof...(U)>;
 
 }

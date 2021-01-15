@@ -1,9 +1,9 @@
 #include <x86/idt.hpp>
 
+#include <atomic.hpp>
+
 using namespace lib;
 using namespace x86;
-
-static_assert(lib::is_standard_layout_v<gate_t>);
 
 namespace {
 
@@ -24,74 +24,56 @@ void _asm_irq_handler()
 	);
 }
 
-using irq_handler_type = void();
-using irq_handler_type_pointer = irq_handler_type*;
-
-template<size_t N>
-constexpr irq_handler_type_pointer make_asm_irq_handler()
+template<class I, I ... Is>
+auto make_gates(integer_sequence<I, Is...>)
 {
-	return &_asm_irq_handler<N>;
+	return array{Gate::interrupt_gate(&_asm_irq_handler<Is>)...};
 }
 
 template<size_t N>
-constexpr auto make_irq_gate()
-{
-	return gate_t::interrupt_gate(make_asm_irq_handler<N>());
-}
-
-
-template<size_t ... Is>
-Array<gate_t, sizeof...(Is)> make_gates(index_sequence<Is...>)
-{
-	return {make_irq_gate<Is>()...};
-}
-
-
-template<size_t N>
-Array<gate_t, N> declare_irq_gates()
+array<Gate, N> make_gates()
 {
 	return make_gates(make_index_sequence<N>());
 }
 
-}
+atomic<GlobalIrqHandler*> global_handler;
+
+} // namespace
 
 
 /// C IRQ dispatcher. The function to be called from ASM handlers.
 extern "C"
 [[maybe_unused, gnu::regparm(0), gnu::cdecl]]
 void c_irq_dispatcher_(irq::irq_t vector, void* frame) {
-	IDT::_dispatcher(vector, frame);
-}
-
-lib::ostream& x86::operator<<(lib::ostream& out, const gate_t& gate) {
-	switch (gate.gate_kind_) {
-	case gate_t::task:
-		out << "Task{";
-		break;
-	case gate_t::interrupt:
-		out << "Interrupt{";
-		break;
-	case gate_t::trap:
-		out << "Trap{";
-		break;
-	default:
-		out << "Unknown{";
-		break;
+	auto handler = global_handler.load();
+	if (handler != nullptr) {
+		handler(vector, frame);
 	}
-	return out << "}";
 }
 
-IDT::irq_dispatcher_func_t IDT::_dispatcher{nullptr};
+lib::ostream& x86::operator<<(lib::ostream& out, const Gate& gate) {
+	switch (gate.type()) {
+	case GateType::task:
+		return out << "Task{}";
+	case GateType::interrupt:
+		return out << "Interrupt{}";
+	case GateType::trap:
+		return out << "Trap{}";
+	default:
+		unreachable();
+	}
+}
 
 IDT::IDT()
-	: _idt{declare_irq_gates<irq::NUMBER_OF_LINES>()},
-	  _idt_pointer{static_cast<uint16_t>(_idt.size() * sizeof(gate_t) - 1), _idt.data()}
-{
-}
+	: _idt{make_gates<irq::NUMBER_OF_LINES>()},
+	  _idt_pointer{static_cast<uint16_t>(_idt.size() * sizeof(Gate) - 1), _idt.data()}
+{}
 
-void IDT::reload_table(IDT::irq_dispatcher_func_t irq_dispatcher)
+void IDT::reload_table()
 {
-	_dispatcher = irq_dispatcher;
 	asm volatile("lidt %0"::"m" (_idt_pointer));
 }
 
+GlobalIrqHandler* IDT::set_global_handler(GlobalIrqHandler *handler) {
+	return global_handler.exchange(handler);
+}

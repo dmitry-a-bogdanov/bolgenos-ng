@@ -24,6 +24,7 @@ public:
 	}
 
 	void load_kernel_segments();
+	void load_interrupts_table();
 
 	[[gnu::noinline]]
 	static void switch_task_to(uint16_t segment_selector);

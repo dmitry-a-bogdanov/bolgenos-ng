@@ -84,11 +84,12 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 		<< endl;
 
 	cpu.load_kernel_segments();
+	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
 
 
 	// explicitly create instance
-	irq::InterruptsManager::init(cpu);
+	irq::InterruptsManager::init();
 	irq::install_traps();
 
 

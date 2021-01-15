@@ -36,13 +36,13 @@ Task::Task(task_routine* routine, void* arg, const char* name_) :
 	auto& gp_registers = _tss._gp_registers_pack;
 
 	_tss._segment_registers = x86::tss::SegmentRegistersPack(
-		x86::KERNEL_CODE_SEGMENT_SELECTOR,
-		x86::KERNEL_DATA_SEGMENT_SELECTOR
+		x86::KERNEL_CODE_SELECTOR,
+		x86::KERNEL_DATA_SELECTOR
 	);
 
 	gp_registers.ecx = reinterpret_cast<lib::uintptr_t>(this);
 	gp_registers.esp = gp_registers.ebp = _stack;
-	_tss.stack[0] = {x86::KERNEL_DATA_SEGMENT_SELECTOR, _stack};
+	_tss.stack[0] = {x86::KERNEL_DATA_SELECTOR, _stack};
 	_tss.stack[1] = _tss.stack[2] = {};
 	_tss.instruction_ptr = get_entry_point();
 	name(name_);

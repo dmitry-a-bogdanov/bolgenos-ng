@@ -12,15 +12,13 @@
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
-irq::InterruptsManager::InterruptsManager(x86::Processor& cpu)
-{
-	cpu.idt().reload_table(handle_irq);
-}
+irq::InterruptsManager::InterruptsManager() = default;
 
 
-void irq::InterruptsManager::init(x86::Processor& cpu)
+void irq::InterruptsManager::init()
 {
-	_instance = new InterruptsManager{cpu};
+	_instance = new InterruptsManager{};
+	x86::IDT::set_global_handler(handle_irq);
 }
 
 irq::InterruptsManager *irq::InterruptsManager::instance()
@@ -99,7 +97,6 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 
 	if (status != irq::IRQHandler::status_t::HANDLED) {
 		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
-		panic("Fatal interrupt");
 	}
 
 	devices::InterruptController::instance()->end_of_interrupt(vector);

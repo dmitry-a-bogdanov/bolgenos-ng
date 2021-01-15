@@ -12,13 +12,6 @@ namespace lib {
 	class ostream;
 }
 
-namespace x86 {
-
-class Processor;
-
-}
-
-
 namespace irq {
 
 
@@ -67,9 +60,7 @@ public:
 		HANDLED,
 	};
 
-	virtual ~IRQHandler()
-	{
-	}
+	virtual ~IRQHandler() = default;
 
 
 	virtual status_t handle_irq(irq_t vector) = 0;
@@ -78,9 +69,7 @@ public:
 
 class ExceptionHandler {
 public:
-	virtual ~ExceptionHandler()
-	{
-	}
+	virtual ~ExceptionHandler() = default;
 
 	virtual void handle_exception(stack_ptr_t frame) = 0;
 };
@@ -104,10 +93,10 @@ public:
 	void add_handler(irq_t vector, IRQHandler *handler);
 	void add_handler(exception_t exception, ExceptionHandler *handler);
 
-	static void init(x86::Processor& cpu);
+	static void init();
 	static InterruptsManager *instance();
 protected:
-	explicit InterruptsManager(x86::Processor& cpu);
+	explicit InterruptsManager();
 
 	IRQHandler::status_t dispatch_interrupt(irq_t vector);
 	IRQHandler::status_t dispatch_exception(exception_t exception, stack_ptr_t frame_pointer);

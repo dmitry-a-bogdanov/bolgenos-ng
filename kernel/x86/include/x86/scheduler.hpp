@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic.hpp>
 #include <cstddef.hpp>
 
 #include <ext/memory.hpp>
@@ -35,6 +36,7 @@ private:
 	lib::observer_ptr<GDT> _gdt{nullptr};
 	lib::forward_list<x86::Task*> _tasks{};
 	x86::Task* _scheduler_task{nullptr};
+	lib::atomic<x86::Task*> _current{nullptr};
 	lib::byte* _entry_point_for_tasks{nullptr};
 };
 

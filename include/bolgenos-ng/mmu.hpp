@@ -10,7 +10,7 @@
 
 namespace x86 {
 
-enum SegmentIndex: int
+enum class SegmentIndex: int
 {
 	null = 0,
 	kernel_code = 1,
@@ -18,13 +18,19 @@ enum SegmentIndex: int
 	single_task = 3,
 };
 
+constexpr inline
+uint16_t segment_selector(SegmentIndex index, TableIndicator ti,
+			  ProtectionRing required_privilege_level) noexcept
+{
+	return segment_selector(static_cast<uint16_t>(index), ti, required_privilege_level);
+}
 
 /// Kernel code segment.
-constexpr uint16_t KERNEL_CODE_SEGMENT_SELECTOR =
-	segment_selector(kernel_code, TableIndicator::GLOBAL, ProtectionRing::kernel);
+constexpr uint16_t KERNEL_CODE_SELECTOR =
+	segment_selector(SegmentIndex::kernel_code, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
 /// Kernel data segment.
-constexpr uint16_t KERNEL_DATA_SEGMENT_SELECTOR =
-	segment_selector(kernel_data, TableIndicator::GLOBAL, ProtectionRing::kernel);
+constexpr uint16_t KERNEL_DATA_SELECTOR =
+	segment_selector(SegmentIndex::kernel_data, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
 } // namespace x86
