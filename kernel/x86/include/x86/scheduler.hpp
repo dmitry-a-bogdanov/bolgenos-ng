@@ -28,6 +28,9 @@ public:
 
 	[[maybe_unused]] [[noreturn]] [[gnu::thiscall]]
 	void schedule_forever();
+
+	[[gnu::cdecl]]
+	static void switch_tasks_impl(Task* from, Task* to);
 private:
 	static constexpr size_t _n_tasks = 128;
 
@@ -36,7 +39,7 @@ private:
 	lib::observer_ptr<GDT> _gdt{nullptr};
 	lib::forward_list<x86::Task*> _tasks{};
 	x86::Task* _scheduler_task{nullptr};
-	lib::atomic<x86::Task*> _current{nullptr};
+	x86::Task* _current{nullptr};
 	lib::byte* _entry_point_for_tasks{nullptr};
 };
 

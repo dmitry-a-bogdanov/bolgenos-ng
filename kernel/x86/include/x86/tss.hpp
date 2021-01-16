@@ -32,15 +32,20 @@ private:
  */
 struct [[gnu::packed]] ProtectionRingStack {
 public:
-	constexpr ProtectionRingStack(const uint16_t segment, const lib::byte* const stack_ptr)
+	constexpr ProtectionRingStack(const uint16_t segment, lib::byte* const stack_ptr)
 		: _pointer{stack_ptr}, _segment{segment}
 	{}
 	constexpr ProtectionRingStack() = default;
 
 	[[nodiscard]] const lib::byte* pointer() const { return _pointer; }
+
+	typedef lib::byte* ptr_t __attribute__((aligned(1)));
+	typedef ptr_t* pptr_t;
+	pptr_t ppointer() { return &_pointer; }
+
 	[[nodiscard]] uint16_t segment() const { return _segment.segment(); }
 private:
-	const lib::byte*	_pointer{nullptr};
+	lib::byte*		_pointer{nullptr};
 	SegmentRegister		_segment{0};
 };
 

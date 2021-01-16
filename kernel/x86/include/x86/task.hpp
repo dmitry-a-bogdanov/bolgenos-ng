@@ -44,13 +44,23 @@ public:
 
 	[[gnu::thiscall]] static void wrapperForRun(Task* task);
 
+	[[gnu::naked]] static void start_on_new_frame();
+
+	void* esp() const { return _esp; }
+	void* stack() const { return _stack; }
+
 private:
 	TSS _tss{};
+
+	void* _esp{nullptr};
+
 	lib::byte* _stack{};
 	uint16_t _segment_selector{0};
 	char _name[16]{"<unknown>"};
 	void* _arg{nullptr};
 	task_routine* _routine{nullptr};
+
+	friend class Scheduler;
 };
 
 lib::ostream& operator<<(lib::ostream& out, const Task& task);

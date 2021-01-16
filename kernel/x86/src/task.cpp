@@ -1,5 +1,6 @@
 #include <x86/task.hpp>
 
+#include <ext/scoped_format_guard.hpp>
 #include <algorithm.hpp>
 #include <cstring.hpp>
 #include <bolgenos-ng/log.hpp>
@@ -12,7 +13,12 @@ using namespace lib;
 static_assert(lib::is_standard_layout_v<x86::Task>);
 
 lib::ostream& x86::operator<<(lib::ostream& out, const Task& task) {
-	return out << "{.tss = " << task.tss() << "}";
+	//return out << "{.tss = " << task.tss() << "}";
+	ScopedFormatGuard guard{out};
+	return out << "Task[" << task.name() << "]"
+		<< "{.esp=" << hex << task.esp()
+		<< ",.stack=" << task.stack()
+		<< "}";
 }
 
 static byte* get_entry_point() {
@@ -31,8 +37,10 @@ Task::Task(task_routine* routine, void* arg, const char* name_) :
 	_arg{arg},
 	_routine{routine}
 {
+	static constexpr size_t stack_pages = 16;
 	static_assert(offsetof(x86::Task, _tss) == 0);
-	_stack = reinterpret_cast<byte*>(memory::alloc_pages(16));
+	_stack = reinterpret_cast<byte*>(memory::alloc_pages(stack_pages));
+	_esp = _stack + PAGE_SIZE*stack_pages;
 	auto& gp_registers = _tss._gp_registers_pack;
 
 	_tss._segment_registers = x86::tss::SegmentRegistersPack(
@@ -54,6 +62,7 @@ void x86::Task::run()
 }
 
 [[gnu::thiscall]] void x86::Task::wrapperForRun(Task* task) {
+	cinfo << "starting" << *task << endl;
 	task->run();
 	cnotice << "Finished task " << *task << endl;
 }
@@ -68,4 +77,12 @@ Task::~Task()
 {
 	memory::free_pages(_stack);
 	_stack = nullptr;
+}
+
+void Task::start_on_new_frame()
+{
+	asm volatile(
+		"pop %%ecx\n\t"
+  		"call %P0\n\t"
+  		:: "i"(wrapperForRun));
 }
