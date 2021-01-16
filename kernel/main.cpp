@@ -27,11 +27,10 @@ x86::Scheduler scheduler;
 [[noreturn]] void test_task(void* number_ptr) {
 	const int task_number = *static_cast<const int *>(number_ptr);
 	cinfo << "Started task " << task_number << endl;
-	irq::enable();
 	uint32_t counter = 0;
 	while (true) {
 		cinfo << "task " << task_number << ". iteration #" << ++counter << endl;
-		sleep_ms(1000);
+		sleep_ms(100);
 		scheduler.yield();
 	}
 }
@@ -114,7 +113,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	cwarn << "starting first switch" << endl;
 
-	scheduler.init_multitasking(&cpu.gdt(), multithreaded_init_stage);
+	scheduler.init_multitasking(multithreaded_init_stage);
 
 	panic("Couldn't switch to scheduler");
 }

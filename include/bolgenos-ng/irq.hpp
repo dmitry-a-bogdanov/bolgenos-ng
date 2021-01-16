@@ -111,6 +111,8 @@ private:
 };
 
 
+bool is_enabled();
+
 
 /// \brief Enable interrupts.
 ///

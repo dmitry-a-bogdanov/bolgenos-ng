@@ -1,6 +1,8 @@
 #include <bolgenos-ng/time.hpp>
 
 #include <bolgenos-ng/asm.hpp>
+#include <bolgenos-ng/error.h>
+#include <bolgenos-ng/irq.hpp>
 
 #include "config.h"
 
@@ -8,6 +10,9 @@ lib::atomic<uint32_t> jiffies{0};
 
 
 void sleep_(uint32_t ticks_timeout) {
+	if (!irq::is_enabled()) {
+		panic("sleep with disabled interrupts");
+	}
 	uint32_t end_of_sleep = jiffies.load() + ticks_timeout;
 	while (jiffies.load() < end_of_sleep) {
 		x86::halt_cpu();

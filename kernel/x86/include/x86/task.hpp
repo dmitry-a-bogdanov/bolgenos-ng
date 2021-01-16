@@ -16,9 +16,13 @@ using task_routine = void (void *);
 
 class Scheduler;
 
+enum class TaskId: uint32_t {};
+
+lib::ostream& operator<<(lib::ostream& out, TaskId id);
+
 struct Task {
 public:
-	constexpr Task() = default;
+	Task() = delete;
 
 	Task(task_routine* routine, void* arg, const char *name = nullptr);
 	Task(const Task&) = delete;
@@ -31,34 +35,27 @@ public:
 	void name(const char* name);
 	const char* name() const { return _name; }
 
-	TSS& tss() { return _tss; }
-	const TSS& tss() const { return _tss; }
-
-	void segment_selector(uint16_t selector) {
-		_segment_selector = selector;
-	}
-
-	uint16_t segment_selector() const {
-		return _segment_selector;
-	}
-
 	[[gnu::thiscall]] static void wrapperForRun(Task* task);
 
 	[[gnu::naked]] static void start_on_new_frame();
+
+	[[nodiscard]] TaskId id() const { return _id; }
 
 	void* esp() const { return _esp; }
 	void* stack() const { return _stack; }
 
 private:
-	TSS _tss{};
-
-	void* _esp{nullptr};
-
-	lib::byte* _stack{};
-	uint16_t _segment_selector{0};
-	char _name[16]{"<unknown>"};
-	void* _arg{nullptr};
+	// start data
 	task_routine* _routine{nullptr};
+	void* _arg{nullptr};
+
+	// os data
+	const TaskId _id;
+	lib::byte* _stack{};
+	char _name[16]{"<unknown>"};
+
+	// state
+	void* _esp{nullptr};
 
 	friend class Scheduler;
 };

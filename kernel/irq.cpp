@@ -171,6 +171,14 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 
 static lib::atomic<bool> interrupts_enabled{false};
 
+bool irq::is_enabled() {
+	auto flags = x86::Processor::flags();
+	if (flags.interrupts != interrupts_enabled.load()) {
+		panic("irq enabled state not synced");
+	}
+	return interrupts_enabled.load();
+}
+
 void irq::enable(bool debug) {
 	if (debug) {
 		lib::cinfo << "enabling interrupts" << lib::endl;

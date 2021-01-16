@@ -21,7 +21,7 @@ public:
 	Scheduler& operator=(Scheduler&&) = delete;
 
 	[[noreturn]]
-	void init_multitasking(lib::observer_ptr<GDT> gdt, task_routine* main_continuation);
+	void init_multitasking(task_routine* main_continuation);
 
 	Task* create_task(task_routine* routine, void* arg, const char* name = nullptr);
 	void yield();
@@ -32,15 +32,11 @@ public:
 	[[gnu::cdecl]]
 	static void switch_tasks_impl(Task* from, Task* to);
 private:
-	static constexpr size_t _n_tasks = 128;
-
 	void switch_to(Task* task);
 
-	lib::observer_ptr<GDT> _gdt{nullptr};
 	lib::forward_list<x86::Task*> _tasks{};
 	x86::Task* _scheduler_task{nullptr};
 	x86::Task* _current{nullptr};
-	lib::byte* _entry_point_for_tasks{nullptr};
 };
 
 }
