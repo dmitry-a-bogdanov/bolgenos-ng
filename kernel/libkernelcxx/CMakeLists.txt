@@ -8,7 +8,7 @@ set(libkernelcxx_HEADERS
 	include/cstdint.hpp
 	include/cstring.hpp
 	include/ext/fixed_size_vector.hpp
-	include/ext/intrusive_list.hpp
+	include/ext/intrusive_circular_list.hpp
 	include/ext/memory.hpp
 	include/ext/scoped_format_guard.hpp
 	include/ext/snprintf_stream.hpp

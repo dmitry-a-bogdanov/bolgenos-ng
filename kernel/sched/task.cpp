@@ -26,8 +26,6 @@ static TaskId allocate_task_id() {
 	return static_cast<TaskId>(next_task_id++);
 }
 
-static_assert(lib::is_standard_layout_v<Task>);
-
 lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 	ScopedFormatGuard guard{out};
 	return out << "Task[" << task.name() << "](" << task.id() << ")"
@@ -50,11 +48,11 @@ Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* nam
 
 void sched::Task::run()
 {
-	cinfo << "starting" << *this << endl;
+	cnotice << "Starting " << *this << endl;
 	irq::enable(false);
 	_routine(_arg);
 	_exited.store(true);
-	cinfo << "Finished task " << *this << endl;
+	cnotice << "Finished task " << *this << endl;
 	_scheduler->handle_exit(this);
 	while (true) {
 		_scheduler->yield();
@@ -73,7 +71,7 @@ void Task::name(const char* name)
 
 Task::~Task()
 {
-	cinfo << "removing task " << *this << endl;
+	cnotice << "Removing task " << *this << endl;
 	memory::free_pages(_stack);
 	_stack = nullptr;
 }

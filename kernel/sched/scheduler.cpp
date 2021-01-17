@@ -35,12 +35,16 @@ sched::Scheduler::Scheduler(task_routine* main_continuation)
 	cwarn << "===== STARTED SCHEDULING =====" << endl;
 	constexpr bool debug_irq = false;
 	while (true) {
+		irq::disable(debug_irq);
 		for (auto task_ptr: _tasks) {
 			if (!should_schedule(task_ptr)) {
 				continue;
 			}
 			cinfo << "Scheduling to task [" << task_ptr->name() << "]" << endl;
+			irq::enable(debug_irq);
+			// switch_to knows better how to deal with interrupts
 			switch_to(task_ptr);
+			irq::disable(debug_irq);
 		}
 		handle_finished_tasks();
 		irq::enable(debug_irq);
@@ -70,7 +74,7 @@ static_assert(sizeof(NewTaskStack) == 20);
 Task* sched::Scheduler::create_task(task_routine* routine, void* arg, const char* name)
 {
 	auto* task = new Task{this, routine, arg, name};
-	_tasks.push_front(task);
+	_tasks.insert(task);
 
 	auto* new_task_stack = reinterpret_cast<NewTaskStack*>(task->_esp) - 1;
 	new_task_stack->eip = Task::start_on_new_frame;
@@ -142,20 +146,7 @@ void Scheduler::handle_finished_tasks()
 {
 	thr::with_irq_lock([&]() {
 		for (auto task_ptr: _finished_tasks) {
-			/*
-			 * FIXME: removes task for O(n)
-			 * replace _tasks by double linked circular list to remove for O(1)
-			 */
-			auto removed = _tasks.remove(task_ptr);
-			if (removed == 0) {
-				ccrit << "finished task " << task_ptr << " "
-				      << *task_ptr << " is not in task list" << endl;
-				panic("error");
-			} else if (removed > 1) {
-				ccrit << "removed " << removed << "instead of 1 by task "
-				      << task_ptr << " " << *task_ptr;
-				panic("error");
-			}
+			_tasks.remove(task_ptr);
 			delete task_ptr;
 		}
 		_finished_tasks.clear();

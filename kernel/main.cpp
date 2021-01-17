@@ -49,7 +49,7 @@ void multithreaded_init_stage(void*) {
 	      << endl;
 	irq::enable();
 
-	int tasks_count = 5;
+	int tasks_count = 8;
 	for (int i = 0; i < tasks_count; ++i) {
 		sched::create_task(test_task, new int{i}, "test_task");
 		sleep_ms(sleep_interval/tasks_count);
