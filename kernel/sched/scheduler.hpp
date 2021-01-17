@@ -42,8 +42,10 @@ private:
 	void switch_to(Task* task);
 
 	bool should_schedule(const Task* task);
+	void handle_finished_tasks();
 
 	lib::forward_list<Task*> _tasks{};
+	lib::forward_list<Task*> _finished_tasks{};
 	Task* _scheduler_task{nullptr};
 	Task* _current{nullptr};
 };

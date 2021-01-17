@@ -178,6 +178,13 @@ public:
 		return const_iterator(base_list::end());
 	}
 
+	size_t remove(const T& value);
+
+	void clear() {
+		while (!empty()) {
+			erase_after(before_begin());
+		}
+	}
 
 private:
 
@@ -344,5 +351,36 @@ private:
 	class forward_list;
 };
 
+template<typename InputIt>
+constexpr void advance(InputIt& it, int32_t n = 1) {
+	while (n > 0) {
+		++it;
+		--n;
+	}
+}
+
+template<typename InputIt>
+constexpr InputIt next(InputIt it, int32_t n = 1) {
+	advance(it, n);
+	return it;
+}
+
+template<class T, class Alloc>
+size_t forward_list<T, Alloc>::remove(const T& value){
+	size_t removed = 0;
+	auto it = before_begin();
+	while (next(it) != end()) {
+		auto next_it = next(it);
+		if (next_it == end()) {
+			break;
+		} else if (*next_it == value) {
+			erase_after(it);
+			++removed;
+		} else {
+			++it;
+		}
+	}
+	return removed;
+}
 
 } // namespace lib

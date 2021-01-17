@@ -1,7 +1,6 @@
 #include "scheduler.hpp"
 
 #include <bolgenos-ng/irq.hpp>
-#include <threading/threading.hpp>
 #include <threading/with_lock.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <x86/cpu.hpp>
@@ -17,7 +16,7 @@ void scheduling_task_routine(void *arg) {
 
 sched::Scheduler::Scheduler(task_routine* main_continuation)
 {
-	thr::with_lock<thr::RecursiveIrqLocker>([&]{
+	thr::with_irq_lock([&]{
 		if (main_continuation == nullptr) {
 			panic("no main specified");
 		}
@@ -34,14 +33,17 @@ sched::Scheduler::Scheduler(task_routine* main_continuation)
 		panic("started scheduling with blocked interrupts");
 	}
 	cwarn << "===== STARTED SCHEDULING =====" << endl;
+	constexpr bool debug_irq = false;
 	while (true) {
-		for (auto& task_ptr: _tasks) {
+		for (auto task_ptr: _tasks) {
 			if (!should_schedule(task_ptr)) {
 				continue;
 			}
 			cinfo << "Scheduling to task [" << task_ptr->name() << "]" << endl;
 			switch_to(task_ptr);
 		}
+		handle_finished_tasks();
+		irq::enable(debug_irq);
 	}
 }
 
@@ -128,7 +130,34 @@ bool sched::Scheduler::should_schedule(const Task* task)
 		!task->finished();
 }
 
-void sched::Scheduler::handle_exit(Task*)
+void sched::Scheduler::handle_exit(Task* task)
 {
+	thr::with_irq_lock([&]() {
+		_finished_tasks.push_front(task);
+	});
+	yield();
+}
 
+void Scheduler::handle_finished_tasks()
+{
+	thr::with_irq_lock([&]() {
+		for (auto task_ptr: _finished_tasks) {
+			/*
+			 * FIXME: removes task for O(n)
+			 * replace _tasks by double linked circular list to remove for O(1)
+			 */
+			auto removed = _tasks.remove(task_ptr);
+			if (removed == 0) {
+				ccrit << "finished task " << task_ptr << " "
+				      << *task_ptr << " is not in task list" << endl;
+				panic("error");
+			} else if (removed > 1) {
+				ccrit << "removed " << removed << "instead of 1 by task "
+				      << task_ptr << " " << *task_ptr;
+				panic("error");
+			}
+			delete task_ptr;
+		}
+		_finished_tasks.clear();
+	});
 }

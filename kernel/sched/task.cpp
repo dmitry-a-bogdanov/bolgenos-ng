@@ -73,6 +73,7 @@ void Task::name(const char* name)
 
 Task::~Task()
 {
+	cinfo << "removing task " << *this << endl;
 	memory::free_pages(_stack);
 	_stack = nullptr;
 }

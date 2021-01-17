@@ -22,15 +22,22 @@ using namespace lib;
 
 x86::Processor cpu;
 
-constexpr uint32_t sleep_interval = 500;
+constexpr uint32_t sleep_interval = 1000;
 
-[[noreturn]] void test_task(void* number_ptr) {
+void test_task(void* number_ptr) {
 	const int task_number = *static_cast<const int *>(number_ptr);
 	cinfo << "Started task " << task_number << endl;
 	uint32_t counter = 0;
-	while (true) {
-		cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
-		sleep_ms(sleep_interval);
+	if (task_number % 2) {
+		while (true) {
+			cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+			sleep_ms(sleep_interval);
+		}
+	} else {
+		for (int i = 0; i < 5; ++i) {
+			cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+			sleep_ms(sleep_interval);
+		}
 	}
 }
 
