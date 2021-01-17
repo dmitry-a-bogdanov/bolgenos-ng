@@ -9,6 +9,9 @@
 
 using namespace lib;
 
+static observer_ptr<x86::Scheduler> the_scheduler{nullptr};
+
+
 x86::Scheduler::Scheduler() = default;
 
 [[maybe_unused]] void x86::Scheduler::schedule_forever()
@@ -46,6 +49,8 @@ void x86::Scheduler::init_multitasking(x86::task_routine* main_continuation)
 	cinfo << "continue to new main" << endl;
 
 	switch_to(_scheduler_task); // switch to itself to fill task data
+
+	the_scheduler = this;
 
 	switch_to(main_cont);
 
@@ -124,3 +129,7 @@ void x86::Scheduler::yield()
 	switch_to(_scheduler_task);
 }
 
+void x86::yield()
+{
+	the_scheduler->yield();
+}

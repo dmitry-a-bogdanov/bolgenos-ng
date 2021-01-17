@@ -11,6 +11,8 @@
 
 namespace x86 {
 
+void yield();
+
 class Scheduler
 {
 public:

@@ -24,14 +24,15 @@ x86::Processor cpu;
 x86::Scheduler scheduler;
 
 
+constexpr uint32_t sleep_interval = 500;
+
 [[noreturn]] void test_task(void* number_ptr) {
 	const int task_number = *static_cast<const int *>(number_ptr);
 	cinfo << "Started task " << task_number << endl;
 	uint32_t counter = 0;
 	while (true) {
-		cinfo << "task " << task_number << ". iteration #" << ++counter << endl;
-		sleep_ms(100);
-		scheduler.yield();
+		cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+		sleep_ms(sleep_interval);
 	}
 }
 
@@ -43,13 +44,15 @@ void multithreaded_init_stage(void*) {
 	      << endl;
 	irq::enable();
 
-	for (int i = 0; i <= 9; ++i) {
-		scheduler.create_task(test_task, new int{i}, "task #1");
+	int tasks_count = 5;
+	for (int i = 0; i < tasks_count; ++i) {
+		scheduler.create_task(test_task, new int{i}, "test_task");
+		sleep_ms(sleep_interval/tasks_count);
 	}
 
 	do {
 		x86::halt_cpu();
-		scheduler.yield();
+		x86::yield();
 	} while(true);
 }
 
@@ -66,7 +69,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	call_global_ctors();
 
-	set_log_level(log_level_type::info);
+	set_log_level(log_level_type::notice);
 
 	vga_console::clear_screen();
 
