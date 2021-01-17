@@ -3,7 +3,6 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <x86/task.hpp>
 
 #include <x86/tssd.hpp>
 #include <x86/memory_segment_d.hpp>

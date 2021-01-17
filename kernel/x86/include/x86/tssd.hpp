@@ -7,7 +7,7 @@
 
 #include "segment_flags.hpp"
 
-namespace x86 {
+namespace sched {
 class Task;
 }
 
@@ -53,6 +53,6 @@ struct [[gnu::packed]] TaskStateSegmentDescriptor
 	uint8_t base_24_31_: 8;
 };
 
-TaskStateSegmentDescriptor kernel_task_descriptor(const x86::Task* task);
+TaskStateSegmentDescriptor kernel_task_descriptor(const sched::Task* task);
 
 }

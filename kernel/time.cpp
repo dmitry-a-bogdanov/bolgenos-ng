@@ -3,7 +3,7 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
-#include <x86/scheduler.hpp>
+#include <sched.hpp>
 
 #include "config.h"
 
@@ -16,7 +16,7 @@ void sleep_(uint32_t ticks_timeout) {
 	}
 	uint32_t end_of_sleep = jiffies.load() + ticks_timeout;
 	while (jiffies.load() < end_of_sleep) {
-		x86::yield();
+		sched::yield();
 	}
 }
 

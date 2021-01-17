@@ -2,7 +2,7 @@
 
 #include <type_traits.hpp>
 
-#include <x86/task.hpp>
+#include <sched/task.hpp>
 
 using namespace x86;
 using namespace lib;
@@ -18,11 +18,11 @@ static_assert(lib::is_trivial_v<TaskStateSegmentDescriptor>,
 static_assert(lib::is_pod_v<TaskStateSegmentDescriptor>,
 	      "TaskStateSegmentDescriptor is not POD");
 
-TaskStateSegmentDescriptor x86::kernel_task_descriptor(const x86::Task* task)
+TaskStateSegmentDescriptor x86::kernel_task_descriptor(const sched::Task* task)
 {
 	return {
 		reinterpret_cast<uintptr_t>(task),
-		sizeof(x86::Task) - 1,
+		sizeof(sched::Task) - 1,
 		false,
 		ProtectionRing::kernel,
 		Present::present,

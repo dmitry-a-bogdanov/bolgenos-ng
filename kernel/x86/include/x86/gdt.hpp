@@ -2,8 +2,6 @@
 
 #include <ext/fixed_size_vector.hpp>
 
-#include "task.hpp"
-
 #include "memory_segment_d.hpp"
 #include "tssd.hpp"
 

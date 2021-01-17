@@ -1,4 +1,4 @@
-#include <x86/task.hpp>
+#include "include/sched/task.hpp"
 
 #include <ext/scoped_format_guard.hpp>
 #include <atomic.hpp>
@@ -7,14 +7,17 @@
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/irq.hpp>
 
-using namespace x86;
+#include "scheduler.hpp"
+
 using namespace lib;
+using namespace sched;
+using namespace x86;
 
 static lib::atomic<uint32_t> next_task_id{0};
 
 
 
-lib::ostream& x86::operator<<(lib::ostream& out, TaskId id) {
+lib::ostream& sched::operator<<(lib::ostream& out, TaskId id) {
 	ScopedFormatGuard guard{out};
 	return out << dec << static_cast<underlying_type_t<TaskId>>(id);
 }
@@ -23,9 +26,9 @@ static TaskId allocate_task_id() {
 	return static_cast<TaskId>(next_task_id++);
 }
 
-static_assert(lib::is_standard_layout_v<x86::Task>);
+static_assert(lib::is_standard_layout_v<Task>);
 
-lib::ostream& x86::operator<<(lib::ostream& out, const Task& task) {
+lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 	ScopedFormatGuard guard{out};
 	return out << "Task[" << task.name() << "](" << task.id() << ")"
 		<< "{.esp=" << hex << task.esp()
@@ -33,10 +36,11 @@ lib::ostream& x86::operator<<(lib::ostream& out, const Task& task) {
 		<< "}";
 }
 
-Task::Task(task_routine* routine, void* arg, const char* name_) :
+Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* name_) :
 	_routine{routine},
 	_arg{arg},
-	_id{allocate_task_id()}
+	_id{allocate_task_id()},
+	_scheduler{creator}
 {
 	static constexpr size_t stack_pages = 16;
 	_stack = reinterpret_cast<byte*>(memory::alloc_pages(stack_pages));
@@ -44,16 +48,21 @@ Task::Task(task_routine* routine, void* arg, const char* name_) :
 	name(name_);
 }
 
-void x86::Task::run()
+void sched::Task::run()
 {
+	cinfo << "starting" << *this << endl;
 	irq::enable(false);
-	this->_routine(this->_arg);
+	_routine(_arg);
+	_exited.store(true);
+	cinfo << "Finished task " << *this << endl;
+	_scheduler->handle_exit(this);
+	while (true) {
+		_scheduler->yield();
+	}
 }
 
-[[gnu::thiscall]] void x86::Task::wrapperForRun(Task* task) {
-	cinfo << "starting" << *task << endl;
+[[gnu::thiscall]] void sched::Task::wrapperForRun(Task* task) {
 	task->run();
-	cnotice << "Finished task " << *task << endl;
 }
 
 void Task::name(const char* name)

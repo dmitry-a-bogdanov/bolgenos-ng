@@ -7,10 +7,8 @@ add_library(libx86 STATIC
 	include/x86/idt.hpp
 	include/x86/gate.hpp
 	include/x86/memory_segment_d.hpp
-	include/x86/scheduler.hpp
 	include/x86/segment_flags.hpp
 	include/x86/segments.hpp
-	include/x86/task.hpp
 	include/x86/tssd.hpp
 	include/x86/tss.hpp
 
@@ -20,12 +18,10 @@ add_library(libx86 STATIC
 	src/gdt.cpp
 	src/idt.cpp
 	src/memory_segment_d.cpp
-	src/task.cpp
-	src/scheduler.cpp
 	src/segments.cpp
 	src/tss.cpp
 	src/tssd.cpp
 )
 
 target_include_directories(libx86 PUBLIC include/)
-target_link_libraries(libx86 PUBLIC libkernelcxx libthreading)
+target_link_libraries(libx86 PUBLIC libkernelcxx libthreading sched)

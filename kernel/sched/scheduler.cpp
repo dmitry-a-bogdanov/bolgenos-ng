@@ -1,20 +1,34 @@
-#include <x86/scheduler.hpp>
+#include "scheduler.hpp"
 
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/mmu.hpp>
 #include <threading/threading.hpp>
 #include <threading/with_lock.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <x86/cpu.hpp>
 
 using namespace lib;
+using namespace sched;
+using namespace x86;
 
-static observer_ptr<x86::Scheduler> the_scheduler{nullptr};
 
+void scheduling_task_routine(void *arg) {
+	static_cast<sched::Scheduler *>(arg)->schedule_forever();
+}
 
-x86::Scheduler::Scheduler() = default;
+sched::Scheduler::Scheduler(task_routine* main_continuation)
+{
+	thr::with_lock<thr::RecursiveIrqLocker>([&]{
+		if (main_continuation == nullptr) {
+			panic("no main specified");
+		}
+		auto scheduler_task = create_task(scheduling_task_routine, this, "scheduler");
+		_scheduler_task = scheduler_task;
+		create_task(main_continuation, nullptr, "main");
+		_current = _scheduler_task;
+	});
+};
 
-[[maybe_unused]] void x86::Scheduler::schedule_forever()
+[[maybe_unused]] void sched::Scheduler::schedule_forever()
 {
 	if (!irq::is_enabled()) {
 		panic("started scheduling with blocked interrupts");
@@ -22,7 +36,7 @@ x86::Scheduler::Scheduler() = default;
 	cwarn << "===== STARTED SCHEDULING =====" << endl;
 	while (true) {
 		for (auto& task_ptr: _tasks) {
-			if (task_ptr == _scheduler_task) {
+			if (!should_schedule(task_ptr)) {
 				continue;
 			}
 			cinfo << "Scheduling to task [" << task_ptr->name() << "]" << endl;
@@ -31,34 +45,14 @@ x86::Scheduler::Scheduler() = default;
 	}
 }
 
-void scheduling_task_routine(void *arg) {
-	static_cast<x86::Scheduler *>(arg)->schedule_forever();
-}
-
-void x86::Scheduler::init_multitasking(x86::task_routine* main_continuation)
+void sched::Scheduler::start_scheduling()
 {
-	Task* main_cont = thr::with_lock<thr::RecursiveIrqLocker>([&]{
-		Task* scheduler_task = create_task(scheduling_task_routine, this, "scheduler");
-		_scheduler_task = scheduler_task;
-
-		return create_task(main_continuation, nullptr, "main");
-	});
-
-	_current = _scheduler_task;
-
-	cinfo << "continue to new main" << endl;
-
-	switch_to(_scheduler_task); // switch to itself to fill task data
-
-	the_scheduler = this;
-
-	switch_to(main_cont);
-
-	yield();
+	cinfo << "switching into itself to fill task data" << endl;
+	switch_to(_scheduler_task);
 
 	schedule_forever();
 
-	panic("couldn't start scheduling");
+	panic("Scheduling finished");
 }
 
 struct [[gnu::packed]] NewTaskStack {
@@ -66,14 +60,14 @@ struct [[gnu::packed]] NewTaskStack {
 	x86::EFlags flags;
 	void* ebp1;
 	void (*eip)();
-	x86::Task* task;
+	Task* task;
 };
 
 static_assert(sizeof(NewTaskStack) == 20);
 
-x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, void* arg, const char* name)
+Task* sched::Scheduler::create_task(task_routine* routine, void* arg, const char* name)
 {
-	auto* task = new Task{routine, arg, name};
+	auto* task = new Task{this, routine, arg, name};
 	_tasks.push_front(task);
 
 	auto* new_task_stack = reinterpret_cast<NewTaskStack*>(task->_esp) - 1;
@@ -87,7 +81,7 @@ x86::Task* x86::Scheduler::create_task(x86::task_routine* routine, void* arg, co
 	return task;
 }
 
-void x86::Scheduler::switch_to(x86::Task* task)
+void sched::Scheduler::switch_to(Task* task)
 {
 	if (!irq::is_enabled()) {
 		panic("switching while interrupts are disabled");
@@ -104,32 +98,37 @@ void x86::Scheduler::switch_to(x86::Task* task)
 }
 
 [[gnu::cdecl, gnu::noinline]]
-void x86::Scheduler::switch_tasks_impl(x86::Task* prev,
-				       x86::Task* next) {
+void sched::Scheduler::switch_tasks_impl(Task* prev, Task* next) {
 	asm(
-"pushfl\n\t"
-"push %%ebp\n\t"
+		"pushfl\n\t"
+		"push %%ebp\n\t"
 
-"mov %%esp, %[prev_esp]\n\t"
-"mov %[next_esp], %%esp\n\t"
+		"mov %%esp, %[prev_esp]\n\t"
+		"mov %[next_esp], %%esp\n\t"
 
-"bolgenos_ng_task_switched:\n\t"
-"pop %%ebp\n\t"
-"popfl\n\t"
-: [prev_esp] "=m"(prev->_esp)
-: [next_esp] "m"(next->_esp)
-:
-);
+		"bolgenos_ng_task_switched:\n\t"
+		"pop %%ebp\n\t"
+		"popfl\n\t"
+		: [prev_esp] "=m"(prev->_esp)
+		: [next_esp] "m"(next->_esp)
+		:
+	);
 
 }
 
-void x86::Scheduler::yield()
+void sched::Scheduler::yield()
 {
-	cinfo << "yeilding" << endl;
+	cinfo << "yielding" << endl;
 	switch_to(_scheduler_task);
 }
 
-void x86::yield()
+bool sched::Scheduler::should_schedule(const Task* task)
 {
-	the_scheduler->yield();
+	return task != _scheduler_task &&
+		!task->finished();
+}
+
+void sched::Scheduler::handle_exit(Task*)
+{
+
 }

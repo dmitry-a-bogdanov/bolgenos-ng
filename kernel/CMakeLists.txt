@@ -135,6 +135,7 @@ add_executable(${kernel_binary}
 add_subdirectory(libkernelcxx)
 add_subdirectory(x86)
 add_subdirectory(threading)
+add_subdirectory(sched)
 add_subdirectory(devices)
 
 target_include_directories(${kernel_binary} PRIVATE x86/include)
@@ -151,7 +152,9 @@ target_link_libraries(${kernel_binary}
 	libkernelcxx
 	libthreading
 	libx86
-	libdevices)
+	libdevices
+	sched
+	)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")

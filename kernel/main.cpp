@@ -12,7 +12,7 @@
 #include <ps2/controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 #include <x86/cpu.hpp>
-#include <x86/scheduler.hpp>
+#include <sched.hpp>
 
 #include "config.h"
 
@@ -21,8 +21,6 @@
 using namespace lib;
 
 x86::Processor cpu;
-x86::Scheduler scheduler;
-
 
 constexpr uint32_t sleep_interval = 500;
 
@@ -46,13 +44,13 @@ void multithreaded_init_stage(void*) {
 
 	int tasks_count = 5;
 	for (int i = 0; i < tasks_count; ++i) {
-		scheduler.create_task(test_task, new int{i}, "test_task");
+		sched::create_task(test_task, new int{i}, "test_task");
 		sleep_ms(sleep_interval/tasks_count);
 	}
 
 	do {
 		x86::halt_cpu();
-		x86::yield();
+		sched::yield();
 	} while(true);
 }
 
@@ -116,7 +114,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	cwarn << "starting first switch" << endl;
 
-	scheduler.init_multitasking(multithreaded_init_stage);
+	sched::details::init_scheduling(multithreaded_init_stage);
 
 	panic("Couldn't switch to scheduler");
 }

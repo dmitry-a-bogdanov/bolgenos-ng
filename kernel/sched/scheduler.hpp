@@ -6,26 +6,30 @@
 #include <ext/memory.hpp>
 #include <forward_list.hpp>
 
-#include "task.hpp"
-#include "gdt.hpp"
+#include <sched/task.hpp>
 
-namespace x86 {
-
-void yield();
+namespace sched {
 
 class Scheduler
 {
 public:
-	Scheduler();
+	Scheduler(task_routine* main_continuation);
+
 	Scheduler(const Scheduler&) = delete;
+
 	Scheduler(Scheduler&&) = delete;
+
 	Scheduler& operator=(const Scheduler&) = delete;
+
 	Scheduler& operator=(Scheduler&&) = delete;
 
 	[[noreturn]]
-	void init_multitasking(task_routine* main_continuation);
+	void start_scheduling();
 
 	Task* create_task(task_routine* routine, void* arg, const char* name = nullptr);
+
+	void handle_exit(Task* task);
+
 	void yield();
 
 	[[maybe_unused]] [[noreturn]] [[gnu::thiscall]]
@@ -33,12 +37,16 @@ public:
 
 	[[gnu::cdecl]]
 	static void switch_tasks_impl(Task* from, Task* to);
+
 private:
 	void switch_to(Task* task);
 
-	lib::forward_list<x86::Task*> _tasks{};
-	x86::Task* _scheduler_task{nullptr};
-	x86::Task* _current{nullptr};
+	bool should_schedule(const Task* task);
+
+	lib::forward_list<Task*> _tasks{};
+	Task* _scheduler_task{nullptr};
+	Task* _current{nullptr};
 };
 
-}
+} // namespace sched
+
