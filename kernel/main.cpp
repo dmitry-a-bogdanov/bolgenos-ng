@@ -9,10 +9,10 @@
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/pit.hpp>
 #include <bolgenos-ng/time.hpp>
-#include <bolgenos-ng/ps2_controller.hpp>
+#include <ps2/controller.hpp>
 #include <bolgenos-ng/vga_console.hpp>
 #include <x86/cpu.hpp>
-#include <x86/scheduler.hpp>
+#include <sched.hpp>
 
 #include "config.h"
 
@@ -21,37 +21,43 @@
 using namespace lib;
 
 x86::Processor cpu;
-x86::Scheduler scheduler;
 
+constexpr uint32_t sleep_interval = 1000;
 
-[[noreturn]] void task1() {
-	cinfo << "Started task 1" << endl;
-	irq::enable();
+void test_task(void* number_ptr) {
+	const int task_number = *static_cast<const int *>(number_ptr);
+	cinfo << "Started task " << task_number << endl;
 	uint32_t counter = 0;
-	while (true) {
-		cnotice << "task1. iteration #" << ++counter << endl;
-		sleep_ms(300);
-		scheduler.yield();
+	if (task_number % 2) {
+		while (true) {
+			cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+			sleep_ms(sleep_interval);
+		}
+	} else {
+		for (int i = 0; i < 5; ++i) {
+			cnotice << "task " << task_number << ". iteration #" << ++counter << endl;
+			sleep_ms(sleep_interval);
+		}
 	}
 }
 
 
 [[noreturn]]
-void multithreaded_init_stage() {
+void multithreaded_init_stage(void*) {
 	cnotice << "Continue initialization in multithreaded env" << endl;
 	cnotice << "Kernel initialization routine has been finished!"
 	      << endl;
 	irq::enable();
 
-	scheduler.create_task(task1, "task #1");
-	cinfo << "created first task" << endl;
-
-	uint32_t counter = 0;
+	int tasks_count = 5;
+	for (int i = 0; i < tasks_count; ++i) {
+		sched::create_task(test_task, new int{i}, "test_task");
+		sleep_ms(sleep_interval/tasks_count);
+	}
 
 	do {
 		x86::halt_cpu();
-		scheduler.yield();
-		cnotice << "main task. iteration #" << ++counter << endl;
+		sched::yield();
 	} while(true);
 }
 
@@ -73,23 +79,25 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	vga_console::clear_screen();
 
 	cout
-		<< R"(  __                           __  )" << endl
-		<< R"( |__| _ | _  _  _  _  _  |\  |/    )" << endl
-		<< R"( |  \| ||/ ||_|| || ||_  | \ ||  _ )" << endl
-		<< R"( |__/|_||\_||_ | ||_| _| |  \|\__/ )" << endl
-		<< R"(       ____|                       )" << endl;
+		<< R"(  ____          _                                  _   _   ____  )" << endl
+		<< R"( | __ )   ___  | |  __ _   ___  _ __    ___   ___ | \ | | / ___| )" << endl
+		<< R"( |  _ \  / _ \ | | / _` | / _ \| '_ \  / _ \ / __||  \| || |  _  )" << endl
+		<< R"( | |_) || (_) || || (_| ||  __/| | | || (_) |\__ \| |\  || |_| | )" << endl
+		<< R"( |____/  \___/ |_| \__, | \___||_| |_| \___/ |___/|_| \_| \____| )" << endl
+		<< R"(                   |___/                                         )" << endl
+		;
 
 	cnotice << "Starting bolgenos-ng-" << BOLGENOS_NG_VERSION
 		<< endl;
 
 	cpu.load_kernel_segments();
+	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
 
 
 	// explicitly create instance
-	auto interrupt_manager = irq::InterruptsManager::instance();
+	irq::InterruptsManager::init();
 	irq::install_traps();
-	(void) interrupt_manager;
 
 
 
@@ -113,7 +121,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	cwarn << "starting first switch" << endl;
 
-	scheduler.init_multitasking(&cpu.gdt(), multithreaded_init_stage);
+	sched::details::init_scheduling(multithreaded_init_stage);
 
 	panic("Couldn't switch to scheduler");
 }

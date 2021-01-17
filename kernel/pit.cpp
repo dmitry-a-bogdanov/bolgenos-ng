@@ -118,8 +118,8 @@ void pit::init() {
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 
 	outb(pit_port::cmd, cmd);
-	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 0, 0xff));
-	outb(pit_port::timer, bitmask(freq_divider->pit_timeout(), 8, 0xff));
+	outb(pit_port::timer, shiftmask(freq_divider->pit_timeout(), 0, 0xff));
+	outb(pit_port::timer, shiftmask(freq_divider->pit_timeout(), 8, 0xff));
 
 	irq::InterruptsManager::instance()->add_handler(timer_irq, new PitIRQHandler(move(freq_divider)));
 }

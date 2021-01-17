@@ -1,7 +1,4 @@
-#ifndef __BOLGENOS_NG__STRING_H__
-#define __BOLGENOS_NG__STRING_H__
-
-#include <stdarg.h>
+#pragma once
 
 #if defined(__cplusplus)
 #include <cstddef.hpp>
@@ -22,41 +19,6 @@ extern "C" {
 * \return Length of string.
 */
 size_t strlen(const char *str);
-
-
-/**
-* \brief Formatted output to string.
-*
-* The fuction works like a POSIX-version but not all formats are supported.
-* The following formats are supported:
-*	- li
-*	- lu
-*	- s
-* \param str Pointer to output string.
-* \param size Size of maximal possible output including null termination byte.
-* \param format Format string.
-* \param ... Additinal arguments for format specification.
-* \return Number of written symbol excluding null termination byte.
-*/
-int snprintf(char *str, size_t size, const char *format, ...);
-
-
-/**
-* \brief Formatted output to string. Version for va_list.
-*
-* The fuction works like a POSIX-version but not all formats are supported.
-* The following formats are supported:
-*	- li
-*	- lu
-*	- s
-* \param str Pointer to output string.
-* \param size Size of maximal possible output including null termination byte.
-* \param format Format string.
-* \param args Pointer to container of variadic arguments for format
-*	specification.
-* \return Number of written symbol excluding null termination byte.
-*/
-int vsnprintf(char *str, size_t size, const char *format, va_list args);
 
 
 /**
@@ -86,5 +48,3 @@ void *memset(void *s, int c, size_t n);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __BOLGENOS_NG__STRING_H__

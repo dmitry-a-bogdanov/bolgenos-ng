@@ -1,6 +1,4 @@
-#ifndef __BOLGENOS_NG__CONFIG_H__
-#define __BOLGENOS_NG__CONFIG_H__
-
+#pragma once
 
 /**
 * \brief Config option is enabled.
@@ -90,5 +88,3 @@
 #else
 #	define VERBOSE_TIMER_INTERRUPT		CONFIG_OFF
 #endif
-
-#endif // __BOLGENOS_NG__CONFIG_H__

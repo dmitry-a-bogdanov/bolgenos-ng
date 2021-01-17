@@ -1,5 +1,6 @@
 #include "page_allocator.hpp"
 
+#include <threading/lock.hpp>
 #include <bolgenos-ng/memory_region.hpp>
 
 #include "buddy_allocator.hpp"
@@ -34,6 +35,8 @@ void memory::allocators::PageAllocator::initialize(BuddyAllocator *primary,
 }
 
 void *memory::allocators::PageAllocator::allocate(size_t pages) {
+	thr::RecursiveIrqGuard guard;
+
 	if (!pages) {
 		// zero-size allocation should return valid address!
 		return zero_size_page;
@@ -52,6 +55,8 @@ void *memory::allocators::PageAllocator::allocate(size_t pages) {
 }
 
 void memory::allocators::PageAllocator::deallocate(void *memory) {
+	thr::RecursiveIrqGuard guard;
+
 	if ((memory == nullptr) || (memory == zero_size_page)) {
 		return;
 	}

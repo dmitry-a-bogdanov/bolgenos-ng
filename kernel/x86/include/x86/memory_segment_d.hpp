@@ -28,19 +28,19 @@ public:
 					  OperationSize db,
 					  Granularity granularity)
 		:
-		limit_00_15_(bitmask(limit, 0, 0xffff)),
-		base_00_15_(bitmask(base, 0, 0xffff)),
-		base_16_23_(bitmask(base, 16, 0xff)),
+		limit_00_15_(shiftmask(limit, 0, 0xffff)),
+		base_00_15_(shiftmask(base, 0, 0xffff)),
+		base_16_23_(shiftmask(base, 16, 0xff)),
 		tag_(tag),
 		system_flag_(ssf),
 		dpl_(dpl),
 		present_(present),
-		limit_16_19_(bitmask(limit, 16, 0xf)),
+		limit_16_19_(shiftmask(limit, 16, 0xf)),
 		avl_(Avl::null),
 		long_(lng),
 		db_(db),
 		granularity_(granularity),
-		base_24_31_(bitmask(base, 24, 0xff))
+		base_24_31_(shiftmask(base, 24, 0xff))
 	{
 	}
 

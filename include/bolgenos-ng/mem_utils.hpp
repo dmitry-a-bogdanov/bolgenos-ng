@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstddef.hpp>
-
-
 /// \brief Helper for applying bit masks.
 ///
 /// Macro returns value that is calculated from given value that is shifted
@@ -16,6 +13,6 @@
 /// \param mask Bitmask that is to be applied to shifted value.
 /// \return shifted value with applied mask casted to ValueType.
 template<typename ValueType, typename OffsetType, typename MaskType>
-constexpr ValueType bitmask(ValueType value, OffsetType offset, MaskType mask) {
+constexpr ValueType shiftmask(ValueType value, OffsetType offset, MaskType mask) {
 	return (((value) >> (offset)) & (mask));
 };

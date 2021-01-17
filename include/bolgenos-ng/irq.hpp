@@ -12,7 +12,6 @@ namespace lib {
 	class ostream;
 }
 
-
 namespace irq {
 
 
@@ -61,9 +60,7 @@ public:
 		HANDLED,
 	};
 
-	virtual ~IRQHandler()
-	{
-	}
+	virtual ~IRQHandler() = default;
 
 
 	virtual status_t handle_irq(irq_t vector) = 0;
@@ -72,9 +69,7 @@ public:
 
 class ExceptionHandler {
 public:
-	virtual ~ExceptionHandler()
-	{
-	}
+	virtual ~ExceptionHandler() = default;
 
 	virtual void handle_exception(stack_ptr_t frame) = 0;
 };
@@ -85,13 +80,6 @@ public:
 ///
 /// Last IRQ line that can be configured configured and supported by xxPIC.
 constexpr size_t LAST_LINE = 0xff;
-
-
-/// \brief Size of IRQ gate.
-///
-/// IRQ gate must be 8 bytes on x86 arch.
-constexpr size_t GATE_SIZE = 8;
-
 
 /// \brief Total number of IRQ lines.
 ///
@@ -105,44 +93,40 @@ public:
 	void add_handler(irq_t vector, IRQHandler *handler);
 	void add_handler(exception_t exception, ExceptionHandler *handler);
 
+	static void init();
 	static InterruptsManager *instance();
 protected:
-	InterruptsManager();
+	explicit InterruptsManager();
 
 	IRQHandler::status_t dispatch_interrupt(irq_t vector);
 	IRQHandler::status_t dispatch_exception(exception_t exception, stack_ptr_t frame_pointer);
 
-	__attribute__((regparm(0),cdecl)) static void handle_irq(irq_t vector, void *frame);
+	static void handle_irq(irq_t vector, void *frame);
 	static bool is_exception(irq_t vector);
 private:
 	lib::forward_list<IRQHandler *> _irq_handlers[NUMBER_OF_LINES];
 	lib::forward_list<ExceptionHandler *> _exceptions_handlers[exception_t::max];
-	_irq_aligned_ table_pointer idt_pointer{};
 
 	static InterruptsManager *_instance;
 };
 
 
+bool is_enabled();
+
 
 /// \brief Enable interrupts.
 ///
 /// Enable interrupts by setting Interrupt Flag for CPU.
-inline void enable() {
-	lib::cnotice << "enabling interrupts" << lib::endl;
-	asm volatile ("sti\n");
-}
+void enable(bool debug = true);
 
 
 /// \brief Disable interrupts.
 ///
 /// Disable interrupts by clearing Interrupt Flag for CPU.
 ///
-inline void disable(bool debug = true) {
-	if (debug) {
-		lib::cnotice << "disabling interrupts" << lib::endl;
-	}
-	asm volatile ("cli\n");
-}
+/// \param debug - print debug
+/// \return previous status
+bool disable(bool debug = true);
 
 
 /// \brief Registers dump on stack.

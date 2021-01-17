@@ -10,17 +10,19 @@ using namespace lib;
 static_assert(sizeof(x86::tss::ProtectionRingStack) == 8);
 static_assert(sizeof(x86::tss::SegmentRegister) == 4);
 static_assert(sizeof(x86::TaskStateSegment) == 104);
+static_assert(is_standard_layout_v<x86::TaskStateSegment>);
 
 
 lib::ostream& x86::tss::operator<<(ostream& out, const x86::tss::SegmentRegister& segment_register)
 {
-	return out << segment_register.segment();
+	ScopedFormatGuard format_guard{out};
+	return out << dec << segment_register.segment();
 }
 
 ostream& x86::tss::operator<<(ostream& out, const x86::tss::ProtectionRingStack& stack)
 {
 	ScopedFormatGuard guard{out};
-	return out << stack.segment() << ":" << hex << static_cast<const void*>(stack.pointer());
+	return out << dec << stack.segment() << ":" << hex << static_cast<const void*>(stack.pointer());
 }
 
 lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)
@@ -39,7 +41,7 @@ lib::ostream& x86::operator<<(lib::ostream& out, const TaskStateSegment& tss)
 x86::tss::SegmentRegistersPack x86::tss::SegmentRegistersPack::kernel()
 {
 	return x86::tss::SegmentRegistersPack(
-		x86::KERNEL_CODE_SEGMENT_SELECTOR,
-		x86::KERNEL_DATA_SEGMENT_SELECTOR
+		x86::KERNEL_CODE_SELECTOR,
+		x86::KERNEL_DATA_SELECTOR
 	);
 }

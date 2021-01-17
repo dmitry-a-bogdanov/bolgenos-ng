@@ -49,33 +49,10 @@ set(kernel_binary "kernel.bin")
 
 include_directories(${CONFIG_INCLUDE_DIRS})
 
-add_subdirectory(libkernelcxx)
-
 # Variable $kernel_start_file should keep source file that will be included
 # in kernel of any configuration and can be compiled very fast.
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
-
-set(m4_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/m4")
-file(GLOB_RECURSE m4_input_files "${m4_input_dir}/*.cpp.m4")
-
-set(m4_output_dir "${CMAKE_CURRENT_BINARY_DIR}/m4_generated")
-file(MAKE_DIRECTORY ${m4_output_dir})
-
-
-foreach (m4_file ${m4_input_files})
-	get_filename_component(in_basename ${m4_file} NAME)
-	string(REGEX REPLACE ".m4" "" out_basename ${in_basename})
-	set(out_file "${m4_output_dir}/${out_basename}")
-	set(m4_generated_files "${out_file}" ${m4_generated_file})
-	message(STATUS "Found m4-generated file \"${out_file}\"")
-	add_custom_command(OUTPUT "${out_file}"
-		COMMAND m4 -P "${m4_file}" > "${out_file}"
-		COMMENT m4 -P "${m4_file}" > "${out_file}"
-		WORKING_DIRECTORY "${m4_input_dir}"
-		DEPENDS "${m4_file}")
-endforeach (m4_file)
-
 
 set(logging_src
 	src/log/log.cpp
@@ -85,32 +62,12 @@ set(logging_src
 	src/log/vga_log_buf.hpp
 )
 
-set(x86_src
-	x86/include/x86/cpu.hpp
-	x86/include/x86/gdt.hpp
-	x86/include/x86/memory_segment_d.hpp
-	x86/include/x86/scheduler.hpp
-	x86/include/x86/segment_flags.hpp
-	x86/include/x86/segments.hpp
-	x86/include/x86/task.hpp
-	x86/include/x86/tssd.hpp
-	x86/include/x86/tss.hpp
-
-	x86/src/cpu.cpp
-	x86/src/gdt.cpp
-	x86/src/memory_segment_d.cpp
-	x86/src/task.cpp
-	x86/src/scheduler.cpp
-	x86/src/segments.cpp
-	x86/src/tss.cpp
-	x86/src/tssd.cpp
-)
 
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
 
-	${m4_generated_files}
+	compiler.cpp
 	error.cpp
 	frequency_divider.hpp
 	frequency_divider.cpp
@@ -132,14 +89,7 @@ set(kernel_sources ${kernel_start_file}
 	devices/interrupt_controller/pic_8259.hpp
 	devices/interrupt_controller/pic_8259.cpp
 
-	ps2/common.cpp
-	ps2/ps2_controller.cpp
-	ps2/ps2_line.cpp
 	keyboard.cpp
-	ps2/ps2_keyboard.hpp
-	ps2/ps2_keyboard.cpp
-	ps2/ps2_keyboard_sm.hpp
-	ps2/ps2_keyboard_sm.cpp
 
 	buddy_allocator.hpp
 	buddy_allocator.cpp
@@ -155,8 +105,6 @@ set(kernel_sources ${kernel_start_file}
 	abi/cxxabi.cpp
 	backtrace.cpp
 
-	m4/idt_other.cpp
-
 	ost/ost.cpp
 	ost/bitarray.hpp
 	ost/bitarray.cpp
@@ -167,9 +115,6 @@ set(kernel_sources ${kernel_start_file}
 	${logging_src}
 	${x86_src}
 )
-
-set_source_files_properties(${m4_generated_files}
-	PROPERTIES GENERATED TRUE)
 
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
@@ -187,6 +132,12 @@ add_executable(${kernel_binary}
 	${kernel_sources}
 	)
 
+add_subdirectory(libkernelcxx)
+add_subdirectory(x86)
+add_subdirectory(threading)
+add_subdirectory(sched)
+add_subdirectory(devices)
+
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
 # custom target is always out-of-date
@@ -197,7 +148,13 @@ add_custom_target(__relink_kernel
 
 add_dependencies(${kernel_binary} __relink_kernel)
 
-target_link_libraries(${kernel_binary} libkernelcxx)
+target_link_libraries(${kernel_binary}
+	libkernelcxx
+	libthreading
+	libx86
+	libdevices
+	sched
+	)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")

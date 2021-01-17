@@ -3,6 +3,7 @@
 #include "vga_buf.hpp"
 #include "vga_log_buf.hpp"
 
+using namespace vga_console;
 
 void lib::set_log_level(log_level_type log_level) {
 	lib::_impl::vga_log_buf::set_system_log_level(log_level);
@@ -17,11 +18,11 @@ namespace {
 
 
 lib::_impl::vga_buf plain_vga_buf;
-lib::_impl::vga_log_buf crit_buf(lib::log_level_type::critical, "[CRIT] ");
-lib::_impl::vga_log_buf err_buf(lib::log_level_type::error, "[ERR] ");
-lib::_impl::vga_log_buf warn_buf(lib::log_level_type::warning, "[WARN] ");
-lib::_impl::vga_log_buf notice_buf(lib::log_level_type::notice, "[NOTE] ");
-lib::_impl::vga_log_buf info_buf(lib::log_level_type::info, "[info] ");
+lib::_impl::vga_log_buf crit_buf(lib::log_level_type::critical, "[CRIT] ", color_t::red);
+lib::_impl::vga_log_buf err_buf(lib::log_level_type::error, "[EROR] ", color_t::bright_red);
+lib::_impl::vga_log_buf warn_buf(lib::log_level_type::warning, "[WARN] ", color_t::yellow);
+lib::_impl::vga_log_buf notice_buf(lib::log_level_type::notice, "[NOTE] ", color_t::green);
+lib::_impl::vga_log_buf info_buf(lib::log_level_type::info, "[INFO] ", color_t::bright_green);
 
 
 } // namespace

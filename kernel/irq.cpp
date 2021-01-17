@@ -1,30 +1,28 @@
 #include <bolgenos-ng/irq.hpp>
 
 #include <algorithm.hpp>
+#include <atomic.hpp>
 
 #include <bolgenos-ng/error.h>
-#include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 
 #include <ext/scoped_format_guard.hpp>
 
-#include <m4/idt.hpp>
+#include <x86/cpu.hpp>
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
-irq::InterruptsManager::InterruptsManager()
+irq::InterruptsManager::InterruptsManager() = default;
+
+
+void irq::InterruptsManager::init()
 {
-	idt_pointer.base = m4::get_idt(handle_irq);
-	uint16_t idt_size = irq::NUMBER_OF_LINES*irq::GATE_SIZE - 1;
-	idt_pointer.limit = idt_size;
-	asm volatile("lidt %0"::"m" (idt_pointer));
+	_instance = new InterruptsManager{};
+	x86::IDT::set_global_handler(handle_irq);
 }
 
 irq::InterruptsManager *irq::InterruptsManager::instance()
 {
-	if (!_instance) {
-		_instance = new InterruptsManager{};
-	}
 	return _instance;
 }
 
@@ -99,13 +97,10 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 
 	if (status != irq::IRQHandler::status_t::HANDLED) {
 		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
-		panic("Fatal interrupt");
 	}
 
 	devices::InterruptController::instance()->end_of_interrupt(vector);
 }
-
-
 
 
 lib::ostream& irq::operator <<(lib::ostream& out,
@@ -174,6 +169,33 @@ lib::ostream& irq::operator <<(lib::ostream& out,
 	return out;
 }
 
+static lib::atomic<bool> interrupts_enabled{false};
+
+bool irq::is_enabled() {
+	auto flags = x86::Processor::flags();
+	if (flags.interrupts != interrupts_enabled.load()) {
+		panic("irq enabled state not synced");
+	}
+	return interrupts_enabled.load();
+}
+
+void irq::enable(bool debug) {
+	if (debug) {
+		lib::cinfo << "enabling interrupts" << lib::endl;
+	}
+	interrupts_enabled.store(true);
+	asm volatile ("sti\n");
+}
+
+bool irq::disable(bool debug) {
+	if (debug) {
+		lib::cinfo << "disabling interrupts" << lib::endl;
+	}
+
+	asm volatile ("cli\n");
+
+	return interrupts_enabled.exchange(false);
+}
 
 // Compile-time guards
 static_assert(sizeof(irq::registers_dump_t) == 8*4,

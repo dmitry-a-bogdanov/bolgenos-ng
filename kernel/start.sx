@@ -12,6 +12,7 @@ __kernel_stack_top:
 .text
 .global _start_kernel
 _start_kernel:
+    cli
 	movl %ebx, temp_boot_info
 	leal __kernel_stack_top, %ecx
 	movl %ecx, %esp

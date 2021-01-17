@@ -1,21 +1,19 @@
-#ifndef __BOLGENOS_NG__COMPILER_H__
-#define __BOLGENOS_NG__COMPILER_H__
-
+#pragma once
 
 /**
 * \def macro_concat(begin, end)
-* \brief Concatenate given sequencies of symbols.
+* \brief Concatenate given sequences of symbols.
 *
-* Macro concatenates given values sequencies of symbols with expanding.
+* Macro concatenates given values sequences of symbols with expanding.
 * If symbols stands for macro name, this name will be expanded to value.
 * \param begin First part of resulting symbol.
 * \param end Second part of resultng symbol.
 * \return Concatenation of begin and end arguments.
 */
-#define __macro_concat(begin, end) \
+#define macro_concat__(begin, end) \
 		begin ## end
 #define macro_concat(begin, end) \
-		__macro_concat(begin, end)
+		macro_concat__(begin, end)
 
 
 /**
@@ -26,8 +24,8 @@
 * \param x Symbol to be stringified.
 * \return Stringified symbol.
 */
-#define __stringify(x) #x
-#define stringify(x) __stringify(x)
+#define stringify__(x) #x
+#define stringify(x) stringify__(x)
 
 
 /**
@@ -37,7 +35,7 @@
 * packed structures.
 */
 #define _placeholder(bitsize) \
-	macro_concat(___placeholder_, __COUNTER__) : (bitsize)
+	macro_concat(_placeholder_, __COUNTER__) : (bitsize)
 
 
 /**
@@ -104,4 +102,5 @@
 */
 #define _asm_linked_			extern
 
-#endif // __BOLGENOS_NG__COMPILER_H__
+[[noreturn]]
+void unreachable();

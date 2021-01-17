@@ -32,15 +32,20 @@ private:
  */
 struct [[gnu::packed]] ProtectionRingStack {
 public:
-	constexpr ProtectionRingStack(const uint16_t segment, const lib::byte* const stack_ptr)
+	constexpr ProtectionRingStack(const uint16_t segment, lib::byte* const stack_ptr)
 		: _pointer{stack_ptr}, _segment{segment}
 	{}
 	constexpr ProtectionRingStack() = default;
 
 	[[nodiscard]] const lib::byte* pointer() const { return _pointer; }
+
+	typedef lib::byte* ptr_t __attribute__((aligned(1)));
+	typedef ptr_t* pptr_t;
+	pptr_t ppointer() { return &_pointer; }
+
 	[[nodiscard]] uint16_t segment() const { return _segment.segment(); }
 private:
-	const lib::byte*	_pointer{nullptr};
+	lib::byte*		_pointer{nullptr};
 	SegmentRegister		_segment{0};
 };
 
@@ -145,9 +150,7 @@ struct __attribute__((packed)) TaskStateSegment {
 	{}
 
 	uint16_t			previous_task_link;
-private:
 	uint16_t			_reserved_01{0};
-public:
 	tss::ProtectionRingStack	stack[3];
 	/**
 	 * \brief CR3
@@ -158,9 +161,7 @@ public:
 	tss::GPRegistersPack		_gp_registers_pack;
 	tss::SegmentRegistersPack	_segment_registers;
 	bool				debug_trap:1;
-private:
 	uint16_t			_reserved_02:15;
-public:
 	uint16_t			io_map_base_address;
 };
 
