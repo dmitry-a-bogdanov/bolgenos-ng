@@ -3,21 +3,19 @@
 #include <bolgenos-ng/vga_console.hpp>
 
 
-lib::_impl::vga_buf::vga_buf()
+VgaBuf::VgaBuf()
 	: streambuf() {
 }
 
-
-lib::_impl::vga_buf::~vga_buf() {
+VgaBuf::~VgaBuf() {
 }
 
-
-int lib::_impl::vga_buf::overflow(int c) {
+int VgaBuf::overflow(int c) {
 	vga_console::putc(c);
 	return c;
 }
 
-size_t lib::_impl::vga_buf::xsputn(const char* s, size_t n) {
+size_t VgaBuf::xsputn(const char* s, size_t n) {
 	for (size_t cnt = 0; cnt != n; ++cnt) {
 		overflow(s[cnt]);
 	}

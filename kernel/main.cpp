@@ -74,7 +74,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	call_global_ctors();
 
-	set_log_level(log_level_type::notice);
+	set_log_level(LogLevel::NOTICE);
 
 	vga_console::clear_screen();
 

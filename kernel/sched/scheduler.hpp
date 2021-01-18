@@ -7,11 +7,12 @@
 #include <ext/intrusive_circular_list.hpp>
 #include <forward_list.hpp>
 
+#include <bolgenos-ng/loggable.hpp>
 #include <sched/task.hpp>
 
 namespace sched {
 
-class Scheduler
+class Scheduler: private lib::Loggable
 {
 public:
 	Scheduler(task_routine* main_continuation);

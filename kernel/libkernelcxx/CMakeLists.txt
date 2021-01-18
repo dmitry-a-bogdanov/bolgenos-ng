@@ -39,14 +39,16 @@ set(libkernelcxx_SOURCES
 	src/cstring.cpp
 	src/ostream.cpp
 	src/streambuf.cpp
+	src/string.cpp
 
 	src/ext/scoped_format_guard.cpp
 	src/ext/snprintf_stream.cpp
 )
 
-add_library(libkernelcxx OBJECT
+add_library(libkernelcxx STATIC
 	${libkernelcxx_HEADERS}
 	${libkernelcxx_SOURCES}
 )
 
 target_include_directories(libkernelcxx PUBLIC include/)
+target_link_libraries(libkernelcxx PUBLIC log)

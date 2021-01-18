@@ -3,7 +3,6 @@
 #include <ext/scoped_format_guard.hpp>
 #include <atomic.hpp>
 #include <cstring.hpp>
-#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/irq.hpp>
 
@@ -35,6 +34,7 @@ lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 }
 
 Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* name_) :
+	Loggable{"Task"},
 	_routine{routine},
 	_arg{arg},
 	_id{allocate_task_id()},
@@ -48,11 +48,11 @@ Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* nam
 
 void sched::Task::run()
 {
-	cnotice << "Starting " << *this << endl;
+	NOTICE << "Starting " << *this << endl;
 	irq::enable(false);
 	_routine(_arg);
 	_exited.store(true);
-	cnotice << "Finished task " << *this << endl;
+	NOTICE << "Finished task " << *this << endl;
 	_scheduler->handle_exit(this);
 	while (true) {
 		_scheduler->yield();
@@ -71,7 +71,7 @@ void Task::name(const char* name)
 
 Task::~Task()
 {
-	cnotice << "Removing task " << *this << endl;
+	NOTICE << "Removing task " << *this << endl;
 	memory::free_pages(_stack);
 	_stack = nullptr;
 }

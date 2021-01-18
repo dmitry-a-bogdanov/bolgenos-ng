@@ -54,15 +54,6 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
-set(logging_src
-	src/log/log.cpp
-	src/log/vga_buf.cpp
-	src/log/vga_buf.hpp
-	src/log/vga_log_buf.cpp
-	src/log/vga_log_buf.hpp
-)
-
-
 set(kernel_sources ${kernel_start_file}
 	${config_h}
 	${ost_h}
@@ -133,6 +124,7 @@ add_executable(${kernel_binary}
 	)
 
 add_subdirectory(libkernelcxx)
+add_subdirectory(log)
 add_subdirectory(x86)
 add_subdirectory(threading)
 add_subdirectory(sched)
@@ -154,6 +146,7 @@ target_link_libraries(${kernel_binary}
 	libx86
 	libdevices
 	sched
+	log
 	)
 
 set_target_properties(${kernel_binary} PROPERTIES

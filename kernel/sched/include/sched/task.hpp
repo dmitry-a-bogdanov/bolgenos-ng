@@ -5,6 +5,7 @@
 #include <ext/intrusive_circular_list.hpp>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/page.hpp>
+#include <bolgenos-ng/loggable.hpp>
 
 namespace lib {
 class ostream;
@@ -20,7 +21,7 @@ enum class TaskId: uint32_t {};
 
 lib::ostream& operator<<(lib::ostream& out, TaskId id);
 
-struct Task {
+struct Task: private lib::Loggable {
 public:
 	Task() = delete;
 

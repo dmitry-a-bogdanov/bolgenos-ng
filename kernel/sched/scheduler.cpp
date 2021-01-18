@@ -14,7 +14,8 @@ void scheduling_task_routine(void *arg) {
 	static_cast<sched::Scheduler *>(arg)->schedule_forever();
 }
 
-sched::Scheduler::Scheduler(task_routine* main_continuation)
+sched::Scheduler::Scheduler(task_routine* main_continuation):
+	lib::Loggable{"scheduler"}
 {
 	thr::with_irq_lock([&]{
 		if (main_continuation == nullptr) {
@@ -40,7 +41,7 @@ sched::Scheduler::Scheduler(task_routine* main_continuation)
 			if (!should_schedule(task_ptr)) {
 				continue;
 			}
-			cinfo << "Scheduling to task [" << task_ptr->name() << "]" << endl;
+			INFO << "Scheduling to task [" << task_ptr->name() << "]" << endl;
 			irq::enable(debug_irq);
 			// switch_to knows better how to deal with interrupts
 			switch_to(task_ptr);
@@ -53,7 +54,7 @@ sched::Scheduler::Scheduler(task_routine* main_continuation)
 
 void sched::Scheduler::start_scheduling()
 {
-	cinfo << "switching into itself to fill task data" << endl;
+	INFO << "switching into itself to fill task data" << endl;
 	switch_to(_scheduler_task);
 
 	schedule_forever();
@@ -95,12 +96,12 @@ void sched::Scheduler::switch_to(Task* task)
 	irq::disable(false);
 
 	auto prev = _current;
-	cinfo << "Switch: [" << prev->name() << "](" << prev->id() << ")"
+	INFO << "Switch: [" << prev->name() << "](" << prev->id() << ")"
 	      << " -> " << *task << endl;
 	_current = task;
 	switch_tasks_impl(prev, task);
 	irq::enable(false);
-	cinfo << "returned from switch" << endl;
+	INFO << "returned from switch" << endl;
 }
 
 [[gnu::cdecl, gnu::noinline]]
@@ -124,7 +125,7 @@ void sched::Scheduler::switch_tasks_impl(Task* prev, Task* next) {
 
 void sched::Scheduler::yield()
 {
-	cinfo << "yielding" << endl;
+	INFO << "yielding" << endl;
 	switch_to(_scheduler_task);
 }
 
