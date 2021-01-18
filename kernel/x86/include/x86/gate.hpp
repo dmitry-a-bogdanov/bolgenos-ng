@@ -2,9 +2,9 @@
 
 #include <cstdint.hpp>
 #include "segment_flags.hpp"
+#include "gdt.hpp"
 
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/mmu.hpp>
 
 namespace x86 {
 

@@ -3,12 +3,13 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
-#include <bolgenos-ng/mmu.hpp>
-#include <x86/segments.hpp>
 #include <x86/segment_flags.hpp>
 
 using namespace lib;
 using namespace x86;
+
+static_assert(8 == x86::KERNEL_CODE_SELECTOR, "Wrong kernel code segment");
+static_assert(16 == x86::KERNEL_DATA_SELECTOR, "Wrong kernel data segment");
 
 x86::GDT::GDT()
 {

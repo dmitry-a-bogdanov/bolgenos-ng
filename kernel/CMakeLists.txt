@@ -66,7 +66,6 @@ set(kernel_sources ${kernel_start_file}
 	kernel_object.cpp
 	main.cpp
 	memory.cpp
-	mmu.cpp
 	multiboot_header.cpp
 	multiboot_info.cpp
 	pit.cpp
@@ -75,10 +74,6 @@ set(kernel_sources ${kernel_start_file}
 	traps.hpp
 	traps.cpp
 	vga_console.cpp
-
-	devices/interrupt_controller/interrupt_controller.cpp
-	devices/interrupt_controller/pic_8259.hpp
-	devices/interrupt_controller/pic_8259.cpp
 
 	keyboard.cpp
 

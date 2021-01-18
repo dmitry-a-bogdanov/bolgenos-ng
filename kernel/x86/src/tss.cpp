@@ -1,8 +1,9 @@
 #include <x86/tss.hpp>
 
-#include <bolgenos-ng/mmu.hpp>
 #include <ostream.hpp>
+#include <type_traits.hpp>
 #include <ext/scoped_format_guard.hpp>
+#include <x86/gdt.hpp>
 
 using namespace lib;
 
