@@ -63,10 +63,7 @@ set(kernel_sources ${kernel_start_file}
 	frequency_divider.hpp
 	frequency_divider.cpp
 	irq.cpp
-	kernel_object.cpp
 	main.cpp
-	multiboot_header.cpp
-	multiboot_info.cpp
 	pit.cpp
 	printk.cpp
 	time.cpp
@@ -112,6 +109,7 @@ add_subdirectory(x86)
 add_subdirectory(threading)
 add_subdirectory(sched)
 add_subdirectory(devices)
+add_subdirectory(kobj)
 
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
@@ -124,6 +122,7 @@ add_custom_target(__relink_kernel
 add_dependencies(${kernel_binary} __relink_kernel)
 
 target_link_libraries(${kernel_binary}
+	PRIVATE
 	libkernelcxx
 	memory
 	libthreading
@@ -131,6 +130,8 @@ target_link_libraries(${kernel_binary}
 	libdevices
 	sched
 	log
+	PUBLIC
+	kobj
 	)
 
 set_target_properties(${kernel_binary} PROPERTIES

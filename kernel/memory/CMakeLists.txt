@@ -15,4 +15,4 @@ add_library(memory STATIC
 	slab.cpp
 	)
 target_include_directories(memory PUBLIC include)
-target_link_libraries(memory PRIVATE libkernelcxx libthreading)
+target_link_libraries(memory PRIVATE libkernelcxx libthreading kobj)

@@ -1,7 +1,5 @@
 #include <cxxabi.h>
 
-#include <unwind.h>
-
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/compiler.h>
 #include <bolgenos-ng/printk.h>
