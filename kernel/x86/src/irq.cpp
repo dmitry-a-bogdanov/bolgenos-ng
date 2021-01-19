@@ -10,6 +10,8 @@
 
 #include <x86/cpu.hpp>
 
+#include "traps.hpp"
+
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
 irq::InterruptsManager::InterruptsManager() = default;
@@ -19,6 +21,7 @@ void irq::InterruptsManager::init()
 {
 	_instance = new InterruptsManager{};
 	x86::IDT::set_global_handler(handle_irq);
+	install_traps();
 }
 
 irq::InterruptsManager *irq::InterruptsManager::instance()

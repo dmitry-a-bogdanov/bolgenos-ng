@@ -3,7 +3,7 @@
 #include <cstdint.hpp>
 
 #include <bolgenos-ng/asm.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
+#include <mem_utils.hpp>
 
 #include "segment_flags.hpp"
 

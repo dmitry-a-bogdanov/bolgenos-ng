@@ -4,7 +4,7 @@
 
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/kernel_object.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
+#include <mem_utils.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/log.hpp>

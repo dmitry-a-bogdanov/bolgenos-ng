@@ -1,4 +1,4 @@
-#include <bolgenos-ng/execinfo.hpp>
+#include <execinfo.hpp>
 
 #include <bolgenos-ng/kernel_object.hpp>
 

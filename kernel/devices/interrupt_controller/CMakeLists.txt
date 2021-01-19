@@ -10,4 +10,4 @@ add_library(interrupt_controller STATIC
 
 target_include_directories(interrupt_controller PUBLIC include)
 target_link_libraries(interrupt_controller PRIVATE
-	libkernelcxx)
+	libkernelcxx libx86)

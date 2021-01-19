@@ -3,7 +3,7 @@
 #include <cstddef.hpp>
 #include <cstdint.hpp>
 #include <type_traits.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
+#include <mem_utils.hpp>
 
 namespace memory {
 

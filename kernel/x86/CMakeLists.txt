@@ -17,11 +17,15 @@ add_library(libx86 STATIC
 	src/gate.cpp
 	src/gdt.cpp
 	src/idt.cpp
+	src/irq.cpp
 	src/memory_segment_d.cpp
 	src/segments.cpp
+	src/traps.cpp
+	src/traps.hpp
 	src/tss.cpp
 	src/tssd.cpp
 )
 
 target_include_directories(libx86 PUBLIC include/)
-target_link_libraries(libx86 PUBLIC libkernelcxx libthreading sched)
+target_link_libraries(libx86 PUBLIC
+	libkernelcxx libthreading sched interrupt_controller)

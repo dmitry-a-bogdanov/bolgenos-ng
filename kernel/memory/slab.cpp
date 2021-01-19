@@ -3,7 +3,7 @@
 #include <bolgenos-ng/error.h>
 
 #include <bolgenos-ng/log.hpp>
-#include <bolgenos-ng/mem_utils.hpp>
+#include <mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 #include "config.h"

@@ -10,5 +10,5 @@ add_library(kobj STATIC
 	)
 
 target_include_directories(kobj PUBLIC include/)
-target_link_libraries(kobj PRIVATE libkernelcxx)
+target_link_libraries(kobj PRIVATE libkernelcxx libx86)
 target_link_options(kobj INTERFACE -Wl,--undefined=multiboot_header)

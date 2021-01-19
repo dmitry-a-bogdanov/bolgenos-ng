@@ -1,6 +1,6 @@
 #include "frequency_divider.hpp"
 
-#include <bolgenos-ng/mem_utils.hpp>
+#include <mem_utils.hpp>
 
 
 pit::details::FrequencyDivider::~FrequencyDivider() {

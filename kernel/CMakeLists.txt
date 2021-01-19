@@ -54,38 +54,6 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
-set(kernel_sources ${kernel_start_file}
-	${config_h}
-	${ost_h}
-
-	compiler.cpp
-	error.cpp
-	frequency_divider.hpp
-	frequency_divider.cpp
-	irq.cpp
-	main.cpp
-	pit.cpp
-	printk.cpp
-	time.cpp
-	traps.hpp
-	traps.cpp
-	vga_console.cpp
-
-	keyboard.cpp
-
-	backtrace.cpp
-
-	ost/ost.cpp
-	ost/bitarray.hpp
-	ost/bitarray.cpp
-	ost/memory.hpp
-	ost/memory.cpp
-	ost/type_traits.cpp
-
-	${logging_src}
-	${x86_src}
-)
-
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
 set_source_files_properties(${kernel_start_file} PROPERTIES
@@ -94,13 +62,13 @@ set_source_files_properties(${kernel_start_file} PROPERTIES
 
 message(STATUS "Build configuration: ${config_h}")
 
-
-message(STATUS "List of kernel source files: ${kernel_sources}")
 message("C = ${CMAKE_C_FLAGS}, CXX = ${CMAKE_CXX_FLAGS}")
 add_executable(${kernel_binary}
-	${kernel_headers}
-	${kernel_sources}
-	)
+	${kernel_start_file}
+	${config_h}
+
+	main.cpp
+)
 
 add_subdirectory(libkernelcxx)
 add_subdirectory(memory)
@@ -110,6 +78,7 @@ add_subdirectory(threading)
 add_subdirectory(sched)
 add_subdirectory(devices)
 add_subdirectory(kobj)
+add_subdirectory(ost)
 
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
@@ -130,6 +99,7 @@ target_link_libraries(${kernel_binary}
 	libdevices
 	sched
 	log
+	ost
 	PUBLIC
 	kobj
 	)

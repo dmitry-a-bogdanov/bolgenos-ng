@@ -4,7 +4,7 @@
 #include <cstdint.hpp>
 #include <forward_list.hpp>
 
-#include "asm.hpp"
+#include <bolgenos-ng/asm.hpp>
 
 #include <bolgenos-ng/log.hpp>
 

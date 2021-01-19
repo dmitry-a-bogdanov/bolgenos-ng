@@ -1,11 +1,5 @@
 #include <bolgenos-ng/multiboot_info.hpp>
 
-#include <algorithm.hpp>
-
-#include <bolgenos-ng/compiler.h>
-#include <bolgenos-ng/mem_utils.hpp>
-
-
 static_assert(sizeof(multiboot::boot_info_t) == 88,
 	"Multiboot Information header has wrong size");
 

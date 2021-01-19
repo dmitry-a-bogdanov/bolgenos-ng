@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bolgenos-ng/bitarray.hpp>
+#include <bitarray.hpp>
 #include "memory_region.hpp"
 
 

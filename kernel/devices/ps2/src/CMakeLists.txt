@@ -13,4 +13,4 @@ add_library(libps2 STATIC
 
 target_include_directories(libps2 PUBLIC ../include)
 target_link_libraries(libps2 PUBLIC libkernelcxx
-	PRIVATE interrupt_controller)
+	PRIVATE interrupt_controller libdevices libx86)

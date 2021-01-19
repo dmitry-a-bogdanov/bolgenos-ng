@@ -14,3 +14,4 @@ add_library(log STATIC
 
 target_include_directories(log PUBLIC include)
 target_link_libraries(log PUBLIC libkernelcxx)
+target_link_libraries(log PRIVATE libdevices)

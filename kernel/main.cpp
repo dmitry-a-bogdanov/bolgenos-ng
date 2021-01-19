@@ -16,8 +16,6 @@
 
 #include "config.h"
 
-#include "traps.hpp"
-
 using namespace lib;
 
 x86::Processor cpu;
@@ -94,12 +92,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
 
-
-	// explicitly create instance
 	irq::InterruptsManager::init();
-	irq::install_traps();
-
-
 
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();

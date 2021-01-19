@@ -3,7 +3,7 @@
 
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/execinfo.hpp>
+#include <execinfo.hpp>
 #include <bolgenos-ng/log.hpp>
 
 

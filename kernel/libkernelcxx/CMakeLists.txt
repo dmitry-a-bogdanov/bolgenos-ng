@@ -34,14 +34,19 @@ set(libkernelcxx_HEADERS
 )
 
 set(libkernelcxx_SOURCES
+	src/backtrace.cpp
+	src/compiler.cpp
 	src/cstring.cpp
 	src/cxxabi.cpp
+	src/error.cpp
 	src/ext/scoped_format_guard.cpp
 	src/ext/snprintf_stream.cpp
 	src/new.cpp
 	src/ostream.cpp
+	src/printk.cpp
 	src/streambuf.cpp
 	src/string.cpp
+	src/time.cpp
 )
 
 add_library(libkernelcxx STATIC
@@ -51,3 +56,4 @@ add_library(libkernelcxx STATIC
 
 target_include_directories(libkernelcxx PUBLIC include/)
 target_link_libraries(libkernelcxx PUBLIC log memory)
+target_link_libraries(libkernelcxx PRIVATE kobj libx86 libdevices)

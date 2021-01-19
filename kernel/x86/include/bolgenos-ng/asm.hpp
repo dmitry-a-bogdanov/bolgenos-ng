@@ -3,7 +3,7 @@
 #include <cstdint.hpp>
 #include <type_traits.hpp>
 
-#include "compiler.h"
+#include <bolgenos-ng/compiler.h>
 
 
 /// \brief Pointer to descriptor table.
