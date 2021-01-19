@@ -1,3 +1,5 @@
+#include <cxxabi.h>
+
 #include <unwind.h>
 
 #include <bolgenos-ng/error.h>

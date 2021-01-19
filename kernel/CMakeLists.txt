@@ -76,7 +76,6 @@ set(kernel_sources ${kernel_start_file}
 
 	keyboard.cpp
 
-	abi/cxxabi.cpp
 	backtrace.cpp
 
 	ost/ost.cpp
