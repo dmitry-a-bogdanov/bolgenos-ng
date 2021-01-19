@@ -40,6 +40,7 @@ set(libkernelcxx_SOURCES
 	src/ostream.cpp
 	src/streambuf.cpp
 	src/string.cpp
+	src/new.cpp
 
 	src/ext/scoped_format_guard.cpp
 	src/ext/snprintf_stream.cpp

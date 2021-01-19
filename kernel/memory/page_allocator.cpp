@@ -1,9 +1,9 @@
 #include "page_allocator.hpp"
 
 #include <threading/lock.hpp>
-#include <bolgenos-ng/memory_region.hpp>
 
 #include "buddy_allocator.hpp"
+#include "memory_region.hpp"
 
 memory::allocators::PageAllocator pa;
 
@@ -24,7 +24,7 @@ void memory::allocators::PageAllocator::initialize(BuddyAllocator *primary,
 	primary_ = primary;
 	auto region = primary_->region();
 
-	auto map_size = memory::align_up<PAGE_SIZE>(
+	auto map_size = align_up<PAGE_SIZE>(
 		util::inplace::BitArray::expected_size(region->size()))
 				/ PAGE_SIZE;
 	pblk_t pages;

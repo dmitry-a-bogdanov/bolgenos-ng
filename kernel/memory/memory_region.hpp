@@ -2,7 +2,7 @@
 
 #include <cstddef.hpp>
 
-#include "page.hpp"
+#include <bolgenos-ng/page.hpp>
 
 
 namespace memory {

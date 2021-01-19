@@ -3,7 +3,7 @@
 #include <cstddef.hpp>
 #include <cstdint.hpp>
 
-#include "memory.hpp"
+#include "mem_utils.hpp"
 
 
 /// \brief Utilities
@@ -50,7 +50,7 @@ public:
 	void initialize(void *on_address, size_t size) {
 		size_ = size;
 		data_ = reinterpret_cast<decltype(data_)>(on_address);
-		size_t bytes = memory::align_up<8>(size_) / 8;
+		size_t bytes = align_up<8>(size_) / 8;
 		for (size_t idx = 0; idx != bytes; ++idx) {
 			data_[idx] = 0x00;
 		}

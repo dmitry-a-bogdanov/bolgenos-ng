@@ -76,7 +76,7 @@ void free_list_test__small_order__even() {
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
-	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages);
+	auto *first_address = align_up<PAGE_SIZE*2>(pages);
 	auto *second_address = first_address + 1;
 	auto *third_address = second_address + 1;
 
@@ -103,7 +103,7 @@ void free_list_test__small_order__odd() {
 		memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
-	auto *first_address = memory::align_up<PAGE_SIZE*2>(pages) + 1;
+	auto *first_address = align_up<PAGE_SIZE*2>(pages) + 1;
 	auto *second_address = first_address + 1;
 	auto *third_address = second_address + 1;
 
@@ -128,7 +128,7 @@ void free_list_test__high_order__even() {
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
 
-	auto first_address = memory::align_up<PAGE_SIZE*16>(pages);
+	auto first_address = align_up<PAGE_SIZE*16>(pages);
 	auto *second_address = first_address + 8;
 	auto *third_address = second_address + 8;
 
@@ -157,7 +157,7 @@ void free_list_test__high_order__odd() {
 
 	OST_ASSERT(pages, "allocation failed");
 
-	auto *first_address = memory::align_up<PAGE_SIZE*16>(pages) + 8;
+	auto *first_address = align_up<PAGE_SIZE*16>(pages) + 8;
 	auto *second_address = first_address + 8;
 	auto *third_address = second_address + 8;
 

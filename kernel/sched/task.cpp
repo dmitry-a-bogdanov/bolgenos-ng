@@ -1,5 +1,6 @@
 #include "include/sched/task.hpp"
 
+#include <config.h>
 #include <ext/scoped_format_guard.hpp>
 #include <atomic.hpp>
 #include <cstring.hpp>

@@ -5,7 +5,6 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/kernel_object.hpp>
 #include <bolgenos-ng/mem_utils.hpp>
-#include <bolgenos-ng/memory_region.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
 #include <bolgenos-ng/log.hpp>
@@ -13,14 +12,9 @@
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"
 #include "mallocator.hpp"
+#include "memory_region.hpp"
 
 #include "config.h"
-
-void *operator new(size_t, void *address)
-{
-	return address;
-}
-
 
 namespace {
 
@@ -112,13 +106,13 @@ void detect_memory_regions() {
 	auto highmem_bytes = multiboot::boot_info->high_memory() * 1024;
 
 	highmem.begin(highmem_start);
-	highmem.end(highmem_start + memory::align_down<PAGE_SIZE>(highmem_bytes) / PAGE_SIZE);
+	highmem.end(highmem_start + align_down<PAGE_SIZE>(highmem_bytes) / PAGE_SIZE);
 }
 
 
 void initilize_highmem_allocators() {
 	auto *last_kernel_page = reinterpret_cast<memory::page_frame_t *>(
-			memory::align_up<PAGE_SIZE>(kobj::end()));
+			align_up<PAGE_SIZE>(kobj::end()));
 
 	highmem_buddy_allocator.initialize(&highmem);
 	highmem_page_allocator.initialize(&highmem_buddy_allocator,

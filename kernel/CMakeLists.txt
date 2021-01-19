@@ -65,7 +65,6 @@ set(kernel_sources ${kernel_start_file}
 	irq.cpp
 	kernel_object.cpp
 	main.cpp
-	memory.cpp
 	multiboot_header.cpp
 	multiboot_info.cpp
 	pit.cpp
@@ -76,17 +75,6 @@ set(kernel_sources ${kernel_start_file}
 	vga_console.cpp
 
 	keyboard.cpp
-
-	buddy_allocator.hpp
-	buddy_allocator.cpp
-	free_list.hpp
-	free_list.cpp
-	mallocator.hpp
-	mallocator.cpp
-	page_allocator.hpp
-	page_allocator.cpp
-	page.cpp
-	slab.cpp
 
 	abi/cxxabi.cpp
 	backtrace.cpp
@@ -119,6 +107,7 @@ add_executable(${kernel_binary}
 	)
 
 add_subdirectory(libkernelcxx)
+add_subdirectory(memory)
 add_subdirectory(log)
 add_subdirectory(x86)
 add_subdirectory(threading)
@@ -137,6 +126,7 @@ add_dependencies(${kernel_binary} __relink_kernel)
 
 target_link_libraries(${kernel_binary}
 	libkernelcxx
+	memory
 	libthreading
 	libx86
 	libdevices

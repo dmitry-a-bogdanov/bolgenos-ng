@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bolgenos-ng/bitarray.hpp>
-#include <bolgenos-ng/memory_region.hpp>
+#include "memory_region.hpp"
 
 
 namespace memory {
@@ -11,7 +11,6 @@ namespace allocators {
 
 
 class BuddyAllocator; // forward declaration
-class MemoryRegion; // forward declaration
 
 
 /// \brief Page allocator.
