@@ -89,8 +89,6 @@ add_subdirectory(devices)
 add_subdirectory(kobj)
 add_subdirectory(ost)
 
-target_include_directories(${kernel_binary} PRIVATE x86/include)
-
 # custom target is always out-of-date
 add_custom_target(__relink_kernel
 	COMMAND touch ${kernel_start_file}
@@ -116,7 +114,15 @@ target_link_libraries(${kernel_binary}
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")
 
+set(qemu_debug_options -d guest_errors,mmu,pcall,int,unimp)
+set(qemu_command qemu-system-i386 -kernel ${kernel_binary})
+
 add_custom_target(start_qemu
 	COMMENT "Starting kernel in Qemu..."
-	COMMAND qemu-system-i386 -d guest_errors,mmu,pcall,int,unimp -kernel ${kernel_binary})
-add_dependencies(start_qemu ${kernel_binary})
+	COMMAND ${qemu_command}
+	DEPENDS ${kernel_binary})
+
+add_custom_target(start_qemu_debug
+	COMMENT "Starting kernel in Qemu..."
+	COMMAND ${qemu_command} ${qemu_debug_options}
+	DEPENDS ${kernel_binary})
