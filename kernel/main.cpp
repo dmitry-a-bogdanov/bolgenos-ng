@@ -1,5 +1,5 @@
-#include <bolgenos-ng/cxxabi.h>
 
+#include <cxxabi.h>
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
@@ -15,8 +15,6 @@
 #include <sched.hpp>
 
 #include "config.h"
-
-#include "traps.hpp"
 
 using namespace lib;
 
@@ -49,7 +47,7 @@ void multithreaded_init_stage(void*) {
 	      << endl;
 	irq::enable();
 
-	int tasks_count = 5;
+	int tasks_count = 8;
 	for (int i = 0; i < tasks_count; ++i) {
 		sched::create_task(test_task, new int{i}, "test_task");
 		sleep_ms(sleep_interval/tasks_count);
@@ -74,7 +72,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	call_global_ctors();
 
-	set_log_level(log_level_type::notice);
+	set_log_level(LogLevel::NOTICE);
 
 	vga_console::clear_screen();
 
@@ -94,12 +92,7 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
 
-
-	// explicitly create instance
 	irq::InterruptsManager::init();
-	irq::install_traps();
-
-
 
 	auto interrupt_controller = devices::InterruptController::instance();
 	interrupt_controller->initialize_controller();

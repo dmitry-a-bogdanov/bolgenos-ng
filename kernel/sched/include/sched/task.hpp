@@ -2,8 +2,9 @@
 
 #include <atomic.hpp>
 #include <cstddef.hpp>
+#include <ext/intrusive_circular_list.hpp>
 #include <bolgenos-ng/asm.hpp>
-#include <bolgenos-ng/page.hpp>
+#include <bolgenos-ng/loggable.hpp>
 
 namespace lib {
 class ostream;
@@ -19,7 +20,7 @@ enum class TaskId: uint32_t {};
 
 lib::ostream& operator<<(lib::ostream& out, TaskId id);
 
-struct Task {
+struct Task: private lib::Loggable {
 public:
 	Task() = delete;
 
@@ -53,6 +54,9 @@ public:
 	[[nodiscard]]
 	bool finished() const { return _exited.load(); }
 
+	constexpr
+	lib::IntrusiveListNode<Task>* tasks_list_node() { return &_tasks_list_node; }
+
 protected:
 	Task(Scheduler* creator, task_routine* routine, void* arg, const char *name = nullptr);
 
@@ -66,6 +70,9 @@ private:
 	lib::atomic<bool> _exited{false};
 	lib::byte* _stack{};
 	char _name[16]{"<unknown>"};
+
+	lib::IntrusiveListNode<Task> _tasks_list_node{this};
+
 	Scheduler* _scheduler;
 
 	// state

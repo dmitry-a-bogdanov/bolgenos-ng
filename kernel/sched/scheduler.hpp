@@ -4,13 +4,15 @@
 #include <cstddef.hpp>
 
 #include <ext/memory.hpp>
+#include <ext/intrusive_circular_list.hpp>
 #include <forward_list.hpp>
 
+#include <bolgenos-ng/loggable.hpp>
 #include <sched/task.hpp>
 
 namespace sched {
 
-class Scheduler
+class Scheduler: private lib::Loggable
 {
 public:
 	Scheduler(task_routine* main_continuation);
@@ -44,7 +46,7 @@ private:
 	bool should_schedule(const Task* task);
 	void handle_finished_tasks();
 
-	lib::forward_list<Task*> _tasks{};
+	lib::CircularIntrusiveList<Task> _tasks{&Task::tasks_list_node};
 	lib::forward_list<Task*> _finished_tasks{};
 	Task* _scheduler_task{nullptr};
 	Task* _current{nullptr};

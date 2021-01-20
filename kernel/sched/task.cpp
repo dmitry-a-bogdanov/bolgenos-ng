@@ -1,9 +1,9 @@
 #include "include/sched/task.hpp"
 
+#include <config.h>
 #include <ext/scoped_format_guard.hpp>
 #include <atomic.hpp>
 #include <cstring.hpp>
-#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/irq.hpp>
 
@@ -26,8 +26,6 @@ static TaskId allocate_task_id() {
 	return static_cast<TaskId>(next_task_id++);
 }
 
-static_assert(lib::is_standard_layout_v<Task>);
-
 lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 	ScopedFormatGuard guard{out};
 	return out << "Task[" << task.name() << "](" << task.id() << ")"
@@ -37,6 +35,7 @@ lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 }
 
 Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* name_) :
+	Loggable{"Task"},
 	_routine{routine},
 	_arg{arg},
 	_id{allocate_task_id()},
@@ -50,11 +49,11 @@ Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* nam
 
 void sched::Task::run()
 {
-	cinfo << "starting" << *this << endl;
+	NOTICE << "Starting " << *this << endl;
 	irq::enable(false);
 	_routine(_arg);
 	_exited.store(true);
-	cinfo << "Finished task " << *this << endl;
+	NOTICE << "Finished task " << *this << endl;
 	_scheduler->handle_exit(this);
 	while (true) {
 		_scheduler->yield();
@@ -73,7 +72,7 @@ void Task::name(const char* name)
 
 Task::~Task()
 {
-	cinfo << "removing task " << *this << endl;
+	NOTICE << "Removing task " << *this << endl;
 	memory::free_pages(_stack);
 	_stack = nullptr;
 }

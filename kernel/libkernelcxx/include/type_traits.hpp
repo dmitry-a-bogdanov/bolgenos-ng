@@ -217,6 +217,19 @@ struct underlying_type {
 template<class T>
 using underlying_type_t = typename underlying_type<T>::type;
 
+
+template<class T>
+struct remove_extent { typedef T type; };
+
+template<class T>
+struct remove_extent<T[]> { typedef T type; };
+
+template<class T, lib::size_t N>
+struct remove_extent<T[N]> { typedef T type; };
+
+template<class T>
+using remove_extent_t = typename lib::remove_extent<T>::type;
+
 } // namespace lib
 
 

@@ -1,5 +1,14 @@
-project(kernel
+cmake_minimum_required(VERSION 3.13.0)
+cmake_policy(SET CMP0048 NEW)
+project(bolgenos-ng
+	VERSION 0.0.4
 	LANGUAGES ASM-ATT C CXX)
+
+if (NOT ${CMAKE_CROSSCOMPILING})
+	message(FATAL_ERROR "cmake must be configured for cross-compiling")
+endif()
+
+add_subdirectory(config)
 
 message(STATUS "Compiling BOLGENOS-NG using toolchain: "
 	"${CMAKE_TOOLCHAIN_FILE}")
@@ -54,68 +63,6 @@ include_directories(${CONFIG_INCLUDE_DIRS})
 # This file is used for forcing relinking of resulting object.
 set(kernel_start_file "${CMAKE_CURRENT_SOURCE_DIR}/start.sx")
 
-set(logging_src
-	src/log/log.cpp
-	src/log/vga_buf.cpp
-	src/log/vga_buf.hpp
-	src/log/vga_log_buf.cpp
-	src/log/vga_log_buf.hpp
-)
-
-
-set(kernel_sources ${kernel_start_file}
-	${config_h}
-	${ost_h}
-
-	compiler.cpp
-	error.cpp
-	frequency_divider.hpp
-	frequency_divider.cpp
-	irq.cpp
-	kernel_object.cpp
-	main.cpp
-	memory.cpp
-	mmu.cpp
-	multiboot_header.cpp
-	multiboot_info.cpp
-	pit.cpp
-	printk.cpp
-	time.cpp
-	traps.hpp
-	traps.cpp
-	vga_console.cpp
-
-	devices/interrupt_controller/interrupt_controller.cpp
-	devices/interrupt_controller/pic_8259.hpp
-	devices/interrupt_controller/pic_8259.cpp
-
-	keyboard.cpp
-
-	buddy_allocator.hpp
-	buddy_allocator.cpp
-	free_list.hpp
-	free_list.cpp
-	mallocator.hpp
-	mallocator.cpp
-	page_allocator.hpp
-	page_allocator.cpp
-	page.cpp
-	slab.cpp
-
-	abi/cxxabi.cpp
-	backtrace.cpp
-
-	ost/ost.cpp
-	ost/bitarray.hpp
-	ost/bitarray.cpp
-	ost/memory.hpp
-	ost/memory.cpp
-	ost/type_traits.cpp
-
-	${logging_src}
-	${x86_src}
-)
-
 set(kernel_linker "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld")
 
 set_source_files_properties(${kernel_start_file} PROPERTIES
@@ -124,19 +71,23 @@ set_source_files_properties(${kernel_start_file} PROPERTIES
 
 message(STATUS "Build configuration: ${config_h}")
 
-
-message(STATUS "List of kernel source files: ${kernel_sources}")
 message("C = ${CMAKE_C_FLAGS}, CXX = ${CMAKE_CXX_FLAGS}")
 add_executable(${kernel_binary}
-	${kernel_headers}
-	${kernel_sources}
-	)
+	${kernel_start_file}
+	${config_h}
+
+	main.cpp
+)
 
 add_subdirectory(libkernelcxx)
+add_subdirectory(memory)
+add_subdirectory(log)
 add_subdirectory(x86)
 add_subdirectory(threading)
 add_subdirectory(sched)
 add_subdirectory(devices)
+add_subdirectory(kobj)
+add_subdirectory(ost)
 
 target_include_directories(${kernel_binary} PRIVATE x86/include)
 
@@ -149,11 +100,17 @@ add_custom_target(__relink_kernel
 add_dependencies(${kernel_binary} __relink_kernel)
 
 target_link_libraries(${kernel_binary}
+	PRIVATE
 	libkernelcxx
+	memory
 	libthreading
 	libx86
 	libdevices
 	sched
+	log
+	ost
+	PUBLIC
+	kobj
 	)
 
 set_target_properties(${kernel_binary} PROPERTIES
