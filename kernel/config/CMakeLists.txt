@@ -1,11 +1,9 @@
 project(config
 	LANGUAGES NONE)
 
-set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h" PARENT_SCOPE)
 set(config_h		"${CMAKE_CURRENT_BINARY_DIR}/config.h")
 set(config_h_in		"config.h.in")
 
-set(ost_h		"${CMAKE_CURRENT_BINARY_DIR}/ost.h" PARENT_SCOPE)
 set(ost_h		"${CMAKE_CURRENT_BINARY_DIR}/ost.h")
 set(ost_h_in		"ost.h.in")
 
@@ -25,4 +23,6 @@ include(${OST_CONFIG})
 configure_file(${config_h_in} ${config_h})
 configure_file(${ost_h_in} ${ost_h})
 
-set(CONFIG_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+add_library(config INTERFACE)
+target_sources(config INTERFACE ${ost_h} ${config_h})
+target_include_directories(config INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")

@@ -55,5 +55,5 @@ add_library(libkernelcxx STATIC
 )
 
 target_include_directories(libkernelcxx PUBLIC include/)
-target_link_libraries(libkernelcxx PUBLIC log memory)
+target_link_libraries(libkernelcxx PUBLIC log memory config)
 target_link_libraries(libkernelcxx PRIVATE kobj libx86 libdevices)

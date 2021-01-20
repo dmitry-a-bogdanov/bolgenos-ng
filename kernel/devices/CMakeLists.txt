@@ -15,4 +15,5 @@ target_link_libraries(libdevices PUBLIC
 	libps2
 	interrupt_controller
 	PRIVATE
-	libx86)
+	libx86
+	config)

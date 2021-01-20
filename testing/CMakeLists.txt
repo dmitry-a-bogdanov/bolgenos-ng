@@ -1,7 +1,7 @@
+cmake_minimum_required(VERSION 3.0.2)
 project(testing
 	NONE)
 
-add_subdirectory(googletest)
+enable_testing()
 
-add_subdirectory(asm)
-add_subdirectory(generic-lists)
+add_subdirectory(googletest)

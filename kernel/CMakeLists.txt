@@ -1,5 +1,14 @@
-project(kernel
+cmake_minimum_required(VERSION 3.13.0)
+cmake_policy(SET CMP0048 NEW)
+project(bolgenos-ng
+	VERSION 0.0.4
 	LANGUAGES ASM-ATT C CXX)
+
+if (NOT ${CMAKE_CROSSCOMPILING})
+	message(FATAL_ERROR "cmake must be configured for cross-compiling")
+endif()
+
+add_subdirectory(config)
 
 message(STATUS "Compiling BOLGENOS-NG using toolchain: "
 	"${CMAKE_TOOLCHAIN_FILE}")
