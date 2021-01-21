@@ -2,6 +2,7 @@ project(libdevices)
 
 add_subdirectory(ps2)
 add_subdirectory(interrupt_controller)
+add_subdirectory(serial)
 
 add_library(libdevices STATIC
 	src/frequency_divider.cpp
@@ -14,6 +15,7 @@ target_include_directories(libdevices PUBLIC include)
 target_link_libraries(libdevices PUBLIC
 	libps2
 	interrupt_controller
-	PRIVATE
+	serial
+	PUBLIC
 	libx86
 	config)

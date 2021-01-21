@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts.hpp>
 #include <cstdint.hpp>
 #include <type_traits.hpp>
 
@@ -39,6 +40,19 @@ static inline void outb(uint16_t port, uint8_t byte) {
 	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(port));
 }
 
+static inline void outb(uint16_t port, lib::byte byte) {
+	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(port));
+}
+
+template<lib::EnumFrom<uint16_t> PortType>
+static inline void outb(PortType port, uint8_t byte) {
+	outb(static_cast<uint16_t>(port), byte);
+}
+
+template<lib::EnumFrom<uint16_t> PortType>
+static inline void outb(PortType port, lib::byte byte) {
+	outb(static_cast<uint16_t>(port), lib::to_integer<uint8_t>(byte));
+}
 
 /**
 * \brief Wrapper aroung inb assembler instruction.
@@ -54,6 +68,10 @@ static inline uint8_t inb(uint16_t port) {
 	return byte;
 }
 
+template<lib::EnumFrom<uint16_t> PortType>
+static inline uint8_t inb(PortType port) {
+	return inb(static_cast<uint16_t>(port));
+}
 
 /**
 * \brief Wait for end of I/O operation.

@@ -30,12 +30,12 @@ endif ()
 
 
 set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++20 -fno-exceptions -ftree-ter")
+set(cxxstd_flags "-std=gnu++20 -fno-exceptions -ftree-ter -fstrict-aliasing")
 
 set(opt_flags "-O3")
 
 #set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing=2")
 set(warn_flags_cxx "-Weffc++")
 
 

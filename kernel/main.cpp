@@ -16,6 +16,8 @@
 
 #include "config.h"
 
+#include <serial/serial_port.hpp>
+
 using namespace lib;
 
 x86::Processor cpu;
@@ -42,10 +44,20 @@ void test_task(void* number_ptr) {
 
 [[noreturn]]
 void multithreaded_init_stage(void*) {
+	using namespace dev;
+	
 	cnotice << "Continue initialization in multithreaded env" << endl;
+
+	cnotice << "Configuring serial port" << endl;
+
+	SerialPort serial_port{ComPort::COM1};
+	serial_port.configure();
+
 	cnotice << "Kernel initialization routine has been finished!"
-	      << endl;
-	irq::enable();
+		<< endl;
+
+	sleep_ms(10000);
+
 
 	int tasks_count = 8;
 	for (int i = 0; i < tasks_count; ++i) {

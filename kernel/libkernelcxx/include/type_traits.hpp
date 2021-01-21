@@ -230,6 +230,13 @@ struct remove_extent<T[N]> { typedef T type; };
 template<class T>
 using remove_extent_t = typename lib::remove_extent<T>::type;
 
+
+template<class T>
+struct is_enum: lib::integral_constant<bool, __is_enum(T)> {};
+
+template<class T>
+constexpr bool is_enum_v = lib::is_enum<T>::value;
+
 } // namespace lib
 
 
