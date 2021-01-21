@@ -3,26 +3,29 @@
 #include <log.hpp>
 
 #include "vga_buf.hpp"
+#include "base_log_buf.hpp"
 #include <bolgenos-ng/vga_console.hpp>
 
-class VgaLogBuf: public VgaBuf {
+class VgaLogBuf: public BaseLogBuf<VgaBuf> {
 public:
 
 	VgaLogBuf() = delete;
 	VgaLogBuf(const VgaLogBuf&) = delete;
+	VgaLogBuf(VgaLogBuf&&);
+
 	VgaLogBuf& operator=(const VgaLogBuf&) = delete;
 	VgaLogBuf(lib::LogLevel log_level, const char* prefix,
 		  lib::LogLevel& enabled_log_level,
 		  vga_console::color_t color = vga_console::color_t::white);
 	~VgaLogBuf() override;
 protected:
-	int overflow(int c) override;
-private:
-	lib::LogLevel log_level_;
-	const char *prefix_;
-	bool show_header_;
+	using base_type = BaseLogBuf<VgaBuf>;
 
-	const vga_console::color_t expected_color_;
-	vga_console::color_t saved_color_;
-	lib::LogLevel& enabled_log_level_;
+	void handle_pre_prefix() override;
+
+	void handle_end_line() override;
+
+private:
+	const vga_console::color_t _expected_color;
+	vga_console::color_t _saved_color{_expected_color};
 };

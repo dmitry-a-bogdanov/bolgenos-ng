@@ -41,6 +41,7 @@ void test_task(void* number_ptr) {
 	}
 }
 
+#include "log/src/serial_buf.hpp"
 
 [[noreturn]]
 void multithreaded_init_stage(void*) {
@@ -52,6 +53,11 @@ void multithreaded_init_stage(void*) {
 
 	SerialPort serial_port{ComPort::COM1};
 	serial_port.configure();
+
+	SerialBuf buf{lib::move(serial_port)};
+	buf.sputn("FFFFFFFFFFFFFFF", 5);
+
+	add_serial(lib::move(serial_port));
 
 	cnotice << "Kernel initialization routine has been finished!"
 		<< endl;

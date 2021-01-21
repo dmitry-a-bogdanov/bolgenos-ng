@@ -19,10 +19,6 @@ struct LineControlRegister {
 		lib::copy_byte(&byte, this);
 	}
 
-	uint8_t _char_size: 2{0};
-	bool other: 5{false};
-	bool set_baud_rate_divisor: 1{false};
-
 	void set_char_size(uint8_t size) {
 		_char_size = size - 5;
 	}
@@ -34,6 +30,10 @@ struct LineControlRegister {
 	operator lib::byte() const {
 		return lib::read_byte(this);
 	}
+
+	uint8_t _char_size: 2{0};
+	bool other: 5{false};
+	bool set_baud_rate_divisor: 1{false};
 };
 
 static_assert(sizeof(LineControlRegister) == 1);
@@ -57,6 +57,7 @@ struct LineStatusRegister {
 	bool transmitter_empty: 1{false};
 	bool impending_error: 1{false};
 };
+
 
 struct IOPorts {
 	explicit IOPorts(ComPort port): IOPorts(static_cast<uint16_t>(port)) {}
@@ -91,34 +92,18 @@ class SerialPort
 {
 public:
 	SerialPort(ComPort port);
+	SerialPort(SerialPort&&) = default;
 
-	void set_baud_rate_divisor(uint16_t divisor) {
-		LineControlRegister lcr{.set_baud_rate_divisor = true};
-		lcr.set_char_size(8);
-		outb(_ports.LCR, lcr);
-		outb(_ports.DIVISOR_LSB, divisor & 0xff);
-		outb(_ports.DIVISOR_MSB, (divisor >> 8) & 0xff);
-		lcr.set_baud_rate_divisor = false;
-		outb(_ports.LCR, lcr);
-	}
+	void set_baud_rate_divisor(uint16_t divisor);
 
-	void configure() {
-		set_baud_rate_divisor(1);
-		for (char c: "Hello!") {
-			write(c);
-		}
-	}
+	void configure();
 
 	bool can_write() {
 		LineStatusRegister lsr = inb(_ports.LSR);
 		return lsr.can_send;
 	}
 
-
-	void write(char chr) {
-		while (!can_write()) {}
-		outb(_ports.DATA, chr);
-	}
+	void write(char chr);
 
 private:
 	const IOPorts _ports;

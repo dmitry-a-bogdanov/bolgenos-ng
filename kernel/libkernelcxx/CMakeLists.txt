@@ -47,7 +47,7 @@ set(libkernelcxx_SOURCES
 	src/streambuf.cpp
 	src/string.cpp
 	src/time.cpp
-)
+	include/impl/type_traits/is_convertible.hpp)
 
 add_library(libkernelcxx STATIC
 	${libkernelcxx_HEADERS}

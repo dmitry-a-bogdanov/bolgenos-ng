@@ -11,6 +11,7 @@ public:
 
 	streambuf() = default;
 	streambuf(const streambuf&) = delete;
+	streambuf(streambuf&&) = default;
 	streambuf& operator=(const streambuf&) = delete;
 	virtual ~streambuf();
 

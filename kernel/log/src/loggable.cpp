@@ -1,6 +1,6 @@
-#include "include/loggable.hpp"
+#include <loggable.hpp>
 
-#include "include/log.hpp"
+#include <log.hpp>
 
 #include "vga_log_buf.hpp"
 

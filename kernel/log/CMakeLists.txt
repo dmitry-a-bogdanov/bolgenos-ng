@@ -1,16 +1,25 @@
 project(log)
 
 add_library(log STATIC
-	include/log.hpp
+	include/bolgenos-ng/loggable.hpp
+	include/bolgenos-ng/log.hpp
 	include/loggable.hpp
+	include/log.hpp
 
-	log.cpp
-	loggable.cpp
-	vga_buf.cpp
-	vga_buf.hpp
-	vga_log_buf.cpp
-	vga_log_buf.hpp
-	)
+	src/base_log_buf.hpp
+	src/log.cpp
+	src/log_buf.cpp
+	src/log_buf.hpp
+	src/loggable.cpp
+	src/serial_buf.cpp
+	src/serial_buf.hpp
+	src/simple_stream_buf.cpp
+	src/simple_stream_buf.hpp
+	src/vga_buf.cpp
+	src/vga_buf.hpp
+	src/vga_log_buf.cpp
+	src/vga_log_buf.hpp
+)
 
 target_include_directories(log PUBLIC include)
 target_link_libraries(log PUBLIC libkernelcxx)
