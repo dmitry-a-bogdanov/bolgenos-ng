@@ -2,7 +2,7 @@
 
 #include <utility.hpp>
 
-SerialBuf::SerialBuf(dev::SerialPort port)
+SerialBuf::SerialBuf(serial::SerialPort port)
 	: _port{lib::move(port)}
 {}
 

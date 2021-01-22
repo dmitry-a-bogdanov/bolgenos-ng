@@ -45,7 +45,7 @@ void test_task(void* number_ptr) {
 
 [[noreturn]]
 void multithreaded_init_stage(void*) {
-	using namespace dev;
+	using namespace serial;
 	
 	cnotice << "Continue initialization in multithreaded env" << endl;
 

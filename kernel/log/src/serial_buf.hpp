@@ -8,11 +8,11 @@
 class SerialBuf: public SimpleStreamBuf<lib::streambuf>
 {
 public:
-	SerialBuf(dev::SerialPort port);
+	SerialBuf(serial::SerialPort port);
 
 	int overflow(int c) override;
 private:
-	dev::SerialPort _port;
+	serial::SerialPort _port;
 };
 
 using SerialLogBuf = BaseLogBuf<SerialBuf>;

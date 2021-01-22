@@ -43,7 +43,7 @@ lib::ostream lib::cwarn(&warn_buf);
 lib::ostream lib::cnotice(&notice_buf);
 lib::ostream lib::cinfo(&info_buf);
 
-void lib::add_serial(dev::SerialPort&& serial_port)
+void lib::add_serial(serial::SerialPort&& serial_port)
 {
 	notice_buf.set(SerialLogBuf{LogLevel::NOTICE, "<none>: ", global_log_level, lib::move(serial_port)});
 }

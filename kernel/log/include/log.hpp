@@ -2,7 +2,7 @@
 
 #include <ostream.hpp>
 
-namespace dev {
+namespace serial {
 class SerialPort;
 }
 
@@ -26,7 +26,7 @@ LogLevel get_log_level();
 /// Set new system wide logging level.
 void set_log_level(LogLevel log_level);
 
-void add_serial(dev::SerialPort&& serial_port);
+void add_serial(serial::SerialPort&& serial_port);
 
 /// Output object for critical error messages.
 extern ostream ccrit;
