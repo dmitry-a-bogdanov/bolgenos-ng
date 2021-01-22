@@ -2,21 +2,13 @@
 
 #include <ostream.hpp>
 
+#include "log_level.hpp"
+
 namespace serial {
 class SerialPort;
 }
 
 namespace lib {
-
-
-/// Logging level type.
-enum class LogLevel: int {
-	CRITICAL	= 0,
-	ERROR		= 1,
-	WARNING		= 2,
-	NOTICE		= 3,
-	INFO		= 4,
-};
 
 
 /// Get current system wide logging level.
@@ -25,8 +17,6 @@ LogLevel get_log_level();
 
 /// Set new system wide logging level.
 void set_log_level(LogLevel log_level);
-
-void set_serial_port_for_logging(serial::SerialPort serial_port);
 
 /// Output object for critical error messages.
 extern ostream ccrit;

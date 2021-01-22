@@ -1,9 +1,5 @@
 #include <log.hpp>
-#include <log/log.hpp>
 
-#include <log/streambufs.hpp>
-
-#include "vga_buf.hpp"
 #include "vga_log_buf.hpp"
 #include "composite_buf.hpp"
 #include "serial_buf.hpp"
@@ -46,7 +42,3 @@ lib::ostream lib::cerr(&err_buf);
 lib::ostream lib::cwarn(&warn_buf);
 lib::ostream lib::cnotice(&notice_buf);
 lib::ostream lib::cinfo(&info_buf);
-
-void lib::set_serial_port_for_logging(serial::SerialPort)
-{
-}

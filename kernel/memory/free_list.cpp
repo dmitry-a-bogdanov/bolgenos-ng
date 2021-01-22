@@ -1,5 +1,5 @@
 #include "free_list.hpp"
-#include <bolgenos-ng/log.hpp>
+#include <log.hpp>
 
 /// Type of list element.
 struct memory::allocators::FreeList::item_type {

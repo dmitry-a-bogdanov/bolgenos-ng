@@ -1,6 +1,6 @@
 #include "buf_builder.hpp"
 
-#include "log/streambufs.hpp"
+#include "streambufs.hpp"
 
 CompositeBuf<log::VgaDelegatingLogBuf, log::SerialDelegatingLogBuf>
 log::build_global_buf(lib::LogLevel level, const char* prefix, lib::LogLevel& enabled_log_level)

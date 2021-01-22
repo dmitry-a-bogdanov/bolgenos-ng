@@ -3,13 +3,9 @@
 #include <log.hpp>
 #include <string.hpp>
 
-#include <bolgenos-ng/vga_console.hpp>
-
-#include "vga_log_buf.hpp"
 #include "buf_builder.hpp"
 
 using namespace lib;
-using namespace vga_console;
 
 struct lib::Loggable::Streambufs {
 private:

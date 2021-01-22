@@ -6,7 +6,7 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <bolgenos-ng/log.hpp>
+#include <log.hpp>
 #include <mem_utils.hpp>
 #include <bolgenos-ng/time.hpp>
 

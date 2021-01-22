@@ -1,4 +1,4 @@
-#include <log/streambufs.hpp>
+#include "streambufs.hpp"
 
 #include <streambuf.hpp>
 #include "vga_buf.hpp"

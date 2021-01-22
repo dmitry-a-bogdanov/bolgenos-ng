@@ -1,9 +1,9 @@
 #pragma once
 
-#include <serial/serial_port.hpp>
+#include <log.hpp>
 #include <streambuf.hpp>
+#include <serial/serial_port.hpp>
 #include "simple_stream_buf.hpp"
-#include "base_log_buf.hpp"
 #include "delegating_log_buf.hpp"
 
 class SerialBuf: public SimpleStreamBuf<lib::streambuf>
@@ -15,8 +15,6 @@ public:
 private:
 	serial::SerialPort _port;
 };
-
-using SerialLogBuf = BaseLogBuf<SerialBuf>;
 
 namespace log {
 

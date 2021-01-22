@@ -5,7 +5,6 @@
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/irq.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
-#include <bolgenos-ng/log.hpp>
 #include <ps2/line.hpp>
 #include <bolgenos-ng/time.hpp>
 
@@ -69,9 +68,10 @@ inline int SECOND_LINE_IRQ()
 
 
 
-ps2::PS2Controller::PS2Controller() {}
+ps2::PS2Controller::PS2Controller(): lib::Loggable("ps2.controller")
+{}
 
-ps2::PS2Controller::~PS2Controller() {}
+ps2::PS2Controller::~PS2Controller() = default;
 
 ps2::PS2Controller* ps2::PS2Controller::instance()
 {
@@ -154,11 +154,11 @@ void ps2::PS2Controller::probe_line(ps2::IPS2Line* line) {
 		}
 	}
 	if (active_dev_count > 1) {
-		ccrit << "more than 1 probed devices for PS/2 line" << line->id() << endl;
+		CRIT << "more than 1 probed devices for PS/2 line" << line->id() << endl;
 		bug("");
 	}
 
-	lib::cinfo << "PS/2[" << line->id() << "]: active_dev = " << active_dev << lib::endl;
+	INFO << "[" << line->id() << "]: active_dev = " << active_dev << lib::endl;
 
 	ps2_active_devices_[line->id()] = active_dev;
 }
@@ -198,7 +198,7 @@ public:
 void ps2::PS2Controller::initialize_controller() {
 	init_subsystems();
 
-	lib::cnotice << "PS/2: initializing controller..." << lib::endl;
+	NOTICE << "initializing controller..." << lib::endl;
 
 	auto controller = PS2Controller::instance();
 
@@ -211,9 +211,9 @@ void ps2::PS2Controller::initialize_controller() {
 
 	auto conf = Conf(controller->conf());
 
-	lib::cinfo << "PS/2: configuration byte = " << conf.get() << lib::endl;
+	INFO << "configuration byte = " << conf.get() << lib::endl;
 
-	lib::cnotice << "PS/2: this system has " << get_ps2_lines(conf) << " port(s)" << lib::endl;
+	NOTICE << "this system has " << get_ps2_lines(conf) << " port(s)" << lib::endl;
 
 	for_each_line([&conf](IPS2Line *line) { conf.unset(line->enable_interrupts_mask()); });
 
@@ -231,12 +231,12 @@ void ps2::PS2Controller::initialize_controller() {
 
 	second_line->disable();
 
-	for_each_line([](ps2::IPS2Line *line) {
+	for_each_line([this](ps2::IPS2Line *line) {
 		if (!line->test()) {
-			lib::cerr << "PS/2: line " << line->id()
+			ERROR << "line " << line->id()
 				<< " failed self-test!" << lib::endl;
 		} else {
-			lib::cinfo << "PS/2: line " << line->id()
+			INFO << "line " << line->id()
 				<< " passed self-test" << lib::endl;
 		}
 	});

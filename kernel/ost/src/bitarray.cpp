@@ -3,7 +3,7 @@
 #include <bolgenos-ng/error.h>
 
 #include <bitarray.hpp>
-#include <bolgenos-ng/log.hpp>
+#include <log.hpp>
 #include <bolgenos-ng/memory.hpp>
 
 void ost::test_bitarray() {

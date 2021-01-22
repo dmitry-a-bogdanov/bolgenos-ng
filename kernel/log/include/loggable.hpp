@@ -4,7 +4,7 @@
 #include <ostream.hpp>
 #include <string.hpp>
 #include <memory.hpp>
-#include "log.hpp"
+#include "log_level.hpp"
 
 namespace lib {
 

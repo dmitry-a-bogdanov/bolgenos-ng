@@ -1,7 +1,7 @@
 #include <x86/gdt.hpp>
 
 #include <bolgenos-ng/asm.hpp>
-#include <bolgenos-ng/log.hpp>
+#include <log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <x86/segment_flags.hpp>
 

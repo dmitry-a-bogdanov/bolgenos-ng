@@ -6,8 +6,6 @@
 
 #include <bolgenos-ng/asm.hpp>
 
-#include <bolgenos-ng/log.hpp>
-
 namespace lib {
 	class ostream;
 }

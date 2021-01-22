@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef.hpp>
+#include <loggable.hpp>
 
 #include <bolgenos-ng/irq.hpp>
 
@@ -85,7 +86,7 @@ enum status_reg_t: uint8_t {
 class IPS2Line;
 
 
-class PS2Controller
+class PS2Controller: lib::Loggable
 {
 public:
 	PS2Controller(const PS2Controller& ) = delete;

@@ -4,7 +4,7 @@
 #include <cstddef.hpp>
 #include <ext/intrusive_circular_list.hpp>
 #include <bolgenos-ng/asm.hpp>
-#include <bolgenos-ng/loggable.hpp>
+#include <loggable.hpp>
 
 namespace lib {
 class ostream;
