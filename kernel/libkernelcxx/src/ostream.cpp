@@ -30,13 +30,13 @@ lib::ostream::~ostream() = default;
 
 
 lib::ostream& lib::ostream::put(char c) {
-	streambuf_->sputc(c);
+	if (streambuf_) streambuf_->sputc(c);
 	return *this;
 }
 
 
 lib::ostream& lib::ostream::write(const char *str, size_t len) {
-	streambuf_->sputn(str, len);
+	if (streambuf_) streambuf_->sputn(str, len);
 	return *this;
 }
 
@@ -177,6 +177,16 @@ lib::ostream& lib::ostream::copyfmt(lib::ostream& other) {
 ostream& ostream::operator<<(void* ptr)
 {
 	return *this << static_cast<const void*>(ptr);
+}
+
+lib::streambuf* ostream::rdbuf() const
+{
+	return streambuf_;
+}
+
+lib::streambuf* ostream::rdbuf(lib::streambuf* sb)
+{
+	return lib::exchange(streambuf_, sb);
 }
 
 

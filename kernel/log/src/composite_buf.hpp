@@ -14,6 +14,12 @@ public:
 	CompositeBuf(): _a{}, _b{} {}
 	~CompositeBuf() = default;
 
+	CompositeBuf& operator=(CompositeBuf&& other) {
+		_a = lib::move(other._a);
+		_b = lib::move(other._b);
+		return *this;
+	}
+
 	void set(B b) {
 		_b = lib::move(b);
 	}

@@ -2,6 +2,7 @@
 
 
 #include <bolgenos-ng/memory.hpp>
+#include <log.hpp>
 
 #include "free_list.hpp"
 
@@ -25,7 +26,7 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 	}
 
 	if (reinterpret_cast<size_t>(blk.ptr) & ((1 << 12) - 1)) {
-		lib::cout	<< __func__ << ": bad page address: " << blk.ptr
+		lib::ccrit	<< __func__ << ": bad page address: " << blk.ptr
 				<< lib::endl;
 		panic(__func__);
 	}

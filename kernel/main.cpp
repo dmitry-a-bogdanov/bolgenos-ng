@@ -16,10 +16,7 @@
 
 #include "config.h"
 
-#include <serial/serial_port.hpp>
-
 using namespace lib;
-using namespace serial;
 
 x86::Processor cpu;
 
@@ -76,11 +73,9 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 
 	call_global_ctors();
 
-	set_log_level(LogLevel::NOTICE);
-
 	vga_console::clear_screen();
 
-	cout
+	cwarn
 		<< R"(  ____          _                                  _   _   ____  )" << endl
 		<< R"( | __ )   ___  | |  __ _   ___  _ __    ___   ___ | \ | | / ___| )" << endl
 		<< R"( |  _ \  / _ \ | | / _` | / _ \| '_ \  / _ \ / __||  \| || |  _  )" << endl
@@ -95,14 +90,6 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	cpu.load_kernel_segments();
 	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
-
-	{
-		SerialPort serial_port{ComPort::COM1};
-		serial_port.configure();
-
-		set_serial_port_for_logging(lib::move(serial_port));
-	}
-
 
 	irq::InterruptsManager::init();
 

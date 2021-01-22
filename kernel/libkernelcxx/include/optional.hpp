@@ -19,6 +19,21 @@ public:
 		_has_value = true;
 	}
 
+	constexpr optional(optional&& other) {
+		if (other.has_value()) {
+			new (&_storage) T(lib::move(other.value()));
+		}
+	}
+
+	constexpr optional& operator=(optional&& other) {
+		if (has_value()) {
+			value().T::~T();
+		}
+		new (&_storage) T(lib::move(other.value()));
+		_has_value = true;
+		return *this;
+	}
+
 	template<class U = T>
 	constexpr optional& operator=(U&& u) {
 		if (has_value()) {
@@ -68,7 +83,7 @@ private:
 
 	void assert_has_value() const {
 		if (!has_value()) {
-			panic("bad_optional_access");
+			::panic("bad_optional_access");
 		}
 	}
 

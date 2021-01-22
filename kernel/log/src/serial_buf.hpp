@@ -4,6 +4,7 @@
 #include <streambuf.hpp>
 #include "simple_stream_buf.hpp"
 #include "base_log_buf.hpp"
+#include "delegating_log_buf.hpp"
 
 class SerialBuf: public SimpleStreamBuf<lib::streambuf>
 {
@@ -16,3 +17,13 @@ private:
 };
 
 using SerialLogBuf = BaseLogBuf<SerialBuf>;
+
+namespace log {
+
+class SerialDelegatingLogBuf: public DelegatingLogBuf {
+public:
+	SerialDelegatingLogBuf(lib::LogLevel log_level, const char* prefix,
+			       lib::LogLevel& enabled_log_level, lib::streambuf* delegate);
+};
+
+}
