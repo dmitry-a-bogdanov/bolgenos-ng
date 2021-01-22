@@ -26,7 +26,7 @@ LogLevel get_log_level();
 /// Set new system wide logging level.
 void set_log_level(LogLevel log_level);
 
-void add_serial(serial::SerialPort&& serial_port);
+void set_serial_port_for_logging(serial::SerialPort serial_port);
 
 /// Output object for critical error messages.
 extern ostream ccrit;

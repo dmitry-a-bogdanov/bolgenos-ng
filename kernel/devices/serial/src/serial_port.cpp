@@ -19,9 +19,6 @@ void serial::SerialPort::set_baud_rate_divisor(uint16_t divisor)
 void serial::SerialPort::configure()
 {
 	set_baud_rate_divisor(1);
-	for (char c: "Hello!") {
-		write(c);
-	}
 }
 
 void serial::SerialPort::write(char chr)

@@ -10,30 +10,48 @@ using namespace vga_console;
 
 namespace {
 
-LogLevel global_log_level;
+struct {
+	LogLevel vga{LogLevel::NOTICE};
+	LogLevel serial{LogLevel::INFO};
+} conf{};
+
+constexpr color_t color(LogLevel level) {
+	switch (level)
+	{
+	case LogLevel::CRITICAL: return red;
+	case LogLevel::ERROR: return bright_red;
+	case LogLevel::WARNING: return yellow;
+	case LogLevel::NOTICE: return green;
+	case LogLevel::INFO: return bright_green;
+	default: panic("Unknown log level");
+	}
+}
+
+VgaLogBuf build_global_buf(LogLevel level) {
+	return {level, "<none>: ", conf.vga, color(level)};
+}
 
 VgaBuf plain_vga_buf;
-VgaLogBuf crit_buf(LogLevel::CRITICAL, "<none>: ", global_log_level, color_t::red);
-VgaLogBuf err_buf(LogLevel::ERROR, "<none>: ", global_log_level, color_t::bright_red);
-VgaLogBuf warn_buf(LogLevel::WARNING, "<none>: ", global_log_level, color_t::yellow);
-//VgaLogBuf notice_buf(LogLevel::NOTICE, "<none>: ", global_log_level, color_t::green);
+VgaLogBuf crit_buf = build_global_buf(LogLevel::CRITICAL);
+VgaLogBuf err_buf = build_global_buf(LogLevel::ERROR);
+VgaLogBuf warn_buf = build_global_buf(LogLevel::WARNING);
 
 CompositeBuf<VgaLogBuf, SerialLogBuf> notice_buf{
-	VgaLogBuf{LogLevel::NOTICE, "<none>: ", global_log_level, color_t::green}
+	build_global_buf(LogLevel::NOTICE)
 };
 
-VgaLogBuf info_buf(LogLevel::INFO, "<none>: ", global_log_level, color_t::bright_green);
+VgaLogBuf info_buf = build_global_buf(LogLevel::INFO);
 
 
 } // namespace
 
 void lib::set_log_level(LogLevel log_level) {
-	global_log_level = log_level;
+	conf.vga = log_level;
 }
 
 
 lib::LogLevel lib::get_log_level() {
-	return global_log_level;
+	return conf.vga;
 }
 
 lib::ostream lib::cout(&plain_vga_buf);
@@ -43,7 +61,7 @@ lib::ostream lib::cwarn(&warn_buf);
 lib::ostream lib::cnotice(&notice_buf);
 lib::ostream lib::cinfo(&info_buf);
 
-void lib::add_serial(serial::SerialPort&& serial_port)
+void lib::set_serial_port_for_logging(serial::SerialPort serial_port)
 {
-	notice_buf.set(SerialLogBuf{LogLevel::NOTICE, "<none>: ", global_log_level, lib::move(serial_port)});
+	notice_buf.set(SerialLogBuf{LogLevel::NOTICE, "<none>: ", conf.serial, lib::move(serial_port)});
 }

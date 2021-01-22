@@ -12,7 +12,6 @@ class SerialPort
 {
 public:
 	SerialPort(ComPort port);
-	SerialPort(SerialPort&&) = default;
 
 	void set_baud_rate_divisor(uint16_t divisor);
 

@@ -19,6 +19,7 @@
 #include <serial/serial_port.hpp>
 
 using namespace lib;
+using namespace serial;
 
 x86::Processor cpu;
 
@@ -41,29 +42,14 @@ void test_task(void* number_ptr) {
 	}
 }
 
-#include "log/src/serial_buf.hpp"
-
 [[noreturn]]
 void multithreaded_init_stage(void*) {
-	using namespace serial;
-	
 	cnotice << "Continue initialization in multithreaded env" << endl;
 
 	cnotice << "Configuring serial port" << endl;
 
-	SerialPort serial_port{ComPort::COM1};
-	serial_port.configure();
-
-	SerialBuf buf{lib::move(serial_port)};
-	buf.sputn("FFFFFFFFFFFFFFF", 5);
-
-	add_serial(lib::move(serial_port));
-
 	cnotice << "Kernel initialization routine has been finished!"
 		<< endl;
-
-	sleep_ms(10000);
-
 
 	int tasks_count = 8;
 	for (int i = 0; i < tasks_count; ++i) {
@@ -109,6 +95,14 @@ extern "C" [[maybe_unused]] [[noreturn]] void kernel_main() {
 	cpu.load_kernel_segments();
 	cpu.load_interrupts_table();
 	memory::init(); // Allow allocation
+
+	{
+		SerialPort serial_port{ComPort::COM1};
+		serial_port.configure();
+
+		set_serial_port_for_logging(lib::move(serial_port));
+	}
+
 
 	irq::InterruptsManager::init();
 

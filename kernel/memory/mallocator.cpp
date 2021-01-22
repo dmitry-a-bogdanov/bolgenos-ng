@@ -34,9 +34,12 @@ void memory::allocators::Mallocator::initialize(
 			panic("Initializing of chain failed!");
 		}
 	}
+	_initialized = true;
 }
 
 void *memory::allocators::Mallocator::allocate(size_t bytes) {
+	assert_initialized();
+
 	size_t slab_idx;
 	if (bytes <= 8) {
 		slab_idx = 0;
@@ -62,6 +65,8 @@ void *memory::allocators::Mallocator::allocate(size_t bytes) {
 
 
 void memory::allocators::Mallocator::deallocate(void *memory) {
+	assert_initialized();
+
 	size_t chain_idx = 0;
 	while (chain_idx != chain_length_) {
 		if (chain_[chain_idx].owns(memory)) {
@@ -71,4 +76,11 @@ void memory::allocators::Mallocator::deallocate(void *memory) {
 		++chain_idx;
 	}
 	fallback_->deallocate(memory);
+}
+
+void memory::allocators::Mallocator::assert_initialized()
+{
+	if (!_initialized){
+		panic("mallocator is not initialized");
+	}
 }
