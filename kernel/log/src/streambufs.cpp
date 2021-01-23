@@ -2,7 +2,7 @@
 
 #include <streambuf.hpp>
 #include "vga_buf.hpp"
-#include "serial_buf.hpp"
+#include <log/serial_buf.hpp>
 
 namespace {
 

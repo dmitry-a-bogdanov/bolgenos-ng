@@ -2,7 +2,6 @@
 
 #include <log.hpp>
 
-#include "vga_buf.hpp"
 #include "delegating_log_buf.hpp"
 #include <bolgenos-ng/vga_console.hpp>
 

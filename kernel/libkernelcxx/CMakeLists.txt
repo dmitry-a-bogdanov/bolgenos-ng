@@ -27,6 +27,7 @@ set(libkernelcxx_HEADERS
 	include/memory.hpp
 	include/new.hpp
 	include/ostream.hpp
+	include/static_string.hpp
 	include/streambuf.hpp
 	include/string.hpp
 	include/type_traits.hpp

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "vga_log_buf.hpp"
-#include "serial_buf.hpp"
-#include "composite_buf.hpp"
+#include <log/vga_log_buf.hpp>
+#include <log/serial_buf.hpp>
+#include <log/composite_buf.hpp>
 #include <log.hpp>
 
 namespace log {

@@ -3,6 +3,8 @@
 #include <streambuf.hpp>
 #include "simple_stream_buf.hpp"
 
+#include <log_level.hpp>
+
 namespace log {
 
 
@@ -22,40 +24,14 @@ public:
 
 	~DelegatingLogBuf() override = default;
 protected:
-	void do_start_log_line() {
-		handle_pre_prefix();
-		auto prefix = _prefix;
-		while (*prefix != '\0') {
-			if (_delegate) _delegate->sputc(*(prefix++));
-		}
-		handle_post_prefix();
-	}
-
-	void do_end_long_line() {
-		if (_delegate) handle_end_line();
-	}
+	void do_start_log_line();
+	void do_end_long_line();
 
 	virtual void handle_pre_prefix() {}
 	virtual void handle_post_prefix() {}
 	virtual void handle_end_line() {}
 
-	int overflow(int c) final {
-		if (_log_level > _enabled_log_level)
-			return c;
-		if (_show_header) {
-			if (_delegate) do_start_log_line();
-			_show_header = false;
-		}
-		int result = c;
-		if (_delegate) {
-			result = _delegate->sputc(c);
-		}
-		if (c == '\n') {
-			if (_delegate) do_end_long_line();
-			_show_header = true;
-		}
-		return result;
-	}
+	int overflow(int c) final;
 
 private:
 	lib::LogLevel _log_level;
@@ -63,7 +39,7 @@ private:
 	bool _show_header{true};
 	lib::LogLevel& _enabled_log_level;
 
-	lib::streambuf* _delegate;
+	lib::streambuf* _delegate{nullptr};
 };
 
 }
