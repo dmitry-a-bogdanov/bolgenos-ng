@@ -4,6 +4,8 @@ project(bolgenos-ng
 	VERSION 0.0.4
 	LANGUAGES ASM-ATT C CXX)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 if (NOT ${CMAKE_CROSSCOMPILING})
 	message(FATAL_ERROR "cmake must be configured for cross-compiling")
 endif()
@@ -28,14 +30,14 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 		"but ${CMAKE_SYSTEM_PROCESSOR} is supplied")
 endif ()
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 99)
 
-set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++20 -fno-exceptions -ftree-ter")
+set(cxxstd_flags "-fno-exceptions -ftree-ter")
 
 set(opt_flags "-O3")
 
-#set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
-set(warn_flags "-Wall -Wextra -Werror")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 
 
@@ -106,9 +108,9 @@ target_link_libraries(${kernel_binary}
 	libdevices
 	sched
 	log
-	ost
 	PUBLIC
 	kobj
+	-Wl,--whole-archive ost -Wl,--no-whole-archive
 	)
 
 set_target_properties(${kernel_binary} PROPERTIES

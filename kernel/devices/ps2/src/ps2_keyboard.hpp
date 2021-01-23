@@ -1,5 +1,6 @@
 #pragma once
 
+#include <loggable.hpp>
 #include <ps2/device.hpp>
 #include <bolgenos-ng/keyboard.hpp>
 
@@ -15,10 +16,10 @@ enum class key_status_t {
 	released
 };
 
-class PS2DefaultKeyboard: public ps2::IPS2Device {
+class PS2DefaultKeyboard: public ps2::IPS2Device, private lib::Loggable {
 public:
 	PS2DefaultKeyboard()
-			: _sm(this)
+			: Loggable("ps2.kb.default"), _sm(this)
 	{
 		for (auto& status : key_statuses_) {
 			status = key_status_t::released;

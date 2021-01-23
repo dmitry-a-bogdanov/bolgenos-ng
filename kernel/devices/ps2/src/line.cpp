@@ -1,6 +1,5 @@
 #include <ps2/line.hpp>
 
-#include <log.hpp>
 
 /// Timeout for output operation.
 constexpr int OUTPUT_TIMEOUT = 1 /* ms */;
@@ -37,10 +36,10 @@ int ps2::IPS2Line::test() {
 
 	uint8_t reply;
 	if (!controller()->receive(SELFTEST_TIMEOUT, &reply)) {
-		lib::cerr << "no response to self-test" << lib::endl;
+		ERROR << "no response to self-test" << lib::endl;
 		return 0;
 	}
-	lib::cinfo << "line test result = " << reply << lib::endl;
+	INFO << "line test result = " << reply << lib::endl;
 
 	return (reply == test_reply::port_test_ok);
 }

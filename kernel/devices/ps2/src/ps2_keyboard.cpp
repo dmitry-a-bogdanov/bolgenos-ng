@@ -1,6 +1,5 @@
 #include "ps2_keyboard.hpp"
 
-#include <log.hpp>
 #include <ps2/device.hpp>
 #include <ps2/controller.hpp>
 #include <ps2/line.hpp>
@@ -32,21 +31,20 @@ probe_ret_t ps2::keyboard::PS2DefaultKeyboard::probe(ps2::IPS2Line* line) {
 	int id_count = 0;
 	auto ret = line->send(ps2_dcmd_disable_scan, ps2_keyboard_ack);
 	if (ret != ErrorCode::ok) {
-		cwarn	<< "failed to disable scan: " << ret << endl;
+		WARN << "failed to disable scan: " << ret << endl;
 		goto fail;
 	}
 
 	ret = line->send(ps2_dcmd_identify, ps2_keyboard_ack);
 	if (ret != ErrorCode::ok) {
-		cwarn	<< "failed to identify device: " << ret << endl;
+		WARN << "failed to identify device: " << ret << endl;
 		goto fail;
 	}
 
 	uint8_t reply;
 	while(line->controller()->receive(5, &reply)) {
 		if (reply != this_dev_id[id_count]) {
-			lib::cwarn << "got wrong id byte[" << id_count << "] = "
-					<< reply << lib::endl;
+			WARN << "got wrong id byte[" << id_count << "] = " << reply << lib::endl;
 			goto fail;
 		}
 		++id_count;
@@ -54,12 +52,12 @@ probe_ret_t ps2::keyboard::PS2DefaultKeyboard::probe(ps2::IPS2Line* line) {
 			goto ok;
 	}
 fail:
-	cwarn << "line " << line->id() << ": probe as ps2_keyboard FAILED" << endl;
+	WARN << "line " << line->id() << ": probe as ps2_keyboard FAILED" << endl;
 	return probe_next;
 ok:
 	// leave in a SCANNING state!
 	(void) line->send(ps2_dcmd_enable_scan, ps2_keyboard_ack);
-	cnotice << "line " << line->id() << ": probe as ps2_keyboard PASSED" << endl;
+	NOTICE << "line " << line->id() << ": probe as ps2_keyboard PASSED" << endl;
 	return probe_ok;
 }
 

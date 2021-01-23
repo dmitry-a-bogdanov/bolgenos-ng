@@ -3,34 +3,40 @@
 
 #include <bolgenos-ng/error.h>
 #include <log.hpp>
+#include <bolgenos-ng/compiler.h>
 
 namespace ost {
 
 
+using test_caller = void ();
+
 void run();
-
-
-inline void show_() {
-	lib::ccrit << lib::endl;
-}
-
-
-template<typename HeadType, typename ...TailTypes>
-void show_(const HeadType &head, TailTypes ...tail) {
-	lib::ccrit << head;
-	show_(tail...);
-}
-
 
 template<typename ...Messages>
 void assert(bool expression, Messages... messages) {
 	if (not expression) {
-		show_(messages...);
-		panic("OST assertion failed.");
+		(lib::ccrit << ... << messages);
+		panic("On start test failed");
 	}
 }
 
-#define OST_ASSERT(expression, ...) \
-	ost::assert((expression), __FILE__, ":", __LINE__, ": ", ##__VA_ARGS__)
-
 } // namespace ost
+
+
+#define OST_ASSERT(expression, ...) \
+	::ost::assert((expression), __FILE__, ":", __LINE__, ": ", ##__VA_ARGS__)
+
+#define TEST(ts, tc) \
+namespace tests::ts { \
+void tc(); \
+} \
+namespace test_callers::ts { \
+void tc() { \
+	lib::cinfo << stringify(ts) << "::" << stringify(tc) << ": starting" << lib::endl; \
+	tests::ts::tc(); \
+	lib::cinfo << stringify(ts) << "::" << stringify(tc) << ": ok" << lib::endl; \
+} \
+ost::test_caller* caller_ ## tc [[gnu::section(".ost_callers"), gnu::used]] = test_callers::ts::tc; \
+} \
+void tests::ts::tc()
+
