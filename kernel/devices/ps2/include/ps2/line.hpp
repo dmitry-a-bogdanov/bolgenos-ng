@@ -21,11 +21,11 @@ struct PS2LineConfiguration
 };
 
 
-class IPS2Line: lib::Loggable
+class IPS2Line: Loggable("ps2.line")
 {
 public:
 	IPS2Line(PS2Controller *controller, const PS2LineConfiguration& line_conf)
-		: Loggable("ps2.line"), controller_(controller), line_conf_(line_conf)
+		: controller_(controller), line_conf_(line_conf)
 	{
 	}
 

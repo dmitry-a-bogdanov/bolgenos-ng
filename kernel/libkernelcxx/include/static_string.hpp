@@ -5,7 +5,8 @@
 namespace lib {
 
 template<class Char, Char ...Chars>
-struct basic_static_string{};
+struct basic_static_string{
+};
 
 template<class Char, Char ...Chars>
 lib::ostream& operator<<(lib::ostream& out, const basic_static_string<Char, Chars...>&) {

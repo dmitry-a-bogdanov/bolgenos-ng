@@ -10,13 +10,17 @@
 
 namespace log {
 
-template<char ...Prefix>
-class StaticSerialLogBuf: public StaticDelegatingLogBuf<Prefix...> {
+template<class Char, Char ...Chars>
+class StaticSerialLogBuf;
+
+template<class Char, Char ...Chars>
+class StaticSerialLogBuf<lib::basic_static_string<Char, Chars...>>
+        : public StaticDelegatingLogBuf<lib::basic_static_string<Char, Chars...>> {
 private:
-	using prefix = lib::static_string<Prefix...>;
+	using prefix = lib::basic_static_string<Char, Chars...>;
 public:
 	StaticSerialLogBuf(lib::LogLevel log_level, const prefix&, lib::LogLevel& enabled_log_level)
-		: StaticDelegatingLogBuf<Prefix...>{log_level, prefix{}, enabled_log_level, &_delegate},
+		: StaticDelegatingLogBuf<prefix>{log_level, prefix{}, enabled_log_level, &_delegate},
 		_delegate{serial::ComPort::COM1}
 	{
 		serial::SerialPort port(serial::ComPort::COM1);
@@ -25,7 +29,7 @@ public:
 	}
 
 	StaticSerialLogBuf(StaticSerialLogBuf&& other)
-		: StaticDelegatingLogBuf<Prefix...>{lib::move(other)}
+		: StaticDelegatingLogBuf<prefix>{lib::move(other)}
 		, _delegate{lib::move(other._delegate)}
 	{
 		this->delegate(&_delegate);
@@ -51,23 +55,25 @@ constexpr vga_console::color_t color(lib::LogLevel level) {
 	}
 }
 
+template<class Char, Char ...Prefix>
+class StaticVgaDelegatingLogBuf;
 
-template<char ...Prefix>
-class StaticVgaDelegatingLogBuf: public StaticDelegatingLogBuf<Prefix...> {
+template<class Char, Char ...Prefix>
+class StaticVgaDelegatingLogBuf<lib::basic_static_string<Char, Prefix...>>: public StaticDelegatingLogBuf<lib::static_string<Prefix...>> {
 private:
 	using prefix = lib::static_string<Prefix...>;
 public:
 	StaticVgaDelegatingLogBuf(lib::LogLevel log_level, const prefix&,
 			   lib::LogLevel& enabled_log_level,
 			   vga_console::color_t color = vga_console::color_t::white)
-			   : StaticDelegatingLogBuf<Prefix...>{log_level, prefix{}, enabled_log_level, &_delegate}
+			   : StaticDelegatingLogBuf<prefix>{log_level, prefix{}, enabled_log_level, &_delegate}
 			   , _expected_color{color}
 	{
 		this->delegate(&_delegate);
 	}
 
 	StaticVgaDelegatingLogBuf(StaticVgaDelegatingLogBuf&& other)
-		: StaticDelegatingLogBuf<Prefix...>{lib::move(other)}
+		: StaticDelegatingLogBuf<prefix>{lib::move(other)}
 		, _expected_color{other._expected_color}
 		, _saved_color{other._saved_color}
 		, _delegate{lib::move(other._delegate)}

@@ -9,8 +9,11 @@
 #include <ext/scoped_format_guard.hpp>
 
 #include <x86/cpu.hpp>
+#include <logger.hpp>
 
 #include "traps.hpp"
+
+LOCAL_LOGGER("irq", lib::LogLevel::NOTICE);
 
 irq::InterruptsManager *irq::InterruptsManager::_instance = nullptr;
 
@@ -99,7 +102,7 @@ void irq::InterruptsManager::handle_irq(irq_t vector, void *frame)
 	}
 
 	if (status != irq::IRQHandler::status_t::HANDLED) {
-		lib::ccrit << "Unhandled IRQ" << vector << lib::endl;
+		LOG_CRIT << "Unhandled IRQ" << vector << lib::endl;
 	}
 
 	devices::InterruptController::instance()->end_of_interrupt(vector);
@@ -184,7 +187,7 @@ bool irq::is_enabled() {
 
 void irq::enable(bool debug) {
 	if (debug) {
-		lib::cinfo << "enabling interrupts" << lib::endl;
+		LOG_INFO << "enabling interrupts" << lib::endl;
 	}
 	interrupts_enabled.store(true);
 	asm volatile ("sti\n");
@@ -192,7 +195,7 @@ void irq::enable(bool debug) {
 
 bool irq::disable(bool debug) {
 	if (debug) {
-		lib::cinfo << "disabling interrupts" << lib::endl;
+		LOG_INFO << "disabling interrupts" << lib::endl;
 	}
 
 	asm volatile ("cli\n");

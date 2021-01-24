@@ -20,7 +20,7 @@ enum class TaskId: uint32_t {};
 
 lib::ostream& operator<<(lib::ostream& out, TaskId id);
 
-struct Task: private lib::Loggable {
+struct Task: private Loggable("Task") {
 public:
 	Task() = delete;
 

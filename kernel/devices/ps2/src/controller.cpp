@@ -68,7 +68,7 @@ inline int SECOND_LINE_IRQ()
 
 
 
-ps2::PS2Controller::PS2Controller(): lib::Loggable("ps2.controller")
+ps2::PS2Controller::PS2Controller()
 {}
 
 ps2::PS2Controller::~PS2Controller() = default;

@@ -16,10 +16,10 @@ enum class key_status_t {
 	released
 };
 
-class PS2DefaultKeyboard: public ps2::IPS2Device, private lib::Loggable {
+class PS2DefaultKeyboard: public ps2::IPS2Device, private Loggable("ps2.kb.default") {
 public:
 	PS2DefaultKeyboard()
-			: Loggable("ps2.kb.default"), _sm(this)
+			: _sm(this)
 	{
 		for (auto& status : key_statuses_) {
 			status = key_status_t::released;

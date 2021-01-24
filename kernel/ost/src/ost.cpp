@@ -1,11 +1,13 @@
 #include <bolgenos-ng/ost.hpp>
 
-#include <log.hpp>
+#include <logger.hpp>
 
 _asm_linked_ ost::test_caller* ost_callers_begin_label[0];
 _asm_linked_ ost::test_caller* ost_callers_end_label[0];
 
 using namespace lib;
+
+LOCAL_LOGGER("ost", LogLevel::NOTICE);
 
 void ost::run() {
 	cnotice << "Running " << ost_callers_end_label - ost_callers_begin_label << " tests" << endl;

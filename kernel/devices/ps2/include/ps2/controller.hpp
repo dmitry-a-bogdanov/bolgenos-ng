@@ -86,7 +86,7 @@ enum status_reg_t: uint8_t {
 class IPS2Line;
 
 
-class PS2Controller: lib::Loggable
+class PS2Controller: Loggable("ps2.controller")
 {
 public:
 	PS2Controller(const PS2Controller& ) = delete;

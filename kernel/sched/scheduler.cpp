@@ -14,8 +14,7 @@ void scheduling_task_routine(void *arg) {
 	static_cast<sched::Scheduler *>(arg)->schedule_forever();
 }
 
-sched::Scheduler::Scheduler(task_routine* main_continuation):
-	lib::Loggable{"scheduler"}
+sched::Scheduler::Scheduler(task_routine* main_continuation)
 {
 	thr::with_irq_lock([&]{
 		if (main_continuation == nullptr) {

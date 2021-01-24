@@ -43,17 +43,19 @@ private:
 	lib::streambuf* _delegate{nullptr};
 };
 
+template<class Char, Char ...chars>
+class StaticDelegatingLogBuf;
 
-
-template<char ...Chars>
-class StaticDelegatingLogBuf: public SimpleStreamBuf<lib::streambuf> {
+template<class Char, Char ...chars>
+class StaticDelegatingLogBuf<lib::basic_static_string<Char, chars...>>: public SimpleStreamBuf<lib::streambuf> {
+	using prefix = lib::basic_static_string<Char, chars...>;
 public:
 	StaticDelegatingLogBuf() = delete;
 	StaticDelegatingLogBuf(StaticDelegatingLogBuf&&) = default;
 	StaticDelegatingLogBuf(const StaticDelegatingLogBuf&) = delete;
 	StaticDelegatingLogBuf& operator=(const StaticDelegatingLogBuf&) = delete;
 
-	StaticDelegatingLogBuf(lib::LogLevel log_level, const lib::static_string<Chars...>&, lib::LogLevel& enabled_log_level, lib::streambuf* delegate = nullptr)
+	StaticDelegatingLogBuf(lib::LogLevel log_level, const prefix&, lib::LogLevel& enabled_log_level, lib::streambuf* delegate = nullptr)
 		: _log_level{log_level}, _enabled_log_level(enabled_log_level), _delegate(delegate)
 	{}
 
@@ -65,7 +67,7 @@ protected:
 	void do_start_log_line() {
 		handle_pre_prefix();
 		if (_delegate) {
-			(_delegate->sputc(Chars), ...);
+			(_delegate->sputc(chars), ...);
 		}
 		handle_post_prefix();
 	}

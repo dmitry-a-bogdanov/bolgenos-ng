@@ -12,7 +12,7 @@
 
 namespace sched {
 
-class Scheduler: private lib::Loggable
+class Scheduler: private Loggable("scheduler")
 {
 public:
 	Scheduler(task_routine* main_continuation);

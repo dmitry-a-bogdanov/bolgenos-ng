@@ -2,8 +2,8 @@
 
 
 #include <bolgenos-ng/error.h>
-#include <log.hpp>
 #include <bolgenos-ng/compiler.h>
+#include <logger.hpp>
 
 namespace ost {
 
@@ -14,6 +14,7 @@ void run();
 
 template<typename ...Messages>
 void assert(bool expression, Messages... messages) {
+	LOCAL_LOGGER("ost_assert", lib::LogLevel::INFO);
 	if (not expression) {
 		(lib::ccrit << ... << messages);
 		panic("On start test failed");
@@ -32,9 +33,10 @@ void tc(); \
 } \
 namespace test_callers::ts { \
 void tc() { \
-	lib::cinfo << stringify(ts) << "::" << stringify(tc) << ": starting" << lib::endl; \
+        LOCAL_LOGGER("ost", lib::LogLevel::INFO); \
+	LOG_INFO << stringify(ts) << "::" << stringify(tc) << ": starting" << lib::endl; \
 	tests::ts::tc(); \
-	lib::cinfo << stringify(ts) << "::" << stringify(tc) << ": ok" << lib::endl; \
+	LOG_INFO << stringify(ts) << "::" << stringify(tc) << ": ok" << lib::endl; \
 } \
 ost::test_caller* caller_ ## tc [[gnu::section(".ost_callers"), gnu::used]] = test_callers::ts::tc; \
 } \

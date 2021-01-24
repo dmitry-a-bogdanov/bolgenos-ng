@@ -11,27 +11,31 @@
 
 namespace lib {
 
-template<char ...Prefix>
-class StaticLogger {
+template<class Char, Char ...Chars>
+class StaticLogger;
+
+template<class Char, Char ...Chars>
+class StaticLogger<lib::basic_static_string<Char, Chars...>> {
+	using prefix = lib::basic_static_string<Char, Chars...>;
 public:
-	explicit StaticLogger(const lib::static_string<Prefix...>&, LogLevel level) :
+	explicit StaticLogger(const prefix&, LogLevel level) :
 		_log_level{level},
 		_streambufs{_log_level}
 	{}
-	~StaticLogger() = default;
-	lib::ostream& info() const { return _info; }
-	lib::ostream& notice() const { return _notice; }
-	lib::ostream& warning() const { return _warning; }
-	lib::ostream& error() const { return _error; }
-	lib::ostream& critical() const { return _critical; }
+	constexpr ~StaticLogger() = default;
+	constexpr lib::ostream& info() const { return _info; }
+	constexpr lib::ostream& notice() const { return _notice; }
+	constexpr lib::ostream& warning() const { return _warning; }
+	constexpr lib::ostream& error() const { return _error; }
+	constexpr lib::ostream& critical() const { return _critical; }
 
 private:
 	lib::LogLevel _log_level;
 
-	using serial_sb = log::StaticSerialLogBuf<Prefix...>;
-	using vga_sb = log::StaticVgaDelegatingLogBuf<Prefix...>;
+	using serial_sb = log::StaticSerialLogBuf<prefix>;
+	using vga_sb = log::StaticVgaDelegatingLogBuf<prefix>;
 	using streambuf_type = CompositeBuf<vga_sb, serial_sb>;
-	constexpr static auto _prefix = lib::static_string<Prefix...>{};
+	constexpr static auto _prefix = prefix{};
 
 	static streambuf_type build_sb(lib::LogLevel level, lib::LogLevel& conf) {
 		return {vga_sb{level, _prefix, conf, log::color(level)}, serial_sb{level, _prefix, conf}};
@@ -62,12 +66,14 @@ private:
 	mutable lib::ostream _critical{&_streambufs.critical};
 };
 
+template<class Char, Char ...Prefix> StaticLogger(const lib::basic_static_string<Char, Prefix...>&, LogLevel) -> StaticLogger<Char, Prefix...>;
+
 }
 
-#define LOCAL_LOGGER(prefix, level) static ::lib::StaticLogger local_logger{prefix ## _ss + ": "_ss, level}
+#define LOCAL_LOGGER(prefix, level) static ::lib::StaticLogger<decltype(prefix ## _ss + ": "_ss)> local_logger{prefix ## _ss + ": "_ss, level}
 
 #define LOG_INFO local_logger.info()
 #define LOG_NOTICE local_logger.notice()
 #define LOG_WARN local_logger.warning()
 #define LOG_ERROR local_logger.error()
-#define LOG_CRIT local_logger.crical()
+#define LOG_CRIT local_logger.critical()
