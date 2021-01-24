@@ -23,10 +23,10 @@ x86::Processor cpu;
 
 constexpr uint32_t sleep_interval = 1000;
 
-LOCAL_LOGGER("main: ", LogLevel::INFO);
+LOCAL_LOGGER("main", LogLevel::INFO);
 
 void test_task(void* number_ptr) {
-	LOCAL_LOGGER("test_task: ", LogLevel::INFO);
+	LOCAL_LOGGER("test_task", LogLevel::INFO);
 	const int task_number = *static_cast<const int *>(number_ptr);
 	LOG_INFO << "Started task " << task_number << endl;
 	uint32_t counter = 0;

@@ -7,13 +7,18 @@
 #include "log/composite_buf.hpp"
 #include "log/vga_log_buf.hpp"
 #include "log/serial_buf.hpp"
+#include "log/static_serial_log_buf.hpp"
 
 namespace lib {
 
-class Logger {
+template<char ...Prefix>
+class StaticLogger {
 public:
-	explicit Logger(const char* prefix, LogLevel level);
-	~Logger();
+	explicit StaticLogger(const lib::static_string<Prefix...>&, LogLevel level) :
+		_log_level{level},
+		_streambufs{_log_level}
+	{}
+	~StaticLogger() = default;
 	lib::ostream& info() const { return _info; }
 	lib::ostream& notice() const { return _notice; }
 	lib::ostream& warning() const { return _warning; }
@@ -23,10 +28,18 @@ public:
 private:
 	lib::LogLevel _log_level;
 
-	using streambuf_type = CompositeBuf<log::VgaDelegatingLogBuf, log::SerialDelegatingLogBuf>;
+	using streambuf_type = CompositeBuf<log::VgaDelegatingLogBuf, log::StaticSerialLogBuf<Prefix...>>;
+	constexpr static auto _prefix = lib::static_string<Prefix...>{};
 
 	struct SbHolder {
-		SbHolder(const char* prefix, lib::LogLevel log_level);
+		SbHolder(lib::LogLevel& conf)
+			: debug{log::StaticSerialLogBuf{LogLevel::INFO, _prefix, conf}}
+			, info{log::StaticSerialLogBuf{LogLevel::INFO, _prefix, conf}}
+			, notice{log::StaticSerialLogBuf{LogLevel::NOTICE, _prefix, conf}}
+			, warning{log::StaticSerialLogBuf{LogLevel::WARNING, _prefix, conf}}
+			, error{log::StaticSerialLogBuf{LogLevel::ERROR, _prefix, conf}}
+			, critical{log::StaticSerialLogBuf{LogLevel::CRITICAL, _prefix, conf}}
+		{}
 		streambuf_type debug{};
 		streambuf_type info{};
 		streambuf_type notice{};
@@ -45,7 +58,7 @@ private:
 
 }
 
-#define LOCAL_LOGGER(prefix, level) static ::lib::Logger local_logger{prefix, level}
+#define LOCAL_LOGGER(prefix, level) static ::lib::StaticLogger local_logger{prefix ## _ss + ": "_ss, level}
 
 #define LOG_INFO local_logger.info()
 #define LOG_NOTICE local_logger.notice()
