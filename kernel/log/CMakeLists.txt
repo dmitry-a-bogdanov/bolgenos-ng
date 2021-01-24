@@ -11,6 +11,7 @@ add_library(log STATIC
 	include/log/simple_stream_buf.hpp
 	include/log/static_serial_log_buf.hpp
 	include/log/vga_log_buf.hpp
+	include/log/vga_buf.hpp
 
 	src/buf_builder.cpp
 	src/buf_builder.hpp
@@ -23,7 +24,6 @@ add_library(log STATIC
 	src/streambufs.cpp
 	src/streambufs.hpp
 	src/vga_buf.cpp
-	src/vga_buf.hpp
 	src/vga_log_buf.cpp
 
 )

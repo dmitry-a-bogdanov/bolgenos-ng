@@ -1,7 +1,7 @@
 #pragma once
 
 #include <streambuf.hpp>
-#include <log/simple_stream_buf.hpp>
+#include "simple_stream_buf.hpp"
 
 class VgaBuf: public SimpleStreamBuf<lib::streambuf> {
 protected:

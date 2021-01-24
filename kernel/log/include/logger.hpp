@@ -28,17 +28,23 @@ public:
 private:
 	lib::LogLevel _log_level;
 
-	using streambuf_type = CompositeBuf<log::VgaDelegatingLogBuf, log::StaticSerialLogBuf<Prefix...>>;
+	using serial_sb = log::StaticSerialLogBuf<Prefix...>;
+	using vga_sb = log::StaticVgaDelegatingLogBuf<Prefix...>;
+	using streambuf_type = CompositeBuf<vga_sb, serial_sb>;
 	constexpr static auto _prefix = lib::static_string<Prefix...>{};
+
+	static streambuf_type build_sb(lib::LogLevel level, lib::LogLevel& conf) {
+		return {vga_sb{level, _prefix, conf, log::color(level)}, serial_sb{level, _prefix, conf}};
+	}
 
 	struct SbHolder {
 		SbHolder(lib::LogLevel& conf)
-			: debug{log::StaticSerialLogBuf{LogLevel::INFO, _prefix, conf}}
-			, info{log::StaticSerialLogBuf{LogLevel::INFO, _prefix, conf}}
-			, notice{log::StaticSerialLogBuf{LogLevel::NOTICE, _prefix, conf}}
-			, warning{log::StaticSerialLogBuf{LogLevel::WARNING, _prefix, conf}}
-			, error{log::StaticSerialLogBuf{LogLevel::ERROR, _prefix, conf}}
-			, critical{log::StaticSerialLogBuf{LogLevel::CRITICAL, _prefix, conf}}
+			: debug{build_sb(LogLevel::INFO, conf)}
+			, info{build_sb(LogLevel::INFO, conf)}
+			, notice{build_sb(LogLevel::NOTICE, conf)}
+			, warning{build_sb(LogLevel::WARNING, conf)}
+			, error{build_sb(LogLevel::ERROR, conf)}
+			, critical{build_sb(LogLevel::CRITICAL, conf)}
 		{}
 		streambuf_type debug{};
 		streambuf_type info{};

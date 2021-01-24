@@ -1,7 +1,7 @@
 #include "streambufs.hpp"
 
 #include <streambuf.hpp>
-#include "vga_buf.hpp"
+#include <log/vga_buf.hpp>
 #include <log/serial_buf.hpp>
 
 namespace {

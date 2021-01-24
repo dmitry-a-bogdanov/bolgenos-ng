@@ -1,4 +1,4 @@
-#include "vga_buf.hpp"
+#include <log/vga_buf.hpp>
 
 #include <bolgenos-ng/vga_console.hpp>
 
