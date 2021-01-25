@@ -51,6 +51,7 @@ constexpr vga_console::color_t color(lib::LogLevel level) {
 	case lib::LogLevel::WARNING: return vga_console::yellow;
 	case lib::LogLevel::NOTICE: return vga_console::green;
 	case lib::LogLevel::INFO: return vga_console::bright_green;
+	case lib::LogLevel::DEBUG: return vga_console::bright_green;
 	default: panic("Unknown log level");
 	}
 }

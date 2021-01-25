@@ -23,6 +23,7 @@ public:
 		_streambufs{_log_level}
 	{}
 	constexpr ~StaticLogger() = default;
+	constexpr lib::ostream& debug() const { return _debug; }
 	constexpr lib::ostream& info() const { return _info; }
 	constexpr lib::ostream& notice() const { return _notice; }
 	constexpr lib::ostream& warning() const { return _warning; }
@@ -43,7 +44,7 @@ private:
 
 	struct SbHolder {
 		SbHolder(lib::LogLevel& conf)
-			: debug{build_sb(LogLevel::INFO, conf)}
+			: debug{build_sb(LogLevel::DEBUG, conf)}
 			, info{build_sb(LogLevel::INFO, conf)}
 			, notice{build_sb(LogLevel::NOTICE, conf)}
 			, warning{build_sb(LogLevel::WARNING, conf)}
@@ -72,6 +73,7 @@ template<class Char, Char ...Prefix> StaticLogger(const lib::basic_static_string
 
 #define LOCAL_LOGGER(prefix, level) static ::lib::StaticLogger<decltype(prefix ## _ss + ": "_ss)> local_logger{prefix ## _ss + ": "_ss, level}
 
+#define LOG_DEBUG local_logger.debug()
 #define LOG_INFO local_logger.info()
 #define LOG_NOTICE local_logger.notice()
 #define LOG_WARN local_logger.warning()

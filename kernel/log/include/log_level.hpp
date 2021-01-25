@@ -9,6 +9,7 @@ enum class LogLevel {
 	WARNING		= 2,
 	NOTICE		= 3,
 	INFO		= 4,
+	DEBUG		= 5,
 };
 
 }
