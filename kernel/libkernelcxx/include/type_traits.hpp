@@ -140,6 +140,13 @@ struct aligned_storage {
 template<lib::size_t Len, lib::size_t Align = alignof(int)>
 using aligned_storage_t = typename lib::aligned_storage<Len, Align>::type;
 
+
+template<class T>
+struct is_empty: lib::integral_constant<bool, __is_empty(T)> {};
+
+template<class T>
+constexpr inline bool is_empty_v = lib::is_empty<T>::value;
+
 } // namespace lib
 
 

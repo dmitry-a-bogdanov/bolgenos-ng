@@ -170,8 +170,7 @@ void memory::allocators::FreeList::sanity_check() const {
 	for (item_type *it = list_; it; it = it->next)
 		length++;
 	if (length != stats.items) {
-		lib::ccrit << "actual = " << length
-			<< " expected = " << stats.items << lib::endl;
+		CRIT << "actual = " << length << " expected = " << stats.items << lib::endl;
 		panic("FreeList stats are invalid!");
 	}
 }

@@ -31,7 +31,7 @@ void initilize_highmem_allocators();
 
 } // namespace
 
-
+LOCAL_LOGGER("memory.cpp", lib::LogLevel::INFO);
 
 
 
@@ -93,7 +93,7 @@ namespace {
 
 void detect_memory_regions() {
 	if (multiboot::boot_info->is_meminfo_valid()) {
-		lib::cnotice << "Detected memory: "
+		LOG_NOTICE << "Detected memory: "
 			<< "low = "
 			<< multiboot::boot_info->low_memory() << " kB, "
 			<< "high = "

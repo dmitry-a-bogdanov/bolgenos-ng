@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint.hpp>
+#include <loggable.hpp>
 
 // forward declaration
 namespace ps2 {
@@ -21,7 +22,7 @@ enum class handle_status_t {
 // forward declaration
 class KbdStateMachine;
 
-class IState
+class IState: protected Loggable("ps/2.state_handler")
 {
 public:
 	IState() = delete;

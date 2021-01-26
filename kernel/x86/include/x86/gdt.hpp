@@ -35,7 +35,7 @@ constexpr uint16_t KERNEL_DATA_SELECTOR =
 	segment_selector(SegmentIndex::kernel_data, TableIndicator::GLOBAL, ProtectionRing::kernel);
 
 
-class GDT {
+class GDT: Loggable("GDT") {
 public:
 	GDT();
 

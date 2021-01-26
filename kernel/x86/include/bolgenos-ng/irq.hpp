@@ -3,6 +3,7 @@
 #include <cstddef.hpp>
 #include <cstdint.hpp>
 #include <forward_list.hpp>
+#include <loggable.hpp>
 
 #include <bolgenos-ng/asm.hpp>
 
@@ -65,7 +66,7 @@ public:
 };
 
 
-class ExceptionHandler {
+class ExceptionHandler: protected Loggable("ExceptionHandler")  {
 public:
 	virtual ~ExceptionHandler() = default;
 

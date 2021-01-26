@@ -26,8 +26,7 @@ void memory::allocators::BuddyAllocator::put(pblk_t blk) {
 	}
 
 	if (reinterpret_cast<size_t>(blk.ptr) & ((1 << 12) - 1)) {
-		lib::ccrit	<< __func__ << ": bad page address: " << blk.ptr
-				<< lib::endl;
+		CRIT << __func__ << ": bad page address: " << blk.ptr << lib::endl;
 		panic(__func__);
 	}
 

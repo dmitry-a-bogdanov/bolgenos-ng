@@ -2,7 +2,9 @@
 
 #include <serial/lcr.hpp>
 
-serial::SerialPort::SerialPort(ComPort port): _ports{port} {}
+serial::SerialPort::SerialPort(ComPort port): _ports{port} {
+	configure();
+}
 
 void serial::SerialPort::set_baud_rate_divisor(uint16_t divisor)
 {

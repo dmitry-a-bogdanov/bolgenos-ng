@@ -4,11 +4,12 @@
 #include <log.hpp>
 #include <algorithm.hpp>
 #include <array.hpp>
+#include <loggable.hpp>
 
 namespace lib {
 
 template<class T, size_t Size>
-class FixedSizeVector
+class FixedSizeVector: Loggable("fixed_size_vector")
 {
 public:
 	constexpr FixedSizeVector() = default;
@@ -19,7 +20,7 @@ public:
 
 	void expand_up_to(size_t new_size) {
 		if (new_size > Size) [[unlikely]] {
-			ccrit << "required size: " << new_size << " max size: " << Size << endl;
+			CRIT << "required size: " << new_size << " max size: " << Size << endl;
 			panic("fault");
 		}
 		_size = lib::max(_size, new_size);
@@ -35,7 +36,7 @@ public:
 
 	constexpr T& at(size_t pos) {
 		if (pos >= _size || pos < 0) [[unlikely]] {
-			ccrit << "out of bound. " << pos << " not in range 0-" << _size << endl;
+			CRIT << "out of bound. " << pos << " not in range 0-" << _size << endl;
 			panic("fault");
 		}
 		return _data.at(pos);
@@ -43,7 +44,7 @@ public:
 
 	constexpr const T& at(size_t pos) const {
 		if (pos >= _size || pos < 0) [[unlikely]] {
-			ccrit << "out of bound. " << pos << " not in range 0-" << _size << endl;
+			CRIT << "out of bound. " << pos << " not in range 0-" << _size << endl;
 			panic("fault");
 		}
 		return _data.at(pos);

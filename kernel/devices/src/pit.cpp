@@ -16,6 +16,8 @@
 
 using namespace lib;
 
+LOCAL_LOGGER("PIT", LogLevel::INFO);
+
 namespace {
 
 
@@ -92,7 +94,7 @@ public:
 		if (_divider->do_tick()) {
 			if constexpr(VERBOSE_TIMER_INTERRUPT)
 			{
-				lib::cinfo << "jiffy #" << jiffies.load() << lib::endl;
+				LOG_INFO << "jiffy #" << jiffies.load() << lib::endl;
 			}
 			++jiffies;
 		}
@@ -113,7 +115,7 @@ void pit::init() {
 	auto freq_divider = make_unique<pit::details::FrequencyDivider>();
 	freq_divider->set_frequency(HZ, PIT_FREQUENCY, MAX_DIVIDER);
 	if (freq_divider->is_low_frequency())
-		cwarn << "PIT: losing accuracy of timer" << endl;
+		LOG_WARN << "PIT: losing accuracy of timer" << endl;
 
 	uint8_t cmd = pit_channel::ch0|acc_mode::latch|oper_mode::m2|num_mode::bin;
 

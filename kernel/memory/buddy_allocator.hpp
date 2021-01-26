@@ -69,7 +69,7 @@ inline lib::ostream& operator <<(lib::ostream &stream,
 ///
 /// The class provides functionality of buddy system for the specified
 /// memory region.
-class BuddyAllocator {
+class BuddyAllocator: Loggable("buddy") {
 public:
 
 	/// Structure that hold statistics of allocator's usage.

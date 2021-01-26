@@ -16,7 +16,7 @@ template<typename ...Messages>
 void assert(bool expression, Messages... messages) {
 	LOCAL_LOGGER("ost_assert", lib::LogLevel::INFO);
 	if (not expression) {
-		(lib::ccrit << ... << messages);
+		(LOG_CRIT << ... << messages);
 		panic("On start test failed");
 	}
 }
