@@ -7,6 +7,7 @@
 #include "serial_buf.hpp"
 #include <static_string.hpp>
 #include "vga_buf.hpp"
+#include <bolgenos-ng/vga_console.hpp>
 
 namespace log {
 

@@ -1,6 +1,5 @@
 #include <bolgenos-ng/error.h>
 #include <bitarray.hpp>
-#include <log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
 

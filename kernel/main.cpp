@@ -3,7 +3,6 @@
 #include <bolgenos-ng/asm.hpp>
 #include <bolgenos-ng/interrupt_controller.hpp>
 #include <bolgenos-ng/irq.hpp>
-#include <log.hpp>
 #include <logger.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>

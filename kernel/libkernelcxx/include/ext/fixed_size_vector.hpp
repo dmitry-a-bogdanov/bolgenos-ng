@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bolgenos-ng/error.h>
-#include <log.hpp>
 #include <algorithm.hpp>
 #include <array.hpp>
 #include <loggable.hpp>

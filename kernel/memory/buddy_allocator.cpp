@@ -2,7 +2,6 @@
 
 
 #include <bolgenos-ng/memory.hpp>
-#include <log.hpp>
 
 #include "free_list.hpp"
 

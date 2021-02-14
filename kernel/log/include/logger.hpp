@@ -5,7 +5,6 @@
 
 #include "log_level.hpp"
 #include "log/composite_buf.hpp"
-#include "log/vga_log_buf.hpp"
 #include "log/serial_buf.hpp"
 #include "log/static_serial_log_buf.hpp"
 

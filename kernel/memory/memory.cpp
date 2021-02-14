@@ -7,7 +7,6 @@
 #include <mem_utils.hpp>
 #include <bolgenos-ng/multiboot_info.hpp>
 #include <bolgenos-ng/page.hpp>
-#include <log.hpp>
 
 #include "buddy_allocator.hpp"
 #include "page_allocator.hpp"

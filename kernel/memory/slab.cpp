@@ -2,7 +2,6 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <log.hpp>
 #include <mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 

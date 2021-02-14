@@ -16,8 +16,3 @@ int SerialBuf::overflow(int c)
 	}
 	return c;
 }
-
-log::SerialDelegatingLogBuf::SerialDelegatingLogBuf(lib::LogLevel log_level, const char* prefix,
-						    lib::LogLevel& enabled_log_level,
-						    lib::streambuf* delegate):
-	DelegatingLogBuf(log_level, prefix, enabled_log_level, delegate) {}
