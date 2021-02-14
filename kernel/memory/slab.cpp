@@ -2,7 +2,6 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/log.hpp>
 #include <mem_utils.hpp>
 #include <bolgenos-ng/memory.hpp>
 
@@ -85,8 +84,7 @@ void memory::allocators::SlabAllocator::deallocate(void *addr) {
 		return;
 	}
 	if (!owns(addr)) {
-		lib::ccrit << __func__ << ": deallocation of foreign memory = "
-				<< addr << lib::endl;
+		CRIT << __func__ << ": deallocation of foreign memory = " << addr << lib::endl;
 		panic("Critical error");
 	}
 	size_t chunk = (((size_t) addr) - ((size_t) memory_)) / elem_size_;

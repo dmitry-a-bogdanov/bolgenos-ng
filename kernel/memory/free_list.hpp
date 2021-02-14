@@ -4,6 +4,7 @@
 
 #include <bolgenos-ng/error.h>
 #include <bolgenos-ng/page.hpp>
+#include <loggable.hpp>
 
 #include "config.h"
 
@@ -27,7 +28,7 @@ lib::ostream& operator<<(lib::ostream& stream,
 ///
 /// The structure provides functionality of free list list allocator. Such
 /// allocator keeps one-directional list of blocks of page frames.
-class FreeList {
+class FreeList: protected Loggable("FreeList") {
 public:
 
 	/// Structure that holds statistics of the usage of the free list.

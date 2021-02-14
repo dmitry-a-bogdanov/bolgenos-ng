@@ -3,10 +3,9 @@
 #include <cstddef.hpp>
 #include <cstdint.hpp>
 #include <forward_list.hpp>
+#include <loggable.hpp>
 
 #include <bolgenos-ng/asm.hpp>
-
-#include <bolgenos-ng/log.hpp>
 
 namespace lib {
 	class ostream;
@@ -67,7 +66,7 @@ public:
 };
 
 
-class ExceptionHandler {
+class ExceptionHandler: protected Loggable("ExceptionHandler")  {
 public:
 	virtual ~ExceptionHandler() = default;
 

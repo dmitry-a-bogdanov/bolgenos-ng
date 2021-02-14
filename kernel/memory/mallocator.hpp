@@ -22,11 +22,14 @@ public:
 	void *allocate(size_t bytes);
 	void deallocate(void *memory);
 private:
+	void assert_initialized();
+
 	size_t chain_length_ = 0;
 	/// Chain of slab allocators.
 	SlabAllocator *chain_ = nullptr;
 	PageAllocator *fallback_ = nullptr;
 	SlabAllocator internal_allocator_ = {};
+	bool _initialized{false};
 };
 
 

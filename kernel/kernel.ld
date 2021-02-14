@@ -21,6 +21,13 @@ SECTIONS {
 		__ctors_end = .;
 	}
 
+    .ost_callers : {
+        *(.ost_test_caller_f)
+        ost_callers_begin_label = .;
+        *(.ost_callers)
+        ost_callers_end_label = .;
+    }
+
 	.rodata : {
 		*(.rodata)
 		*(.rodata.*)

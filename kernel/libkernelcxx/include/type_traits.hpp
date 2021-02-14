@@ -2,6 +2,8 @@
 
 #include <cstddef.hpp>
 
+#include "impl/type_traits/add_reference.hpp"
+#include "impl/type_traits/declval.hpp"
 #include "impl/type_traits/integral_constant.hpp"
 #include "impl/type_traits/is_signed.hpp"
 #include "impl/type_traits/is_unsigned.hpp"
@@ -9,6 +11,9 @@
 #include "impl/type_traits/make_signed.hpp"
 #include "impl/type_traits/make_unsigned.hpp"
 #include "impl/type_traits/remove_cv.hpp"
+#include "impl/type_traits/is_convertible.hpp"
+#include "impl/type_traits/void.hpp"
+#include "impl/type_traits/is_same.hpp"
 
 namespace lib {
 
@@ -20,107 +25,6 @@ namespace lib {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<class...>
 using void_t = void;
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// add_const
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T>
-struct add_const
-{
-	using type = const T;
-};
-
-
-template<class T>
-using add_const_t = typename add_const<T>::type;
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// add_lvalue_reference
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T>
-struct add_lvalue_reference
-{
-	using type = T&;
-};
-
-
-template<class T>
-struct add_lvalue_reference<T&&>
-{
-	using type = T&;
-};
-
-
-template<class T>
-using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// add_rvalue_reference
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T>
-struct add_rvalue_reference
-{
-	using type = T&&;
-};
-
-
-template<class T>
-using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// remove_reference
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T>
-struct remove_reference
-{
-	using type = T;
-};
-
-
-template<class T>
-struct remove_reference<T&>
-{
-	using type = T;
-};
-
-
-template<class T>
-struct remove_reference<T&&>
-{
-	using type = T;
-};
-
-
-template<class T>
-using remove_reference_t = typename remove_reference<T>::type;
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// declval
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T>
-typename lib::add_rvalue_reference<T>::type declval() noexcept;
 
 
 
@@ -173,24 +77,6 @@ struct is_pointer: _details::is_pointer_helper<remove_cv_t<T>> {};
 template<class T>
 inline constexpr bool is_pointer_v = is_pointer<T>::value;
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// is_same
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T1, class T2>
-struct is_same: public false_type {};
-
-
-template<class T>
-struct is_same<T, T>: public true_type {};
-
-
-template<class T1, class T2>
-constexpr bool is_same_v = is_same<T1, T2>::value;
-
-
 template<class T>
 struct is_pod: integral_constant<bool, __is_pod(T)> {};
 
@@ -229,6 +115,37 @@ struct remove_extent<T[N]> { typedef T type; };
 
 template<class T>
 using remove_extent_t = typename lib::remove_extent<T>::type;
+
+
+template<class T>
+struct is_enum: lib::integral_constant<bool, __is_enum(T)> {};
+
+template<class T>
+constexpr bool is_enum_v = lib::is_enum<T>::value;
+
+template<typename Base, typename Derived>
+struct is_base_of: lib::integral_constant<bool, __is_base_of(Base, Derived)> {};
+
+template< class Base, class Derived >
+inline constexpr bool is_base_of_v = is_base_of<Base, Derived>::value;
+
+
+template<lib::size_t Len, lib::size_t Align = alignof(int)>
+struct aligned_storage {
+	struct type {
+		alignas(Align) unsigned char data[Len];
+	};
+};
+
+template<lib::size_t Len, lib::size_t Align = alignof(int)>
+using aligned_storage_t = typename lib::aligned_storage<Len, Align>::type;
+
+
+template<class T>
+struct is_empty: lib::integral_constant<bool, __is_empty(T)> {};
+
+template<class T>
+constexpr inline bool is_empty_v = lib::is_empty<T>::value;
 
 } // namespace lib
 

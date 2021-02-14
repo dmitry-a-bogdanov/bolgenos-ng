@@ -35,7 +35,6 @@ lib::ostream& sched::operator<<(lib::ostream& out, const Task& task) {
 }
 
 Task::Task(Scheduler* creator, task_routine* routine, void* arg, const char* name_) :
-	Loggable{"Task"},
 	_routine{routine},
 	_arg{arg},
 	_id{allocate_task_id()},

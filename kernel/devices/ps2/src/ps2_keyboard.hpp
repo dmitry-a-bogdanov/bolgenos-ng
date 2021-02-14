@@ -1,5 +1,6 @@
 #pragma once
 
+#include <loggable.hpp>
 #include <ps2/device.hpp>
 #include <bolgenos-ng/keyboard.hpp>
 
@@ -15,7 +16,7 @@ enum class key_status_t {
 	released
 };
 
-class PS2DefaultKeyboard: public ps2::IPS2Device {
+class PS2DefaultKeyboard: public ps2::IPS2Device, private Loggable("ps2.kb.default") {
 public:
 	PS2DefaultKeyboard()
 			: _sm(this)

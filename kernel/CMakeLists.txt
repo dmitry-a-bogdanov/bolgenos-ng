@@ -4,6 +4,8 @@ project(bolgenos-ng
 	VERSION 0.0.4
 	LANGUAGES ASM-ATT C CXX)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 if (NOT ${CMAKE_CROSSCOMPILING})
 	message(FATAL_ERROR "cmake must be configured for cross-compiling")
 endif()
@@ -28,14 +30,14 @@ if (NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "${target_processor}")
 		"but ${CMAKE_SYSTEM_PROCESSOR} is supplied")
 endif ()
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 99)
 
-set(cstd_flags "-std=gnu99")
-set(cxxstd_flags "-std=gnu++20 -fno-exceptions -ftree-ter")
+set(cxxstd_flags "-fno-exceptions -ftree-ter")
 
 set(opt_flags "-O3")
 
-#set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
-set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing")
+set(warn_flags "-Wall -Wextra -Werror -Wstrict-aliasing -Winline")
 set(warn_flags_cxx "-Weffc++")
 
 
@@ -89,8 +91,6 @@ add_subdirectory(devices)
 add_subdirectory(kobj)
 add_subdirectory(ost)
 
-target_include_directories(${kernel_binary} PRIVATE x86/include)
-
 # custom target is always out-of-date
 add_custom_target(__relink_kernel
 	COMMAND touch ${kernel_start_file}
@@ -108,15 +108,23 @@ target_link_libraries(${kernel_binary}
 	libdevices
 	sched
 	log
-	ost
 	PUBLIC
 	kobj
+	-Wl,--whole-archive ost -Wl,--no-whole-archive
 	)
 
 set_target_properties(${kernel_binary} PROPERTIES
 	LINK_FLAGS " -T ${kernel_linker} -nostdlib")
 
+set(qemu_debug_options -d guest_errors,mmu,pcall,int,unimp)
+set(qemu_command qemu-system-i386 -kernel ${kernel_binary})
+
 add_custom_target(start_qemu
 	COMMENT "Starting kernel in Qemu..."
-	COMMAND qemu-system-i386 -d guest_errors,mmu,pcall,int,unimp -kernel ${kernel_binary})
-add_dependencies(start_qemu ${kernel_binary})
+	COMMAND ${qemu_command}
+	DEPENDS ${kernel_binary})
+
+add_custom_target(start_qemu_debug
+	COMMENT "Starting kernel in Qemu..."
+	COMMAND ${qemu_command} ${qemu_debug_options}
+	DEPENDS ${kernel_binary})

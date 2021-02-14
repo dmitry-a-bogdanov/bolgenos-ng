@@ -1,5 +1,7 @@
 #pragma once
 
+#include <loggable.hpp>
+
 #include "common.hpp"
 #include "controller.hpp"
 
@@ -19,7 +21,7 @@ struct PS2LineConfiguration
 };
 
 
-class IPS2Line
+class IPS2Line: Loggable("ps2.line")
 {
 public:
 	IPS2Line(PS2Controller *controller, const PS2LineConfiguration& line_conf)

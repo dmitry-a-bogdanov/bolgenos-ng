@@ -2,7 +2,6 @@
 
 #include <bolgenos-ng/keyboard.hpp>
 #include <bolgenos-ng/vga_console.hpp>
-#include <bolgenos-ng/log.hpp>
 
 #include "ps2_keyboard.hpp"
 
@@ -160,7 +159,7 @@ handle_status_t PrintState::handle_byte(uint8_t byte __attribute__((unused)))
 
 handle_status_t ErrorState::handle_byte(uint8_t byte)
 {
-	lib::cerr << "PS/2 keyboard: unexpected byte from controller " << int(byte) << lib::endl;
+	ERROR << "PS/2 keyboard: unexpected byte from controller " << int(byte) << lib::endl;
 	_machine->set_state(_machine->wait_state());
 	return handle_status_t::done;
 }

@@ -27,6 +27,7 @@ set(libkernelcxx_HEADERS
 	include/memory.hpp
 	include/new.hpp
 	include/ostream.hpp
+	include/static_string.hpp
 	include/streambuf.hpp
 	include/string.hpp
 	include/type_traits.hpp
@@ -47,7 +48,7 @@ set(libkernelcxx_SOURCES
 	src/streambuf.cpp
 	src/string.cpp
 	src/time.cpp
-)
+	include/impl/type_traits/is_convertible.hpp)
 
 add_library(libkernelcxx STATIC
 	${libkernelcxx_HEADERS}

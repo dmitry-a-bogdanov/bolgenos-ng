@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts.hpp>
 #include <cstdint.hpp>
 #include <type_traits.hpp>
 
@@ -26,6 +27,12 @@ enum class ProtectionRing {
 	user = 0x3
 };
 
+namespace x86 {
+
+template<class T>
+concept IOPort = lib::EnumFrom<T, uint16_t> || lib::is_convertible_v<T, uint16_t>;
+
+}
 
 /**
 * \brief Wrapper around outb assembler instruction.
@@ -35,10 +42,16 @@ enum class ProtectionRing {
 * \param port Port for writing to.
 * \param byte One-byte value to be written.
 */
-static inline void outb(uint16_t port, uint8_t byte) {
-	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(port));
+
+template<x86::IOPort PortType>
+static inline void outb(PortType port, uint8_t byte) {
+	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(static_cast<uint16_t>(port)));
 }
 
+template<x86::IOPort PortType>
+static inline void outb(PortType port, lib::byte byte) {
+	asm volatile ("outb %0, %1 \n":: "a"(byte), "Nd"(static_cast<uint16_t>(port)));
+}
 
 /**
 * \brief Wrapper aroung inb assembler instruction.
@@ -54,6 +67,10 @@ static inline uint8_t inb(uint16_t port) {
 	return byte;
 }
 
+template<lib::EnumFrom<uint16_t> PortType>
+static inline uint8_t inb(PortType port) {
+	return inb(static_cast<uint16_t>(port));
+}
 
 /**
 * \brief Wait for end of I/O operation.

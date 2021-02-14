@@ -12,7 +12,7 @@ constexpr int COMMAND_OFFSET = 0;
 constexpr int DATA_OFFSET = 1;
 
 
-enum port_type: uint16_t {
+enum class port_type: uint16_t {
 	master		= 0x20,
 	master_comm	= master + COMMAND_OFFSET,
 	master_data	= master + DATA_OFFSET,

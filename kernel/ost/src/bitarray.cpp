@@ -1,12 +1,12 @@
-#include "bitarray.hpp"
-
 #include <bolgenos-ng/error.h>
-
 #include <bitarray.hpp>
-#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
+#include <bolgenos-ng/ost.hpp>
 
-void ost::test_bitarray() {
+
+LOCAL_LOGGER("bitarray_test", lib::LogLevel::INFO);
+
+TEST(BitArray, test) {
 	void *mem = memory::alloc_pages(1);
 	util::inplace::BitArray ba;
 	const size_t array_size = 10;
@@ -18,14 +18,11 @@ void ost::test_bitarray() {
 
 	for (size_t idx = 0; idx != array_size; ++idx) {
 		if (ba.get(idx) != idx % 2) {
-			lib::cerr << __func__ << ": bug on idx=" << idx
+			LOG_ERROR << __func__ << ": bug on idx=" << idx
 				<< " " << ba.get(idx) << " vs. "
 				<< idx % 2 << lib::endl;
 			panic("Failed Test!");
 		}
 	}
-
-	lib::cinfo << __func__ << ": ok" << lib::endl;
-
 	memory::free_pages(mem);
 }

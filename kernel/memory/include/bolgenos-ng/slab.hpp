@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef.hpp>
+#include <loggable.hpp>
 
 #include "bitarray.hpp"
 
@@ -14,7 +15,7 @@ namespace allocators {
 /// \brief Slab allocation area descriptor.
 ///
 /// The structure holds info for slab allocator.
-class SlabAllocator {
+class SlabAllocator: Loggable("Slab") {
 public:
 
 	/// \brief Initialize slab.

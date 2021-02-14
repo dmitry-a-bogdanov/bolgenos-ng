@@ -35,8 +35,7 @@ public:
 	};
 
 
-	/// \brief Default constructing is denied.
-	ostream() = delete;
+	ostream() = default;
 
 
 	/// \brief Constructor.
@@ -192,9 +191,12 @@ public:
 	ostream& copyfmt(ostream& other);
 
 
+	lib::streambuf* rdbuf() const;
+	lib::streambuf* rdbuf(lib::streambuf* sb);
+
 private:
 	/// Pointer to underlying streambuf.
-	streambuf *streambuf_;
+	streambuf *streambuf_{nullptr};
 
 
 	/// Format flags of the stream.
@@ -279,12 +281,5 @@ _impl::_setw_type setw(size_t n);
 /// \param fillch The new fill character for the stream.
 /// \return object of \ref _impl::_setfill_type.
 _impl::_setfill_type setfill(char fillch);
-
-
-/// \brief Console output object.
-///
-/// Object of \ref ostream is to be used for printing to VGA console.
-extern ostream cout;
-
 
 } // namespace lib

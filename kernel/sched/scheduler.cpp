@@ -14,8 +14,7 @@ void scheduling_task_routine(void *arg) {
 	static_cast<sched::Scheduler *>(arg)->schedule_forever();
 }
 
-sched::Scheduler::Scheduler(task_routine* main_continuation):
-	lib::Loggable{"scheduler"}
+sched::Scheduler::Scheduler(task_routine* main_continuation)
 {
 	thr::with_irq_lock([&]{
 		if (main_continuation == nullptr) {
@@ -33,7 +32,7 @@ sched::Scheduler::Scheduler(task_routine* main_continuation):
 	if (!irq::is_enabled()) {
 		panic("started scheduling with blocked interrupts");
 	}
-	cwarn << "===== STARTED SCHEDULING =====" << endl;
+	WARN << "===== STARTED SCHEDULING =====" << endl;
 	constexpr bool debug_irq = false;
 	while (true) {
 		irq::disable(debug_irq);
@@ -79,7 +78,7 @@ Task* sched::Scheduler::create_task(task_routine* routine, void* arg, const char
 
 	auto* new_task_stack = reinterpret_cast<NewTaskStack*>(task->_esp) - 1;
 	new_task_stack->eip = Task::start_on_new_frame;
-	cinfo << "eip: " << hex << reinterpret_cast<void*>(new_task_stack->eip) << dec << endl;
+	INFO << "eip: " << hex << reinterpret_cast<void*>(new_task_stack->eip) << dec << endl;
 	new_task_stack->task = task;
 	new_task_stack->ebp1 = reinterpret_cast<lib::byte *>(task->_stack) - 8;
 	new_task_stack->ebp2 = new_task_stack->ebp1;

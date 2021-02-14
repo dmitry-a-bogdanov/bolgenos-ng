@@ -68,3 +68,17 @@ constexpr inline bool is_aligned_at_least(ValueType value) {
 }
 
 
+namespace lib {
+
+template<class T, class U>
+void copy_byte(const T* from, U* to) {
+	*reinterpret_cast<lib::byte *>(to) = *reinterpret_cast<const lib::byte *>(from);
+}
+
+template<class T>
+lib::byte read_byte(const T* from) {
+	return *reinterpret_cast<const lib::byte *>(from);
+}
+
+} // namespace lib
+

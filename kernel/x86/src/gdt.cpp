@@ -1,7 +1,6 @@
 #include <x86/gdt.hpp>
 
 #include <bolgenos-ng/asm.hpp>
-#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <x86/segment_flags.hpp>
 
@@ -21,11 +20,11 @@ x86::GDT::GDT()
 
 void x86::GDT::reload_table()
 {
-	cinfo << "reloading gdt" << endl;
+	INFO << "reloading" << endl;
 	_gdt_pointer.limit = _gdt.size() * sizeof(Entry) - 1;
 	_gdt_pointer.base = _gdt.data();
 	asm volatile("lgdt %0"::"m" (_gdt_pointer));
-	cinfo << "gdt was reloaded" << endl;
+	INFO << "reloaded" << endl;
 }
 
 uint16_t x86::GDT::push_back(const MemorySegmentDescriptor& msd)

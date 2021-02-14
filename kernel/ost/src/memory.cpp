@@ -2,7 +2,6 @@
 
 #include <bolgenos-ng/error.h>
 
-#include <bolgenos-ng/log.hpp>
 #include <bolgenos-ng/memory.hpp>
 #include <bolgenos-ng/ost.hpp>
 #include <bolgenos-ng/slab.hpp>
@@ -16,10 +15,7 @@
 
 using namespace lib;
 
-#ifdef OST_MEMORY
-void ost::page_alloc_test() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(PageAlloc, test) {
 	void *p[5];
 	p[0] = memory::alloc_pages(1);
 	p[1] = memory::alloc_pages(2);
@@ -42,13 +38,9 @@ void ost::page_alloc_test() {
 
 	for (size_t i = 0; i != 5; ++i)
 		OST_ASSERT(p[i] == q[i], i, ": ", p[i], " vs ", q[i]);
-
-	cinfo << __func__ << ": OK" << endl;
 }
 
-void ost::slab_test() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(Slab, test) {
 	memory::allocators::SlabAllocator test_slab(sizeof(long), 10);
 	OST_ASSERT(test_slab.is_initialized(), "slab initialization failure");
 
@@ -67,11 +59,7 @@ void ost::slab_test() {
 }
 
 
-namespace {
-
-void free_list_test__small_order__even() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(FreeList, small_order__even) {
 	auto *pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
@@ -90,15 +78,11 @@ void free_list_test__small_order__even() {
 	OST_ASSERT(fl.get() == third_address);
 	OST_ASSERT(fl.get() == nullptr);
 
-	cinfo << __func__ << ": OK" << endl;
-
 	memory::free_pages(pages);
-} // free_list_test__small_order__even
+}
 
 
-void free_list_test__small_order__odd() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(FreeList, small_order__odd) {
 	auto *pages = static_cast<memory::page_frame_t *>(
 		memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
@@ -115,15 +99,11 @@ void free_list_test__small_order__odd() {
 	OST_ASSERT(fl.put(third_address) == second_address);
 	OST_ASSERT(fl.get() == first_address);
 
-	cinfo << __func__ << ": OK" << endl;
-
 	memory::free_pages(pages);
-} // free_list_test__small_order__odd
+}
 
 
-void free_list_test__high_order__even() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(FreeList, high_order__even) {
 	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 	OST_ASSERT(pages, "allocation failed");
@@ -143,15 +123,11 @@ void free_list_test__high_order__even() {
 	OST_ASSERT(got_addr
 		== reinterpret_cast<size_t>(first_address) / PAGE_SIZE);
 
-	cinfo << __func__ << ": ok" << endl;
-
 	memory::free_pages(pages);
-} // free_list_test__high_order__even
+}
 
 
-void free_list_test__high_order__odd() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(FreeList, high_order__odd) {
 	auto pages = static_cast<memory::page_frame_t *>(
 			memory::alloc_pages(128));
 
@@ -172,18 +148,11 @@ void free_list_test__high_order__odd() {
 	OST_ASSERT(fl.get() == third_address);
 	OST_ASSERT(fl.get() == nullptr);
 
-	cinfo << __func__ << ": ok" << endl;
-
 	memory::free_pages(pages);
-} // free_list_test__high_order__odd
+}
 
 
-} // namespace
-
-
-void ost::buddy_allocator_test() {
-	cinfo << __func__ << ": starting" << endl;
-
+TEST(BuddyAllocator, test) {
 	constexpr size_t PAGES = 800;
 	memory::allocators::pblk_t blk;
 
@@ -215,21 +184,11 @@ void ost::buddy_allocator_test() {
 		OST_ASSERT(pages[page_idx] == buddy_system.get(1));
 	}
 
-	cinfo << __func__ << ": ok" << endl;
-
 	memory::free_pages(blk.ptr);
-} // buddy_allocator_test
-
-
-void ost::free_list_test() {
-	free_list_test__small_order__even();
-	free_list_test__small_order__odd();
-	free_list_test__high_order__even();
-	free_list_test__high_order__odd();
 }
 
 
-void ost::mallocator_test() {
+TEST(Mallocator, test) {
 	for (size_t chunk_size = 7; chunk_size < PAGE_SIZE*3;
 			chunk_size += 8) {
 		auto mem = memory::kmalloc(chunk_size);
@@ -237,17 +196,3 @@ void ost::mallocator_test() {
 		memory::kfree(mem);
 	}
 }
-
-
-#else
-void ost::page_alloc_test() {
-}
-void ost::slab_test() {
-}
-void ost::free_list_test() {
-}
-void ost::buddy_allocator_test() {
-}
-void ost::mallocator_test() {
-}
-#endif
